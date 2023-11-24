@@ -81,6 +81,15 @@ Usage
     # Generate random URL
     FAKER.url()
 
+    # Generate random first name
+    FAKER.first_name()
+
+    # Generate random last name
+    FAKER.last_name()
+
+    # Generate random name
+    FAKER.name()
+
     # Generate random integer
     FAKER.pyint()
 
@@ -110,71 +119,109 @@ Usage
 
 Methods
 -------
-- ``first_name() -> str``
-    Returns a random first name.
+.. class:: Faker
 
-- ``last_name() -> str``
-    Returns a random last name.
+    faker.py - simplified, standalone alternative with no dependencies.
 
-- ``name() -> str``
-    Returns a random full name.
+    .. method:: first_name()
 
-- ``word() -> str``
-    Returns a random word from the Zen of Python.
+        Returns a random first name.
 
-- ``words(nb: int = 5) -> list[str]``
-    Returns a list of 'nb' random words from the Zen of Python.
+    .. method:: last_name()
 
-- ``sentence(nb_words: int = 5) -> str``
-    Returns a random sentence with 'nb_words' number of words.
+        Returns a random last name.
 
-- ``sentences(nb: int = 3) -> list[str]``
-    Returns 'nb' number of random sentences.
+    .. method:: name()
 
-- ``paragraph(nb_sentences: int = 5) -> str``
-    Returns a random paragraph with 'nb_sentences' number of sentences.
+        Returns a random full name.
 
-- ``paragraphs(nb: int = 3) -> list[str]``
-    Returns 'nb' number of random paragraphs.
+    .. method:: word()
 
-- ``text(nb_chars: int = 200) -> str``
-    Returns random text with up to 'nb_chars' characters.
+        Returns a random word from the Zen of Python.
 
-- ``file_name(extension: str = "txt") -> str``
-    Returns a random file name with the given extension.
+    .. method:: words(nb: int = 5)
 
-- ``email(domain: str = "example.com") -> str``
-    Returns a random email with the specified domain.
+        Returns a list of 'nb' random words from the Zen of Python.
 
-- ``url(protocols: Optional[tuple[str]] = None, tlds: Optional[tuple[str]] = None, suffixes: Optional[tuple[str]] = None) -> str``
-    Returns a random URL.
+    .. method:: sentence(nb_words: int = 5)
 
-- ``pyint(min_value: int = 0, max_value: int = 9999) -> int``
-    Returns a random integer between 'min_value' and 'max_value'.
+        Returns a random sentence with 'nb_words' number of words.
 
-- ``pybool() -> bool``
-    Returns a random boolean value.
+    .. method:: sentences(nb: int = 3)
 
-- ``pystr(nb_chars=20) -> str``
-    Returns a random string of 'nb_chars' length.
+        Returns 'nb' number of random sentences.
 
-- ``pyfloat(min_value: float = 0.0, max_value: float = 10.0) -> float``
-    Returns a random float between 'min_value' and 'max_value'.
+    .. method:: paragraph(nb_sentences: int = 5)
 
-- ``ipv4() -> str``
-    Returns a random IPv4 address.
+        Returns a random paragraph with 'nb_sentences' number of sentences.
 
-- ``date_between(start_date: str, end_date: str = "+0d") -> date``
-    Generates a random date between `start_date` and `end_date`.
+    .. method:: paragraphs(nb: int = 3)
 
-- ``date_time_between(start_date: str, end_date: str = "+0d") -> datetime``
-    Generates a random datetime between `start_date` and `end_date`.
+        Returns 'nb' number of random paragraphs.
 
-- ``pdf(nb_pages: int = 1, generator: Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]] = GraphicPdfGenerator, **kwargs) -> bytes``
-    Creates a PDF document.
+    .. method:: text(nb_chars: int = 200)
 
-- ``image(image_format: Literal["png", "svg", "bmp", "gif"] = "png", width: int = 100, height: int = 100, color: Tuple[int, int, int] = (0, 0, 255)) -> bytes``
-    Creates an image in the specified format and color.
+        Returns random text with up to 'nb_chars' characters.
+
+    .. method:: file_name(extension: str = "txt")
+
+        Returns a random file name with the given extension.
+
+    .. method:: email(domain: str = "example.com")
+
+        Returns a random email with the specified domain.
+
+    .. method:: url(
+            protocols: Optional[tuple[str]] = None,
+            tlds: Optional[tuple[str]] = None,
+            suffixes: Optional[tuple[str]] = None
+        )
+
+        Returns a random URL.
+
+    .. method:: pyint(min_value: int = 0, max_value: int = 9999)
+
+        Returns a random integer between 'min_value' and 'max_value'.
+
+    .. method:: pybool()
+
+        Returns a random boolean value.
+
+    .. method:: pystr(nb_chars=20)
+
+        Returns a random string of 'nb_chars' length.
+
+    .. method:: pyfloat(min_value: float = 0.0, max_value: float = 10.0)
+
+        Returns a random float between 'min_value' and 'max_value'.
+
+    .. method:: ipv4()
+
+        Returns a random IPv4 address.
+
+    .. method:: date_between(start_date: str, end_date: str = "+0d")
+
+        Generates a random date between `start_date` and `end_date`.
+
+    .. method:: date_time_between(start_date: str, end_date: str = "+0d")
+
+        Generates a random datetime between `start_date` and `end_date`.
+
+    .. method:: pdf(
+            nb_pages: int = 1,
+            generator: Union[Type[TextPdfGenerator],
+            Type[GraphicPdfGenerator]] = GraphicPdfGenerator, **kwargs
+        )
+
+        Creates a PDF document.
+
+    .. method:: image(
+            image_format: Literal["png", "svg", "bmp", "gif"] = "png",
+            width: int = 100, height: int = 100,
+            color: Tuple[int, int, int] = (0, 0, 255)
+        )
+
+        Creates an image in the specified format and color.
 
 Tests
 =====
@@ -193,10 +240,10 @@ Or pytest:
 
 Differences with `Faker`_
 =========================
-``faker.py`` is modeled after the famous `Faker`_ package. Its' API is highly 
-compatible, although drastically reduced. It's not multilingual and does not 
-support postal codes or that many RAW file formats. However, you could easily 
-include it in your production setup without worrying about yet another 
+``faker.py`` is modeled after the famous `Faker`_ package. Its' API is highly
+compatible, although drastically reduced. It's not multilingual and does not
+support postal codes or that many RAW file formats. However, you could easily
+include it in your production setup without worrying about yet another
 dependency.
 
 License
