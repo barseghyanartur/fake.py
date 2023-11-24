@@ -560,9 +560,9 @@ class Faker:
 
     def url(
         self,
-        protocols: Optional[tuple[str]] = None,
-        tlds: Optional[tuple[str]] = None,
-        suffixes: Optional[tuple[str]] = None,
+        protocols: Optional[Tuple[str]] = None,
+        tlds: Optional[Tuple[str]] = None,
+        suffixes: Optional[Tuple[str]] = None,
     ) -> str:
         protocol = random.choice(protocols or ("http", "https"))
         domain = self.word().lower()
