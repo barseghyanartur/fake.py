@@ -54,8 +54,6 @@ exceptiongroup==1.2.0
     #   pytest
 executing==2.0.1
     # via stack-data
-fake-py[dev,docs,test] @ file:///home/delusionalinsanity/repos/faker.py
-    # via fake.py (pyproject.toml)
 idna==3.5
     # via requests
 imagesize==1.4.1
