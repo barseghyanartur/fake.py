@@ -52,27 +52,72 @@ Usage
     FAKER = Faker()
 
     # Generate a random word
-    print(faker.word())
+    FAKER.word()
+
+    # Generate random words
+    FAKER.words()
 
     # Generate a random sentence
-    print(faker.sentence())
+    FAKER.sentence()
+
+    # Generate random sentences
+    FAKER.sentences()
 
     # Generate a random paragraph
-    print(faker.paragraph())
+    FAKER.paragraph()
 
-    # ... and many more
+    # Generate random paragraphs
+    FAKER.paragraphs()
 
-API
-===
+    # Generate random text
+    FAKER.text()
 
-Faker class
------------
+    # Generate random file name
+    FAKER.file_name()
 
-.. autoclass:: faker.Faker
-    :members:
+    # Generate random email
+    FAKER.email()
 
-Functions
----------
+    # Generate random URL
+    FAKER.url()
+
+    # Generate random integer
+    FAKER.pyint()
+
+    # Generate random boolean
+    FAKER.pybool()
+
+    # Generate random string
+    FAKER.pystr()
+
+    # Generate random float
+    FAKER.pyfloat()
+
+    # Generate random IPV4
+    FAKER.ipv4()
+
+    # Generate random date between given dates
+    FAKER.date_between(start_date="-1d", end_date="+1d")
+
+    # Generate random datetime between given datetimes
+    FAKER.date_time_between(start_date="-1d", end_date="+1d")
+
+    # Generate random PDF (bytes)
+    FAKER.pdf()
+
+    # Generate random image (bytes)
+    FAKER.image()  # Supported formats are `png`, `svg`, `bmp` and `gif`
+
+Methods
+-------
+- ``first_name() -> str``
+    Returns a random first name.
+
+- ``last_name() -> str``
+    Returns a random last name.
+
+- ``name() -> str``
+    Returns a random full name.
 
 - ``word() -> str``
     Returns a random word from the Zen of Python.
@@ -83,10 +128,13 @@ Functions
 - ``sentence(nb_words: int = 5) -> str``
     Returns a random sentence with 'nb_words' number of words.
 
+- ``sentences(nb: int = 3) -> list[str]``
+    Returns 'nb' number of random sentences.
+
 - ``paragraph(nb_sentences: int = 5) -> str``
     Returns a random paragraph with 'nb_sentences' number of sentences.
 
-- ``paragraphs(nb: int = 3) -> str``
+- ``paragraphs(nb: int = 3) -> list[str]``
     Returns 'nb' number of random paragraphs.
 
 - ``text(nb_chars: int = 200) -> str``
@@ -112,6 +160,21 @@ Functions
 
 - ``pyfloat(min_value: float = 0.0, max_value: float = 10.0) -> float``
     Returns a random float between 'min_value' and 'max_value'.
+
+- ``ipv4() -> str``
+    Returns a random IPv4 address.
+
+- ``date_between(start_date: str, end_date: str = "+0d") -> date``
+    Generates a random date between `start_date` and `end_date`.
+
+- ``date_time_between(start_date: str, end_date: str = "+0d") -> datetime``
+    Generates a random datetime between `start_date` and `end_date`.
+
+- ``pdf(nb_pages: int = 1, generator: Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]] = GraphicPdfGenerator, **kwargs) -> bytes``
+    Creates a PDF document.
+
+- ``image(image_format: Literal["png", "svg", "bmp", "gif"] = "png", width: int = 100, height: int = 100, color: Tuple[int, int, int] = (0, 0, 255)) -> bytes``
+    Creates an image in the specified format and color.
 
 Tests
 =====

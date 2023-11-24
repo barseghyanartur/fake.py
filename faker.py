@@ -112,11 +112,11 @@ class TextPdfGenerator:
 
         text_pdf_file = Path("media") / "text_pdf.pdf"
         text_pdf_file.write_bytes(
-            FAKER.pdf(num_pages=100, generator=TextPdfGenerator)
+            FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
         )
     """
 
-    num_pages: int
+    nb_pages: int
     texts: List[str]
 
     def __init__(self, faker: "Faker"):
@@ -139,20 +139,20 @@ class TextPdfGenerator:
 
     def create(
         self,
-        num_pages: Optional[int] = None,
+        nb_pages: Optional[int] = None,
         texts: Optional[List[str]] = None,
     ) -> bytes:
         # Initialization
-        if not num_pages and not texts:
+        if not nb_pages and not texts:
             raise ValueError(
                 "Either `num_pages` or `texts` arguments shall be given."
             )
         if texts:
-            self.num_pages: int = len(texts)
+            self.nb_pages: int = len(texts)
             self.texts = texts
         else:
-            self.num_pages: int = num_pages or 1
-            self.texts = self.faker.sentences(nb=self.num_pages)
+            self.nb_pages: int = nb_pages or 1
+            self.texts = self.faker.sentences(nb=self.nb_pages)
 
         # Construction
         pdf_bytes = io.BytesIO()
@@ -179,27 +179,27 @@ class TextPdfGenerator:
             )
             pdf_bytes.write(f"{page_obj_num} 0 R ".encode())
 
-        pdf_bytes.write(f"] /Count {str(self.num_pages)}>>\nendobj\n".encode())
+        pdf_bytes.write(f"] /Count {str(self.nb_pages)}>>\nendobj\n".encode())
 
         for page_obj in page_objs:
             pdf_bytes.write(page_obj.encode())
         for content_obj in content_objs:
             pdf_bytes.write(content_obj.encode())
 
-        pdf_bytes.write(f"xref\n0 {str(4 + 2 * self.num_pages)}\n".encode())
+        pdf_bytes.write(f"xref\n0 {str(4 + 2 * self.nb_pages)}\n".encode())
         pdf_bytes.write(b"0000000000 65535 f \n")
         pdf_bytes.write(
             b"0000000010 00000 n \n0000000057 00000 n \n0000000103 00000 n \n"
         )
         offset = 149
-        for i in range(self.num_pages):
+        for i in range(self.nb_pages):
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
             offset += 78
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
             offset += 73
 
         pdf_bytes.write(
-            f"trailer\n<</Size {str(4 + 2 * self.num_pages)}/Root 1 0 R>>\n"
+            f"trailer\n<</Size {str(4 + 2 * self.nb_pages)}/Root 1 0 R>>\n"
             f"".encode()
         )
         pdf_bytes.write(b"startxref\n564\n%%EOF")
@@ -221,11 +221,11 @@ class GraphicPdfGenerator:
 
         graphic_pdf_file = Path("media") / "graphic_pdf.pdf"
         graphic_pdf_file.write_bytes(
-            FAKER.pdf(num_pages=100, generator=GraphicPdfGenerator)
+            FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
         )
     """
 
-    num_pages: int
+    nb_pages: int
     image_size: Tuple[int, int]
     image_color: Tuple[int, int, int]
 
@@ -255,12 +255,12 @@ class GraphicPdfGenerator:
 
     def create(
         self,
-        num_pages: int = 1,
+        nb_pages: int = 1,
         image_size: Tuple[int, int] = (100, 100),
         image_color: Tuple[int, int, int] = (255, 0, 0),
     ) -> bytes:
         # Initialization
-        self.num_pages = num_pages
+        self.nb_pages = nb_pages
         self.image_size = image_size
         self.image_color = image_color
 
@@ -279,9 +279,9 @@ class GraphicPdfGenerator:
         positions.append(pdf_bytes.tell())
 
         # Add pages
-        for i in range(self.num_pages):
+        for i in range(self.nb_pages):
             page_obj_num = 5 + i
-            content_obj_num = page_obj_num + self.num_pages
+            content_obj_num = page_obj_num + self.nb_pages
             pdf_bytes.write(
                 PDF_GRAPHIC_TPL_PAGE_OBJECT.format(
                     page_obj_num=page_obj_num,
@@ -301,11 +301,11 @@ class GraphicPdfGenerator:
             positions.append(pdf_bytes.tell())
 
         # Pages object
-        pages_kids = " ".join([f"{5 + i} 0 R" for i in range(self.num_pages)])
+        pages_kids = " ".join([f"{5 + i} 0 R" for i in range(self.nb_pages)])
         pdf_bytes.write(
             PDF_GRAPHIC_TPL_PAGES_OBJECT.format(
                 pages_kids=pages_kids,
-                num_pages=self.num_pages,
+                num_pages=self.nb_pages,
             ).encode()
         )
         positions.append(pdf_bytes.tell())
@@ -678,7 +678,7 @@ class Faker:
 
     def pdf(
         self,
-        num_pages: int = 1,
+        nb_pages: int = 1,
         generator: Union[
             Type[TextPdfGenerator], Type[GraphicPdfGenerator]
         ] = GraphicPdfGenerator,
@@ -686,7 +686,7 @@ class Faker:
     ) -> bytes:
         """Create a PDF document of a given size."""
         _pdf = generator(faker=self)
-        return _pdf.create(num_pages=num_pages, **kwargs)
+        return _pdf.create(nb_pages=nb_pages, **kwargs)
 
     def png(
         self,
