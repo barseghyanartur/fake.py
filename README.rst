@@ -7,6 +7,30 @@ fake.py
 
 Minimalistic, standalone alternative fake data generator with no dependencies.
 
+.. image:: https://img.shields.io/pypi/v/fake.py.svg
+   :target: https://pypi.python.org/pypi/fake.py
+   :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/pyversions/fake.py.svg
+    :target: https://pypi.python.org/pypi/fake.py/
+    :alt: Supported Python versions
+
+.. image:: https://github.com/barseghyanartur/fake.py/workflows/test/badge.svg?branch=main
+   :target: https://github.com/barseghyanartur/fake.py/actions
+   :alt: Build Status
+
+.. image:: https://readthedocs.org/projects/fake.py/badge/?version=latest
+    :target: http://fake.py.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/license-MIT-blue.svg
+   :target: https://github.com/barseghyanartur/fake.py/#License
+   :alt: MIT
+
+.. image:: https://coveralls.io/repos/github/barseghyanartur/fake.py/badge.svg?branch=main&service=github
+    :target: https://coveralls.io/github/barseghyanartur/fake.py?branch=main
+    :alt: Coverage
+
 .. contents:: Table of Contents
    :depth: 2
 
