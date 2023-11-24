@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-all = ["fake.py[dev,test]"]
+all = ["fake.py[dev,test,docs]"]
 dev = [
     "black",
     "detect-secrets",
@@ -43,6 +43,10 @@ dev = [
 test = [
     "pytest",
     "pytest-cov",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
 ]
 
 [tool.black]
