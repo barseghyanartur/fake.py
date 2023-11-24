@@ -1,5 +1,5 @@
 [project]
-name = "faker.py"
+name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
 version = "0.1"
@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-all = ["faker.py[dev,test]"]
+all = ["fake.py[dev,test]"]
 dev = [
     "black",
     "detect-secrets",
@@ -119,7 +119,7 @@ target-version = "py38"
 [tool.doc8]
 ignore-path = [
     "docs/requirements.txt",
-    "faker.py.egg-info/SOURCES.txt",
+    "fake.py.egg-info/SOURCES.txt",
 ]
 
 [tool.pytest.ini_options]
@@ -128,7 +128,7 @@ addopts = [
     "-ra",
     "-vvv",
     "-q",
-   "--cov=faker",
+   "--cov=fake",
    "--ignore=.tox",
    "--ignore=requirements",
    "--ignore=release",
@@ -140,7 +140,7 @@ addopts = [
    "--capture=no",
 ]
 testpaths = [
-    "faker.py",
+    "fake.py",
 ]
 
 [tool.coverage.run]

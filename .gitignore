@@ -29,7 +29,7 @@ codebin/
 /builddocs.zip
 /build/
 /dist/
-faker.py.egg-info
+fake.py.egg-info
 matyan.log*
 db.sqlite3
 sample_db.sqlite

@@ -2,7 +2,7 @@
 VERSION := 0.1
 SHELL := /bin/bash
 # Makefile for project
-VENV := ~/.virtualenvs/faker.py/bin/activate
+VENV := ~/.virtualenvs/fake.py/bin/activate
 
 # Build documentation using Sphinx and zip it
 build_docs:
@@ -70,16 +70,16 @@ update-version:
 #	find src/ -type f -name '*.css' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
 #	find src/ -type f -name '*.js' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
 
-build-python:
+build:
 	source $(VENV) && python -m build .
 
-check-python-build:
+check-build:
 	source $(VENV) && twine check dist/*
 
-release-python:
+release:
 	source $(VENV) && twine upload dist/* --verbose
 
-test-release-python:
+test-release:
 	source $(VENV) && twine upload --repository testpypi dist/*
 
 mypy:

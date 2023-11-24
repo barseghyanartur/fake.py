@@ -1,5 +1,5 @@
 """
-https://github.com/barseghyanartur/faker.py/
+https://github.com/barseghyanartur/fake.py/
 """
 
 import contextlib
@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Literal, Optional, Set, Tuple, Type, Union
 
-__title__ = "faker.py"
+__title__ = "fake.py"
 __version__ = "0.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"

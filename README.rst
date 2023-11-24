@@ -1,6 +1,6 @@
-========
-faker.py
-========
+=======
+fake.py
+=======
 .. External references
 
 .. _Faker: https://faker.readthedocs.io/
@@ -13,7 +13,7 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
 Overview
 ========
 
-``faker.py`` is a standalone and portable library that allows you to generate
+``fake.py`` is a standalone and portable library that allows you to generate
 various types of random data for testing and other purposes. The package
 provides a simplified, dependency-free alternative for generating random
 words, sentences, paragraphs, file names, URLs, PDFs, images, person names
@@ -31,13 +31,13 @@ pip
 
 .. code-block:: bash
 
-    pip install faker.py
+    pip install fake.py
 
 Download and copy
 -----------------
-``faker.py`` is the sole, self-contained module of the package. It includes
+``fake.py`` is the sole, self-contained module of the package. It includes
 tests too. If it's more convenient to you, you could simply download the
-``faker.py`` module and include it in your repository.
+``fake.py`` module and include it in your repository.
 
 Since tests are included, it won't have a negative impact on your test
 coverage (you might need to apply tweaks to your coverage configuration).
@@ -48,7 +48,7 @@ Usage
 
 .. code-block:: python
 
-    from faker import Faker
+    from fake import Faker
 
     FAKER = Faker()
 
@@ -334,7 +334,7 @@ Or pytest:
 
 Differences with `Faker`_
 =========================
-``faker.py`` is modeled after the famous `Faker`_ package. Its' API is highly
+``fake.py`` is modeled after the famous `Faker`_ package. Its' API is highly
 compatible, although drastically reduced. It's not multilingual and does not
 support postal codes or that many RAW file formats. However, you could easily
 include it in your production setup without worrying about yet another
