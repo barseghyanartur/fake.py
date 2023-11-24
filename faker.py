@@ -334,10 +334,16 @@ class AuthorshipData:
 
     def _find_authorship_info(self, file_path: str) -> List[str]:
         authorship_info = []
-        with open(file_path, "r", encoding="utf-8") as file:
-            for line in file:
-                if "__author__" in line or "Author:" in line:
-                    authorship_info.append(line.strip())
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                for line in file:
+                    if "__author__" in line or "Author:" in line:
+                        authorship_info.append(line.strip())
+        except UnicodeDecodeError:
+            with open(file_path, "r", encoding="latin-1") as file:
+                for line in file:
+                    if "__author__" in line or "Author:" in line:
+                        authorship_info.append(line.strip())
         return authorship_info
 
     def _extract_authorship_info_from_stdlib(self) -> None:
