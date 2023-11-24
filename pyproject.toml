@@ -146,7 +146,6 @@ testpaths = [
 [tool.coverage.run]
 relative_files = true
 omit = [
-    "src/faker_file/tests/*",
     ".tox/*",
 ]
 
