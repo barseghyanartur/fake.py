@@ -15,12 +15,12 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
     :target: https://pypi.python.org/pypi/fake.py/
     :alt: Supported Python versions
 
-.. image:: https://github.com/barseghyanartur/fake.py/workflows/test/badge.svg?branch=main
+.. image:: https://github.com/barseghyanartur/fake.py/actions/workflows/test.yml/badge.svg?branch=main
    :target: https://github.com/barseghyanartur/fake.py/actions
    :alt: Build Status
 
-.. image:: https://readthedocs.org/projects/fake.py/badge/?version=latest
-    :target: http://fake.py.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/fakepy/badge/?version=latest
+    :target: http://fakepy.readthedocs.io
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
