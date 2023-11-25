@@ -9,6 +9,11 @@ build_docs:
 	source $(VENV) && sphinx-build -n -a -b html docs builddocs
 	cd builddocs && zip -r ../builddocs.zip . -x ".*" && cd ..
 
+rebuild_docs:
+	source $(VENV) && sphinx-apidoc fake.py --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
+	cp docs/conf.py.distrib docs/conf.py
+	cp docs/index.rst.distrib docs/index.rst
+
 # Format code using Black
 black:
 	source $(VENV) && black .
