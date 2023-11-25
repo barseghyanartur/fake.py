@@ -10,7 +10,7 @@ build_docs:
 	cd builddocs && zip -r ../builddocs.zip . -x ".*" && cd ..
 
 rebuild_docs:
-	source $(VENV) && sphinx-apidoc fake.py --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
+	source $(VENV) && sphinx-apidoc . --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
 	cp docs/conf.py.distrib docs/conf.py
 	cp docs/index.rst.distrib docs/index.rst
 
