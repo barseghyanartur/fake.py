@@ -5,7 +5,7 @@ Package
 .. toctree::
    :maxdepth: 20
 
-   fake.py
+   fake
 
 Indices and tables
 ==================
