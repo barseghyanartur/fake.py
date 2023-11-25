@@ -76,6 +76,8 @@ Usage
 
     FAKER = Faker()
 
+----
+
 **first_name**
 
 Returns a random first name.
@@ -83,6 +85,8 @@ Returns a random first name.
 .. code-block:: python
 
     FAKER.first_name()
+
+----
 
 **last_name**
 
@@ -92,6 +96,8 @@ Returns a random last name.
 
     FAKER.last_name()
 
+----
+
 **name**
 
 Returns a random full name.
@@ -100,6 +106,8 @@ Returns a random full name.
 
     FAKER.name()
 
+----
+
 **word**
 
 Returns a random word from the Zen of Python.
@@ -107,6 +115,8 @@ Returns a random word from the Zen of Python.
 .. code-block:: python
 
     FAKER.word()
+
+----
 
 **words**
 
@@ -120,6 +130,8 @@ Arguments:
 
 - ``nb`` (type: ``int``, default value: ``5``) is an optional argument.
 
+----
+
 **sentence**
 
 Returns a random sentence with ``nb_words`` number of words.
@@ -132,6 +144,8 @@ Arguments:
 
 - ``nb_words`` (type: ``int``, default value: ``5``) is an optional argument.
 
+----
+
 **sentences**
 
 Returns ``nb`` number of random sentences.
@@ -143,6 +157,8 @@ Returns ``nb`` number of random sentences.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+----
 
 **paragraph**
 
@@ -157,6 +173,8 @@ Arguments:
 - ``nb_sentences`` (type: ``int``, default value: ``5``) is an optional
   argument.
 
+----
+
 **paragraphs**
 
 Returns ``nb`` number of random paragraphs.
@@ -169,6 +187,8 @@ Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
 
+----
+
 **text**
 
 Returns random text with up to ``nb_chars`` characters.
@@ -180,6 +200,8 @@ Returns random text with up to ``nb_chars`` characters.
 Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``200``) is an optional argument.
+
+----
 
 **file_name**
 
@@ -194,6 +216,8 @@ Arguments:
 - ``extension`` (type: ``str``, default value: ``txt``) is an optional
   argument.
 
+----
+
 **email**
 
 Returns a random email with the specified domain.
@@ -206,6 +230,8 @@ Arguments:
 
 - ``domain`` (type: ``str``, default value: ``example.com``) is an optional
   argument.
+
+----
 
 **url**
 
@@ -224,6 +250,8 @@ Arguments:
 - ``suffixes`` (type: ``Optional[Tuple[str]]``, default value: ``None``) is
   an optional argument.
 
+----
+
 **pyint**
 
 Returns a random integer between ``min_value`` and ``max_value``.
@@ -238,6 +266,8 @@ Arguments:
 - ``max_value`` (type: ``int``, default value: ``9999``) is an optional
   argument.
 
+----
+
 **pybool**
 
 Returns a random boolean value.
@@ -245,6 +275,8 @@ Returns a random boolean value.
 .. code-block:: python
 
     FAKER.pybool()
+
+----
 
 **pystr**
 
@@ -257,6 +289,8 @@ Returns a random string of ``nb_chars`` length.
 Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``20``) is an optional argument.
+
+----
 
 **pyfloat**
 
@@ -273,6 +307,8 @@ Arguments:
 - ``max_value`` (type: ``float``, default value: ``10.00``) is an optional
   argument.
 
+----
+
 **ipv4**
 
 Returns a random IPv4 address.
@@ -280,6 +316,8 @@ Returns a random IPv4 address.
 .. code-block:: python
 
     FAKER.ipv4()
+
+----
 
 **date_between**
 
@@ -295,6 +333,8 @@ Arguments:
 - ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
   argument.
 
+----
+
 **date_time_between**
 
 Generates a random datetime between ``start_date`` and ``end_date``.
@@ -308,6 +348,8 @@ Arguments:
 - ``start_date`` (type: ``str``) is a required argument.
 - ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
   argument.
+
+----
 
 **pdf**
 
@@ -323,6 +365,8 @@ Arguments:
 - ``generator``
   (type: ``Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]]``,
   default value: ``GraphicPdfGenerator``) is an optional argument.
+
+----
 
 **image**
 
