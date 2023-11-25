@@ -38,23 +38,24 @@ detect-secrets==1.4.0
     # via
     #   fake-py
     #   file:///home/delusionalinsanity/repos/faker-py
-doc8==1.1.1
+doc8==0.11.2
     # via
     #   fake-py
     #   file:///home/delusionalinsanity/repos/faker-py
-docutils==0.20.1
+docutils==0.18.1
     # via
     #   doc8
     #   readme-renderer
     #   restructuredtext-lint
     #   sphinx
+    #   sphinx-rtd-theme
 exceptiongroup==1.2.0
     # via
     #   ipython
     #   pytest
 executing==2.0.1
     # via stack-data
-idna==3.5
+idna==3.6
     # via requests
 imagesize==1.4.1
     # via sphinx
@@ -116,7 +117,7 @@ pathspec==0.11.2
     # via black
 pbr==6.0.0
     # via stevedore
-pexpect==4.8.0
+pexpect==4.9.0
     # via ipython
 pip-tools==7.3.0
     # via
@@ -182,7 +183,7 @@ six==1.16.0
     # via asttokens
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.6
+sphinx==5.3.0
     # via
     #   fake-py
     #   file:///home/delusionalinsanity/repos/faker-py
@@ -190,9 +191,10 @@ sphinx==7.2.6
     #   sphinxcontrib-applehelp
     #   sphinxcontrib-devhelp
     #   sphinxcontrib-htmlhelp
+    #   sphinxcontrib-jquery
     #   sphinxcontrib-qthelp
     #   sphinxcontrib-serializinghtml
-sphinx-rtd-theme==0.5.1
+sphinx-rtd-theme==1.3.0
     # via
     #   fake-py
     #   file:///home/delusionalinsanity/repos/faker-py
@@ -202,6 +204,8 @@ sphinxcontrib-devhelp==1.0.5
     # via sphinx
 sphinxcontrib-htmlhelp==2.0.4
     # via sphinx
+sphinxcontrib-jquery==4.1
+    # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==1.0.6
@@ -217,7 +221,6 @@ tomli==2.0.1
     #   black
     #   build
     #   coverage
-    #   doc8
     #   mypy
     #   pip-tools
     #   pyproject-hooks
