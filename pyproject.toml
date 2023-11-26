@@ -28,6 +28,7 @@ classifiers = [
 ]
 
 [project.urls]
+"Homepage" = "https://github.com/barseghyanartur/fake.py/"
 "Bug Tracker" = "https://github.com/barseghyanartur/fake.py/issues"
 "Documentation" = "https://fakepy.readthedocs.io/"
 "Source Code" = "https://github.com/barseghyanartur/fake.py/"
