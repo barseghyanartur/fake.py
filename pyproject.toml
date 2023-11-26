@@ -10,10 +10,6 @@ authors = [
 license = {text = "MIT"}
 classifiers = [
     "Development Status :: 4 - Beta",
-    "Environment :: Web Environment",
-    "Framework :: Sphinx :: Extension",
-    "Framework :: Sphinx :: Theme",
-    "Framework :: Sphinx",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -25,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python",
+    "Topic :: Software Development :: Testing",
     "Topic :: Software Development",
 ]
 
