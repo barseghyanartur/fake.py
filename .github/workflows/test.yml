@@ -87,7 +87,7 @@ jobs:
         python -m pip install pyyaml
     - name: Coveralls Finished
       id: coveralls-finish
-      continue-on-error: true
+#      continue-on-error: true
 #      if: steps.coveralls-setup.outcome == 'success'
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
