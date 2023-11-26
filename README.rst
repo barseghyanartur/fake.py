@@ -40,8 +40,8 @@ Overview
 ``fake.py`` is a standalone and portable library that allows you to generate
 various types of random data for testing and other purposes. The package
 provides a simplified, dependency-free alternative for generating random
-words, sentences, paragraphs, file names, URLs, PDFs, images, person names
-and more.
+words, sentences, paragraphs, file names, URLs, PDFs, DOCX files, images,
+person names and more.
 
 Requirements
 ============
@@ -110,7 +110,7 @@ Returns a random full name.
 
 **word**
 
-Returns a random word from the Zen of Python.
+Returns a random word.
 
 .. code-block:: python
 
@@ -120,7 +120,7 @@ Returns a random word from the Zen of Python.
 
 **words**
 
-Returns a list of ``nb`` random words from the Zen of Python.
+Returns a list of ``nb`` random words.
 
 .. code-block:: python
 
@@ -362,9 +362,21 @@ Generates a content (``bytes``) of a PDF document.
 Arguments:
 
 - ``nb_pages`` (type: ``int``, default value: ``1``) is an optional argument.
+- ``texts`` (type: ``List[str]``, default value: ``None``) is an optional
+  argument.
 - ``generator``
   (type: ``Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]]``,
   default value: ``GraphicPdfGenerator``) is an optional argument.
+
+.. note::
+
+    ``texts`` is valid only in case ``TextPdfGenerator`` is used.
+
+.. note::
+
+    Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
+    default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
+    is adjusted accordingly.
 
 ----
 
@@ -384,6 +396,28 @@ Arguments:
   optional argument.
 - ``color`` (type: ``Tuple[int, int, int]``, default value: ``(0, 0, 255)``)
   is an optional argument.
+
+----
+
+**docx**
+
+Generates a content (``bytes``) of a DOCX document.
+
+.. code-block:: python
+
+    FAKER.docx()
+
+Arguments:
+
+- ``nb_pages`` (type: ``int``, default value: ``1``) is an optional argument.
+- ``texts`` (type: ``List[str]``, default value: ``None``) is an optional
+  argument.
+
+.. note::
+
+    Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
+    default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
+    is adjusted accordingly.
 
 Tests
 =====

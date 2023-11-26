@@ -9,13 +9,14 @@ import random
 import re
 import string
 import unittest
+import zipfile
 import zlib
 from datetime import date, datetime, timedelta
 from tempfile import NamedTemporaryFile
 from typing import Dict, List, Literal, Optional, Set, Tuple, Type, Union
 
 __title__ = "fake.py"
-__version__ = "0.1"
+__version__ = "0.1.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -97,6 +98,45 @@ SVG_TPL = """
 <rect width="100%" height="100%" fill="rgb{color}" />
 </svg>"""
 
+DOCX_TPL_DOC_HEADER = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'  # noqa
+    "<w:body>"
+)
+
+DOCX_TPL_DOC_FOOTER = "</w:body></w:document>"
+
+DOC_TPL_DOC_STRUCTURE_RELS = (
+    b"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+    b"<Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'>"  # noqa
+    b"<Relationship Id='rId1' Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument' Target='word/document.xml'/>"  # noqa
+    b"</Relationships>"
+)
+
+DOC_TPL_DOC_STRUCTURE_WORD_RELS = (
+    b"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+    b"<Relationships xmlns='http://schemas.openxmlformats.org/package/2006/relationships'>"  # noqa
+    b"<Relationship Id='rId1' Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles' Target='styles.xml'/>"  # noqa
+    b"</Relationships>"
+)
+
+DOC_TPL_DOC_STRUCTURE_WORD_STYLES = (
+    b"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+    b"<w:styles xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>"  # noqa
+    b"<w:style w:type='paragraph' w:default='1' w:styleId='Normal'>"
+    b"<w:name w:val='Normal'/><w:qFormat/></w:style></w:styles>"
+)
+
+DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
+    b"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+    b"<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'>"  # noqa
+    b"<Default Extension='rels' ContentType='application/vnd.openxmlformats-package.relationships+xml'/>"  # noqa
+    b"<Default Extension='xml' ContentType='application/xml'/>"
+    b"<Override PartName='/word/document.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml'/>"  # noqa
+    b"<Override PartName='/word/styles.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'/>"  # noqa
+    b"</Types>"
+)
+
 
 class TextPdfGenerator:
     """Text PDF generatr.
@@ -110,8 +150,7 @@ class TextPdfGenerator:
 
         FAKER = Faker()
 
-        text_pdf_file = Path("media") / "text_pdf.pdf"
-        text_pdf_file.write_bytes(
+        Path("/tmp/text_example.pdf").write_bytes(
             FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
         )
     """
@@ -119,7 +158,7 @@ class TextPdfGenerator:
     nb_pages: int
     texts: List[str]
 
-    def __init__(self, faker: "Faker"):
+    def __init__(self, faker: "Faker") -> None:
         self.faker = faker
 
     def _add_page_object(self, page_num, content_obj_num):
@@ -145,7 +184,7 @@ class TextPdfGenerator:
         # Initialization
         if not nb_pages and not texts:
             raise ValueError(
-                "Either `num_pages` or `texts` arguments shall be given."
+                "Either `nb_pages` or `texts` arguments shall be given."
             )
         if texts:
             self.nb_pages: int = len(texts)
@@ -170,7 +209,6 @@ class TextPdfGenerator:
         for i, page_text in enumerate(self.texts):
             page_obj_num = 4 + 2 * i
             content_obj_num = page_obj_num + 1
-            # page_text = f"Page {i + 1}: {text}"
             page_objs.append(
                 self._add_page_object(page_obj_num, content_obj_num)
             )
@@ -219,8 +257,7 @@ class GraphicPdfGenerator:
 
         FAKER = Faker()
 
-        graphic_pdf_file = Path("media") / "graphic_pdf.pdf"
-        graphic_pdf_file.write_bytes(
+        Path("/tmp/graphic_example.pdf").write_bytes(
             FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
         )
     """
@@ -229,7 +266,7 @@ class GraphicPdfGenerator:
     image_size: Tuple[int, int]
     image_color: Tuple[int, int, int]
 
-    def __init__(self, faker: "Faker"):
+    def __init__(self, faker: "Faker") -> None:
         self.faker = faker
 
     def _create_raw_image_data(self):
@@ -412,6 +449,65 @@ class AuthorshipData:
     def __init__(self):
         self._extract_authorship_info_from_stdlib()
         self._extract_names()
+
+
+class DocxGenerator:
+    """DocxGenerator - generates a DOCX file with text.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from pathlib import Path
+        from fake import Faker
+
+        FAKER = Faker()
+        Path("/tmp/example.docx").write_bytes(FAKER.docx(nb_pages=100))
+    """
+
+    def __init__(self, faker: "Faker") -> None:
+        self.faker = faker
+
+    def _create_page(self, text: str, is_last_page: bool) -> str:
+        page_content = f"<w:p><w:r><w:t>{text}</w:t></w:r></w:p>"
+        if not is_last_page:
+            page_content += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>'
+        return page_content
+
+    def create(
+        self, nb_pages: Optional[int] = None, texts: Optional[List[str]] = None
+    ) -> bytes:
+        if not nb_pages and not texts:
+            raise ValueError(
+                "Either `nb_pages` or `texts` arguments shall be given."
+            )
+        if texts:
+            nb_pages = len(texts)
+        else:
+            texts = self.faker.sentences(nb=nb_pages)
+
+        # Construct the main document content
+        document_content = DOCX_TPL_DOC_HEADER
+        for i, page_text in enumerate(texts):
+            document_content += self._create_page(page_text, i == nb_pages - 1)
+        document_content += DOCX_TPL_DOC_FOOTER
+
+        # Basic structure of a DOCX file
+        docx_structure = {
+            "word/document.xml": document_content.encode(),
+            "_rels/.rels": DOC_TPL_DOC_STRUCTURE_RELS,
+            "word/_rels/document.xml.rels": DOC_TPL_DOC_STRUCTURE_WORD_RELS,
+            "word/styles.xml": DOC_TPL_DOC_STRUCTURE_WORD_STYLES,
+            "[Content_Types].xml": DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES,
+        }
+
+        # Create the DOCX file (ZIP archive)
+        docx_bytes = io.BytesIO()
+        with zipfile.ZipFile(docx_bytes, "w") as docx:
+            for path, content in docx_structure.items():
+                docx.writestr(path, content)
+
+        return docx_bytes.getvalue()
 
 
 class Faker:
@@ -902,6 +998,14 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(width=width, height=height, color=color)
 
+    def docx(
+        self,
+        nb_pages: Optional[int] = 1,
+        texts: Optional[List[str]] = None,
+    ) -> bytes:
+        _docx = DocxGenerator(faker=self)
+        return _docx.create(nb_pages=nb_pages, texts=texts)
+
 
 class TestFaker(unittest.TestCase):
     def setUp(self) -> None:
@@ -1170,28 +1274,65 @@ class TestFaker(unittest.TestCase):
         )
 
     def test_text_pdf(self):
-        pdf = self.faker.pdf(generator=TextPdfGenerator)
-        self.assertTrue(pdf)
+        with self.subTest("All params None, should fail"):
+            with self.assertRaises(ValueError):
+                self.faker.pdf(
+                    nb_pages=None,  # noqa
+                    texts=None,  # noqa
+                    generator=TextPdfGenerator,
+                )
+
+        with self.subTest("Without params"):
+            pdf = self.faker.pdf(generator=TextPdfGenerator)
+            self.assertTrue(pdf)
+            self.assertIsInstance(pdf, bytes)
+
+        with self.subTest("With `texts` provided"):
+            texts = self.faker.sentences()
+            pdf = self.faker.pdf(texts=texts, generator=TextPdfGenerator)
+            self.assertTrue(pdf)
+            self.assertIsInstance(pdf, bytes)
 
     def test_graphic_pdf(self):
         pdf = self.faker.pdf(generator=GraphicPdfGenerator)
         self.assertTrue(pdf)
+        self.assertIsInstance(pdf, bytes)
 
     def test_png(self):
         png = self.faker.png()
         self.assertTrue(png)
+        self.assertIsInstance(png, bytes)
 
     def test_svg(self):
         svg = self.faker.svg()
         self.assertTrue(svg)
+        self.assertIsInstance(svg, bytes)
 
     def test_bmp(self):
         bmp = self.faker.bmp()
         self.assertTrue(bmp)
+        self.assertIsInstance(bmp, bytes)
 
     def test_gif(self):
         gif = self.faker.gif()
         self.assertTrue(gif)
+        self.assertIsInstance(gif, bytes)
+
+    def test_docx(self):
+        with self.subTest("All params None, should fail"):
+            with self.assertRaises(ValueError):
+                self.faker.docx(nb_pages=None, texts=None),  # noqa
+
+        with self.subTest("Without params"):
+            docx = self.faker.docx()
+            self.assertTrue(docx)
+            self.assertIsInstance(docx, bytes)
+
+        with self.subTest("With `texts` provided"):
+            texts = self.faker.sentences()
+            docx = self.faker.docx(texts=texts)
+            self.assertTrue(docx)
+            self.assertIsInstance(docx, bytes)
 
 
 if __name__ == "__main__":
