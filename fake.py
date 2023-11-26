@@ -13,10 +13,20 @@ import zipfile
 import zlib
 from datetime import date, datetime, timedelta
 from tempfile import NamedTemporaryFile
-from typing import Dict, List, Literal, Optional, Set, Tuple, Type, Union
+from typing import (
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Set,
+    TextIO,
+    Tuple,
+    Type,
+    Union,
+)
 
 __title__ = "fake.py"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -369,19 +379,20 @@ class AuthorshipData:
     first_names: Set[str] = set()
     last_names: Set[str] = set()
 
+    def _extract_info(self, file: TextIO) -> List[str]:
+        return [
+            line.strip()
+            for line in file
+            if "__author__" in line or "Author:" in line
+        ]
+
     def _find_authorship_info(self, file_path: str) -> List[str]:
-        authorship_info = []
         try:
             with open(file_path, "r", encoding="utf-8") as file:
-                for line in file:
-                    if "__author__" in line or "Author:" in line:
-                        authorship_info.append(line.strip())
+                return self._extract_info(file)
         except UnicodeDecodeError:
             with open(file_path, "r", encoding="latin-1") as file:
-                for line in file:
-                    if "__author__" in line or "Author:" in line:
-                        authorship_info.append(line.strip())
-        return authorship_info
+                return self._extract_info(file)
 
     def _extract_authorship_info_from_stdlib(self) -> None:
         stdlib_path = os.path.dirname(os.__file__)
@@ -484,12 +495,14 @@ class DocxGenerator:
         if texts:
             nb_pages = len(texts)
         else:
-            texts = self.faker.sentences(nb=nb_pages)
+            texts = self.faker.sentences(nb=nb_pages)  # type: ignore
 
         # Construct the main document content
         document_content = DOCX_TPL_DOC_HEADER
         for i, page_text in enumerate(texts):
-            document_content += self._create_page(page_text, i == nb_pages - 1)
+            document_content += self._create_page(
+                page_text, i == nb_pages - 1  # type: ignore
+            )
         document_content += DOCX_TPL_DOC_FOOTER
 
         # Basic structure of a DOCX file
@@ -644,6 +657,9 @@ class Faker:
             sentence: str = self.sentence()
             current_text += f" {sentence}" if current_text else sentence
         return current_text[:nb_chars]
+
+    def texts(self, nb: int = 3) -> List[str]:
+        return [self.text() for _ in range(nb)]
 
     def file_name(self, extension: str = "txt") -> str:
         with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
@@ -989,14 +1005,13 @@ class Faker:
     def image(
         self,
         image_format: Literal["png", "svg", "bmp", "gif"] = "png",
-        width: int = 100,
-        height: int = 100,
+        size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
         if image_format not in {"png", "svg", "bmp", "gif"}:
             raise ValueError()
         image_func = getattr(self, image_format)
-        return image_func(width=width, height=height, color=color)
+        return image_func(size=size, color=color)
 
     def docx(
         self,
@@ -1069,6 +1084,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(text, str)
         self.assertTrue(len(text) <= 100)
 
+    def test_texts(self) -> None:
+        texts: List[str] = self.faker.texts(nb=3)
+        self.assertIsInstance(texts, list)
+        self.assertEqual(len(texts), 3)
+
     def test_file_name(self) -> None:
         extensions = [(None, "txt"), ("txt", "txt"), ("jpg", "jpg")]
         for extension, expected_extension in extensions:
@@ -1090,9 +1110,7 @@ class TestFaker(unittest.TestCase):
         ]
         for domain, expected_domain in domains:
             with self.subTest(domain=domain, expected_domain=expected_domain):
-                kwargs = {}
-                if domain is not None:
-                    kwargs["domain"] = domain
+                kwargs = {"domain": domain}
                 email: str = self.faker.email(**kwargs)
                 self.assertIsInstance(email, str)
                 self.assertTrue(email.endswith(f"@{expected_domain}"))
@@ -1317,6 +1335,17 @@ class TestFaker(unittest.TestCase):
         gif = self.faker.gif()
         self.assertTrue(gif)
         self.assertIsInstance(gif, bytes)
+
+    def test_image(self):
+        for image_format in {"png", "svg", "bmp", "gif"}:
+            with self.subTest(image_format=image_format):
+                image = self.faker.image(image_format=image_format)
+                self.assertTrue(image)
+                self.assertIsInstance(image, bytes)
+        for image_format in {"bin"}:
+            with self.subTest(image_format=image_format):
+                with self.assertRaises(ValueError):
+                    self.faker.image(image_format=image_format)
 
     def test_docx(self):
         with self.subTest("All params None, should fail"):

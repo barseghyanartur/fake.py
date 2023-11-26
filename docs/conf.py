@@ -22,21 +22,21 @@ except ImportError:
     version = "0.1"
     project = "fake.py"
     copyright = "2023, Artur Barseghyan <artur.barseghyan@gmail.com>"
-    author = 'Artur Barseghyan <artur.barseghyan@gmail.com>'
+    author = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
 ]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-language = 'en'
+language = "en"
 
 release = version
 
@@ -48,8 +48,8 @@ source_suffix = {
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
 
 prismjs_base = "//cdnjs.cloudflare.com/ajax/libs/prism/1.29.0"
 

@@ -204,6 +204,20 @@ Arguments:
 
 ----
 
+**texts**
+
+Returns ``nb`` number of random texts.
+
+.. code-block:: python
+
+    FAKER.texts()
+
+Arguments:
+
+- ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+----
+
 **file_name**
 
 Returns a random file name with the given extension.
