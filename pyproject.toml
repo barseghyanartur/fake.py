@@ -24,6 +24,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development",
 ]
+keywords = ["fake data", "test data"]
 
 [project.urls]
 "Homepage" = "https://github.com/barseghyanartur/fake.py/"
