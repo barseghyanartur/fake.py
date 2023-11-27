@@ -1111,7 +1111,7 @@ class TestFaker(unittest.TestCase):
         for domain, expected_domain in domains:
             with self.subTest(domain=domain, expected_domain=expected_domain):
                 kwargs = {"domain": domain}
-                email: str = self.faker.email(**kwargs)
+                email: str = self.faker.email(**kwargs)  # type: ignore
                 self.assertIsInstance(email, str)
                 self.assertTrue(email.endswith(f"@{expected_domain}"))
 
@@ -1295,8 +1295,8 @@ class TestFaker(unittest.TestCase):
         with self.subTest("All params None, should fail"):
             with self.assertRaises(ValueError):
                 self.faker.pdf(
-                    nb_pages=None,  # noqa
-                    texts=None,  # noqa
+                    nb_pages=None,  # type: ignore
+                    texts=None,
                     generator=TextPdfGenerator,
                 )
 
@@ -1339,13 +1339,13 @@ class TestFaker(unittest.TestCase):
     def test_image(self):
         for image_format in {"png", "svg", "bmp", "gif"}:
             with self.subTest(image_format=image_format):
-                image = self.faker.image(image_format=image_format)
+                image = self.faker.image(image_format=image_format)  # type: ignore
                 self.assertTrue(image)
                 self.assertIsInstance(image, bytes)
         for image_format in {"bin"}:
             with self.subTest(image_format=image_format):
                 with self.assertRaises(ValueError):
-                    self.faker.image(image_format=image_format)
+                    self.faker.image(image_format=image_format)  # type: ignore
 
     def test_docx(self):
         with self.subTest("All params None, should fail"):
