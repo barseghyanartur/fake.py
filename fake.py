@@ -1210,8 +1210,8 @@ class Faker:
         )
         data = self.pdf(nb_pages=nb_pages, generator=generator, **kwargs)
         storage.write_bytes(filename=filename, data=data)
-        file = StringValue(filename)
-        file.data = {"storage": storage}
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
         return file
 
     def _image_file(
@@ -1232,8 +1232,8 @@ class Faker:
         )
         data = self.png(size=size, color=color)
         storage.write_bytes(filename=filename, data=data)
-        file = StringValue(filename)
-        file.data = {"storage": storage}
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
         return file
 
     def png_file(
@@ -1321,8 +1321,8 @@ class Faker:
         )
         data = self.docx(nb_pages=nb_pages, texts=texts)
         storage.write_bytes(filename=filename, data=data)
-        file = StringValue(filename)
-        file.data = {"storage": storage}
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
         return file
 
     def txt_file(
@@ -1341,8 +1341,12 @@ class Faker:
         )
         data = self.text(nb_chars=nb_chars)
         storage.write_text(filename=filename, data=data)
-        file = StringValue(filename)
-        file.data = {"storage": storage, "content": data}
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": data,
+        }
         return file
 
 

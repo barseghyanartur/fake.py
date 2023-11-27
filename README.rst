@@ -41,8 +41,8 @@ Overview
 various types of random data for testing and other purposes. The package
 provides a simplified, dependency-free alternative for generating random
 words, sentences, paragraphs, file names, URLs, person names, as well as
-bytes content for PDF-, DOCX- and various image formats (such as ``PNG``,
-``SVG``, ``BMP`` and ``GIF``).
+bytes content for ``PDF``-, ``DOCX``- and various image formats (such as
+``PNG``, ``SVG``, ``BMP`` and ``GIF``).
 
 Requirements
 ============
