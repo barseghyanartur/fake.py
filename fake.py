@@ -11,9 +11,12 @@ import string
 import unittest
 import zipfile
 import zlib
+from abc import abstractmethod
 from datetime import date, datetime, timedelta
-from tempfile import NamedTemporaryFile
+from pathlib import Path
+from tempfile import NamedTemporaryFile, gettempdir
 from typing import (
+    Any,
     Dict,
     List,
     Literal,
@@ -26,16 +29,16 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
-    "Faker",
-    "TextPdfGenerator",
-    "GraphicPdfGenerator",
-    "DocxGenerator",
     "AuthorshipData",
+    "DocxGenerator",
+    "Faker",
+    "GraphicPdfGenerator",
+    "TextPdfGenerator",
 )
 
 
@@ -152,6 +155,171 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
     b"<Override PartName='/word/styles.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'/>"  # noqa
     b"</Types>"
 )
+
+
+class StringValue(str):
+    data: Dict[str, Any] = {}
+
+
+class BaseStorage:
+    """Base storage."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        self.args = args
+        self.kwargs = kwargs
+
+    @abstractmethod
+    def generate_filename(
+        self: "BaseStorage",
+        extension: str,
+        prefix: Optional[str] = None,
+        basename: Optional[str] = None,
+    ) -> Any:
+        """Generate filename."""
+
+    @abstractmethod
+    def write_text(
+        self: "BaseStorage",
+        filename: Any,
+        data: str,
+        encoding: Optional[str] = None,
+    ) -> int:
+        """Write text."""
+
+    @abstractmethod
+    def write_bytes(self: "BaseStorage", filename: Any, data: bytes) -> int:
+        """Write bytes."""
+
+    @abstractmethod
+    def exists(self: "BaseStorage", filename: Any) -> bool:
+        """Check if file exists."""
+
+    @abstractmethod
+    def relpath(self: "BaseStorage", filename: Any) -> str:
+        """Return relative path."""
+
+    @abstractmethod
+    def abspath(self: "BaseStorage", filename: Any) -> str:
+        """Return absolute path."""
+
+    @abstractmethod
+    def unlink(self: "BaseStorage", filename: Any) -> None:
+        """Delete the file."""
+
+
+class FileSystemStorage(BaseStorage):
+    """File storage class using pathlib for path handling.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from fake import Faker, FileSystemStorage
+
+        FAKER = Faker()
+
+        storage = FileSystemStorage()
+        docx_file = storage.generate_filename(prefix="zzz_", extension="docx")
+        storage.write_bytes(docx_file, FAKER.docx())
+
+    Initialization with params:
+
+    .. code-block:: python
+
+        from fake import Faker, FileSystemStorage
+
+        FAKER = Faker()
+
+        storage = FileSystemStorage()
+        docx_file = FAKER.docx_file(storage=storage)
+    """
+
+    def __init__(
+        self: "FileSystemStorage",
+        root_path: Optional[str] = gettempdir(),
+        rel_path: Optional[str] = "tmp",
+        *args,
+        **kwargs,
+    ) -> None:
+        """
+        :param root_path: Path of your files root directory (e.g., Django's
+            `settings.MEDIA_ROOT`).
+        :param rel_path: Relative path (from root directory).
+        """
+        self.root_path = Path(root_path or "")
+        self.rel_path = Path(rel_path or "")
+        super().__init__(*args, **kwargs)
+
+    def generate_filename(
+        self: "FileSystemStorage",
+        extension: str,
+        prefix: Optional[str] = None,
+        basename: Optional[str] = None,
+    ) -> str:
+        """Generate filename."""
+        dir_path = self.root_path / self.rel_path
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        if not extension:
+            raise Exception("Extension shall be given!")
+
+        if basename:
+            return str(dir_path / f"{basename}.{extension}")
+        else:
+            temp_file = NamedTemporaryFile(
+                prefix=prefix,
+                dir=str(dir_path),
+                suffix=f".{extension}",
+                delete=False,
+            )
+            return temp_file.name
+
+    def write_text(
+        self: "FileSystemStorage",
+        filename: str,
+        data: str,
+        encoding: Optional[str] = None,
+    ) -> int:
+        """Write text."""
+        path = Path(filename)
+        path.write_text(data, encoding=encoding or "utf-8")
+        return len(data)
+
+    def write_bytes(
+        self: "FileSystemStorage",
+        filename: str,
+        data: bytes,
+    ) -> int:
+        """Write bytes."""
+        path = Path(filename)
+        path.write_bytes(data)
+        return len(data)
+
+    def exists(self: "FileSystemStorage", filename: str) -> bool:
+        """Check if file exists."""
+        file_path = Path(filename)
+        if file_path.is_absolute():
+            return file_path.exists()
+        return (self.root_path / file_path).exists()
+
+    def relpath(self: "FileSystemStorage", filename: str) -> str:
+        """Return relative path."""
+        return str(Path(filename).relative_to(self.root_path))
+
+    def abspath(self: "FileSystemStorage", filename: str) -> str:
+        """Return absolute path."""
+        file_path = Path(filename)
+        if file_path.is_absolute():
+            return str(file_path.resolve())
+        return str((self.root_path / file_path).resolve())
+
+    def unlink(self: "FileSystemStorage", filename: str) -> None:
+        """Delete the file."""
+        file_path = Path(filename)
+        if file_path.is_absolute():
+            file_path.unlink()
+        else:
+            (self.root_path / file_path).unlink()
 
 
 class TextPdfGenerator:
@@ -530,7 +698,7 @@ class DocxGenerator:
 
 
 class Faker:
-    """faker.py - simplified, standalone alternative with no dependencies.
+    """fake.py - simplified, standalone alternative with no dependencies.
 
     ----
 
@@ -585,7 +753,7 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker, TextPdfGenerator, GraphicPdfGenerator
+        from fake import Faker
 
         FAKER = Faker()
 
@@ -1021,6 +1189,165 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts)
 
+    def pdf_file(
+        self,
+        nb_pages: int = 1,
+        generator: Union[
+            Type[TextPdfGenerator], Type[GraphicPdfGenerator]
+        ] = GraphicPdfGenerator,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        **kwargs,
+    ) -> StringValue:
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="pdf",
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.pdf(nb_pages=nb_pages, generator=generator, **kwargs)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
+        return file
+
+    def _image_file(
+        self,
+        extension: str,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension=extension,
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.png(size=size, color=color)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
+        return file
+
+    def png_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        return self._image_file(
+            extension="png",
+            size=size,
+            color=color,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    def svg_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        return self._image_file(
+            extension="svg",
+            size=size,
+            color=color,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    def bmp_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        return self._image_file(
+            extension="bmp",
+            size=size,
+            color=color,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    def gif_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        return self._image_file(
+            extension="gif",
+            size=size,
+            color=color,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    def docx_file(
+        self,
+        nb_pages: int = 1,
+        texts: Optional[List[str]] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="docx",
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.docx(nb_pages=nb_pages, texts=texts)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {"storage": storage, "filename": filename}
+        return file
+
+    def txt_file(
+        self,
+        nb_chars: int = 200,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="txt",
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.text(nb_chars=nb_chars)
+        storage.write_text(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": data,
+        }
+        return file
+
 
 class TestFaker(unittest.TestCase):
     def setUp(self) -> None:
@@ -1217,6 +1544,20 @@ class TestFaker(unittest.TestCase):
                 self.assertGreaterEqual(val, expected_min_val)
                 self.assertLessEqual(val, expected_max_val)
 
+    def test_ipv4(self) -> None:
+        # Test a large number of IPs to ensure randomness and correctness
+        for _ in range(1000):
+            ip = self.faker.ipv4()
+            self.assertIsNotNone(ip)
+            self.assertIsInstance(ip, str)
+
+            parts = ip.split(".")
+            self.assertEqual(len(parts), 4)
+
+            for part in parts:
+                self.assertTrue(part.isdigit())
+                self.assertTrue(0 <= int(part) <= 255)
+
     def test_parse_date_string(self):
         # Test 'now' and 'today' special keywords
         self.assertAlmostEqual(
@@ -1349,7 +1690,7 @@ class TestFaker(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.faker.image(image_format=image_format)  # type: ignore
 
-    def test_docx(self):
+    def test_docx(self) -> None:
         with self.subTest("All params None, should fail"):
             with self.assertRaises(ValueError):
                 self.faker.docx(nb_pages=None, texts=None),  # noqa
@@ -1364,6 +1705,66 @@ class TestFaker(unittest.TestCase):
             docx = self.faker.docx(texts=texts)
             self.assertTrue(docx)
             self.assertIsInstance(docx, bytes)
+
+    def test_pdf_file(self) -> None:
+        file = self.faker.pdf_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_png_file(self) -> None:
+        file = self.faker.png_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_svg_file(self) -> None:
+        file = self.faker.svg_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_bmp_file(self) -> None:
+        file = self.faker.bmp_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_gif_file(self) -> None:
+        file = self.faker.gif_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_docx_file(self) -> None:
+        file = self.faker.docx_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_txt_file(self) -> None:
+        file = self.faker.txt_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_storage(self) -> None:
+        file = self.faker.txt_file()
+        file_2 = self.faker.txt_file(basename="file_2")
+        file_3 = self.faker.txt_file(basename="file_3")
+        storage: FileSystemStorage = file.data["storage"]
+
+        with self.subTest("Test os.path.exists"):
+            self.assertTrue(os.path.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.exists on StringValue"):
+            self.assertTrue(storage.exists(file))
+        with self.subTest("Test storage.exists on rel path"):
+            self.assertTrue(storage.exists(str(file)))
+        with self.subTest("Test storage.exists on abs path"):
+            self.assertTrue(storage.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.abspath"):
+            self.assertEqual(storage.abspath(str(file)), file.data["filename"])
+
+        with self.subTest("Test storage.unlink on absolute path"):
+            storage.unlink(file.data["filename"])
+        self.assertFalse(storage.exists(str(file)))
+        self.assertFalse(storage.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.unlink on relative path"):
+            storage.unlink(str(file_2))
+            self.assertFalse(storage.exists(file_2.data["filename"]))
+
+        with self.subTest("Test storage.unlink on relative path"):
+            storage.unlink(str(file_3))
+            self.assertFalse(storage.exists(file_3.data["filename"]))
 
 
 if __name__ == "__main__":

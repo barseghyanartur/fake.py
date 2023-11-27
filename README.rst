@@ -41,8 +41,9 @@ Overview
 various types of random data for testing and other purposes. The package
 provides a simplified, dependency-free alternative for generating random
 words, sentences, paragraphs, file names, URLs, person names, as well as
-bytes content for PDF-, DOCX- and various image formats (such as ``PNG``,
-``SVG``, ``BMP`` and ``GIF``).
+bytes content for ``PDF``-, ``DOCX``- and various image formats (such as
+``PNG``, ``SVG``, ``BMP`` and ``GIF``). It also can create files directly
+on your filesystem.
 
 Requirements
 ============
@@ -433,6 +434,138 @@ Arguments:
     Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
     default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
     is adjusted accordingly.
+
+----
+
+**pdf_file**
+
+Generates a ``PDF`` file.
+
+.. code-block:: python
+
+    FAKER.pdf_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``pdf`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+**png_file**
+
+Generates a ``PNG`` file.
+
+.. code-block:: python
+
+    FAKER.png_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``png`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+**svg_file**
+
+Generates an ``SVG`` file.
+
+.. code-block:: python
+
+    FAKER.svg_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``svg`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+**bmp_file**
+
+Generates a ``BMP`` file.
+
+.. code-block:: python
+
+    FAKER.bmp_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``bmp`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+**gif_file**
+
+Generates a ``GIF`` file.
+
+.. code-block:: python
+
+    FAKER.gif_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``gif`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+**txt_file**
+
+Generates a ``TXT`` file.
+
+.. code-block:: python
+
+    FAKER.txt_file()
+
+Arguments:
+
+.. note::
+
+    Accepts all arguments of ``text`` + the following:
+
+- ``storage`` (type: ``BaseStorage``, default value: ``None``) is an optional
+  argument.
+- ``basename`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
 Tests
 =====

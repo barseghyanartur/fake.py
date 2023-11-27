@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.1.3
+-----
+2023-11-28
+
+- Added ``pdf_file``, ``docx_file``, ``png_file``, ``svg_file``, ``bmp_file``,
+  ``gif_file`` support.
+- Added storages.
+
 0.1.2
 -----
 2023-11-26
