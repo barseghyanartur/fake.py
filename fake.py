@@ -31,11 +31,11 @@ __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
-    "Faker",
-    "TextPdfGenerator",
-    "GraphicPdfGenerator",
-    "DocxGenerator",
     "AuthorshipData",
+    "DocxGenerator",
+    "Faker",
+    "GraphicPdfGenerator",
+    "TextPdfGenerator",
 )
 
 
@@ -530,7 +530,7 @@ class DocxGenerator:
 
 
 class Faker:
-    """faker.py - simplified, standalone alternative with no dependencies.
+    """fake.py - simplified, standalone alternative with no dependencies.
 
     ----
 
