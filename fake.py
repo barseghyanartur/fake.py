@@ -1694,32 +1694,32 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(docx, bytes)
 
     def test_pdf_file(self) -> None:
-        filename = self.faker.pdf_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.pdf_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_png_file(self) -> None:
-        filename = self.faker.png_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.png_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_svg_file(self) -> None:
-        filename = self.faker.svg_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.svg_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_bmp_file(self) -> None:
-        filename = self.faker.bmp_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.bmp_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_gif_file(self) -> None:
-        filename = self.faker.gif_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.gif_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_docx_file(self) -> None:
-        filename = self.faker.docx_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.docx_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_txt_file(self) -> None:
-        filename = self.faker.txt_file()
-        self.assertTrue(os.path.exists(filename))
+        file = self.faker.txt_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
 
 
 if __name__ == "__main__":
