@@ -585,7 +585,7 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker, TextPdfGenerator, GraphicPdfGenerator
+        from fake import Faker
 
         FAKER = Faker()
 
