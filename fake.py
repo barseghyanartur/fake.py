@@ -1545,6 +1545,20 @@ class TestFaker(unittest.TestCase):
                 self.assertGreaterEqual(val, expected_min_val)
                 self.assertLessEqual(val, expected_max_val)
 
+    def test_ipv4(self) -> None:
+        # Test a large number of IPs to ensure randomness and correctness
+        for _ in range(1000):
+            ip = self.faker.ipv4()
+            self.assertIsNotNone(ip)
+            self.assertIsInstance(ip, str)
+
+            parts = ip.split(".")
+            self.assertEqual(len(parts), 4)
+
+            for part in parts:
+                self.assertTrue(part.isdigit())
+                self.assertTrue(0 <= int(part) <= 255)
+
     def test_parse_date_string(self):
         # Test 'now' and 'today' special keywords
         self.assertAlmostEqual(
@@ -1720,6 +1734,38 @@ class TestFaker(unittest.TestCase):
     def test_txt_file(self) -> None:
         file = self.faker.txt_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_storage(self) -> None:
+        file = self.faker.txt_file()
+        file_2 = self.faker.txt_file(basename="file_2")
+        file_3 = self.faker.txt_file(basename="file_3")
+        storage: FileSystemStorage = file.data["storage"]
+
+        with self.subTest("Test os.path.exists"):
+            self.assertTrue(os.path.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.exists on StringValue"):
+            self.assertTrue(storage.exists(file))
+        with self.subTest("Test storage.exists on rel path"):
+            self.assertTrue(storage.exists(str(file)))
+        with self.subTest("Test storage.exists on abs path"):
+            self.assertTrue(storage.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.abspath"):
+            self.assertEqual(storage.abspath(str(file)), file.data["filename"])
+
+        with self.subTest("Test storage.unlink on absolute path"):
+            storage.unlink(file.data["filename"])
+        self.assertFalse(storage.exists(str(file)))
+        self.assertFalse(storage.exists(file.data["filename"]))
+
+        with self.subTest("Test storage.unlink on relative path"):
+            storage.unlink(str(file_2))
+            self.assertFalse(storage.exists(file_2.data["filename"]))
+
+        with self.subTest("Test storage.unlink on relative path"):
+            storage.unlink(str(file_3))
+            self.assertFalse(storage.exists(file_3.data["filename"]))
 
 
 if __name__ == "__main__":
