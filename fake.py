@@ -1192,7 +1192,6 @@ class Faker:
     def pdf_file(
         self,
         nb_pages: int = 1,
-        texts: Optional[List[str]] = None,
         generator: Union[
             Type[TextPdfGenerator], Type[GraphicPdfGenerator]
         ] = GraphicPdfGenerator,
