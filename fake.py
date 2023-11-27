@@ -1339,7 +1339,9 @@ class TestFaker(unittest.TestCase):
     def test_image(self):
         for image_format in {"png", "svg", "bmp", "gif"}:
             with self.subTest(image_format=image_format):
-                image = self.faker.image(image_format=image_format)  # type: ignore
+                image = self.faker.image(
+                    image_format=image_format,  # type: ignore
+                )
                 self.assertTrue(image)
                 self.assertIsInstance(image, bytes)
         for image_format in {"bin"}:
