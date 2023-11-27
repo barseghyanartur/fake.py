@@ -30,7 +30,13 @@ __version__ = "0.1.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
-__all__ = ("Faker",)
+__all__ = (
+    "Faker",
+    "TextPdfGenerator",
+    "GraphicPdfGenerator",
+    "DocxGenerator",
+    "AuthorshipData",
+)
 
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
@@ -156,7 +162,7 @@ class TextPdfGenerator:
     .. code-block:: python
 
         from pathlib import Path
-        from faker import Faker, TextPdfGenerator
+        from fake import Faker, TextPdfGenerator
 
         FAKER = Faker()
 
@@ -263,7 +269,7 @@ class GraphicPdfGenerator:
     .. code-block:: python
 
         from pathlib import Path
-        from faker import Faker, GraphicPdfGenerator
+        from fake import Faker, GraphicPdfGenerator
 
         FAKER = Faker()
 
@@ -532,7 +538,7 @@ class Faker:
 
     .. code-block:: python
 
-        from faker import Faker
+        from fake import Faker
 
         FAKER = Faker()
 
@@ -560,18 +566,16 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from faker import Faker, TextPdfGenerator, GraphicPdfGenerator
+        from fake import Faker, TextPdfGenerator, GraphicPdfGenerator
 
         FAKER = Faker()
 
-        graphic_pdf_file = Path("media") / "graphic_pdf.pdf"
-        graphic_pdf_file.write_bytes(
-            FAKER.pdf(num_pages=100, generator=GraphicPdfGenerator)
+        Path("/tmp/graphic_pdf.pdf").write_bytes(
+            FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
         )
 
-        text_pdf_file = Path("media") / "text_pdf.pdf"
-        text_pdf_file.write_bytes(
-            FAKER.pdf(num_pages=100, generator=TextPdfGenerator)
+        Path("/tmp/text_pdf.pdf").write_bytes(
+            FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
         )
 
     ----
@@ -581,21 +585,17 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from faker import Faker, TextPdfGenerator, GraphicPdfGenerator
+        from fake import Faker, TextPdfGenerator, GraphicPdfGenerator
 
         FAKER = Faker()
 
-        png_file = Path("media") / "image.png"
-        png_file.write_bytes(FAKER.png())
+        Path("/tmp/image.png").write_bytes(FAKER.png())
 
-        svg_file = Path("media") / "image.svg"
-        svg_file.write_bytes(FAKER.svg())
+        Path("/tmp/image.svg").write_bytes(FAKER.svg())
 
-        bmp_file = Path("media") / "image.bmp"
-        bmp_file.write_bytes(FAKER.bmp())
+        Path("/tmp/image.bmp").write_bytes(FAKER.bmp())
 
-        gif_file = Path("media") / "image.gif"
-        gif_file.write_bytes(FAKER.gif())
+        Path("/tmp/image.gif").write_bytes(FAKER.gif())
 
     Note, that all image formats accept `size` (default: `(100, 100)`)
     and `color`(default: `(255, 0, 0)`) arguments.
