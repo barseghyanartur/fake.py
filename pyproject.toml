@@ -85,8 +85,8 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 80
-known_first_party = []
-known_third_party = []
+known_first_party = ["article"]
+known_third_party = ["fake"]
 skip = ["wsgi.py", "builddocs/"]
 
 [tool.ruff]

@@ -9,6 +9,7 @@ import random
 import re
 import string
 import unittest
+import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
@@ -790,6 +791,9 @@ class Faker:
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
         return "".join([translation_map.get(c, c) for c in text])
 
+    def uuid(self):
+        return uuid.uuid4()
+
     def first_name(self) -> str:
         return random.choice(self._first_names)
 
@@ -798,6 +802,16 @@ class Faker:
 
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
+
+    def username(self):
+        return (
+            f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
+        ).lower()
+
+    def slug(self):
+        return (
+            f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
+        ).lower()
 
     def word(self) -> str:
         return random.choice(self._words).capitalize()
@@ -916,9 +930,9 @@ class Faker:
                 "'-1d', '+2H', '-30M'."
             )
 
-    def date_between(
+    def date(
         self,
-        start_date: str,
+        start_date: str = "-7d",
         end_date: str = "+0d",
     ) -> date:
         """Generate random date between `start_date` and `end_date`.
@@ -938,9 +952,9 @@ class Faker:
         random_date = start_datetime + timedelta(days=random_days)
         return random_date.date()
 
-    def date_time_between(
+    def date_time(
         self,
-        start_date: str,
+        start_date: str = "-7d",
         end_date: str = "+0d",
     ) -> datetime:
         """Generate a random datetime between `start_date` and `end_date`.
@@ -1359,6 +1373,146 @@ class Faker:
         return file
 
 
+FAKER = Faker()
+
+
+class FactoryMethod:
+    def __init__(self, method_name, **kwargs):
+        self.method_name = method_name
+        self.kwargs = kwargs
+
+    def __call__(self):
+        method = getattr(FAKER, self.method_name)
+        return method(**self.kwargs)
+
+
+class FactoryMeta(type):
+    # List of methods to be created in the Factory class
+    enabled_methods = [
+        "date",
+        "date_time",
+        "email",
+        "first_name",
+        "ipv4",
+        "last_name",
+        "name",
+        "paragraph",
+        "pdf_file",
+        "png_file",
+        "pybool",
+        "pyfloat",
+        "pyint",
+        "pystr",
+        "sentence",
+        "slug",
+        "text",
+        "txt_file",
+        "url",
+        "username",
+        "uuid",
+        "word",
+    ]
+
+    def __new__(cls, name, bases, attrs):
+        for method_name in cls.enabled_methods:
+            attrs[method_name] = cls.create_factory_method(method_name)
+        return super().__new__(cls, name, bases, attrs)
+
+    @staticmethod
+    def create_factory_method(method_name):
+        def method(**kwargs):
+            # # Special handling for boolean
+            # if method_name == "pybool":
+            #     return FactoryMethod("pybool")
+            # # Default argument for text
+            # if method_name == "text" and "nb_chars" not in kwargs:
+            #     kwargs["max_nb_chars"] = 200
+            return FactoryMethod(method_name, **kwargs)
+
+        return staticmethod(method)
+
+
+class SubFactory:
+    def __init__(self, factory_class, **kwargs):
+        self.factory_class = factory_class
+        self.factory_kwargs = kwargs
+
+    def __call__(self):
+        # Initialize the specified factory class and create an instance
+        return self.factory_class.create(**self.factory_kwargs)
+
+
+class Factory(metaclass=FactoryMeta):
+    """Factory."""
+
+
+def pre_save(func):
+    func.is_pre_save = True
+    return func
+
+
+def post_save(func):
+    func.is_post_save = True
+    return func
+
+
+class BaseModelFactory:
+    """Base ModelFactory."""
+
+    @classmethod
+    def _run_hooks(cls, hooks, instance):
+        for method in hooks:
+            getattr(cls, method)(instance)
+
+    @classmethod
+    def create(cls, **kwargs):
+        """Create."""
+        raise NotImplementedError("Not implemented")
+
+    @classmethod
+    def create_batch(cls, count, **kwargs):
+        return [cls.create(**kwargs) for _ in range(count)]
+
+    def __new__(cls, **kwargs):
+        return cls.create(**kwargs)
+
+
+class DjangoModelFactory(BaseModelFactory):
+    """Django ModelFactory."""
+
+    @classmethod
+    def create(cls, **kwargs):
+        model_data = {
+            field: (
+                value()
+                if isinstance(value, (FactoryMethod, SubFactory))
+                else value
+            )
+            for field, value in cls.__dict__.items()
+            if not field.startswith("_") and not field == "Meta"
+        }
+        model_data.update(kwargs)
+        instance = cls.Meta.model(**model_data)
+
+        pre_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_save", False)
+        ]
+        cls._run_hooks(pre_save_hooks, instance)
+
+        instance.save()
+
+        post_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_post_save", False)
+        ]
+        cls._run_hooks(post_save_hooks, instance)
+
+        return instance
+
+
 class TestFaker(unittest.TestCase):
     def setUp(self) -> None:
         self.faker = Faker()
@@ -1602,18 +1756,18 @@ class TestFaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.faker._parse_date_string("1y")
 
-    def test_date_between(self):
+    def test_date(self):
         # Test the same date for start and end
         start_date = "now"
         end_date = "+0d"
-        random_date = self.faker.date_between(start_date, end_date)
+        random_date = self.faker.date(start_date, end_date)
         self.assertIsInstance(random_date, date)
         self.assertEqual(random_date, datetime.now().date())
 
         # Test date range
         start_date = "-2d"
         end_date = "+2d"
-        random_date = self.faker.date_between(start_date, end_date)
+        random_date = self.faker.date(start_date, end_date)
         self.assertIsInstance(random_date, date)
         self.assertTrue(
             datetime.now().date() - timedelta(days=2)
@@ -1621,11 +1775,11 @@ class TestFaker(unittest.TestCase):
             <= datetime.now().date() + timedelta(days=2)
         )
 
-    def test_date_time_between(self):
+    def test_date_time(self):
         # Test the same datetime for start and end
         start_date = "now"
         end_date = "+0d"
-        random_datetime = self.faker.date_time_between(start_date, end_date)
+        random_datetime = self.faker.date_time(start_date, end_date)
         self.assertIsInstance(random_datetime, datetime)
         self.assertAlmostEqual(
             random_datetime, datetime.now(), delta=timedelta(seconds=1)
@@ -1634,7 +1788,7 @@ class TestFaker(unittest.TestCase):
         # Test datetime range
         start_date = "-2H"
         end_date = "+2H"
-        random_datetime = self.faker.date_time_between(start_date, end_date)
+        random_datetime = self.faker.date_time(start_date, end_date)
         self.assertIsInstance(random_datetime, datetime)
         self.assertTrue(
             datetime.now() - timedelta(hours=2)
