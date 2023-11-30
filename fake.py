@@ -31,7 +31,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.1.3"
+__version__ = "0.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"

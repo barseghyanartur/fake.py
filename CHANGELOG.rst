@@ -16,6 +16,16 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.2
+---
+2023-12-01
+
+- Add factories.
+- Improve docs.
+- Add ``uuid``, ``slug`` and ``username`` generators.
+- Change ``date_between`` to ``date``.
+- Change ``date_time_between`` to ``date_time``.
+
 0.1.3
 -----
 2023-11-28
