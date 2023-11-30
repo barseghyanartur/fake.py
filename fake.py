@@ -1318,18 +1318,25 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
-        data = self.docx(nb_pages=nb_pages, texts=texts)
+        if not texts:
+            texts = self.sentences(nb=nb_pages)  # type: ignore
+        data = self.docx(texts=texts)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
-        file.data = {"storage": storage, "filename": filename}
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": "\n".join(texts),
+        }
         return file
 
     def txt_file(
         self,
-        nb_chars: int = 200,
+        nb_chars: Optional[int] = 200,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
+        text: Optional[str] = None,
     ) -> StringValue:
         if storage is None:
             storage = FileSystemStorage()
@@ -1338,13 +1345,16 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
-        data = self.text(nb_chars=nb_chars)
-        storage.write_text(filename=filename, data=data)
+        if not text:
+            if not nb_chars:
+                nb_chars = 200
+            text = self.text(nb_chars=nb_chars)
+        storage.write_text(filename=filename, data=text)
         file = StringValue(storage.relpath(filename))
         file.data = {
             "storage": storage,
             "filename": filename,
-            "content": data,
+            "content": text,
         }
         return file
 
