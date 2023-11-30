@@ -1,9 +1,9 @@
-from fake import Factory, PydanticModelFactory
+from fake import Factory, ModelFactory
 
 from article.models import Article
 
 
-class ArticleFactory(PydanticModelFactory):
+class ArticleFactory(ModelFactory):
     title = Factory.sentence()
     slug = Factory.slug()
     content = Factory.text()

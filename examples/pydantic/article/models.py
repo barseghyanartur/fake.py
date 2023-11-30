@@ -12,9 +12,9 @@ class Article(BaseModel):
     pub_date: datetime = Field(default_factory=datetime.now)
     safe_for_work: bool = False
     minutes_to_read: int = 5
-    author_id: int  # Assuming author is represented by an integer ID
+    # author_id: int  # Assuming author is represented by an integer ID
 
-    class Config:
+    class Meta:
         orm_mode = True
 
 

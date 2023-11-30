@@ -36,10 +36,20 @@ __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "AuthorshipData",
+    "BaseStorage",
+    "DjangoModelFactory",
     "DocxGenerator",
+    "FAKER",
+    "Factory",
     "Faker",
+    "FileSystemStorage",
     "GraphicPdfGenerator",
+    "ModelFactory",
+    "StringValue",
+    "SubFactory",
     "TextPdfGenerator",
+    "post_save",
+    "pre_save",
 )
 
 
@@ -1460,29 +1470,13 @@ def post_save(func):
     return func
 
 
-class BaseModelFactory:
-    """Base ModelFactory."""
+class ModelFactory:
+    """ModelFactory."""
 
     @classmethod
     def _run_hooks(cls, hooks, instance):
         for method in hooks:
             getattr(cls, method)(instance)
-
-    @classmethod
-    def create(cls, **kwargs):
-        """Create."""
-        raise NotImplementedError("Not implemented")
-
-    @classmethod
-    def create_batch(cls, count, **kwargs):
-        return [cls.create(**kwargs) for _ in range(count)]
-
-    def __new__(cls, **kwargs):
-        return cls.create(**kwargs)
-
-
-class DjangoModelFactory(BaseModelFactory):
-    """Django ModelFactory."""
 
     @classmethod
     def create(cls, **kwargs):
@@ -1496,6 +1490,7 @@ class DjangoModelFactory(BaseModelFactory):
             if not field.startswith("_") and not field == "Meta"
         }
         model_data.update(kwargs)
+
         instance = cls.Meta.model(**model_data)
 
         pre_save_hooks = [
@@ -1505,7 +1500,7 @@ class DjangoModelFactory(BaseModelFactory):
         ]
         cls._run_hooks(pre_save_hooks, instance)
 
-        instance.save()
+        cls.save(instance)
 
         post_save_hooks = [
             method
@@ -1515,6 +1510,25 @@ class DjangoModelFactory(BaseModelFactory):
         cls._run_hooks(post_save_hooks, instance)
 
         return instance
+
+    @classmethod
+    def create_batch(cls, count, **kwargs):
+        return [cls.create(**kwargs) for _ in range(count)]
+
+    def __new__(cls, **kwargs):
+        return cls.create(**kwargs)
+
+    @classmethod
+    def save(cls, instance):
+        """Save the instance."""
+
+
+class DjangoModelFactory(ModelFactory):
+    """Django ModelFactory."""
+
+    @classmethod
+    def save(cls, instance):
+        instance.save()
 
 
 class TestFaker(unittest.TestCase):
