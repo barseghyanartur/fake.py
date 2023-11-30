@@ -23,6 +23,11 @@ class UserFactory(DjangoModelFactory):
     first_name = Factory.first_name()
     last_name = Factory.last_name()
     email = Factory.email()
+    last_login = Factory.date_time()
+    is_superuser = False
+    is_staff = False
+    is_active = Factory.pybool()
+    date_joined = Factory.date_time()
 
     class Meta:
         model = User

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fake import Factory, FileSystemStorage, ModelFactory, SubFactory
+from fake import Factory, FileSystemStorage, SubFactory, TortoiseModelFactory
 
 from article.models import Article, User
 
@@ -16,7 +16,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 
 
-class UserFactory(ModelFactory):
+class UserFactory(TortoiseModelFactory):
     id = Factory.pyint()
     username = Factory.username()
     first_name = Factory.first_name()
@@ -32,13 +32,13 @@ class UserFactory(ModelFactory):
         model = User
 
 
-class ArticleFactory(ModelFactory):
+class ArticleFactory(TortoiseModelFactory):
     id = Factory.pyint()
     title = Factory.sentence()
     slug = Factory.slug()
     content = Factory.text()
     image = Factory.png_file(storage=STORAGE)
-    pub_date = Factory.date()
+    pub_date = Factory.date_time()
     safe_for_work = Factory.pybool()
     minutes_to_read = Factory.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)

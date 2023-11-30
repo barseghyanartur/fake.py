@@ -2,6 +2,7 @@
 https://github.com/barseghyanartur/fake.py/
 """
 
+import asyncio
 import contextlib
 import io
 import os
@@ -48,6 +49,7 @@ __all__ = (
     "StringValue",
     "SubFactory",
     "TextPdfGenerator",
+    "TortoiseModelFactory",
     "post_save",
     "pre_save",
 )
@@ -1529,6 +1531,17 @@ class DjangoModelFactory(ModelFactory):
     @classmethod
     def save(cls, instance):
         instance.save()
+
+
+class TortoiseModelFactory(ModelFactory):
+    """Tortoise ModelFactory."""
+
+    @classmethod
+    def save(cls, instance):
+        async def async_save():
+            await instance.save()
+
+        asyncio.run(async_save())
 
 
 class TestFaker(unittest.TestCase):
