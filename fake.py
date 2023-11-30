@@ -1389,8 +1389,10 @@ class FactoryMethod:
 class FactoryMeta(type):
     # List of methods to be created in the Factory class
     enabled_methods = [
+        "bmp_file",
         "date",
         "date_time",
+        "docx_file",
         "email",
         "first_name",
         "ipv4",
@@ -1405,7 +1407,9 @@ class FactoryMeta(type):
         "pystr",
         "sentence",
         "slug",
+        "svg_file",
         "text",
+        "txt_file",
         "txt_file",
         "url",
         "username",
