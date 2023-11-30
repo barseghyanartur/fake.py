@@ -3,11 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-__all__ = (
-    "Article",
-    "User",
-)
-
 
 class User(BaseModel):
     id: int

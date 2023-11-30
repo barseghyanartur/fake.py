@@ -1546,7 +1546,7 @@ class TortoiseModelFactory(ModelFactory):
 
 class TestFaker(unittest.TestCase):
     def setUp(self) -> None:
-        self.faker = Faker()
+        self.faker = FAKER
 
     def test_first_name(self) -> None:
         first_name: str = self.faker.first_name()

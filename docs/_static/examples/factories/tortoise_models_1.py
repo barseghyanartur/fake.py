@@ -3,11 +3,6 @@ from datetime import datetime
 from tortoise import fields
 from tortoise.models import Model
 
-__all__ = (
-    "Article",
-    "User",
-)
-
 
 class User(Model):
     id = fields.IntField(pk=True)
