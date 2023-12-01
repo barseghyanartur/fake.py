@@ -1404,10 +1404,7 @@ class FactoryMethod:
     ):
         self.method_name = method_name
         self.kwargs = kwargs
-        if faker is None:
-            self.faker = FAKER
-        else:
-            self.faker = faker
+        self.faker = faker or FAKER
 
     def __call__(self):
         method = getattr(self.faker, self.method_name)
@@ -1416,7 +1413,7 @@ class FactoryMethod:
 
 class FactoryMeta(type):
     # List of methods to be created in the Factory class
-    enabled_methods = [
+    enabled_methods = {
         "bmp_file",
         "date",
         "date_time",
@@ -1443,7 +1440,7 @@ class FactoryMeta(type):
         "username",
         "uuid",
         "word",
-    ]
+    }
 
     def __new__(cls, name, bases, attrs):
         for method_name in cls.enabled_methods:
@@ -1479,10 +1476,7 @@ class Factory(metaclass=FactoryMeta):
     """Factory."""
 
     def __init__(self, faker: Optional[Faker] = None) -> None:
-        if faker is None:
-            self.faker = FAKER
-        else:
-            self.faker = faker
+        self.faker = faker or FAKER
 
 
 FACTORY = Factory(faker=FAKER)
