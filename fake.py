@@ -1625,6 +1625,27 @@ def post_save(func):
 class ModelFactory:
     """ModelFactory."""
 
+    class Meta:
+        get_or_create = ("id",)  # Default fields for get_or_create
+
+    def __init_subclass__(cls, **kwargs):
+        base_meta = getattr(
+            cls.__bases__[0],
+            "_meta",
+            {
+                attr: getattr(cls.__bases__[0].Meta, attr)
+                for attr in dir(cls.__bases__[0].Meta)
+                if not attr.startswith("_")
+            },
+        )
+        cls_meta = {
+            attr: getattr(cls.Meta, attr)
+            for attr in dir(cls.Meta)
+            if not attr.startswith("_")
+        }
+
+        cls._meta = {**base_meta, **cls_meta}
+
     @classmethod
     def _run_hooks(cls, hooks, instance):
         for method in hooks:
@@ -1677,27 +1698,6 @@ class ModelFactory:
 
 class DjangoModelFactory(ModelFactory):
     """Django ModelFactory."""
-
-    class Meta:
-        get_or_create = ("id",)  # Default fields for get_or_create
-
-    def __init_subclass__(cls, **kwargs):
-        base_meta = getattr(
-            cls.__bases__[0],
-            "_meta",
-            {
-                attr: getattr(cls.__bases__[0].Meta, attr)
-                for attr in dir(cls.__bases__[0].Meta)
-                if not attr.startswith("_")
-            },
-        )
-        cls_meta = {
-            attr: getattr(cls.Meta, attr)
-            for attr in dir(cls.Meta)
-            if not attr.startswith("_")
-        }
-
-        cls._meta = {**base_meta, **cls_meta}
 
     @classmethod
     def save(cls, instance):
@@ -1783,6 +1783,30 @@ class TortoiseModelFactory(ModelFactory):
             await instance.save()
 
         asyncio.run(async_save())
+
+    @classmethod
+    def create(cls, **kwargs):
+        model = cls.Meta.model
+        unique_fields = cls._meta.get("get_or_create", ["id"])
+
+        # Construct a query for unique fields
+        query = {
+            field: kwargs[field] for field in unique_fields if field in kwargs
+        }
+
+        # Try to get an existing instance
+        if query:
+
+            async def async_filter():
+                return await model.filter(**query).first()
+
+            instance = asyncio.run(async_filter())
+
+            if instance:
+                return instance
+
+        # Create a new instance if none found
+        return super().create(**kwargs)
 
 
 class TestFaker(unittest.TestCase):

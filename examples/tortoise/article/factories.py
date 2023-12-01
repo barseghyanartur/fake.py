@@ -17,7 +17,9 @@ STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 
 
 class UserFactory(TortoiseModelFactory):
-    id = FACTORY.pyint()
+    """User factory."""
+
+    # id = FACTORY.pyint()
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
@@ -30,10 +32,13 @@ class UserFactory(TortoiseModelFactory):
 
     class Meta:
         model = User
+        get_or_create = ("username",)
 
 
 class ArticleFactory(TortoiseModelFactory):
-    id = FACTORY.pyint()
+    """Article factory."""
+
+    # id = FACTORY.pyint()
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
