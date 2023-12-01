@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fake import Factory, FileSystemStorage, SubFactory, TortoiseModelFactory
+from fake import FACTORY, FileSystemStorage, SubFactory, TortoiseModelFactory
 
 from article.models import Article, User
 
@@ -17,30 +17,30 @@ STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 
 
 class UserFactory(TortoiseModelFactory):
-    id = Factory.pyint()
-    username = Factory.username()
-    first_name = Factory.first_name()
-    last_name = Factory.last_name()
-    email = Factory.email()
-    last_login = Factory.date_time()
+    id = FACTORY.pyint()
+    username = FACTORY.username()
+    first_name = FACTORY.first_name()
+    last_name = FACTORY.last_name()
+    email = FACTORY.email()
+    last_login = FACTORY.date_time()
     is_superuser = False
     is_staff = False
-    is_active = Factory.pybool()
-    date_joined = Factory.date_time()
+    is_active = FACTORY.pybool()
+    date_joined = FACTORY.date_time()
 
     class Meta:
         model = User
 
 
 class ArticleFactory(TortoiseModelFactory):
-    id = Factory.pyint()
-    title = Factory.sentence()
-    slug = Factory.slug()
-    content = Factory.text()
-    image = Factory.png_file(storage=STORAGE)
-    pub_date = Factory.date_time()
-    safe_for_work = Factory.pybool()
-    minutes_to_read = Factory.pyint(min_value=1, max_value=10)
+    id = FACTORY.pyint()
+    title = FACTORY.sentence()
+    slug = FACTORY.slug()
+    content = FACTORY.text()
+    image = FACTORY.png_file(storage=STORAGE)
+    pub_date = FACTORY.date_time()
+    safe_for_work = FACTORY.pybool()
+    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
 
     class Meta:
