@@ -41,13 +41,21 @@ Overview
 ========
 
 ``fake.py`` is a standalone and portable library that allows you to generate
-various types of random data for testing and other purposes. The package
-provides a simplified, dependency-free alternative for generating random
-words, sentences, paragraphs, file names, URLs, person names, as well as
+various types of random data for testing purposes. The package provides a
+simplified, dependency-free alternative for generating random words,
+sentences, paragraphs, file names, URLs, person names, as well as
 bytes content for ``PDF``-, ``DOCX``- and various image formats (such as
 ``PNG``, ``SVG``, ``BMP`` and ``GIF``). It can create files directly
-on your filesystem too. It comes with factories (works with `Django`_,
-`TortoiseORM`_, `Pydantic`_).
+on your filesystem too. It comes with basic factories (that work with
+`Django`_, `TortoiseORM`_ and `Pydantic`_).
+
+Features
+========
+- Generate random texts.
+- Create files of ``PDF``, ``DOCX``, ``TXT``, ``PNG``, ``SVG``, ``BMP``
+  and ``GIF`` formats.
+- Built-in basic factoies, that work well with `Django`_, `Pydantic`_ and
+  `TortoiseORM`_.
 
 Requirements
 ============
