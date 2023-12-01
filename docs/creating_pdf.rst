@@ -18,14 +18,16 @@ check the `faker-file`_ package, which can produce pretty comprehensive PDFs.
 
 Building PDF with text
 ----------------------
+If you need bytes
+~~~~~~~~~~~~~~~~~
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/creating_pdf/text_pdf_1.py
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_1.py
         :language: python
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/text_pdf_1.py>`
+    :download:`here <_static/examples/creating_pdf/text_pdf_bytes_1.py>`
 
 The generated PDF will have 10,000 characters of text, which is about 2 pages.
 
@@ -41,12 +43,12 @@ See the example below for ``max_nb_chars`` tweak:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/creating_pdf/pdfkit_2.py
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2.py
         :language: python
         :lines: 11-
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/pdfkit_2.py>`
+    :download:`here <_static/examples/creating_pdf/text_pdf_bytes_2.py>`
 
 ----
 
@@ -54,33 +56,15 @@ See the example below for ``wrap_chars_after`` tweak:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/creating_pdf/pdfkit_3.py
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_3.py
         :language: python
         :lines: 11-
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/pdfkit_3.py>`
+    :download:`here <_static/examples/creating_pdf/text_pdf_bytes_3.py>`
 
-----
-
-As mentioned above, it's possible to diversify the generated context with
-images, paragraphs, tables, manual text break and pretty much everything that
-is supported by PDF format specification, although currently only images,
-paragraphs, tables and manual text breaks are supported out of the box. In
-order to customise the blocks PDF file is built from, the ``DynamicTemplate``
-class is used. See the example below for usage examples:
-
-.. container:: jsphinx-download
-
-    .. literalinclude:: _static/examples/creating_pdf/pdfkit_4.py
-        :language: python
-        :lines: 3-9, 17-
-
-    *See the full example*
-    :download:`here <_static/examples/creating_pdf/pdfkit_4.py>`
-
-Creating PDFs with graphics using `Pillow`_
--------------------------------------------
+If you need files
+~~~~~~~~~~~~~~~~~
 There's a so called `graphic` PDF file provider available. Produced PDF files
 would not contain text, so don't use it when you need text based content.
 However, sometimes you just need a valid file in PDF format, without
@@ -89,12 +73,12 @@ rescue:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/creating_pdf/pillow_4.py
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_1.py
         :language: python
         :lines: 2-3, 7-
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/pillow_4.py>`
+    :download:`here <_static/examples/creating_pdf/text_pdf_file_1.py>`
 
 The generated file will contain a random graphic (consisting of lines and
 shapes of different colours).
@@ -105,9 +89,22 @@ One of the most useful arguments supported is ``size``.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/creating_pdf/pillow_5.py
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_2.py
         :language: python
         :lines: 7-
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/pillow_5.py>`
+    :download:`here <_static/examples/creating_pdf/text_pdf_file_2.py>`
+
+----
+
+One of the most useful arguments supported is ``size``.
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_3.py
+        :language: python
+        :lines: 7-
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/text_pdf_file_3.py>`

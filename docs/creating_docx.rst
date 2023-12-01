@@ -1,7 +1,7 @@
 Creating DOCX
 =============
 
-See the following full functional snippet for generating DOCX.
+See the following full functional snippet for generating ``DOCX`` file.
 
 .. container:: jsphinx-download
 
