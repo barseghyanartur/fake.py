@@ -898,6 +898,10 @@ class Faker:
     """
 
     def __init__(self) -> None:
+        self._words: List[str] = []
+        self._first_names: List[str] = []
+        self._last_names: List[str] = []
+
         self.load_words()
         self.load_names()
 
@@ -916,9 +920,9 @@ class Faker:
         )
 
     def load_names(self) -> None:
-        self._authorship_data = AuthorshipData()
-        self._first_names = list(self._authorship_data.first_names)
-        self._last_names = list(self._authorship_data.last_names)
+        authorship_data = AuthorshipData()
+        self._first_names = list(authorship_data.first_names)
+        self._last_names = list(authorship_data.last_names)
 
     @staticmethod
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
