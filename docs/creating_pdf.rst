@@ -31,7 +31,7 @@ If you need bytes
 
 The generated PDF will have 10,000 characters of text, which is about 2 pages.
 
-If you want PDF with more pages, you could either:
+If you want to provide texts to be used:
 
 - Increase the value of ``max_nb_chars`` accordingly.
 - Set value of ``wrap_chars_after`` to 80 characters to force longer pages.
