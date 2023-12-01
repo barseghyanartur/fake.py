@@ -1448,9 +1448,6 @@ class FactoryMeta(type):
     def __new__(cls, name, bases, attrs):
         for method_name in cls.enabled_methods:
             attrs[method_name] = cls.create_factory_method(method_name)
-        print(name)
-        print(bases)
-        print(attrs)
         return super().__new__(cls, name, bases, attrs)
 
     @staticmethod
