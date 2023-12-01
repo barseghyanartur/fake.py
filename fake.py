@@ -928,7 +928,7 @@ class Faker:
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
         return "".join([translation_map.get(c, c) for c in text])
 
-    def uuid(self):
+    def uuid(self) -> uuid.UUID:
         return uuid.uuid4()
 
     def first_name(self) -> str:
@@ -940,12 +940,12 @@ class Faker:
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
 
-    def username(self):
+    def username(self) -> str:
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
-    def slug(self):
+    def slug(self) -> str:
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
@@ -1678,9 +1678,100 @@ class ModelFactory:
 class DjangoModelFactory(ModelFactory):
     """Django ModelFactory."""
 
+    class Meta:
+        get_or_create = ("id",)  # Default fields for get_or_create
+
+    def __init_subclass__(cls, **kwargs):
+        base_meta = getattr(
+            cls.__bases__[0],
+            "_meta",
+            {
+                attr: getattr(cls.__bases__[0].Meta, attr)
+                for attr in dir(cls.__bases__[0].Meta)
+                if not attr.startswith("_")
+            },
+        )
+        cls_meta = {
+            attr: getattr(cls.Meta, attr)
+            for attr in dir(cls.Meta)
+            if not attr.startswith("_")
+        }
+
+        cls._meta = {**base_meta, **cls_meta}
+
     @classmethod
     def save(cls, instance):
         instance.save()
+
+    @classmethod
+    def create(cls, **kwargs):
+        model = cls.Meta.model
+        unique_fields = cls._meta.get("get_or_create", ["id"])
+
+        # Construct a query for unique fields
+        query = {
+            field: kwargs[field] for field in unique_fields if field in kwargs
+        }
+
+        # Try to get an existing instance
+        if query:
+            instance = model.objects.filter(**query).first()
+            if instance:
+                return instance
+
+        # Create a new instance if none found
+        # return super().create(**kwargs)
+        model_data = {
+            field: value
+            for field, value in cls.__dict__.items()
+            if not field.startswith("_") and not field == "Meta"
+        }
+
+        # Separate nested attributes and direct attributes
+        nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
+        direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
+
+        # Update direct attributes with callable results
+        for field, value in model_data.items():
+            if isinstance(value, (FactoryMethod, SubFactory)):
+                model_data[field] = (
+                    value()
+                    if field not in direct_attrs
+                    else direct_attrs[field]
+                )
+
+        # Create instance
+        instance = cls.Meta.model(**model_data)
+
+        # Handle nested attributes
+        for attr, value in nested_attrs.items():
+            field_name, nested_attr = attr.split("__", 1)
+            if isinstance(getattr(cls, field_name, None), SubFactory):
+                related_instance = getattr(
+                    cls, field_name
+                ).factory_class.create(**{nested_attr: value})
+                setattr(instance, field_name, related_instance)
+
+        # Run pre-save hooks
+        pre_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_save", False)
+        ]
+        cls._run_hooks(pre_save_hooks, instance)
+
+        # Save instance
+        cls.save(instance)
+
+        # Run post-save hooks
+        post_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_post_save", False)
+        ]
+        cls._run_hooks(post_save_hooks, instance)
+
+        return instance
 
 
 class TortoiseModelFactory(ModelFactory):

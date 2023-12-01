@@ -31,6 +31,7 @@ class UserFactory(DjangoModelFactory):
 
     class Meta:
         model = User
+        get_or_create = ("username",)
 
     @pre_save
     def __set_password(instance):
