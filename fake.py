@@ -40,6 +40,7 @@ __all__ = (
     "BaseStorage",
     "DjangoModelFactory",
     "DocxGenerator",
+    "FACTORY",
     "FAKER",
     "Factory",
     "Faker",
@@ -783,6 +784,10 @@ class Faker:
     """
 
     def __init__(self) -> None:
+        self.load_words()
+        self.load_names()
+
+    def load_words(self) -> None:
         with contextlib.redirect_stdout(io.StringIO()):
             # Dynamically import 'this' module
             this = __import__("this")
@@ -795,6 +800,8 @@ class Faker:
             .lower()
             .split()
         )
+
+    def load_names(self) -> None:
         self._authorship_data = AuthorshipData()
         self._first_names = list(self._authorship_data.first_names)
         self._last_names = list(self._authorship_data.last_names)
@@ -1389,12 +1396,21 @@ FAKER = Faker()
 
 
 class FactoryMethod:
-    def __init__(self, method_name, **kwargs):
+    def __init__(
+        self,
+        method_name: str,
+        faker: Optional[Faker] = None,
+        **kwargs,
+    ):
         self.method_name = method_name
         self.kwargs = kwargs
+        if faker is None:
+            self.faker = FAKER
+        else:
+            self.faker = faker
 
     def __call__(self):
-        method = getattr(FAKER, self.method_name)
+        method = getattr(self.faker, self.method_name)
         return method(**self.kwargs)
 
 
@@ -1432,20 +1448,24 @@ class FactoryMeta(type):
     def __new__(cls, name, bases, attrs):
         for method_name in cls.enabled_methods:
             attrs[method_name] = cls.create_factory_method(method_name)
+        print(name)
+        print(bases)
+        print(attrs)
         return super().__new__(cls, name, bases, attrs)
 
     @staticmethod
     def create_factory_method(method_name):
-        def method(**kwargs):
+        def method(self, **kwargs):
             # # Special handling for boolean
             # if method_name == "pybool":
             #     return FactoryMethod("pybool")
             # # Default argument for text
             # if method_name == "text" and "nb_chars" not in kwargs:
             #     kwargs["max_nb_chars"] = 200
-            return FactoryMethod(method_name, **kwargs)
+            return FactoryMethod(method_name, faker=self.faker, **kwargs)
 
-        return staticmethod(method)
+        # return staticmethod(method)
+        return method
 
 
 class SubFactory:
@@ -1460,6 +1480,15 @@ class SubFactory:
 
 class Factory(metaclass=FactoryMeta):
     """Factory."""
+
+    def __init__(self, faker: Optional[Faker] = None) -> None:
+        if faker is None:
+            self.faker = FAKER
+        else:
+            self.faker = faker
+
+
+FACTORY = Factory(faker=FAKER)
 
 
 def pre_save(func):
