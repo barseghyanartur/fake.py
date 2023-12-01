@@ -20,9 +20,6 @@ codebin/
 .zip
 /examples/db/
 /var/
-/examples/django_example/project/media/
-/examples/django_example/project/static/
-/examples/sqlalchemy_example/tmp/
 /examples/tmp/
 /examples/logs/
 /builddocs/
@@ -38,3 +35,7 @@ local_settings.py
 *.cast
 .ipynb_checkpoints/
 .scannerwork/
+*db.sqlite3*
+examples/pydantic/media/
+examples/tortoise/media/
+examples/django/media/
