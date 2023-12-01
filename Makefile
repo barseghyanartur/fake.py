@@ -43,6 +43,15 @@ test:
 shell:
 	source $(VENV) && ipython
 
+django-shell:
+	source $(VENV) && python examples/django/manage.py shell
+
+pydantic-shell:
+	source $(VENV) && python examples/pydantic/shell.py
+
+tortoise-shell:
+	source $(VENV) && python examples/tortoise/shell.py
+
 create-secrets:
 	source $(VENV) && detect-secrets scan > .secrets.baseline
 
