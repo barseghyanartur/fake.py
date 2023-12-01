@@ -40,6 +40,9 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+shell:
+	source $(VENV) && ipython
+
 create-secrets:
 	source $(VENV) && detect-secrets scan > .secrets.baseline
 
