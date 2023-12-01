@@ -108,3 +108,70 @@ One of the most useful arguments supported is ``size``.
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_file_3.py>`
+
+Building PDF with graphics
+--------------------------
+If you need bytes
+~~~~~~~~~~~~~~~~~
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_1.py
+        :language: python
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_1.py>`
+
+The generated PDF will have 10,000 characters of text, which is about 2 pages.
+
+If you want PDF with more pages, you could either:
+
+- Increase the value of ``max_nb_chars`` accordingly.
+- Set value of ``wrap_chars_after`` to 80 characters to force longer pages.
+- Insert manual page breaks and other content.
+
+----
+
+See the example below for ``max_nb_chars`` tweak:
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_2.py
+        :language: python
+        :lines: 11-
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_2.py>`
+
+If you need files
+~~~~~~~~~~~~~~~~~
+There's a so called `graphic` PDF file provider available. Produced PDF files
+would not contain text, so don't use it when you need text based content.
+However, sometimes you just need a valid file in PDF format, without
+caring much about the content. That's where a GraphicPdfFileProvider comes to
+rescue:
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_1.py
+        :language: python
+        :lines: 2-3, 7-
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/graphic_pdf_file_1.py>`
+
+The generated file will contain a random graphic (consisting of lines and
+shapes of different colours).
+
+----
+
+One of the most useful arguments supported is ``size``.
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_2.py
+        :language: python
+        :lines: 7-
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/graphic_pdf_file_2.py>`
