@@ -19,6 +19,16 @@ STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
 
 
 class UserFactory(DjangoModelFactory):
+    """User factory.
+
+    Usage example:
+
+    .. code-block:: python
+
+        user = UserFactory()
+        users = UserFactory.create_batch(5)
+    """
+
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
@@ -39,6 +49,14 @@ class UserFactory(DjangoModelFactory):
 
 
 class ArticleFactory(DjangoModelFactory):
+    """Article factory.
+
+    Usage example:
+
+        article = ArticleFactory()
+        articles = ArticleFactory.create_batch(5)
+    """
+
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
@@ -50,12 +68,3 @@ class ArticleFactory(DjangoModelFactory):
 
     class Meta:
         model = Article
-
-
-#
-# # Create an User instance
-# user = UserFactory()
-# users = UserFactory.create_batch(5)
-#
-# article = ArticleFactory()
-# articles = ArticleFactory.create_batch(5)
