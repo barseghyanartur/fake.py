@@ -1810,6 +1810,18 @@ class TortoiseModelFactory(ModelFactory):
         return super().create(**kwargs)
 
 
+# TODO: Remove once Python 3.8 support is dropped
+class ClassProperty(property):
+    """ClassProperty."""
+
+    def __get__(self, cls, owner):
+        """Get."""
+        return classmethod(self.fget).__get__(None, owner)()
+
+
+classproperty = ClassProperty
+
+
 class TestFaker(unittest.TestCase):
     def setUp(self) -> None:
         self.faker = FAKER
@@ -2315,8 +2327,9 @@ class TestFaker(unittest.TestCase):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True
 
-            @classmethod
-            @property
+            # TODO: Remove once Python 3.8 support is dropped
+            #  and replace with @classmethod @property combo.
+            @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
                 return Manager(
@@ -2349,8 +2362,9 @@ class TestFaker(unittest.TestCase):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True
 
-            @classmethod
-            @property
+            # TODO: Remove once Python 3.8 support is dropped
+            #  and replace with @classmethod @property combo.
+            @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
                 return Manager(
