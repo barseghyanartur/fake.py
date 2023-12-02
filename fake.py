@@ -2311,6 +2311,14 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = User
 
+            @pre_save
+            def __pre_save_method(instance):
+                instance.pre_save_called = True
+
+            @post_save
+            def __post_save_method(instance):
+                instance.post_save_called = True
+
         class ArticleFactory(ModelFactory):
             id = FACTORY.pyint()
             title = FACTORY.sentence()
@@ -2326,12 +2334,25 @@ class TestFaker(unittest.TestCase):
                 model = Article
 
         article = ArticleFactory()
+
+        # Testing SubFactory
         self.assertIsInstance(article.author, User)
-        self.assertIsInstance(article.id, int)
-        self.assertIsInstance(article.slug, str)
         self.assertIsInstance(article.author.id, int)
         self.assertIsInstance(article.author.is_staff, bool)
         self.assertIsInstance(article.author.date_joined, datetime)
+
+        # Testing Factory
+        self.assertIsInstance(article.id, int)
+        self.assertIsInstance(article.slug, str)
+
+        # Testing hooks
+        user = article.author
+        self.assertTrue(
+            hasattr(user, "pre_save_called") and user.pre_save_called
+        )
+        self.assertTrue(
+            hasattr(user, "post_save_called") and user.post_save_called
+        )
 
 
 if __name__ == "__main__":
