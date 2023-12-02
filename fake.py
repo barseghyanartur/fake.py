@@ -1817,6 +1817,10 @@ class TestFaker(unittest.TestCase):
     def tearDown(self):
         FILE_REGISTRY.clean_up()
 
+    def test_uuid(self) -> None:
+        uuid_value = self.faker.uuid()
+        self.assertIsInstance(uuid_value, uuid.UUID)
+
     def test_first_name(self) -> None:
         first_name: str = self.faker.first_name()
         self.assertIsInstance(first_name, str)
@@ -2199,6 +2203,11 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_storage(self) -> None:
+        storage = FileSystemStorage()
+        with self.assertRaises(Exception):
+            storage.generate_filename(extension=None)
+
+    def test_storage_integration(self) -> None:
         file = self.faker.txt_file()
         file_2 = self.faker.txt_file(basename="file_2")
         file_3 = self.faker.txt_file(basename="file_3")
@@ -2230,6 +2239,19 @@ class TestFaker(unittest.TestCase):
             storage.unlink(str(file_3))
             self.assertFalse(storage.exists(file_3.data["filename"]))
 
+    def test_metadata(self) -> None:
+        """Test MetaData."""
+        with self.subTest("Test str"):
+            metadata = MetaData()
+            content = FAKER.word()
+            metadata.add_content(content)
+            self.assertEqual(metadata.content, content)
+        with self.subTest("Test list"):
+            metadata = MetaData()
+            content = FAKER.words()
+            metadata.add_content(content)
+            self.assertEqual(metadata.content, "\n".join(content))
+
     def test_factory_method(self) -> None:
         """Test FactoryMethod."""
         with self.subTest("sentence"):
@@ -2254,8 +2276,29 @@ class TestFaker(unittest.TestCase):
         # ********* Models ********
         # *************************
 
+        class QuerySet(list):
+            """Mimicking Django QuerySet class."""
+
+            def __init__(self, instance: Union["Article", "User"]) -> None:
+                super().__init__()
+                self.instance = instance
+
+            def first(self) -> Union["Article", "User"]:
+                return self.instance
+
+        class Manager:
+            """Mimicking Django Manager class."""
+
+            def __init__(self, instance: Union["Article", "User"]) -> None:
+                self.instance = instance
+
+            def filter(self, *args, **kwargs) -> "QuerySet":
+                return QuerySet(instance=self.instance)
+
         @dataclass
         class User:
+            """User model."""
+
             id: int
             username: str
             first_name: str
@@ -2268,8 +2311,25 @@ class TestFaker(unittest.TestCase):
             is_staff: bool = False
             is_active: bool = True
 
-            def __str__(self):
-                return self.username
+            def save(self, *args, **kwargs):
+                """Mimicking Django's Mode save method."""
+                self.save_called = True
+
+            @classmethod
+            @property
+            def objects(cls):
+                """Mimicking Django's Manager behaviour."""
+                return Manager(
+                    instance=cls(
+                        id=FAKER.pyint(),
+                        username=FAKER.username(),
+                        first_name=FAKER.first_name(),
+                        last_name=FAKER.last_name(),
+                        email=FAKER.email(),
+                        last_login=FAKER.date_time(),
+                        date_joined=FAKER.date_time(),
+                    )
+                )
 
         @dataclass
         class Article:
@@ -2285,16 +2345,44 @@ class TestFaker(unittest.TestCase):
             safe_for_work: bool = False
             minutes_to_read: int = 5
 
-            def __str__(self):
-                return self.title
+            def save(self, *args, **kwargs):
+                """Mimicking Django's Mode save method."""
+                self.save_called = True
 
-        # *************************
-        # ******* Factories *******
-        # *************************
+            @classmethod
+            @property
+            def objects(cls):
+                """Mimicking Django's Manager behaviour."""
+                return Manager(
+                    instance=cls(
+                        id=FAKER.pyint(),
+                        title=FAKER.word(),
+                        slug=FAKER.slug(),
+                        content=FAKER.text(),
+                        author=User(
+                            id=FAKER.pyint(),
+                            username=FAKER.username(),
+                            first_name=FAKER.first_name(),
+                            last_name=FAKER.last_name(),
+                            email=FAKER.email(),
+                            last_login=FAKER.date_time(),
+                            date_joined=FAKER.date_time(),
+                        ),
+                    )
+                )
+
+        # ****************************
+        # *********** Other **********
+        # ****************************
+
         BASE_DIR = Path(__file__).resolve().parent.parent
         MEDIA_ROOT = BASE_DIR / "media"
 
         STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+        # ****************************
+        # ******* ModelFactory *******
+        # ****************************
 
         class UserFactory(ModelFactory):
             id = FACTORY.pyint()
@@ -2311,10 +2399,12 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = User
 
+            @staticmethod
             @pre_save
             def __pre_save_method(instance):
                 instance.pre_save_called = True
 
+            @staticmethod
             @post_save
             def __post_save_method(instance):
                 instance.post_save_called = True
@@ -2353,6 +2443,160 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(
             hasattr(user, "post_save_called") and user.post_save_called
         )
+
+        # **********************************
+        # ******* DjangoModelFactory *******
+        # **********************************
+
+        class DjangoUserFactory(DjangoModelFactory):
+            id = FACTORY.pyint()
+            username = FACTORY.username()
+            first_name = FACTORY.first_name()
+            last_name = FACTORY.last_name()
+            email = FACTORY.email()
+            last_login = FACTORY.date_time()
+            is_superuser = False
+            is_staff = False
+            is_active = FACTORY.pybool()
+            date_joined = FACTORY.date_time()
+
+            class Meta:
+                model = User
+                get_or_create = ("username",)
+
+            @staticmethod
+            @pre_save
+            def __pre_save_method(instance):
+                instance.pre_save_called = True
+
+            @staticmethod
+            @post_save
+            def __post_save_method(instance):
+                instance.post_save_called = True
+
+        class DjangoArticleFactory(DjangoModelFactory):
+            id = FACTORY.pyint()
+            title = FACTORY.sentence()
+            slug = FACTORY.slug()
+            content = FACTORY.text()
+            image = FACTORY.png_file(storage=STORAGE)
+            pub_date = FACTORY.date()
+            safe_for_work = FACTORY.pybool()
+            minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+            author = SubFactory(DjangoUserFactory)
+
+            class Meta:
+                model = Article
+
+            @staticmethod
+            @pre_save
+            def __pre_save_method(instance):
+                instance.pre_save_called = True
+
+            @staticmethod
+            @post_save
+            def __post_save_method(instance):
+                instance.post_save_called = True
+
+        django_article = DjangoArticleFactory(author__username="admin")
+
+        # Testing SubFactory
+        self.assertIsInstance(django_article.author, User)
+        self.assertIsInstance(django_article.author.id, int)
+        self.assertIsInstance(django_article.author.is_staff, bool)
+        self.assertIsInstance(django_article.author.date_joined, datetime)
+
+        # Testing Factory
+        self.assertIsInstance(django_article.id, int)
+        self.assertIsInstance(django_article.slug, str)
+
+        # Testing hooks
+        self.assertTrue(
+            hasattr(django_article, "pre_save_called")
+            and django_article.pre_save_called
+        )
+        self.assertTrue(
+            hasattr(django_article, "post_save_called")
+            and django_article.post_save_called
+        )
+
+        # Testing batch creation
+        django_articles = DjangoArticleFactory.create_batch(5)
+        self.assertEqual(len(django_articles), 5)
+        self.assertIsInstance(django_articles[0], Article)
+
+    def test_registry_integration(self) -> None:
+        """Test `add`."""
+        # Create a TXT file.
+        txt_file_1 = FAKER.txt_file()
+
+        with self.subTest("Check if `add` works"):
+            # Check if `add` works (the file is in the registry)
+            self.assertIn(txt_file_1, FILE_REGISTRY._registry)
+
+        with self.subTest("Check if `search` works"):
+            # Check if `search` works
+            res = FILE_REGISTRY.search(str(txt_file_1))
+            self.assertIsNotNone(res)
+            self.assertEqual(res, txt_file_1)
+
+        with self.subTest("Check if `remove` by `StringValue` works"):
+            # Check if `remove` by `StringValue`.
+            FILE_REGISTRY.remove(txt_file_1)
+            self.assertNotIn(txt_file_1, FILE_REGISTRY._registry)
+
+        with self.subTest("Check if `remove` by `str` works"):
+            # Create another TXT file and check if `remove` by `str` works.
+            txt_file_2 = FAKER.txt_file()
+            self.assertIn(txt_file_2, FILE_REGISTRY._registry)
+            FILE_REGISTRY.remove(str(txt_file_2))
+            self.assertNotIn(txt_file_2, FILE_REGISTRY._registry)
+
+        with self.subTest("Check if `clean_up` works"):
+            # Check if `clean_up` works
+            txt_file_3 = FAKER.txt_file()
+            txt_file_4 = FAKER.txt_file()
+            txt_file_5 = FAKER.txt_file()
+            self.assertIn(txt_file_3, FILE_REGISTRY._registry)
+            self.assertIn(txt_file_4, FILE_REGISTRY._registry)
+            self.assertIn(txt_file_5, FILE_REGISTRY._registry)
+
+            FILE_REGISTRY.clean_up()
+            self.assertNotIn(txt_file_3, FILE_REGISTRY._registry)
+            self.assertNotIn(txt_file_4, FILE_REGISTRY._registry)
+            self.assertNotIn(txt_file_5, FILE_REGISTRY._registry)
+
+    def test_remove_by_string_not_found(self):
+        res = FILE_REGISTRY.remove("i_do_not_exist.ext")
+        self.assertFalse(res)
+
+    def test_remove_exceptions(self):
+        txt_file = FAKER.txt_file()
+        txt_file.data["storage"].unlink(txt_file)
+
+        res = FILE_REGISTRY.remove(txt_file)
+        self.assertFalse(res)
+
+    def test_clean_up_exceptions(self):
+        # Redirect logger output to a string stream
+        log_stream = io.StringIO()
+        handler = logging.StreamHandler(log_stream)
+        LOGGER.addHandler(handler)
+        txt_file = FAKER.txt_file()
+        txt_file.data["storage"].unlink(txt_file)
+
+        # Clean up registry
+        FILE_REGISTRY.clean_up()
+
+        # Check the content of the logging output
+        log_output = log_stream.getvalue()
+        self.assertIn(
+            f"Failed to unlink file {txt_file.data['filename']}",
+            log_output,
+        )
+
+        # Clean up by removing the handler
+        LOGGER.removeHandler(handler)
 
 
 if __name__ == "__main__":

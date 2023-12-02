@@ -43,6 +43,7 @@ class UserFactory(DjangoModelFactory):
         model = User
         get_or_create = ("username",)
 
+    @staticmethod
     @pre_save
     def __set_password(instance):
         instance.set_password("test")
