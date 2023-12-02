@@ -15,6 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
@@ -2021,7 +2022,7 @@ class TestFaker(unittest.TestCase):
                 self.assertTrue(part.isdigit())
                 self.assertTrue(0 <= int(part) <= 255)
 
-    def test_parse_date_string(self):
+    def test_parse_date_string(self) -> None:
         # Test 'now' and 'today' special keywords
         self.assertAlmostEqual(
             self.faker._parse_date_string("now"),
@@ -2055,7 +2056,7 @@ class TestFaker(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.faker._parse_date_string("1y")
 
-    def test_date(self):
+    def test_date(self) -> None:
         # Test the same date for start and end
         start_date = "now"
         end_date = "+0d"
@@ -2074,7 +2075,7 @@ class TestFaker(unittest.TestCase):
             <= datetime.now().date() + timedelta(days=2)
         )
 
-    def test_date_time(self):
+    def test_date_time(self) -> None:
         # Test the same datetime for start and end
         start_date = "now"
         end_date = "+0d"
@@ -2095,7 +2096,7 @@ class TestFaker(unittest.TestCase):
             <= datetime.now() + timedelta(hours=2)
         )
 
-    def test_text_pdf(self):
+    def test_text_pdf(self) -> None:
         with self.subTest("All params None, should fail"):
             with self.assertRaises(ValueError):
                 self.faker.pdf(
@@ -2115,27 +2116,27 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(pdf)
             self.assertIsInstance(pdf, bytes)
 
-    def test_graphic_pdf(self):
+    def test_graphic_pdf(self) -> None:
         pdf = self.faker.pdf(generator=GraphicPdfGenerator)
         self.assertTrue(pdf)
         self.assertIsInstance(pdf, bytes)
 
-    def test_png(self):
+    def test_png(self) -> None:
         png = self.faker.png()
         self.assertTrue(png)
         self.assertIsInstance(png, bytes)
 
-    def test_svg(self):
+    def test_svg(self) -> None:
         svg = self.faker.svg()
         self.assertTrue(svg)
         self.assertIsInstance(svg, bytes)
 
-    def test_bmp(self):
+    def test_bmp(self) -> None:
         bmp = self.faker.bmp()
         self.assertTrue(bmp)
         self.assertIsInstance(bmp, bytes)
 
-    def test_gif(self):
+    def test_gif(self) -> None:
         gif = self.faker.gif()
         self.assertTrue(gif)
         self.assertIsInstance(gif, bytes)
@@ -2228,6 +2229,109 @@ class TestFaker(unittest.TestCase):
         with self.subTest("Test storage.unlink on relative path"):
             storage.unlink(str(file_3))
             self.assertFalse(storage.exists(file_3.data["filename"]))
+
+    def test_factory_method(self) -> None:
+        """Test FactoryMethod."""
+        with self.subTest("sentence"):
+            sentence_factory_method = FactoryMethod("sentence")
+            generated_sentence = sentence_factory_method()
+            self.assertIsInstance(generated_sentence, str)
+        with self.subTest("pyint"):
+            pyint_factory_method = FactoryMethod("pyint")
+            generated_int = pyint_factory_method()
+            self.assertIsInstance(generated_int, int)
+
+    def test_factory_meta(self) -> None:
+        class TestFactory(Factory):
+            pass
+
+        for method_name in FactoryMeta.enabled_methods:
+            self.assertTrue(hasattr(TestFactory, method_name))
+
+    def test_sub_factory(self) -> None:
+        """Test FACTORY and SubFactory."""
+        # *************************
+        # ********* Models ********
+        # *************************
+
+        @dataclass
+        class User:
+            id: int
+            username: str
+            first_name: str
+            last_name: str
+            email: str
+            last_login: Optional[datetime]
+            date_joined: Optional[datetime]
+            password: Optional[str] = None
+            is_superuser: bool = False
+            is_staff: bool = False
+            is_active: bool = True
+
+            def __str__(self):
+                return self.username
+
+        @dataclass
+        class Article:
+            id: int
+            title: str
+            slug: str
+            content: str
+            author: User
+            image: Optional[
+                str
+            ] = None  # Use str to represent the image path or URL
+            pub_date: datetime = datetime.now()
+            safe_for_work: bool = False
+            minutes_to_read: int = 5
+
+            def __str__(self):
+                return self.title
+
+        # *************************
+        # ******* Factories *******
+        # *************************
+        BASE_DIR = Path(__file__).resolve().parent.parent
+        MEDIA_ROOT = BASE_DIR / "media"
+
+        STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+        class UserFactory(ModelFactory):
+            id = FACTORY.pyint()
+            username = FACTORY.username()
+            first_name = FACTORY.first_name()
+            last_name = FACTORY.last_name()
+            email = FACTORY.email()
+            last_login = FACTORY.date_time()
+            is_superuser = False
+            is_staff = False
+            is_active = FACTORY.pybool()
+            date_joined = FACTORY.date_time()
+
+            class Meta:
+                model = User
+
+        class ArticleFactory(ModelFactory):
+            id = FACTORY.pyint()
+            title = FACTORY.sentence()
+            slug = FACTORY.slug()
+            content = FACTORY.text()
+            image = FACTORY.png_file(storage=STORAGE)
+            pub_date = FACTORY.date()
+            safe_for_work = FACTORY.pybool()
+            minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+            author = SubFactory(UserFactory)
+
+            class Meta:
+                model = Article
+
+        article = ArticleFactory()
+        self.assertIsInstance(article.author, User)
+        self.assertIsInstance(article.id, int)
+        self.assertIsInstance(article.slug, str)
+        self.assertIsInstance(article.author.id, int)
+        self.assertIsInstance(article.author.is_staff, bool)
+        self.assertIsInstance(article.author.date_joined, datetime)
 
 
 if __name__ == "__main__":
