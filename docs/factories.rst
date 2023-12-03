@@ -44,7 +44,6 @@ Django example
 
     STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
 
-
     class UserFactory(DjangoModelFactory):
 
         username = FACTORY.username()
@@ -66,7 +65,6 @@ Django example
         def __set_password(instance):
             instance.set_password("test")
 
-
     class ArticleFactory(DjangoModelFactory):
 
         title = FACTORY.sentence()
@@ -80,7 +78,6 @@ Django example
 
         class Meta:
             model = Article
-
 
 **Usage example**
 

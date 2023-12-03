@@ -44,11 +44,6 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
     :target: https://coveralls.io/github/barseghyanartur/fake.py?branch=main
     :alt: Coverage
 
-.. contents:: Table of Contents
-   :depth: 2
-
-Overview
-========
 ``fake.py`` is a standalone, portable library designed for generating various
 random data types for testing.
 
@@ -248,7 +243,7 @@ Run the tests with unittest:
 
 .. code-block:: bash
 
-    python -m unittest
+    python -m unittest fake.py
 
 Or pytest:
 
