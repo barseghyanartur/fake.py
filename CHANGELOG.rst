@@ -21,6 +21,7 @@ are used for versioning (schema follows below):
 2023-12-03
 
 - Added factories.
+- Added mechanism to clean-up (remove) the created test files.
 - Improved documentation.
 
 0.2
