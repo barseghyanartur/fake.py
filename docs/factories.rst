@@ -42,6 +42,10 @@ Django example
 
     from article.models import Article
 
+    # For Django, all files shall be placed inside `MEDIA_ROOT` directory.
+    # That's why you need to apply this trick - define a
+    # custom `FileSystemStorage` class and pass it to the file factory as
+    # `storage` argument.
     STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
 
     class UserFactory(DjangoModelFactory):
