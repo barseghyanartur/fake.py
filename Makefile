@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.2
+VERSION := 0.3
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -40,6 +40,21 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+shell:
+	source $(VENV) && ipython
+
+django-shell:
+	source $(VENV) && python examples/django/manage.py shell
+
+pydantic-shell:
+	source $(VENV) && python examples/pydantic/shell.py
+
+dataclasses-shell:
+	source $(VENV) && python examples/dataclasses/shell.py
+
+tortoise-shell:
+	source $(VENV) && python examples/tortoise/shell.py
+
 create-secrets:
 	source $(VENV) && detect-secrets scan > .secrets.baseline
 
@@ -48,11 +63,11 @@ detect-secrets:
 
 # Clean up generated files
 clean:
-	find . -name "*.pyc" -exec rm -rf {} \;
-	find . -name "builddocs.zip" -exec rm -rf {} \;
-	find . -name "*.py,cover" -exec rm -rf {} \;
-	find . -name "*.orig" -exec rm -rf {} \;
-	find . -name "__pycache__" -exec rm -rf {} \;
+	find . -type f -name "*.pyc" -exec rm -f {} \;
+	find . -type f -name "builddocs.zip" -exec rm -f {} \;
+	find . -type f -name "*.py,cover" -exec rm -f {} \;
+	find . -type f -name "*.orig" -exec rm -f {} \;
+	find . -type d -name "__pycache__" -exec rm -rf {} \; -prune
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .cache/

@@ -10,8 +10,10 @@ __all__ = (
 
 
 class User(Model):
+    """User model."""
+
     id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=255)
+    username = fields.CharField(max_length=255, unique=True)
     first_name = fields.CharField(max_length=255)
     last_name = fields.CharField(max_length=255)
     email = fields.CharField(max_length=255)
@@ -27,6 +29,8 @@ class User(Model):
 
 
 class Article(Model):
+    """Article model."""
+
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=255)
     slug = fields.CharField(max_length=255, unique=True)

@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.3
+---
+2023-12-03
+
+- Added factories.
+- Added mechanism to clean-up (remove) the created test files.
+- Improved documentation.
+
 0.2
 ---
 2023-12-01
