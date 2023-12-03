@@ -9,5 +9,9 @@ Contents:
    :maxdepth: 20
 
    readme
+   recipes
+   creating_images
+   creating_pdf
+   creating_docx
    changelog
    package
