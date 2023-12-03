@@ -94,6 +94,46 @@ Django example
 
 Pydantic example
 ----------------
+**article/models.py**
+
+.. code-block:: python
+
+    from datetime import datetime
+    from typing import Optional
+
+    from pydantic import BaseModel, Field
+
+    class User(BaseModel):
+        id: int
+        username: str = Field(..., max_length=255)
+        first_name: str = Field(..., max_length=255)
+        last_name: str = Field(..., max_length=255)
+        email: str = Field(..., max_length=255)
+        password: Optional[str] = Field("", max_length=255)
+        last_login: Optional[datetime]
+        is_superuser: bool = Field(default=False)
+        is_staff: bool = Field(default=False)
+        is_active: bool = Field(default=True)
+        date_joined: Optional[datetime]
+
+        def __str__(self):
+            return self.username
+
+    class Article(BaseModel):
+        id: int
+        title: str = Field(..., max_length=255)
+        slug: str = Field(..., max_length=255, unique=True)
+        content: str
+        image: Optional[str] = None  # Use str to represent the image path or URL
+        pub_date: datetime = Field(default_factory=datetime.now)
+        safe_for_work: bool = False
+        minutes_to_read: int = 5
+        author: User
+
+        def __str__(self):
+            return self.title
+
+**article/factories.py**
 
 .. code-block:: python
 
@@ -142,6 +182,49 @@ Pydantic example
 TortoiseORM example
 -------------------
 
+**article/models.py**
+
+.. code-block:: python
+
+    from datetime import datetime
+
+    from tortoise import fields
+    from tortoise.models import Model
+
+    class User(Model):
+
+        id = fields.IntField(pk=True)
+        username = fields.CharField(max_length=255, unique=True)
+        first_name = fields.CharField(max_length=255)
+        last_name = fields.CharField(max_length=255)
+        email = fields.CharField(max_length=255)
+        password = fields.CharField(max_length=255, null=True, blank=True)
+        last_login = fields.DatetimeField(null=True, blank=True)
+        is_superuser = fields.BooleanField(default=False)
+        is_staff = fields.BooleanField(default=False)
+        is_active = fields.BooleanField(default=True)
+        date_joined = fields.DatetimeField(null=True, blank=True)
+
+        def __str__(self):
+            return self.title
+
+    class Article(Model):
+
+        id = fields.IntField(pk=True)
+        title = fields.CharField(max_length=255)
+        slug = fields.CharField(max_length=255, unique=True)
+        content = fields.TextField()
+        image = fields.TextField(null=True, blank=True)
+        pub_date = fields.DatetimeField(default=datetime.now)
+        safe_for_work = fields.BooleanField(default=False)
+        minutes_to_read = fields.IntField(default=5)
+        author = fields.ForeignKeyField("models.User", on_delete=fields.CASCADE)
+
+        def __str__(self):
+            return self.title
+
+**article/factories.py**
+
 .. code-block:: python
 
     from pathlib import Path
@@ -158,7 +241,6 @@ TortoiseORM example
     class UserFactory(TortoiseModelFactory):
         """User factory."""
 
-        # id = FACTORY.pyint()
         username = FACTORY.username()
         first_name = FACTORY.first_name()
         last_name = FACTORY.last_name()
@@ -176,7 +258,6 @@ TortoiseORM example
     class ArticleFactory(TortoiseModelFactory):
         """Article factory."""
 
-        # id = FACTORY.pyint()
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
@@ -193,6 +274,49 @@ TortoiseORM example
 
 Dataclasses example
 -------------------
+
+**article/models.py**
+
+.. code-block:: python
+
+    from dataclasses import dataclass
+    from datetime import datetime
+    from typing import Optional
+
+    @dataclass
+    class User:
+        id: int
+        username: str
+        first_name: str
+        last_name: str
+        email: str
+        last_login: Optional[datetime]
+        date_joined: Optional[datetime]
+        password: Optional[str] = None
+        is_superuser: bool = False
+        is_staff: bool = False
+        is_active: bool = True
+
+        def __str__(self):
+            return self.username
+
+    @dataclass
+    class Article:
+        id: int
+        title: str
+        slug: str
+        content: str
+        author: User
+        image: Optional[str] = None  # Use str to represent the image path or URL
+        pub_date: datetime = datetime.now()
+        safe_for_work: bool = False
+        minutes_to_read: int = 5
+
+        def __str__(self):
+            return self.title
+
+**article/factories.py**
+
 .. code-block:: python
 
     from pathlib import Path
