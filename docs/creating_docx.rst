@@ -53,7 +53,7 @@ See the example below for ``nb_pages`` tweak:
         :lines: 3-
 
     *See the full example*
-    :download:`here <_static/examples/creating_pdf/text_bytes_3.py>`
+    :download:`here <_static/examples/creating_docx/docx_bytes_3.py>`
 
 If you need files
 -----------------
