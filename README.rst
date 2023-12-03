@@ -4,12 +4,17 @@ fake.py
 .. External references
 
 .. _Faker: https://faker.readthedocs.io/
+.. _factory_boy: https://factoryboy.readthedocs.io/
+.. _faker-file: https://faker-file.readthedocs.io/
+.. _Pillow: https://python-pillow.org/
+.. _dateutil: https://dateutil.readthedocs.io/
 .. _Django: https://www.djangoproject.com/
 .. _TortoiseORM: https://tortoise.github.io/
 .. _Pydantic: https://docs.pydantic.dev/
 
 .. Internal references
 
+.. _fake.py: https://github.com/barseghyanartur/fake.py/
 .. _Read the Docs: http://fakepy.readthedocs.io/
 .. _Quick start: https://fakepy.readthedocs.io/en/latest/quick_start.html
 .. _Recipes: https://fakepy.readthedocs.io/en/latest/recipes.html
@@ -44,7 +49,7 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
     :target: https://coveralls.io/github/barseghyanartur/fake.py?branch=main
     :alt: Coverage
 
-``fake.py`` is a standalone, portable library designed for generating various
+`fake.py`_ is a standalone, portable library designed for generating various
 random data types for testing.
 
 It offers a simplified, dependency-free alternative for creating random
@@ -241,23 +246,40 @@ Tests
 
 Run the tests with unittest:
 
-.. code-block:: bash
+.. code-block:: sh
 
     python -m unittest fake.py
 
 Or pytest:
 
-.. code-block:: bash
+.. code-block:: sh
 
     pytest
 
-Differences with `Faker`_
-=========================
-``fake.py`` is modeled after the famous `Faker`_ package. Its' API is highly
+Differences with alternatives
+=============================
+`fake.py`_ is `Faker`_ + `factory_boy`_ + `faker-file`_ in one package,
+radically simplified and reduced in features, but without any external
+dependencies (not even `Pillow`_ or `dateutil`_).
+
+`fake.py`_ is modeled after the famous `Faker`_ package. Its' API is highly
 compatible, although drastically reduced. It's not multilingual and does not
 support postal codes or that many RAW file formats. However, you could easily
 include it in your production setup without worrying about yet another
 dependency.
+
+On the other hand, `fake.py`_ factories look quite similar to `factory_boy`_
+factories, although again - drastically simplified and reduced in
+features.
+
+The file generation part of `fake.py`_ are modelled after the `faker-file`_.
+You don't get a large variety of file types supported and you don't have that
+much control over the content of the files generated, but you get
+dependency-free valid files and if that's all you need, you don't need to look
+further.
+
+However, at any point, if you discover that you "need more", go for `Faker`_,
+`factory_boy`_ and `faker-file`_ combination.
 
 License
 =======

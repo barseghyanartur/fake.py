@@ -22,6 +22,9 @@ class User(BaseModel):
     is_active: bool = Field(default=True)
     date_joined: Optional[datetime]
 
+    class Config:
+        extra = "allow"  # For testing purposes only
+
     def __str__(self):
         return self.username
 
@@ -36,6 +39,9 @@ class Article(BaseModel):
     safe_for_work: bool = False
     minutes_to_read: int = 5
     author: User
+
+    class Config:
+        extra = "allow"  # For testing purposes only
 
     def __str__(self):
         return self.title

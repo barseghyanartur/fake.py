@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from fake import FACTORY, FileSystemStorage, ModelFactory, SubFactory
+from fake import (
+    FACTORY,
+    FileSystemStorage,
+    ModelFactory,
+    SubFactory,
+    post_save,
+    pre_save,
+)
 
 from article.models import Article, User
 
@@ -31,6 +38,16 @@ class UserFactory(ModelFactory):
     class Meta:
         model = User
 
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True
+
 
 class ArticleFactory(ModelFactory):
     id = FACTORY.pyint()
@@ -45,3 +62,13 @@ class ArticleFactory(ModelFactory):
 
     class Meta:
         model = Article
+
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True
