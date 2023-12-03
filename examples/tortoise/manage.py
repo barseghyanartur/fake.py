@@ -19,7 +19,7 @@ def run_tests():
 async def init():
     # Here we create a SQLite DB using file "db.sqlite3"
     #  also specify the app name of "models"
-    #  which contain models from "app.models"
+    #  which contain models from "article.models"
     await Tortoise.init(
         db_url="sqlite://tortoise_db.sqlite3",
         modules={"models": ["article.models"]},
