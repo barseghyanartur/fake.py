@@ -39,3 +39,4 @@ local_settings.py
 examples/pydantic/media/
 examples/tortoise/media/
 examples/django/media/
+examples/dataclasses/media/

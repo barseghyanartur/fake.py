@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from fake import (
+    FACTORY,
     DjangoModelFactory,
-    Factory,
     FileSystemStorage,
     SubFactory,
     pre_save,
@@ -19,42 +19,53 @@ STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
 
 
 class UserFactory(DjangoModelFactory):
-    username = Factory.username()
-    first_name = Factory.first_name()
-    last_name = Factory.last_name()
-    email = Factory.email()
-    last_login = Factory.date_time()
+    """User factory.
+
+    Usage example:
+
+    .. code-block:: python
+
+        user = UserFactory()
+        users = UserFactory.create_batch(5)
+    """
+
+    username = FACTORY.username()
+    first_name = FACTORY.first_name()
+    last_name = FACTORY.last_name()
+    email = FACTORY.email()
+    last_login = FACTORY.date_time()
     is_superuser = False
     is_staff = False
-    is_active = Factory.pybool()
-    date_joined = Factory.date_time()
+    is_active = FACTORY.pybool()
+    date_joined = FACTORY.date_time()
 
     class Meta:
         model = User
+        get_or_create = ("username",)
 
+    @staticmethod
     @pre_save
     def __set_password(instance):
         instance.set_password("test")
 
 
 class ArticleFactory(DjangoModelFactory):
-    title = Factory.sentence()
-    slug = Factory.slug()
-    content = Factory.text()
-    image = Factory.png_file(storage=STORAGE)
-    pub_date = Factory.date()
-    safe_for_work = Factory.pybool()
-    minutes_to_read = Factory.pyint(min_value=1, max_value=10)
+    """Article factory.
+
+    Usage example:
+
+        article = ArticleFactory()
+        articles = ArticleFactory.create_batch(5)
+    """
+
+    title = FACTORY.sentence()
+    slug = FACTORY.slug()
+    content = FACTORY.text()
+    image = FACTORY.png_file(storage=STORAGE)
+    pub_date = FACTORY.date()
+    safe_for_work = FACTORY.pybool()
+    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
 
     class Meta:
         model = Article
-
-
-#
-# # Create an User instance
-# user = UserFactory()
-# users = UserFactory.create_batch(5)
-#
-# article = ArticleFactory()
-# articles = ArticleFactory.create_batch(5)
