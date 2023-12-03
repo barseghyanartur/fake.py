@@ -58,7 +58,7 @@ Generate a ``PNG`` image.
 
     .. literalinclude:: _static/examples/creating_images/png_file_1.py
         :language: python
-        :lines: 8-
+        :lines: 3-
 
     *See the full example*
     :download:`here <_static/examples/creating_images/png_file_1.py>`
@@ -71,11 +71,11 @@ With ``size`` and ``color`` tweaks:
 
     .. literalinclude:: _static/examples/creating_images/png_file_2.py
         :language: python
-        :lines: 8-
+        :lines: 3-
 
     *See the full example*
     :download:`here <_static/examples/creating_images/png_file_2.py>`
 
----
+----
 
 All other formats (``SVG``, ``BMP`` and ``GIF``) work in exact same way.
