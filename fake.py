@@ -334,9 +334,7 @@ class FileSystemStorage(BaseStorage):
 
     .. code-block:: python
 
-        from fake import Faker, FileSystemStorage
-
-        FAKER = Faker()
+        from fake import FAKER, FileSystemStorage
 
         storage = FileSystemStorage()
         docx_file = storage.generate_filename(prefix="zzz_", extension="docx")
@@ -346,9 +344,7 @@ class FileSystemStorage(BaseStorage):
 
     .. code-block:: python
 
-        from fake import Faker, FileSystemStorage
-
-        FAKER = Faker()
+        from fake import FAKER, FileSystemStorage
 
         storage = FileSystemStorage()
         docx_file = FAKER.docx_file(storage=storage)
@@ -450,9 +446,7 @@ class TextPdfGenerator:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker, TextPdfGenerator
-
-        FAKER = Faker()
+        from fake import FAKER, TextPdfGenerator
 
         Path("/tmp/text_example.pdf").write_bytes(
             FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
@@ -562,9 +556,7 @@ class GraphicPdfGenerator:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker, GraphicPdfGenerator
-
-        FAKER = Faker()
+        from fake import FAKER, GraphicPdfGenerator
 
         Path("/tmp/graphic_example.pdf").write_bytes(
             FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
@@ -770,9 +762,8 @@ class DocxGenerator:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker
+        from fake import FAKER
 
-        FAKER = Faker()
         Path("/tmp/example.docx").write_bytes(FAKER.docx(nb_pages=100))
     """
 
@@ -838,9 +829,7 @@ class Faker:
 
     .. code-block:: python
 
-        from fake import Faker
-
-        FAKER = Faker()
+        from fake import FAKER
 
         print(FAKER.first_name())  # Random first name
         print(FAKER.last_name())  # Random last name
@@ -866,9 +855,7 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker, TextPdfGenerator, GraphicPdfGenerator
-
-        FAKER = Faker()
+        from fake import FAKER, TextPdfGenerator, GraphicPdfGenerator
 
         Path("/tmp/graphic_pdf.pdf").write_bytes(
             FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
@@ -885,9 +872,7 @@ class Faker:
     .. code-block:: python
 
         from pathlib import Path
-        from fake import Faker
-
-        FAKER = Faker()
+        from fake import FAKER
 
         Path("/tmp/image.png").write_bytes(FAKER.png())
 
