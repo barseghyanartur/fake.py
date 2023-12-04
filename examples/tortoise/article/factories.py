@@ -7,6 +7,7 @@ from fake import (
     TortoiseModelFactory,
     post_save,
     pre_save,
+    trait,
 )
 
 from article.models import Article, User
@@ -39,6 +40,12 @@ class UserFactory(TortoiseModelFactory):
     class Meta:
         model = User
         get_or_create = ("username",)
+
+    @trait
+    def is_admin_user(self, instance: User) -> None:
+        instance.is_superuser = True
+        instance.is_staff = True
+        instance.is_active = True
 
     @staticmethod
     @pre_save
