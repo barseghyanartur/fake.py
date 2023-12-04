@@ -15,6 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -59,6 +60,7 @@ __all__ = (
     "TortoiseModelFactory",
     "post_save",
     "pre_save",
+    "run_async_in_thread",
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -1773,6 +1775,23 @@ class DjangoModelFactory(ModelFactory):
         return instance
 
 
+def run_async_in_thread(coroutine):
+    """Run an asynchronous coroutine in a separate thread.
+
+    :param coroutine: An asyncio coroutine to be run.
+    :return: The result of the coroutine.
+    """
+
+    def thread_target():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(coroutine)
+
+    with ThreadPoolExecutor() as executor:
+        future = executor.submit(thread_target)
+        return future.result()
+
+
 class TortoiseModelFactory(ModelFactory):
     """Tortoise ModelFactory."""
 
@@ -1781,7 +1800,7 @@ class TortoiseModelFactory(ModelFactory):
         async def async_save():
             await instance.save()
 
-        asyncio.run(async_save())
+        run_async_in_thread(async_save())
 
     @classmethod
     def create(cls, **kwargs):
@@ -1799,7 +1818,7 @@ class TortoiseModelFactory(ModelFactory):
             async def async_filter():
                 return await model.filter(**query).first()
 
-            instance = asyncio.run(async_filter())
+            instance = run_async_in_thread(async_filter())
 
             if instance:
                 return instance
@@ -1832,11 +1851,11 @@ class TortoiseModelFactory(ModelFactory):
             if isinstance(getattr(cls, field_name, None), SubFactory):
 
                 async def async_related_instance():
-                    return await getattr(cls, field_name).factory_class.create(
+                    return getattr(cls, field_name).factory_class.create(
                         **{nested_attr: value}
                     )
 
-                related_instance = asyncio.run(async_related_instance())
+                related_instance = run_async_in_thread(async_related_instance())
                 setattr(instance, field_name, related_instance)
 
         # Run pre-save hooks
@@ -2339,7 +2358,7 @@ class TestFaker(unittest.TestCase):
         # ********* Models ********
         # *************************
 
-        class QuerySet(list):
+        class DjangoQuerySet(list):
             """Mimicking Django QuerySet class."""
 
             def __init__(self, instance: Union["Article", "User"]) -> None:
@@ -2349,14 +2368,14 @@ class TestFaker(unittest.TestCase):
             def first(self) -> Union["Article", "User"]:
                 return self.instance
 
-        class Manager:
+        class DjangoManager:
             """Mimicking Django Manager class."""
 
             def __init__(self, instance: Union["Article", "User"]) -> None:
                 self.instance = instance
 
-            def filter(self, *args, **kwargs) -> "QuerySet":
-                return QuerySet(instance=self.instance)
+            def filter(self, *args, **kwargs) -> "DjangoQuerySet":
+                return DjangoQuerySet(instance=self.instance)
 
         @dataclass
         class User:
@@ -2376,15 +2395,15 @@ class TestFaker(unittest.TestCase):
 
             def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
-                self.save_called = True
+                self.save_called = True  # noqa
 
             # TODO: Remove once Python 3.8 support is dropped
             #  and replace with @classmethod @property combo.
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return Manager(
-                    instance=cls(
+                return DjangoManager(
+                    instance=cls(  # noqa
                         id=FAKER.pyint(),
                         username=FAKER.username(),
                         first_name=FAKER.first_name(),
@@ -2411,15 +2430,15 @@ class TestFaker(unittest.TestCase):
 
             def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
-                self.save_called = True
+                self.save_called = True  # noqa
 
             # TODO: Remove once Python 3.8 support is dropped
             #  and replace with @classmethod @property combo.
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return Manager(
-                    instance=cls(
+                return DjangoManager(
+                    instance=cls(  # noqa
                         id=FAKER.pyint(),
                         title=FAKER.word(),
                         slug=FAKER.slug(),
@@ -2598,6 +2617,87 @@ class TestFaker(unittest.TestCase):
         # ******* TortoiseModelFactory *******
         # **********************************
 
+        class TortoiseQuerySet(list):
+            """Mimicking Tortoise QuerySet class."""
+
+            def __init__(self, instance: Union["Article", "User"]) -> None:
+                super().__init__()
+                self.instance = instance
+
+            async def first(self) -> Union["Article", "User"]:
+                return self.instance
+
+        @dataclass
+        class TortoiseUser:
+            """User model."""
+
+            id: int
+            username: str
+            first_name: str
+            last_name: str
+            email: str
+            last_login: Optional[datetime]
+            date_joined: Optional[datetime]
+            password: Optional[str] = None
+            is_superuser: bool = False
+            is_staff: bool = False
+            is_active: bool = True
+
+            @classmethod
+            def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
+                return TortoiseQuerySet(
+                    instance=cls(  # noqa
+                        id=FAKER.pyint(),
+                        username=FAKER.username(),
+                        first_name=FAKER.first_name(),
+                        last_name=FAKER.last_name(),
+                        email=FAKER.email(),
+                        last_login=FAKER.date_time(),
+                        date_joined=FAKER.date_time(),
+                    )
+                )
+
+            async def save(self, *args, **kwargs):
+                """Mimicking Django's Mode save method."""
+                self.save_called = True  # noqa
+
+        @dataclass
+        class TortoiseArticle:
+            id: int
+            title: str
+            slug: str
+            content: str
+            author: User
+            image: Optional[
+                str
+            ] = None  # Use str to represent the image path or URL
+            pub_date: datetime = datetime.now()
+            safe_for_work: bool = False
+            minutes_to_read: int = 5
+
+            def filter(self, *args, **kwargs) -> "TortoiseQuerySet":
+                return TortoiseQuerySet(
+                    instance=cls(  # noqa
+                        id=FAKER.pyint(),
+                        title=FAKER.word(),
+                        slug=FAKER.slug(),
+                        content=FAKER.text(),
+                        author=TortoiseUser(
+                            id=FAKER.pyint(),
+                            username=FAKER.username(),
+                            first_name=FAKER.first_name(),
+                            last_name=FAKER.last_name(),
+                            email=FAKER.email(),
+                            last_login=FAKER.date_time(),
+                            date_joined=FAKER.date_time(),
+                        ),
+                    )
+                )
+
+            async def save(self, *args, **kwargs):
+                """Mimicking Django's Mode save method."""
+                self.save_called = True  # noqa
+
         class TortoiseUserFactory(TortoiseModelFactory):
             id = FACTORY.pyint()
             username = FACTORY.username()
@@ -2611,7 +2711,7 @@ class TestFaker(unittest.TestCase):
             date_joined = FACTORY.date_time()
 
             class Meta:
-                model = User
+                model = TortoiseUser
                 get_or_create = ("username",)
 
             @staticmethod
@@ -2636,7 +2736,7 @@ class TestFaker(unittest.TestCase):
             author = SubFactory(TortoiseUserFactory)
 
             class Meta:
-                model = Article
+                model = TortoiseArticle
 
             @staticmethod
             @pre_save
@@ -2651,7 +2751,7 @@ class TestFaker(unittest.TestCase):
         tortoise_article = TortoiseArticleFactory(author__username="admin")
 
         # Testing SubFactory
-        self.assertIsInstance(tortoise_article.author, User)
+        self.assertIsInstance(tortoise_article.author, TortoiseUser)
         self.assertIsInstance(tortoise_article.author.id, int)
         self.assertIsInstance(tortoise_article.author.is_staff, bool)
         self.assertIsInstance(tortoise_article.author.date_joined, datetime)
@@ -2677,7 +2777,7 @@ class TestFaker(unittest.TestCase):
         # Testing batch creation
         tortoise_articles = TortoiseArticleFactory.create_batch(5)
         self.assertEqual(len(tortoise_articles), 5)
-        self.assertIsInstance(tortoise_articles[0], Article)
+        self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
 
     def test_registry_integration(self) -> None:
         """Test `add`."""
