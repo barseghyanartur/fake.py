@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.3.1
+-----
+2023-12-04
+
+- Improve Tortoise ORM factory.
+- Add traits.
+- Improve docmentation.
+
 0.3
 ---
 2023-12-03
