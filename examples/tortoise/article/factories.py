@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from fake import FACTORY, FileSystemStorage, SubFactory, TortoiseModelFactory
+from fake import (
+    FACTORY,
+    FileSystemStorage,
+    SubFactory,
+    TortoiseModelFactory,
+    post_save,
+    pre_save,
+)
 
 from article.models import Article, User
 
@@ -19,7 +26,6 @@ STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 class UserFactory(TortoiseModelFactory):
     """User factory."""
 
-    # id = FACTORY.pyint()
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
@@ -34,11 +40,20 @@ class UserFactory(TortoiseModelFactory):
         model = User
         get_or_create = ("username",)
 
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True
+
 
 class ArticleFactory(TortoiseModelFactory):
     """Article factory."""
 
-    # id = FACTORY.pyint()
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
@@ -50,3 +65,13 @@ class ArticleFactory(TortoiseModelFactory):
 
     class Meta:
         model = Article
+
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True

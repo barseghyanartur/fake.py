@@ -5,6 +5,7 @@ from fake import (
     DjangoModelFactory,
     FileSystemStorage,
     SubFactory,
+    post_save,
     pre_save,
 )
 
@@ -48,6 +49,16 @@ class UserFactory(DjangoModelFactory):
     def __set_password(instance):
         instance.set_password("test")
 
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True
+
 
 class ArticleFactory(DjangoModelFactory):
     """Article factory.
@@ -69,3 +80,13 @@ class ArticleFactory(DjangoModelFactory):
 
     class Meta:
         model = Article
+
+    @staticmethod
+    @pre_save
+    def __pre_save_method(instance):
+        instance.pre_save_called = True
+
+    @staticmethod
+    @post_save
+    def __post_save_method(instance):
+        instance.post_save_called = True
