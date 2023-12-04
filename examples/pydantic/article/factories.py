@@ -7,6 +7,7 @@ from fake import (
     SubFactory,
     post_save,
     pre_save,
+    trait,
 )
 
 from article.models import Article, User
@@ -37,6 +38,12 @@ class UserFactory(ModelFactory):
 
     class Meta:
         model = User
+
+    @trait
+    def is_admin_user(self, instance: User) -> None:
+        instance.is_superuser = True
+        instance.is_staff = True
+        instance.is_active = True
 
     @staticmethod
     @pre_save

@@ -61,6 +61,7 @@ __all__ = (
     "post_save",
     "pre_save",
     "run_async_in_thread",
+    "trait",
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -1625,6 +1626,11 @@ def post_save(func):
     return func
 
 
+def trait(func):
+    func.is_trait = True
+    return func
+
+
 class ModelFactory:
     """ModelFactory."""
 
@@ -1655,7 +1661,19 @@ class ModelFactory:
             getattr(cls, method)(instance)
 
     @classmethod
+    def _apply_traits(cls, instance, **kwargs) -> None:
+        for name, method in cls.__dict__.items():
+            if getattr(method, "is_trait", False) and kwargs.get(name, False):
+                method(cls, instance)
+
+    @classmethod
     def create(cls, **kwargs):
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         model_data = {
             field: (
                 value()
@@ -1663,11 +1681,21 @@ class ModelFactory:
                 else value
             )
             for field, value in cls.__dict__.items()
-            if not field.startswith("_") and not field == "Meta"
+            if (
+                not field.startswith("_")
+                and not field == "Meta"
+                and not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
+            )
         }
-        model_data.update(kwargs)
+        # Update model_data with non-trait kwargs
+        model_data.update(
+            {k: v for k, v in kwargs.items() if k not in trait_keys}
+        )
 
         instance = cls.Meta.model(**model_data)
+        cls._apply_traits(instance, **kwargs)
 
         pre_save_hooks = [
             method
@@ -1725,7 +1753,13 @@ class DjangoModelFactory(ModelFactory):
         model_data = {
             field: value
             for field, value in cls.__dict__.items()
-            if not field.startswith("_") and not field == "Meta"
+            if (
+                not field.startswith("_")
+                and not field == "Meta"
+                and not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
+            )
         }
 
         # Separate nested attributes and direct attributes
@@ -1743,6 +1777,7 @@ class DjangoModelFactory(ModelFactory):
 
         # Create a new instance if none found
         instance = cls.Meta.model(**model_data)
+        cls._apply_traits(instance, **kwargs)
 
         # Handle nested attributes
         for attr, value in nested_attrs.items():
@@ -1826,7 +1861,13 @@ class TortoiseModelFactory(ModelFactory):
         model_data = {
             field: value
             for field, value in cls.__dict__.items()
-            if not field.startswith("_") and not field == "Meta"
+            if (
+                not field.startswith("_")
+                and not field == "Meta"
+                and not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
+            )
         }
 
         # Separate nested attributes and direct attributes
@@ -1844,6 +1885,7 @@ class TortoiseModelFactory(ModelFactory):
 
         # Create a new instance if none found
         instance = cls.Meta.model(**model_data)
+        cls._apply_traits(instance, **kwargs)
 
         # Handle nested attributes
         for attr, value in nested_attrs.items():
@@ -2483,6 +2525,12 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = User
 
+            @trait
+            def is_admin_user(self, instance: User) -> None:
+                instance.is_superuser = True
+                instance.is_staff = True
+                instance.is_active = True
+
             @staticmethod
             @pre_save
             def __pre_save_method(instance):
@@ -2528,6 +2576,14 @@ class TestFaker(unittest.TestCase):
             hasattr(user, "post_save_called") and user.post_save_called
         )
 
+        # Testing traits
+        admin_user = UserFactory(is_admin_user=True)
+        self.assertTrue(
+            admin_user.is_staff
+            and admin_user.is_superuser
+            and admin_user.is_active
+        )
+
         # **********************************
         # ******* DjangoModelFactory *******
         # **********************************
@@ -2547,6 +2603,12 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = User
                 get_or_create = ("username",)
+
+            @trait
+            def is_admin_user(self, instance: User) -> None:
+                instance.is_superuser = True
+                instance.is_staff = True
+                instance.is_active = True
 
             @staticmethod
             @pre_save
@@ -2612,6 +2674,14 @@ class TestFaker(unittest.TestCase):
         django_articles = DjangoArticleFactory.create_batch(5)
         self.assertEqual(len(django_articles), 5)
         self.assertIsInstance(django_articles[0], Article)
+
+        # Testing traits
+        django_admin_user = DjangoUserFactory(is_admin_user=True)
+        self.assertTrue(
+            django_admin_user.is_staff
+            and django_admin_user.is_superuser
+            and django_admin_user.is_active
+        )
 
         # **********************************
         # ******* TortoiseModelFactory *******
@@ -2714,6 +2784,12 @@ class TestFaker(unittest.TestCase):
                 model = TortoiseUser
                 get_or_create = ("username",)
 
+            @trait
+            def is_admin_user(self, instance: TortoiseUser) -> None:
+                instance.is_superuser = True
+                instance.is_staff = True
+                instance.is_active = True
+
             @staticmethod
             @pre_save
             def __pre_save_method(instance):
@@ -2778,6 +2854,14 @@ class TestFaker(unittest.TestCase):
         tortoise_articles = TortoiseArticleFactory.create_batch(5)
         self.assertEqual(len(tortoise_articles), 5)
         self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+
+        # Testing traits
+        tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+        self.assertTrue(
+            tortoise_admin_user.is_staff
+            and tortoise_admin_user.is_superuser
+            and tortoise_admin_user.is_active
+        )
 
     def test_registry_integration(self) -> None:
         """Test `add`."""
