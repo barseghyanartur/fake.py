@@ -210,6 +210,7 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
         FileSystemStorage,
         SubFactory,
         pre_save,
+        trait,
     )
 
     STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
@@ -230,6 +231,12 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
             model = User
             get_or_create = ("username",)
 
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
+
         @pre_save
         def __set_password(instance):
             instance.set_password("test")
@@ -238,8 +245,14 @@ And this is how you could use it:
 
 .. code-block:: python
 
+    # Create just one user
     user = UserFactory()
+
+    # Create 5 users
     users = UserFactory.create_batch(5)
+
+    # Create a user using `is_admin_user` trait
+    user = UserFactory(is_admin_user=True)
 
 Tests
 =====
