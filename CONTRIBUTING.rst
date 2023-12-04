@@ -99,8 +99,13 @@ For example:
 
 **Good to know:**
 
-- Test suite makes extensive use of parametrization. Make sure you have added
-  your changes in the right place.
+- This library consists of a single ``fake.py`` module. That module is
+  dependency free, self-contained (includes all tests) and portable.
+  Do not submit pull requests splitting the ``fake.py`` module into small
+  parts.
+- Some tests contain simplified implementation of existing libraries (Django
+  ORM). If you need to add integration tests for existing functionality,
+  you can add the relevant code and requirements to the examples.
 
 **General list to go through:**
 
@@ -108,7 +113,7 @@ For example:
 - Does your change require update to tests?
 - Does your change rely on third-party package or a cloud based service?
   If so, please consider turning it into a dedicated standalone package,
-  since this library is dependency free.
+  since this library is dependency free (and will always stay so).
 
 **When fixing bugs (in addition to the general list):**
 

@@ -40,6 +40,18 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+django-test:
+	source $(VENV) && cd examples/django/ && ./manage.py test
+
+pydantic-test:
+	source $(VENV) && cd examples/pydantic/ && python manage.py test
+
+dataclasses-test:
+	source $(VENV) && cd examples/dataclasses/ && python manage.py test
+
+tortoise-test:
+	source $(VENV) && cd examples/tortoise/ && python manage.py test
+
 shell:
 	source $(VENV) && ipython
 
@@ -47,13 +59,13 @@ django-shell:
 	source $(VENV) && python examples/django/manage.py shell
 
 pydantic-shell:
-	source $(VENV) && python examples/pydantic/shell.py
+	source $(VENV) && cd examples/pydantic/ && python manage.py shell
 
 dataclasses-shell:
-	source $(VENV) && python examples/dataclasses/shell.py
+	source $(VENV) && cd examples/dataclasses/ && python manage.py shell
 
 tortoise-shell:
-	source $(VENV) && python examples/tortoise/shell.py
+	source $(VENV) && cd examples/tortoise/ && python manage.py shell
 
 create-secrets:
 	source $(VENV) && detect-secrets scan > .secrets.baseline
