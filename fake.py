@@ -35,7 +35,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.3.1"
+__version__ = "0.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -1553,7 +1553,6 @@ class FactoryMeta(type):
         "slug",
         "svg_file",
         "text",
-        "txt_file",
         "txt_file",
         "url",
         "username",
