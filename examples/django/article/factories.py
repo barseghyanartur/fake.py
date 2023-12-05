@@ -51,19 +51,16 @@ class UserFactory(DjangoModelFactory):
         instance.is_staff = True
         instance.is_active = True
 
-    @staticmethod
     @pre_save
-    def __set_password(instance):
+    def _set_password(self, instance):
         instance.set_password("test")
 
-    @staticmethod
     @pre_save
-    def __pre_save_method(instance):
+    def _pre_save_method(self, instance):
         instance.pre_save_called = True
 
-    @staticmethod
     @post_save
-    def __post_save_method(instance):
+    def _post_save_method(self, instance):
         instance.post_save_called = True
 
 
@@ -88,12 +85,10 @@ class ArticleFactory(DjangoModelFactory):
     class Meta:
         model = Article
 
-    @staticmethod
     @pre_save
-    def __pre_save_method(instance):
+    def _pre_save_method(self, instance):
         instance.pre_save_called = True
 
-    @staticmethod
     @post_save
-    def __post_save_method(instance):
+    def _post_save_method(self, instance):
         instance.post_save_called = True

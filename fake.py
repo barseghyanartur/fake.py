@@ -1643,7 +1643,7 @@ class ModelFactory:
     @classmethod
     def _run_hooks(cls, hooks, instance):
         for method in hooks:
-            getattr(cls, method)(instance)
+            getattr(cls, method)(cls, instance)
 
     @classmethod
     def _apply_traits(cls, instance, **kwargs) -> None:
@@ -2516,14 +2516,12 @@ class TestFaker(unittest.TestCase):
                 instance.is_staff = True
                 instance.is_active = True
 
-            @staticmethod
             @pre_save
-            def __pre_save_method(instance):
+            def _pre_save_method(self, instance):
                 instance.pre_save_called = True
 
-            @staticmethod
             @post_save
-            def __post_save_method(instance):
+            def _post_save_method(self, instance):
                 instance.post_save_called = True
 
         class ArticleFactory(ModelFactory):
@@ -2595,14 +2593,12 @@ class TestFaker(unittest.TestCase):
                 instance.is_staff = True
                 instance.is_active = True
 
-            @staticmethod
             @pre_save
-            def __pre_save_method(instance):
+            def _pre_save_method(self, instance):
                 instance.pre_save_called = True
 
-            @staticmethod
             @post_save
-            def __post_save_method(instance):
+            def _post_save_method(self, instance):
                 instance.post_save_called = True
 
         class DjangoArticleFactory(DjangoModelFactory):
@@ -2619,14 +2615,12 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = Article
 
-            @staticmethod
             @pre_save
-            def __pre_save_method(instance):
+            def _pre_save_method(self, instance):
                 instance.pre_save_called = True
 
-            @staticmethod
             @post_save
-            def __post_save_method(instance):
+            def _post_save_method(self, instance):
                 instance.post_save_called = True
 
         django_article = DjangoArticleFactory(author__username="admin")
@@ -2775,14 +2769,12 @@ class TestFaker(unittest.TestCase):
                 instance.is_staff = True
                 instance.is_active = True
 
-            @staticmethod
             @pre_save
-            def __pre_save_method(instance):
+            def _pre_save_method(self, instance):
                 instance.pre_save_called = True
 
-            @staticmethod
             @post_save
-            def __post_save_method(instance):
+            def _post_save_method(self, instance):
                 instance.post_save_called = True
 
         class TortoiseArticleFactory(TortoiseModelFactory):
@@ -2799,14 +2791,12 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = TortoiseArticle
 
-            @staticmethod
             @pre_save
-            def __pre_save_method(instance):
+            def _pre_save_method(self, instance):
                 instance.pre_save_called = True
 
-            @staticmethod
             @post_save
-            def __post_save_method(instance):
+            def _post_save_method(self, instance):
                 instance.post_save_called = True
 
         tortoise_article = TortoiseArticleFactory(author__username="admin")

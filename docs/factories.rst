@@ -38,6 +38,7 @@ Django example
         FileSystemStorage,
         SubFactory,
         pre_save,
+        trait,
     )
 
     from article.models import Article
@@ -64,10 +65,15 @@ Django example
             model = User
             get_or_create = ("username",)
 
-        @staticmethod
         @pre_save
-        def __set_password(instance):
+        def _set_password(self, instance):
             instance.set_password("test")
+
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
 
     class ArticleFactory(DjangoModelFactory):
 
@@ -95,6 +101,9 @@ Django example
 
     # Create one article with authors username set to admin.
     article = ArticleFactory(author__username="admin")
+
+    # Using trait
+    user = UserFactory(is_admin_user=True)
 
 Pydantic example
 ----------------
@@ -166,6 +175,16 @@ Pydantic example
 
         class Meta:
             model = User
+
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
+
+        @pre_save
+        def _set_password(self, instance):
+            instance.set_password("test")
 
     class ArticleFactory(ModelFactory):
         id = FACTORY.pyint()
@@ -259,6 +278,16 @@ TortoiseORM example
             model = User
             get_or_create = ("username",)
 
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
+
+        @pre_save
+        def _set_password(self, instance):
+            instance.set_password("test")
+
     class ArticleFactory(TortoiseModelFactory):
         """Article factory."""
 
@@ -349,6 +378,16 @@ Dataclasses example
         class Meta:
             model = User
 
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
+
+        @pre_save
+        def _set_password(self, instance):
+            instance.set_password("test")
+
     class ArticleFactory(ModelFactory):
         id = FACTORY.pyint()
         title = FACTORY.sentence()
@@ -362,3 +401,5 @@ Dataclasses example
 
         class Meta:
             model = Article
+
+*Used just like in previous example.*
