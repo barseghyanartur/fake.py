@@ -17,6 +17,7 @@ def run_tests():
 
 def main():
     """Run administrative tasks based on command line arguments."""
+    sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
     sys.path.insert(0, os.path.abspath("."))
     parser = argparse.ArgumentParser(
         description="Management script for the project."
