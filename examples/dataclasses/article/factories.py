@@ -45,14 +45,12 @@ class UserFactory(ModelFactory):
         instance.is_staff = True
         instance.is_active = True
 
-    @staticmethod
     @pre_save
-    def __pre_save_method(instance):
+    def _pre_save_method(self, instance):
         instance.pre_save_called = True
 
-    @staticmethod
     @post_save
-    def __post_save_method(instance):
+    def _post_save_method(self, instance):
         instance.post_save_called = True
 
 
@@ -70,12 +68,10 @@ class ArticleFactory(ModelFactory):
     class Meta:
         model = Article
 
-    @staticmethod
     @pre_save
-    def __pre_save_method(instance):
+    def _pre_save_method(self, instance):
         instance.pre_save_called = True
 
-    @staticmethod
     @post_save
-    def __post_save_method(instance):
+    def _post_save_method(self, instance):
         instance.post_save_called = True

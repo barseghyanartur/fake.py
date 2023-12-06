@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.4
+---
+2023-12-06
+
+- Streamline on how to use traits, pre- and post-save hooks.
+
 0.3.1
 -----
 2023-12-04

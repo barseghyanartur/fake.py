@@ -30,6 +30,7 @@ async def init():
 
 def main():
     """Run administrative tasks."""
+    sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
     sys.path.insert(0, os.path.abspath("."))
     run_async(init())
 
