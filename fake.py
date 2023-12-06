@@ -18,7 +18,7 @@ from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -1034,29 +1034,32 @@ class Faker:
             can be negative.
         :return: A randomly generated Decimal number.
         """
-        if left_digits < 1:
-            raise ValueError("left_digits must be at least 1")
+        if left_digits < 0:
+            raise ValueError("`left_digits` must be at least 0")
+        if right_digits < 0:
+            raise ValueError("`right_digits` must be at least 0")
 
-        # Generate the integer part
-        int_part = random.randint(1, 10**left_digits - 1)
+        if left_digits > 0:
+            # Generate the integer part
+            __lower = 10 ** (left_digits - 1)
+            __upper = (10**left_digits) - 1
+            int_part = random.randint(__lower, __upper)
+        else:
+            int_part = 0
 
-        # Generate the fractional part
         if right_digits > 0:
-            fractional_part = random.randint(
-                0,
-                10**right_digits - 1,
-            ) / (10**right_digits)
+            # Generate the fractional part
+            __lower = 10 ** (right_digits - 1)
+            __upper = (10**right_digits) - 1
+            fractional_part = random.randint(__lower, __upper)
         else:
             fractional_part = 0
 
         # Combine both parts
-        number = Decimal(str(int_part + fractional_part)).quantize(
-            Decimal("." + "0" * right_digits),
-            rounding=ROUND_HALF_UP,
-        )
+        number = Decimal(f"{int_part}.{fractional_part}")
 
         # Make the number negative if needed
-        if not positive and random.choice([True, False]):
+        if not positive:
             number = -number
 
         return number
@@ -1092,13 +1095,9 @@ class Faker:
             return datetime.now(tzinfo) + timedelta(days=value)
         elif unit == "H":  # Hours
             return datetime.now(tzinfo) + timedelta(hours=value)
-        elif unit == "M":  # Minutes
-            return datetime.now(tzinfo) + timedelta(minutes=value)
-        else:
-            raise ValueError(
-                "Date string format is incorrect. Expected formats like "
-                "'-1d', '+2H', '-30M'."
-            )
+
+        # Otherwise it's minutes
+        return datetime.now(tzinfo) + timedelta(minutes=value)
 
     def date(
         self,
@@ -1204,7 +1203,8 @@ class Faker:
             + b"IDAT"
             + compressed_data
             + zlib.crc32(b"IDAT" + compressed_data).to_bytes(
-                length=4, byteorder="big"
+                length=4,
+                byteorder="big",
             )
         )
 
@@ -2169,22 +2169,64 @@ class TestFaker(unittest.TestCase):
                 self.assertLessEqual(val, expected_max_val)
 
     def test_pydecimal(self):
-        decimal_number = self.faker.pydecimal(
-            left_digits=3,
-            right_digits=2,
-            positive=True,
-        )
-        self.assertIsInstance(decimal_number, Decimal)
-        self.assertTrue(1 <= decimal_number < 1000)
-        # Check if right digits are 2
-        self.assertTrue(decimal_number.as_tuple().exponent == -2)
+        with self.subTest("With positive=True"):
+            for __ in range(100):
+                decimal_number = self.faker.pydecimal(
+                    left_digits=3,
+                    right_digits=2,
+                    positive=True,
+                )
+                self.assertIsInstance(decimal_number, Decimal)
+                self.assertTrue(1 <= decimal_number < 1000)
+                # Check if right digits are 2
+                self.assertTrue(decimal_number.as_tuple().exponent == -2)
 
-        negative_decimal_number = self.faker.pydecimal(
-            left_digits=2,
-            right_digits=2,
-            positive=False,
-        )
-        self.assertTrue(-100 <= negative_decimal_number <= 100)
+        with self.subTest("With positive=False"):
+            for __ in range(100):
+                negative_decimal_number = self.faker.pydecimal(
+                    left_digits=2,
+                    right_digits=2,
+                    positive=False,
+                )
+                self.assertTrue(-100 <= negative_decimal_number <= 100)
+
+        with self.subTest("With right_digits=0"):
+            for __ in range(100):
+                decimal_number = self.faker.pydecimal(
+                    left_digits=2,
+                    right_digits=0,
+                    positive=True,
+                )
+                self.assertIsInstance(decimal_number, Decimal)
+                # Check if there is no fractional part
+                self.assertEqual(decimal_number % 1, 0)
+                # Check if it's a 3-digit number
+                self.assertTrue(10 <= decimal_number < 100)
+
+        with self.subTest("With left_digits=0"):
+            for __ in range(100):
+                decimal_number = self.faker.pydecimal(
+                    left_digits=0, right_digits=2, positive=True
+                )
+                self.assertIsInstance(decimal_number, Decimal)
+                self.assertTrue(0 <= decimal_number < 1)
+                self.assertTrue(
+                    10 <= decimal_number * 100 < 100
+                )  # Check that the fractional part is correct
+
+                # Test for zero left digits with negative numbers
+                decimal_number_neg = self.faker.pydecimal(
+                    left_digits=0, right_digits=2, positive=False
+                )
+                self.assertTrue(-1 < decimal_number_neg <= 0)
+
+        with self.subTest("Fail on `left_digits` < 0"):
+            with self.assertRaises(ValueError):
+                self.faker.pydecimal(left_digits=-1)
+
+        with self.subTest("Fail on `right_digits` < 0"):
+            with self.assertRaises(ValueError):
+                self.faker.pydecimal(right_digits=-1)
 
     def test_ipv4(self) -> None:
         # Test a large number of IPs to ensure randomness and correctness
@@ -2296,6 +2338,15 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(pdf)
             self.assertIsInstance(pdf, bytes)
 
+        with self.subTest("With `metadata` provided"):
+            metadata = MetaData()
+            pdf = self.faker.pdf(
+                generator=TextPdfGenerator,
+                metadata=metadata,
+            )
+            self.assertTrue(pdf)
+            self.assertIsInstance(pdf, bytes)
+
     def test_graphic_pdf(self) -> None:
         pdf = self.faker.pdf(generator=GraphicPdfGenerator)
         self.assertTrue(pdf)
@@ -2375,8 +2426,13 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_txt_file(self) -> None:
-        file = self.faker.txt_file()
-        self.assertTrue(os.path.exists(file.data["filename"]))
+        with self.subTest("Without arguments"):
+            file = self.faker.txt_file()
+            self.assertTrue(os.path.exists(file.data["filename"]))
+
+        with self.subTest("nb_chars=None"):
+            file = self.faker.txt_file(nb_chars=None)
+            self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()
@@ -2448,6 +2504,7 @@ class TestFaker(unittest.TestCase):
 
     def test_sub_factory(self) -> None:
         """Test FACTORY and SubFactory."""
+
         # *************************
         # ********* Models ********
         # *************************
