@@ -238,7 +238,7 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
             instance.is_active = True
 
         @pre_save
-        def __set_password(instance):
+        def _set_password(self, instance: User) -> None:
             instance.set_password("test")
 
 And this is how you could use it:
