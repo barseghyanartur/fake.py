@@ -21,6 +21,7 @@ are used for versioning (schema follows below):
 2023-12-07
 
 - Added ``pydecimal``.
+- Make ``date_time`` timezone aware.
 - Added documentation on how to customize.
 
 0.4
