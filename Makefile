@@ -40,14 +40,14 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+dataclasses-test:
+	source $(VENV) && cd examples/dataclasses/ && python manage.py test
+
 django-test:
 	source $(VENV) && cd examples/django/ && ./manage.py test
 
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test
-
-dataclasses-test:
-	source $(VENV) && cd examples/dataclasses/ && python manage.py test
 
 tortoise-test:
 	source $(VENV) && cd examples/tortoise/ && python manage.py test
@@ -55,14 +55,17 @@ tortoise-test:
 shell:
 	source $(VENV) && ipython
 
+customization-shell:
+	source $(VENV) && cd examples/customization/ && python manage.py shell
+
+dataclasses-shell:
+	source $(VENV) && cd examples/dataclasses/ && python manage.py shell
+
 django-shell:
 	source $(VENV) && python examples/django/manage.py shell
 
 pydantic-shell:
 	source $(VENV) && cd examples/pydantic/ && python manage.py shell
-
-dataclasses-shell:
-	source $(VENV) && cd examples/dataclasses/ && python manage.py shell
 
 tortoise-shell:
 	source $(VENV) && cd examples/tortoise/ && python manage.py shell
