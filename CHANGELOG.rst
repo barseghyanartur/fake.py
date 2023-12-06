@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.4.1
+-----
+2023-12-07
+
+- Added ``pydecimal``.
+- Added documentation on how to customize.
+
 0.4
 ---
 2023-12-06

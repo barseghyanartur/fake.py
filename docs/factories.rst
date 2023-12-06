@@ -105,6 +105,9 @@ Django example
     # Using trait
     user = UserFactory(is_admin_user=True)
 
+    # Using trait in SubFactory
+    article = ArticleFactory(author__is_admin_user=True)
+
 Pydantic example
 ----------------
 **article/models.py**
