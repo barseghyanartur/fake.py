@@ -17,7 +17,8 @@ import zlib
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -1019,10 +1020,53 @@ class Faker:
     ) -> float:
         return random.uniform(min_value, max_value)
 
+    def pydecimal(
+        self,
+        left_digits: int = 5,
+        right_digits: int = 2,
+        positive: bool = True,
+    ) -> Decimal:
+        """Generate a random Decimal number.
+
+        :param left_digits: Number of digits to the left of the decimal point.
+        :param right_digits: Number of digits to the right of the decimal point.
+        :param positive: If True, the number will be positive, otherwise it
+            can be negative.
+        :return: A randomly generated Decimal number.
+        """
+        if left_digits < 1:
+            raise ValueError("left_digits must be at least 1")
+
+        # Generate the integer part
+        int_part = random.randint(1, 10**left_digits - 1)
+
+        # Generate the fractional part
+        if right_digits > 0:
+            fractional_part = random.randint(
+                0,
+                10**right_digits - 1,
+            ) / (10**right_digits)
+        else:
+            fractional_part = 0
+
+        # Combine both parts
+        number = Decimal(str(int_part + fractional_part)).quantize(
+            Decimal("." + "0" * right_digits),
+            rounding=ROUND_HALF_UP,
+        )
+
+        # Make the number negative if needed
+        if not positive and random.choice([True, False]):
+            number = -number
+
+        return number
+
     def ipv4(self) -> str:
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
-    def _parse_date_string(self, date_str: str) -> datetime:
+    def _parse_date_string(
+        self, date_str: str, tzinfo=timezone.utc
+    ) -> datetime:
         """Parse date string with notation below into a datetime object:
 
         - '5M': 5 minutes from now
@@ -1034,7 +1078,7 @@ class Faker:
         :return: A datetime object representing the time offset.
         """
         if date_str in ["now", "today"]:
-            return datetime.now()
+            return datetime.now(tzinfo)
 
         match = re.match(r"([+-]?\d+)([dHM])", date_str)
         if not match:
@@ -1045,11 +1089,11 @@ class Faker:
         value, unit = match.groups()
         value = int(value)
         if unit == "d":  # Days
-            return datetime.now() + timedelta(days=value)
+            return datetime.now(tzinfo) + timedelta(days=value)
         elif unit == "H":  # Hours
-            return datetime.now() + timedelta(hours=value)
+            return datetime.now(tzinfo) + timedelta(hours=value)
         elif unit == "M":  # Minutes
-            return datetime.now() + timedelta(minutes=value)
+            return datetime.now(tzinfo) + timedelta(minutes=value)
         else:
             raise ValueError(
                 "Date string format is incorrect. Expected formats like "
@@ -1060,6 +1104,7 @@ class Faker:
         self,
         start_date: str = "-7d",
         end_date: str = "+0d",
+        tzinfo=timezone.utc,
     ) -> date:
         """Generate random date between `start_date` and `end_date`.
 
@@ -1067,10 +1112,11 @@ class Faker:
             be generated in the shorthand notation.
         :param end_date: The end date up to which the random date should be
             generated in the shorthand notation.
+        :param tzinfo: The timezone.
         :return: A string representing the formatted date.
         """
-        start_datetime = self._parse_date_string(start_date)
-        end_datetime = self._parse_date_string(end_date)
+        start_datetime = self._parse_date_string(start_date, tzinfo)
+        end_datetime = self._parse_date_string(end_date, tzinfo)
         time_between_dates = (end_datetime - start_datetime).days
         random_days = random.randrange(
             time_between_dates + 1
@@ -1082,6 +1128,7 @@ class Faker:
         self,
         start_date: str = "-7d",
         end_date: str = "+0d",
+        tzinfo=timezone.utc,
     ) -> datetime:
         """Generate a random datetime between `start_date` and `end_date`.
 
@@ -1089,10 +1136,11 @@ class Faker:
             should be generated in the shorthand notation.
         :param end_date: The end datetime up to which the random datetime
             should be generated in the shorthand notation.
+        :param tzinfo: The timezone.
         :return: A string representing the formatted datetime.
         """
-        start_datetime = self._parse_date_string(start_date)
-        end_datetime = self._parse_date_string(end_date)
+        start_datetime = self._parse_date_string(start_date, tzinfo)
+        end_datetime = self._parse_date_string(end_date, tzinfo)
         time_between_datetimes = int(
             (end_datetime - start_datetime).total_seconds()
         )
@@ -2120,6 +2168,24 @@ class TestFaker(unittest.TestCase):
                 self.assertGreaterEqual(val, expected_min_val)
                 self.assertLessEqual(val, expected_max_val)
 
+    def test_pydecimal(self):
+        decimal_number = self.faker.pydecimal(
+            left_digits=3,
+            right_digits=2,
+            positive=True,
+        )
+        self.assertIsInstance(decimal_number, Decimal)
+        self.assertTrue(1 <= decimal_number < 1000)
+        # Check if right digits are 2
+        self.assertTrue(decimal_number.as_tuple().exponent == -2)
+
+        negative_decimal_number = self.faker.pydecimal(
+            left_digits=2,
+            right_digits=2,
+            positive=False,
+        )
+        self.assertTrue(-100 <= negative_decimal_number <= 100)
+
     def test_ipv4(self) -> None:
         # Test a large number of IPs to ensure randomness and correctness
         for _ in range(1000):
@@ -2138,29 +2204,29 @@ class TestFaker(unittest.TestCase):
         # Test 'now' and 'today' special keywords
         self.assertAlmostEqual(
             self.faker._parse_date_string("now"),
-            datetime.now(),
+            datetime.now(timezone.utc),
             delta=timedelta(seconds=1),
         )
         self.assertAlmostEqual(
             self.faker._parse_date_string("today"),
-            datetime.now(),
+            datetime.now(timezone.utc),
             delta=timedelta(seconds=1),
         )
 
         # Test days, hours, and minutes
         self.assertAlmostEqual(
             self.faker._parse_date_string("1d"),
-            datetime.now() + timedelta(days=1),
+            datetime.now(timezone.utc) + timedelta(days=1),
             delta=timedelta(seconds=1),
         )
         self.assertAlmostEqual(
             self.faker._parse_date_string("-1H"),
-            datetime.now() - timedelta(hours=1),
+            datetime.now(timezone.utc) - timedelta(hours=1),
             delta=timedelta(seconds=1),
         )
         self.assertAlmostEqual(
             self.faker._parse_date_string("30M"),
-            datetime.now() + timedelta(minutes=30),
+            datetime.now(timezone.utc) + timedelta(minutes=30),
             delta=timedelta(seconds=1),
         )
 
@@ -2174,7 +2240,7 @@ class TestFaker(unittest.TestCase):
         end_date = "+0d"
         random_date = self.faker.date(start_date, end_date)
         self.assertIsInstance(random_date, date)
-        self.assertEqual(random_date, datetime.now().date())
+        self.assertEqual(random_date, datetime.now(timezone.utc).date())
 
         # Test date range
         start_date = "-2d"
@@ -2182,9 +2248,9 @@ class TestFaker(unittest.TestCase):
         random_date = self.faker.date(start_date, end_date)
         self.assertIsInstance(random_date, date)
         self.assertTrue(
-            datetime.now().date() - timedelta(days=2)
+            datetime.now(timezone.utc).date() - timedelta(days=2)
             <= random_date
-            <= datetime.now().date() + timedelta(days=2)
+            <= datetime.now(timezone.utc).date() + timedelta(days=2)
         )
 
     def test_date_time(self) -> None:
@@ -2194,7 +2260,9 @@ class TestFaker(unittest.TestCase):
         random_datetime = self.faker.date_time(start_date, end_date)
         self.assertIsInstance(random_datetime, datetime)
         self.assertAlmostEqual(
-            random_datetime, datetime.now(), delta=timedelta(seconds=1)
+            random_datetime,
+            datetime.now(timezone.utc),
+            delta=timedelta(seconds=1),
         )
 
         # Test datetime range
@@ -2203,9 +2271,9 @@ class TestFaker(unittest.TestCase):
         random_datetime = self.faker.date_time(start_date, end_date)
         self.assertIsInstance(random_datetime, datetime)
         self.assertTrue(
-            datetime.now() - timedelta(hours=2)
+            datetime.now(timezone.utc) - timedelta(hours=2)
             <= random_datetime
-            <= datetime.now() + timedelta(hours=2)
+            <= datetime.now(timezone.utc) + timedelta(hours=2)
         )
 
     def test_text_pdf(self) -> None:

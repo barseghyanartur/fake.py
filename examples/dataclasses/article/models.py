@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 __all__ = (
@@ -34,7 +34,7 @@ class Article:
     content: str
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
-    pub_date: datetime = datetime.now()
+    pub_date: datetime = date.today()
     safe_for_work: bool = False
     minutes_to_read: int = 5
 

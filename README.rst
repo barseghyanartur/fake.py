@@ -202,18 +202,13 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
 
 .. code-block:: python
 
-    from django.conf import settings
     from django.contrib.auth.models import User
     from fake import (
         FACTORY,
         DjangoModelFactory,
-        FileSystemStorage,
-        SubFactory,
         pre_save,
         trait,
     )
-
-    STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
 
     class UserFactory(DjangoModelFactory):
 
