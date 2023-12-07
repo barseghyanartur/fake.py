@@ -19,6 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -61,6 +62,7 @@ __all__ = (
     "TortoiseModelFactory",
     "post_save",
     "pre_save",
+    "provider",
     "run_async_in_thread",
     "trait",
 )
@@ -1622,54 +1624,56 @@ class FactoryMethod:
         return method(**self.kwargs)
 
 
+# class FactoryMeta(type):
+#     # List of methods to be created in the Factory class
+#     enabled_methods = {
+#         "bmp_file",
+#         "date",
+#         "date_time",
+#         "docx_file",
+#         "email",
+#         "first_name",
+#         "ipv4",
+#         "last_name",
+#         "name",
+#         "paragraph",
+#         "pdf_file",
+#         "png_file",
+#         "pybool",
+#         "pyfloat",
+#         "pyint",
+#         "pystr",
+#         "sentence",
+#         "slug",
+#         "svg_file",
+#         "text",
+#         "txt_file",
+#         "url",
+#         "username",
+#         "uuid",
+#         "word",
+#     }
+#
+#     def __new__(cls, name, bases, attrs):
+#         for method_name in cls.enabled_methods:
+#             attrs[method_name] = cls.create_factory_method(method_name)
+#         return super().__new__(cls, name, bases, attrs)
+#
+#     @staticmethod
+#     def create_factory_method(method_name):
+#         def method(self, **kwargs):
+#             return FactoryMethod(method_name, faker=self.faker, **kwargs)
+#
+#         return method
+
+
 class FactoryMeta(type):
-    # List of methods to be created in the Factory class
-    enabled_methods = {
-        "bmp_file",
-        "date",
-        "date_time",
-        "docx_file",
-        "email",
-        "first_name",
-        "ipv4",
-        "last_name",
-        "name",
-        "paragraph",
-        "pdf_file",
-        "png_file",
-        "pybool",
-        "pyfloat",
-        "pyint",
-        "pystr",
-        "sentence",
-        "slug",
-        "svg_file",
-        "text",
-        "txt_file",
-        "url",
-        "username",
-        "uuid",
-        "word",
-    }
-
-    def __new__(cls, name, bases, attrs):
-        for method_name in cls.enabled_methods:
-            attrs[method_name] = cls.create_factory_method(method_name)
-        return super().__new__(cls, name, bases, attrs)
-
     @staticmethod
-    def create_factory_method(method_name):
-        def method(self, **kwargs):
-            # # Special handling for boolean
-            # if method_name == "pybool":
-            #     return FactoryMethod("pybool")
-            # # Default argument for text
-            # if method_name == "text" and "nb_chars" not in kwargs:
-            #     kwargs["max_nb_chars"] = 200
-            return FactoryMethod(method_name, faker=self.faker, **kwargs)
+    def create_factory_method(method):
+        def factory_method(self, *args, **kwargs):
+            return method(self.faker, *args, **kwargs)
 
-        # return staticmethod(method)
-        return method
+        return factory_method
 
 
 class SubFactory:
@@ -1687,6 +1691,19 @@ class Factory(metaclass=FactoryMeta):
 
     def __init__(self, faker: Optional[Faker] = None) -> None:
         self.faker = faker or FAKER
+        self._add_provider_methods()
+
+    def _add_provider_methods(self):
+        for attr_name in dir(self.faker):
+            method = getattr(self.faker, attr_name)
+            if callable(method) and getattr(method, "is_provider", False):
+                # Wrap the method to correctly pass arguments
+                def method_wrapper(faker_method, *args, **kwargs):
+                    return faker_method(*args, **kwargs)
+
+                # Bind the wrapper function as a method
+                bound_method = partial(method_wrapper, method)
+                setattr(self, attr_name, bound_method)
 
 
 FACTORY = Factory(faker=FAKER)
@@ -2519,12 +2536,12 @@ class TestFaker(unittest.TestCase):
         """Test MetaData."""
         with self.subTest("Test str"):
             metadata = MetaData()
-            content = FAKER.word()
+            content = self.faker.word()
             metadata.add_content(content)
             self.assertEqual(metadata.content, content)
         with self.subTest("Test list"):
             metadata = MetaData()
-            content = FAKER.words()
+            content = self.faker.words()
             metadata.add_content(content)
             self.assertEqual(metadata.content, "\n".join(content))
 
@@ -2539,12 +2556,19 @@ class TestFaker(unittest.TestCase):
             generated_int = pyint_factory_method()
             self.assertIsInstance(generated_int, int)
 
-    def test_factory_meta(self) -> None:
-        class TestFactory(Factory):
-            pass
+    def test_factory_methods(self) -> None:
+        # Assuming 'Faker' is the class with methods decorated by @provider
+        faker = Faker()
+        factory = Factory(faker)
 
-        for method_name in FactoryMeta.enabled_methods:
-            self.assertTrue(hasattr(TestFactory, method_name))
+        # Iterate through methods of Faker
+        for attr_name in dir(faker):
+            attr_value = getattr(faker, attr_name)
+            if callable(attr_value) and getattr(
+                attr_value, "is_provider", False
+            ):
+                # Check if Factory has the method
+                self.assertTrue(hasattr(factory, attr_name))
 
     def test_sub_factory(self) -> None:
         """Test FACTORY and SubFactory."""

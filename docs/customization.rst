@@ -11,7 +11,7 @@ The ``Faker`` class is easy to customize. See the following example:
     import random
     import string
 
-    from fake import Faker, Factory
+    from fake import Faker, Factory, provider
 
 
     # Custom first names dictionary
@@ -22,6 +22,7 @@ The ``Faker`` class is easy to customize. See the following example:
         "Areg",
         "Artur",
         "Astghik",
+        "Atom",
         "Barsegh",
         "Gaiane",
         "Gor",
@@ -30,13 +31,15 @@ The ``Faker`` class is easy to customize. See the following example:
         "Levon",
         "Lilit",
         "Mariam",
+        "Nare",
         "Narek",
         "Nune",
+        "Raffi",
+        "Shant",
         "Tatev",
         "Tigran",
         "Vahan",
         "Vardan",
-        "Zara",
     ]
 
     # Custom last names dictionary
@@ -44,6 +47,7 @@ The ``Faker`` class is easy to customize. See the following example:
         "Amatouni",
         "Avagyan",
         "Danielyan",
+        "Egoyan",
         "Gevorgyan",
         "Gnouni",
         "Grigoryan",
@@ -53,16 +57,16 @@ The ``Faker`` class is easy to customize. See the following example:
         "Karapetyan",
         "Khachatryan",
         "Manukyan",
-        "Ter-Martirosyan",
         "Melikyan",
         "Mkrtchyan",
         "Petrosyan",
-        "Saroyan",
         "Sahakyants",
         "Sargsyan",
+        "Saroyan",
         "Sedrakyan",
         "Simonyan",
         "Stepanyan",
+        "Ter-Martirosyan",
         "Vardanyan",
     ]
 
@@ -96,6 +100,7 @@ The ``Faker`` class is easy to customize. See the following example:
             """Override default words dictionary."""
             self._words = WORDS
 
+        @provider
         def postal_code(self) -> str:
             """Generate a random Dutch postal code in the format '1234 AB'.
 
@@ -108,3 +113,6 @@ The ``Faker`` class is easy to customize. See the following example:
 
     FAKER = CustomFaker()
     FACTORY = Factory(FAKER)
+
+The ``postal_code`` is the provider method and shall be decorated with
+``@provider`` decorator.

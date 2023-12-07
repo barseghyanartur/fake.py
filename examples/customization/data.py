@@ -18,6 +18,7 @@ FIRST_NAMES = [
     "Areg",
     "Artur",
     "Astghik",
+    "Atom",
     "Barsegh",
     "Gaiane",
     "Gor",
@@ -26,13 +27,15 @@ FIRST_NAMES = [
     "Levon",
     "Lilit",
     "Mariam",
+    "Nare",
     "Narek",
     "Nune",
+    "Raffi",
+    "Shant",
     "Tatev",
     "Tigran",
     "Vahan",
     "Vardan",
-    "Zara",
 ]
 
 # Custom last names dictionary
@@ -40,6 +43,7 @@ LAST_NAMES = [
     "Amatouni",
     "Avagyan",
     "Danielyan",
+    "Egoyan",
     "Gevorgyan",
     "Gnouni",
     "Grigoryan",

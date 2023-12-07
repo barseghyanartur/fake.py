@@ -40,6 +40,9 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+customization-test:
+	source $(VENV) && cd examples/customization/ && python manage.py test
+
 dataclasses-test:
 	source $(VENV) && cd examples/dataclasses/ && python manage.py test
 

@@ -1,7 +1,7 @@
 import random
 import string
 
-from fake import Factory, Faker
+from fake import Factory, Faker, provider
 
 from data import CITIES, FIRST_NAMES, LAST_NAMES, REGIONS, STREET_NAMES, WORDS
 
@@ -26,6 +26,7 @@ class CustomFaker(Faker):
         """Override default words dictionary."""
         self._words = WORDS
 
+    @provider
     def address_line(self) -> str:
         """Generate a random Dutch address line like 'Oranjestraat 1'.
 
@@ -40,12 +41,15 @@ class CustomFaker(Faker):
         # Combine components into a Dutch address format
         return f"{street} {house_number}{suffix}"
 
+    @provider
     def city(self) -> str:
         return random.choice(CITIES)
 
+    @provider
     def region(self) -> str:
         return random.choice(REGIONS)
 
+    @provider
     def postal_code(self) -> str:
         """Generate a random Dutch postal code in the format '1234 AB'.
 
