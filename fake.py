@@ -55,6 +55,7 @@ __all__ = (
     "GraphicPdfGenerator",
     "MetaData",
     "ModelFactory",
+    "PROVIDER_REGISTRY",
     "StringValue",
     "SubFactory",
     "TextPdfGenerator",
