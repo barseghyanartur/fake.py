@@ -19,7 +19,6 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
-from functools import partial
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -823,7 +822,12 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
+# Global registry for provider methods
+PROVIDER_REGISTRY = set()
+
+
 def provider(func):
+    PROVIDER_REGISTRY.add(func.__name__)
     func.is_provider = True
     return func
 
@@ -1624,56 +1628,18 @@ class FactoryMethod:
         return method(**self.kwargs)
 
 
-# class FactoryMeta(type):
-#     # List of methods to be created in the Factory class
-#     enabled_methods = {
-#         "bmp_file",
-#         "date",
-#         "date_time",
-#         "docx_file",
-#         "email",
-#         "first_name",
-#         "ipv4",
-#         "last_name",
-#         "name",
-#         "paragraph",
-#         "pdf_file",
-#         "png_file",
-#         "pybool",
-#         "pyfloat",
-#         "pyint",
-#         "pystr",
-#         "sentence",
-#         "slug",
-#         "svg_file",
-#         "text",
-#         "txt_file",
-#         "url",
-#         "username",
-#         "uuid",
-#         "word",
-#     }
-#
-#     def __new__(cls, name, bases, attrs):
-#         for method_name in cls.enabled_methods:
-#             attrs[method_name] = cls.create_factory_method(method_name)
-#         return super().__new__(cls, name, bases, attrs)
-#
-#     @staticmethod
-#     def create_factory_method(method_name):
-#         def method(self, **kwargs):
-#             return FactoryMethod(method_name, faker=self.faker, **kwargs)
-#
-#         return method
-
-
 class FactoryMeta(type):
-    @staticmethod
-    def create_factory_method(method):
-        def factory_method(self, *args, **kwargs):
-            return method(self.faker, *args, **kwargs)
+    def __new__(cls, name, bases, attrs):
+        for method_name in PROVIDER_REGISTRY:
+            attrs[method_name] = cls.create_factory_method(method_name)
+        return super().__new__(cls, name, bases, attrs)
 
-        return factory_method
+    @staticmethod
+    def create_factory_method(method_name):
+        def method(self, **kwargs):
+            return FactoryMethod(method_name, faker=self.faker, **kwargs)
+
+        return method
 
 
 class SubFactory:
@@ -1691,19 +1657,6 @@ class Factory(metaclass=FactoryMeta):
 
     def __init__(self, faker: Optional[Faker] = None) -> None:
         self.faker = faker or FAKER
-        self._add_provider_methods()
-
-    def _add_provider_methods(self):
-        for attr_name in dir(self.faker):
-            method = getattr(self.faker, attr_name)
-            if callable(method) and getattr(method, "is_provider", False):
-                # Wrap the method to correctly pass arguments
-                def method_wrapper(faker_method, *args, **kwargs):
-                    return faker_method(*args, **kwargs)
-
-                # Bind the wrapper function as a method
-                bound_method = partial(method_wrapper, method)
-                setattr(self, attr_name, bound_method)
 
 
 FACTORY = Factory(faker=FAKER)
