@@ -821,6 +821,11 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
+def provider(func):
+    func.is_provider = True
+    return func
+
+
 class Faker:
     """fake.py - simplified, standalone alternative with no dependencies.
 
@@ -918,48 +923,61 @@ class Faker:
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
         return "".join([translation_map.get(c, c) for c in text])
 
+    @provider
     def uuid(self) -> uuid.UUID:
         return uuid.uuid4()
 
+    @provider
     def first_name(self) -> str:
         return random.choice(self._first_names)
 
+    @provider
     def last_name(self) -> str:
         return random.choice(self._last_names)
 
+    @provider
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
 
+    @provider
     def username(self) -> str:
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
+    @provider
     def slug(self) -> str:
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
+    @provider
     def word(self) -> str:
         return random.choice(self._words).capitalize()
 
+    @provider
     def words(self, nb: int = 5) -> List[str]:
         return [word.capitalize() for word in random.choices(self._words, k=nb)]
 
+    @provider
     def sentence(self, nb_words: int = 5) -> str:
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}."
         )
 
+    @provider
     def sentences(self, nb: int = 3) -> List[str]:
         return [self.sentence() for _ in range(nb)]
 
+    @provider
     def paragraph(self, nb_sentences: int = 5) -> str:
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
+    @provider
     def paragraphs(self, nb: int = 3) -> List[str]:
         return [self.paragraph() for _ in range(nb)]
 
+    @provider
     def text(self, nb_chars: int = 200) -> str:
         current_text: str = ""
         while len(current_text) < nb_chars:
@@ -967,18 +985,22 @@ class Faker:
             current_text += f" {sentence}" if current_text else sentence
         return current_text[:nb_chars]
 
+    @provider
     def texts(self, nb: int = 3) -> List[str]:
         return [self.text() for _ in range(nb)]
 
+    @provider
     def file_name(self, extension: str = "txt") -> str:
         with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
             return temp_file.name
 
+    @provider
     def email(self, domain: str = "example.com") -> str:
         if not domain:
             domain = "example.com"
         return f"{self.word().lower()}@{domain}"
 
+    @provider
     def url(
         self,
         protocols: Optional[Tuple[str]] = None,
@@ -999,9 +1021,11 @@ class Faker:
         suffix = random.choice(suffixes or (".html", ".php", ".go", "", "/"))
         return f"{protocol}://{domain}.{tld}/{self.word().lower()}{suffix}"
 
+    @provider
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
         return random.randint(min_value, max_value)
 
+    @provider
     def pybool(self) -> bool:
         return random.choice(
             (
@@ -1010,9 +1034,11 @@ class Faker:
             )
         )
 
+    @provider
     def pystr(self, nb_chars: int = 20) -> str:
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
+    @provider
     def pyfloat(
         self,
         min_value: float = 0.0,
@@ -1020,6 +1046,7 @@ class Faker:
     ) -> float:
         return random.uniform(min_value, max_value)
 
+    @provider
     def pydecimal(
         self,
         left_digits: int = 5,
@@ -1064,6 +1091,7 @@ class Faker:
 
         return number
 
+    @provider
     def ipv4(self) -> str:
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
@@ -1099,6 +1127,7 @@ class Faker:
         # Otherwise it's minutes
         return datetime.now(tzinfo) + timedelta(minutes=value)
 
+    @provider
     def date(
         self,
         start_date: str = "-7d",
@@ -1123,6 +1152,7 @@ class Faker:
         random_date = start_datetime + timedelta(days=random_days)
         return random_date.date()
 
+    @provider
     def date_time(
         self,
         start_date: str = "-7d",
@@ -1149,6 +1179,7 @@ class Faker:
         random_date_time = start_datetime + timedelta(seconds=random_seconds)
         return random_date_time
 
+    @provider
     def pdf(
         self,
         nb_pages: int = 1,
@@ -1162,6 +1193,7 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
+    @provider
     def png(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1216,6 +1248,7 @@ class Faker:
 
         return png_data
 
+    @provider
     def svg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1231,6 +1264,7 @@ class Faker:
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
 
+    @provider
     def bmp(
         self,
         size: Tuple[int, int] = (100, 100),

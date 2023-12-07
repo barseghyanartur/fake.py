@@ -46,6 +46,9 @@ dataclasses-test:
 django-test:
 	source $(VENV) && cd examples/django/ && ./manage.py test
 
+hypothesis-test:
+	source $(VENV) && cd examples/hypothesis/ && ./manage.py test
+
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test
 

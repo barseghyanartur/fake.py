@@ -1,0 +1,53 @@
+import unittest
+
+from fake import FILE_REGISTRY
+
+from address.factories import AddressFactory, PersonFactory
+from address.models import Address, Person
+from data import CITIES, REGIONS
+
+__author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
+__copyright__ = "2023 Artur Barseghyan"
+__license__ = "MIT"
+__all__ = ("CustomFakerTestCase",)
+
+
+class CustomFakerTestCase(unittest.TestCase):
+    def tearDown(self):
+        FILE_REGISTRY.clean_up()
+
+    def test_sub_factory(self) -> None:
+        person = PersonFactory()
+
+        # Testing SubFactory
+        self.assertIsInstance(person.address, Address)
+        self.assertIsInstance(person.address.id, int)
+
+        # Testing Factory
+        self.assertIsInstance(person.id, int)
+
+        # Testing hooks
+        self.assertTrue(
+            hasattr(person, "pre_save_called") and person.pre_save_called
+        )
+        self.assertTrue(
+            hasattr(person, "post_save_called") and person.post_save_called
+        )
+        self.assertTrue(
+            hasattr(person.address, "pre_save_called")
+            and person.address.pre_save_called
+        )
+        self.assertTrue(
+            hasattr(person.address, "post_save_called")
+            and person.address.post_save_called
+        )
+
+        # Testing batch creation
+        persons = PersonFactory.create_batch(5)
+        self.assertEqual(len(persons), 5)
+        self.assertIsInstance(persons[0], Person)
+
+        # Testing custom addresses
+        address = AddressFactory()
+        self.assertIn(address.city, CITIES)
+        self.assertIn(address.region, REGIONS)
