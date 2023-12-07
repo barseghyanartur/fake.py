@@ -6,14 +6,15 @@ Contents:
 .. contents:: Table of Contents
 
 .. toctree::
-   :maxdepth: 20
+   :maxdepth: 2
 
-   readme
+   index
    recipes
    creating_images
    creating_pdf
    creating_docx
    factories
+   customization
    security
    contributor_guidelines
    code_of_conduct

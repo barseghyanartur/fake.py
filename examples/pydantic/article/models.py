@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -35,7 +35,7 @@ class Article(BaseModel):
     slug: str = Field(..., max_length=255, unique=True)
     content: str
     image: Optional[str] = None  # Use str to represent the image path or URL
-    pub_date: datetime = Field(default_factory=datetime.now)
+    pub_date: date = Field(default_factory=date.today)
     safe_for_work: bool = False
     minutes_to_read: int = 5
     author: User

@@ -63,7 +63,7 @@ class ArticleFactory(TortoiseModelFactory):
     slug = FACTORY.slug()
     content = FACTORY.text()
     image = FACTORY.png_file(storage=STORAGE)
-    pub_date = FACTORY.date_time()
+    pub_date = FACTORY.date()
     safe_for_work = FACTORY.pybool()
     minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)

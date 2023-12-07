@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from tortoise import fields
 from tortoise.models import Model
@@ -36,7 +36,7 @@ class Article(Model):
     slug = fields.CharField(max_length=255, unique=True)
     content = fields.TextField()
     image = fields.TextField(null=True, blank=True)
-    pub_date = fields.DatetimeField(default=datetime.now)
+    pub_date = fields.DateField(default=date.today)
     safe_for_work = fields.BooleanField(default=False)
     minutes_to_read = fields.IntField(default=5)
     author = fields.ForeignKeyField("models.User", on_delete=fields.CASCADE)
