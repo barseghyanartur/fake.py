@@ -10,7 +10,7 @@ class Article(models.Model):
     slug = models.SlugField(unique=True)
     content = models.TextField()
     image = models.ImageField(null=True, blank=True)
-    pub_date = models.DateTimeField(default=timezone.now)
+    pub_date = models.DateField(default=timezone.now)
     safe_for_work = models.BooleanField(default=False)
     minutes_to_read = models.IntegerField(default=5)
     author = models.ForeignKey(

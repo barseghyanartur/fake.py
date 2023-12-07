@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import timezone
 from fake import (
     FACTORY,
     DjangoModelFactory,
@@ -35,11 +36,11 @@ class UserFactory(DjangoModelFactory):
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
     email = FACTORY.email()
-    last_login = FACTORY.date_time()
+    last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     is_superuser = False
     is_staff = False
     is_active = FACTORY.pybool()
-    date_joined = FACTORY.date_time()
+    date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
 
     class Meta:
         model = User
@@ -77,7 +78,7 @@ class ArticleFactory(DjangoModelFactory):
     slug = FACTORY.slug()
     content = FACTORY.text()
     image = FACTORY.png_file(storage=STORAGE)
-    pub_date = FACTORY.date()
+    pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
     safe_for_work = FACTORY.pybool()
     minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
