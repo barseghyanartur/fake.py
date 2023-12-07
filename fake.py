@@ -1324,6 +1324,7 @@ class Faker:
             + image_data  # Important colors
         )
 
+    @provider
     def gif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1393,6 +1394,7 @@ class Faker:
             + footer
         )
 
+    @provider
     def image(
         self,
         image_format: Literal["png", "svg", "bmp", "gif"] = "png",
@@ -1404,6 +1406,7 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
+    @provider
     def docx(
         self,
         nb_pages: Optional[int] = 1,
@@ -1413,6 +1416,7 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
+    @provider
     def pdf_file(
         self,
         nb_pages: int = 1,
@@ -1468,6 +1472,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
     def png_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1485,6 +1490,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def svg_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1502,6 +1508,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def bmp_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1519,6 +1526,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def gif_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1536,6 +1544,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def docx_file(
         self,
         nb_pages: int = 1,
@@ -1563,6 +1572,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
     def txt_file(
         self,
         nb_chars: Optional[int] = 200,
