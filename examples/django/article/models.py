@@ -2,6 +2,9 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+__author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
+__copyright__ = "2023 Artur Barseghyan"
+__license__ = "MIT"
 __all__ = ("Article",)
 
 

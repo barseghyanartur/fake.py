@@ -6,6 +6,9 @@ from fake import FILE_REGISTRY
 from article.factories import ArticleFactory
 from article.models import Article, User
 
+__author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
+__copyright__ = "2023 Artur Barseghyan"
+__license__ = "MIT"
 __all__ = ("FactoriesTestCase",)
 
 

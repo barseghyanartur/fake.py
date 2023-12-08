@@ -6,12 +6,14 @@ Customization
 
 The ``Faker`` class is easy to customize. See the following example:
 
+**custom_faker.py**
+
 .. code-block:: python
 
     import random
     import string
 
-    from fake import Faker, Factory
+    from fake import Faker, Factory, provider
 
 
     # Custom first names dictionary
@@ -22,6 +24,7 @@ The ``Faker`` class is easy to customize. See the following example:
         "Areg",
         "Artur",
         "Astghik",
+        "Atom",
         "Barsegh",
         "Gaiane",
         "Gor",
@@ -30,13 +33,15 @@ The ``Faker`` class is easy to customize. See the following example:
         "Levon",
         "Lilit",
         "Mariam",
+        "Nare",
         "Narek",
         "Nune",
+        "Raffi",
+        "Shant",
         "Tatev",
         "Tigran",
         "Vahan",
         "Vardan",
-        "Zara",
     ]
 
     # Custom last names dictionary
@@ -44,6 +49,7 @@ The ``Faker`` class is easy to customize. See the following example:
         "Amatouni",
         "Avagyan",
         "Danielyan",
+        "Egoyan",
         "Gevorgyan",
         "Gnouni",
         "Grigoryan",
@@ -53,16 +59,16 @@ The ``Faker`` class is easy to customize. See the following example:
         "Karapetyan",
         "Khachatryan",
         "Manukyan",
-        "Ter-Martirosyan",
         "Melikyan",
         "Mkrtchyan",
         "Petrosyan",
-        "Saroyan",
         "Sahakyants",
         "Sargsyan",
+        "Saroyan",
         "Sedrakyan",
         "Simonyan",
         "Stepanyan",
+        "Ter-Martirosyan",
         "Vardanyan",
     ]
 
@@ -83,6 +89,36 @@ The ``Faker`` class is easy to customize. See the following example:
         "not",
     ]
 
+    STREET_NAMES = [
+        "Bosweg",
+        "Groningerweg",
+        "Jasmijnstraat",
+        "Noordstraat",
+        "Ooststraat",
+        "Oranjestraat",
+        "Prinsengracht",
+        "Ringweg",
+        "Weststraat",
+        "Zonnelaan",
+        "Zuidstraat",
+    ]
+
+    CITIES = [
+        "Amsterdam",
+        "Delft",
+        "Den Haag",
+        "Groningen",
+        "Leiden",
+        "Nijmegen",
+    ]
+
+    REGIONS = [
+        "Friesland",
+        "Groningen",
+        "Limburg",
+        "Utrecht",
+    ]
+
 
     class CustomFaker(Faker):
         """Custom Faker class."""
@@ -96,6 +132,30 @@ The ``Faker`` class is easy to customize. See the following example:
             """Override default words dictionary."""
             self._words = WORDS
 
+        @provider
+        def address_line(self) -> str:
+            """Generate a random Dutch address line like 'Oranjestraat 1'.
+
+            :return: A randomly generated Dutch address line as a string.
+            """
+            # Generate components of the address
+            street = random.choice(STREET_NAMES)
+            house_number = random.randint(1, 200)
+            suffixes = [""] * 10 + ["A", "B", "C"]  # Optional suffixes
+            suffix = random.choice(suffixes)
+
+            # Combine components into a Dutch address format
+            return f"{street} {house_number}{suffix}"
+
+        @provider
+        def city(self) -> str:
+            return random.choice(CITIES)
+
+        @provider
+        def region(self) -> str:
+            return random.choice(REGIONS)
+
+        @provider
         def postal_code(self) -> str:
             """Generate a random Dutch postal code in the format '1234 AB'.
 
@@ -108,3 +168,72 @@ The ``Faker`` class is easy to customize. See the following example:
 
     FAKER = CustomFaker()
     FACTORY = Factory(FAKER)
+
+The ``postal_code`` is the provider method and shall be decorated with
+``@provider`` decorator.
+
+You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
+
+**models.py**
+
+.. code-block:: python
+
+    from dataclasses import dataclass
+    from datetime import date
+
+
+    @dataclass
+    class Address:
+        id: int
+        address_line: str
+        postal_code: str
+        city: str
+        region: str
+
+        def __str__(self) -> str:
+            return self.address_line
+
+
+    @dataclass
+    class Person:
+        id: int
+        first_name: str
+        last_name: str
+        email: str
+        dob: date
+        address: Address
+
+        def __str__(self) -> str:
+            return self.username
+
+**factories.py**
+
+.. code-block:: python
+
+    from fake import ModelFactory, SubFactory, post_save, pre_save
+
+    from models import Address, Person
+    from custom_fake import FACTORY
+
+
+    class AddressFactory(ModelFactory):
+        id = FACTORY.pyint()
+        address_line = FACTORY.address_line()
+        postal_code = FACTORY.postal_code()
+        city = FACTORY.city()
+        region = FACTORY.region()
+
+        class Meta:
+            model = Address
+
+
+    class PersonFactory(ModelFactory):
+        id = FACTORY.pyint()
+        first_name = FACTORY.first_name()
+        last_name = FACTORY.last_name()
+        email = FACTORY.email()
+        dob = FACTORY.date()
+        address = SubFactory(AddressFactory)
+
+        class Meta:
+            model = Person

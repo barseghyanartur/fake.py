@@ -1,168 +1,17 @@
 import random
 import string
 
-from fake import Factory, Faker
+from fake import Factory, Faker, provider
 
+from data import CITIES, FIRST_NAMES, LAST_NAMES, REGIONS, STREET_NAMES, WORDS
+
+__author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
+__copyright__ = "2023 Artur Barseghyan"
+__license__ = "MIT"
 __all__ = (
     "FACTORY",
     "FAKER",
 )
-
-# Custom first names dictionary
-FIRST_NAMES = [
-    "Anahit",
-    "Ani",
-    "Aram",
-    "Areg",
-    "Artur",
-    "Astghik",
-    "Barsegh",
-    "Gaiane",
-    "Gor",
-    "Hakob",
-    "Hasmik",
-    "Levon",
-    "Lilit",
-    "Mariam",
-    "Narek",
-    "Nune",
-    "Tatev",
-    "Tigran",
-    "Vahan",
-    "Vardan",
-    "Zara",
-]
-
-# Custom last names dictionary
-LAST_NAMES = [
-    "Amatouni",
-    "Avagyan",
-    "Danielyan",
-    "Gevorgyan",
-    "Gnouni",
-    "Grigoryan",
-    "Hakobyan",
-    "Harutyunyan",
-    "Hovhannisyan",
-    "Karapetyan",
-    "Khachatryan",
-    "Manukyan",
-    "Ter-Martirosyan",
-    "Melikyan",
-    "Mkrtchyan",
-    "Petrosyan",
-    "Saroyan",
-    "Sahakyants",
-    "Sargsyan",
-    "Sedrakyan",
-    "Simonyan",
-    "Stepanyan",
-    "Vardanyan",
-]
-
-# Custom words dictionary
-WORDS = [
-    "time",
-    "person",
-    "year",
-    "way",
-    "day",
-    "thing",
-    "man",
-    "world",
-    "life",
-    "hand",
-    "part",
-    "child",
-    "eye",
-    "woman",
-    "place",
-    "work",
-    "week",
-    "case",
-    "point",
-    "government",
-    "company",
-    "number",
-    "group",
-    "problem",
-    "fact",
-    "be",
-    "have",
-    "do",
-    "say",
-    "get",
-    "make",
-    "go",
-    "know",
-    "take",
-    "see",
-    "come",
-    "think",
-    "look",
-    "want",
-    "give",
-    "use",
-    "find",
-    "tell",
-    "ask",
-    "work",
-    "seem",
-    "feel",
-    "try",
-    "leave",
-    "call",
-    "good",
-    "new",
-    "first",
-    "last",
-    "long",
-    "great",
-    "little",
-    "own",
-    "other",
-    "old",
-    "right",
-    "big",
-    "high",
-    "different",
-    "small",
-    "large",
-    "next",
-    "early",
-    "young",
-    "important",
-    "few",
-    "public",
-    "bad",
-    "same",
-    "able",
-    "to",
-    "of",
-    "in",
-    "for",
-    "on",
-    "with",
-    "as",
-    "at",
-    "by",
-    "from",
-    "up",
-    "about",
-    "into",
-    "over",
-    "after",
-    "beneath",
-    "under",
-    "above",
-    "the",
-    "and",
-    "a",
-    "that",
-    "I",
-    "it",
-    "not",
-]
 
 
 class CustomFaker(Faker):
@@ -177,6 +26,30 @@ class CustomFaker(Faker):
         """Override default words dictionary."""
         self._words = WORDS
 
+    @provider
+    def address_line(self) -> str:
+        """Generate a random Dutch address line like 'Oranjestraat 1'.
+
+        :return: A randomly generated Dutch address line as a string.
+        """
+        # Generate components of the address
+        street = random.choice(STREET_NAMES)
+        house_number = random.randint(1, 200)
+        suffixes = [""] * 10 + ["A", "B", "C"]  # Optional suffixes
+        suffix = random.choice(suffixes)
+
+        # Combine components into a Dutch address format
+        return f"{street} {house_number}{suffix}"
+
+    @provider
+    def city(self) -> str:
+        return random.choice(CITIES)
+
+    @provider
+    def region(self) -> str:
+        return random.choice(REGIONS)
+
+    @provider
     def postal_code(self) -> str:
         """Generate a random Dutch postal code in the format '1234 AB'.
 
