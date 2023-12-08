@@ -18,6 +18,7 @@ fake.py
 .. _Read the Docs: http://fakepy.readthedocs.io/
 .. _Quick start: https://fakepy.readthedocs.io/en/latest/quick_start.html
 .. _Recipes: https://fakepy.readthedocs.io/en/latest/recipes.html
+.. _Customization: https://fakepy.readthedocs.io/en/latest/customization.html
 .. _Creating PDF: https://fakepy.readthedocs.io/en/latest/creating_pdf.html
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
 .. _Creating images: https://fakepy.readthedocs.io/en/latest/creating_images.html
@@ -97,6 +98,7 @@ Documentation
 =============
 - Documentation is available on `Read the Docs`_.
 - For various ready to use code examples see the `Recipes`_.
+- For customization tips see the `Customization`_.
 - For tips on ``PDF`` creation see `Creating PDF`_.
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
 - For tips on images creation see `Creating images`_.
@@ -248,6 +250,49 @@ And this is how you could use it:
 
     # Create a user using `is_admin_user` trait
     user = UserFactory(is_admin_user=True)
+
+Customize
+---------
+Make your own custom providers and utilize factories with them.
+
+.. code-block:: python
+
+    import random
+    import string
+
+    from fake import Faker, Factory, provider
+
+
+    class CustomFaker(Faker):
+
+        @provider
+        def postal_code(self) -> str:
+            number_part = "".join(random.choices(string.digits, k=4))
+            letter_part = "".join(random.choices(string.ascii_uppercase, k=2))
+            return f"{number_part} {letter_part}"
+
+
+    FAKER = CustomFaker()
+    FACTORY = Factory(FAKER)
+
+Now you can use it as follows (make sure to import your custom instances
+of ``FAKER`` and ``FACTORY``):
+
+.. code-block:: python
+
+    FAKER.postal_code()
+
+    from fake import ModelFactory
+
+
+    class AddressFactory(ModelFactory):
+
+        # ... other definitions
+        postal_code = FACTORY.postal_code()
+        # ... other definitions
+
+        class Meta:
+            model = Address
 
 Tests
 =====

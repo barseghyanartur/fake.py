@@ -36,7 +36,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.4.1"
+__version__ = "0.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -1629,18 +1629,11 @@ class FactoryMethod:
         return method(**self.kwargs)
 
 
-class FactoryMeta(type):
-    def __new__(cls, name, bases, attrs):
-        for method_name in PROVIDER_REGISTRY:
-            attrs[method_name] = cls.create_factory_method(method_name)
-        return super().__new__(cls, name, bases, attrs)
+def create_factory_method(method_name):
+    def method(self, **kwargs):
+        return FactoryMethod(method_name, faker=self.faker, **kwargs)
 
-    @staticmethod
-    def create_factory_method(method_name):
-        def method(self, **kwargs):
-            return FactoryMethod(method_name, faker=self.faker, **kwargs)
-
-        return method
+    return method
 
 
 class SubFactory:
@@ -1653,11 +1646,27 @@ class SubFactory:
         return self.factory_class.create(**self.factory_kwargs)
 
 
-class Factory(metaclass=FactoryMeta):
+class Factory:
     """Factory."""
 
     def __init__(self, faker: Optional[Faker] = None) -> None:
+        # Directly use the setter to ensure provider methods are added
         self.faker = faker or FAKER
+
+    @property
+    def faker(self):
+        return self._faker
+
+    @faker.setter
+    def faker(self, value):
+        self._faker = value
+        self._add_provider_methods(value)
+
+    def _add_provider_methods(self, faker_instance):
+        for method_name in PROVIDER_REGISTRY:
+            if hasattr(faker_instance, method_name):
+                bound_method = create_factory_method(method_name)
+                setattr(self, method_name, bound_method.__get__(self))
 
 
 FACTORY = Factory(faker=FAKER)

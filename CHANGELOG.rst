@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.5
+---
+2023-12-08
+
+- Make ``fake.Faker`` and ``fake.Factory`` classes more customizable.
+- Introduce ``provider`` decorator to decorate provider methods.
+- Documentation improvements.
+
 0.4.1
 -----
 2023-12-07
