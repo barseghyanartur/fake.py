@@ -3,6 +3,9 @@ from datetime import date
 from tortoise import fields
 from tortoise.models import Model
 
+__author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
+__copyright__ = "2023 Artur Barseghyan"
+__license__ = "MIT"
 __all__ = (
     "Article",
     "User",

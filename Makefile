@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.4.1
+VERSION := 0.5
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -40,11 +40,17 @@ install:
 test:
 	source $(VENV) && pytest -vrx -s
 
+customization-test:
+	source $(VENV) && cd examples/customization/ && python manage.py test
+
 dataclasses-test:
 	source $(VENV) && cd examples/dataclasses/ && python manage.py test
 
 django-test:
 	source $(VENV) && cd examples/django/ && ./manage.py test
+
+hypothesis-test:
+	source $(VENV) && cd examples/hypothesis/ && ./manage.py test
 
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test

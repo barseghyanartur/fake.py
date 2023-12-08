@@ -36,7 +36,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.4.1"
+__version__ = "0.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -55,12 +55,14 @@ __all__ = (
     "GraphicPdfGenerator",
     "MetaData",
     "ModelFactory",
+    "PROVIDER_REGISTRY",
     "StringValue",
     "SubFactory",
     "TextPdfGenerator",
     "TortoiseModelFactory",
     "post_save",
     "pre_save",
+    "provider",
     "run_async_in_thread",
     "trait",
 )
@@ -821,6 +823,16 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
+# Global registry for provider methods
+PROVIDER_REGISTRY = set()
+
+
+def provider(func):
+    PROVIDER_REGISTRY.add(func.__name__)
+    func.is_provider = True
+    return func
+
+
 class Faker:
     """fake.py - simplified, standalone alternative with no dependencies.
 
@@ -918,48 +930,61 @@ class Faker:
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
         return "".join([translation_map.get(c, c) for c in text])
 
+    @provider
     def uuid(self) -> uuid.UUID:
         return uuid.uuid4()
 
+    @provider
     def first_name(self) -> str:
         return random.choice(self._first_names)
 
+    @provider
     def last_name(self) -> str:
         return random.choice(self._last_names)
 
+    @provider
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
 
+    @provider
     def username(self) -> str:
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
+    @provider
     def slug(self) -> str:
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
+    @provider
     def word(self) -> str:
         return random.choice(self._words).capitalize()
 
+    @provider
     def words(self, nb: int = 5) -> List[str]:
         return [word.capitalize() for word in random.choices(self._words, k=nb)]
 
+    @provider
     def sentence(self, nb_words: int = 5) -> str:
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}."
         )
 
+    @provider
     def sentences(self, nb: int = 3) -> List[str]:
         return [self.sentence() for _ in range(nb)]
 
+    @provider
     def paragraph(self, nb_sentences: int = 5) -> str:
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
+    @provider
     def paragraphs(self, nb: int = 3) -> List[str]:
         return [self.paragraph() for _ in range(nb)]
 
+    @provider
     def text(self, nb_chars: int = 200) -> str:
         current_text: str = ""
         while len(current_text) < nb_chars:
@@ -967,18 +992,22 @@ class Faker:
             current_text += f" {sentence}" if current_text else sentence
         return current_text[:nb_chars]
 
+    @provider
     def texts(self, nb: int = 3) -> List[str]:
         return [self.text() for _ in range(nb)]
 
+    @provider
     def file_name(self, extension: str = "txt") -> str:
         with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
             return temp_file.name
 
+    @provider
     def email(self, domain: str = "example.com") -> str:
         if not domain:
             domain = "example.com"
         return f"{self.word().lower()}@{domain}"
 
+    @provider
     def url(
         self,
         protocols: Optional[Tuple[str]] = None,
@@ -999,9 +1028,11 @@ class Faker:
         suffix = random.choice(suffixes or (".html", ".php", ".go", "", "/"))
         return f"{protocol}://{domain}.{tld}/{self.word().lower()}{suffix}"
 
+    @provider
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
         return random.randint(min_value, max_value)
 
+    @provider
     def pybool(self) -> bool:
         return random.choice(
             (
@@ -1010,9 +1041,11 @@ class Faker:
             )
         )
 
+    @provider
     def pystr(self, nb_chars: int = 20) -> str:
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
+    @provider
     def pyfloat(
         self,
         min_value: float = 0.0,
@@ -1020,6 +1053,7 @@ class Faker:
     ) -> float:
         return random.uniform(min_value, max_value)
 
+    @provider
     def pydecimal(
         self,
         left_digits: int = 5,
@@ -1064,6 +1098,7 @@ class Faker:
 
         return number
 
+    @provider
     def ipv4(self) -> str:
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
@@ -1099,6 +1134,7 @@ class Faker:
         # Otherwise it's minutes
         return datetime.now(tzinfo) + timedelta(minutes=value)
 
+    @provider
     def date(
         self,
         start_date: str = "-7d",
@@ -1123,6 +1159,7 @@ class Faker:
         random_date = start_datetime + timedelta(days=random_days)
         return random_date.date()
 
+    @provider
     def date_time(
         self,
         start_date: str = "-7d",
@@ -1149,6 +1186,7 @@ class Faker:
         random_date_time = start_datetime + timedelta(seconds=random_seconds)
         return random_date_time
 
+    @provider
     def pdf(
         self,
         nb_pages: int = 1,
@@ -1162,6 +1200,7 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
+    @provider
     def png(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1216,6 +1255,7 @@ class Faker:
 
         return png_data
 
+    @provider
     def svg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1231,6 +1271,7 @@ class Faker:
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
 
+    @provider
     def bmp(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1290,6 +1331,7 @@ class Faker:
             + image_data  # Important colors
         )
 
+    @provider
     def gif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1359,6 +1401,7 @@ class Faker:
             + footer
         )
 
+    @provider
     def image(
         self,
         image_format: Literal["png", "svg", "bmp", "gif"] = "png",
@@ -1370,6 +1413,7 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
+    @provider
     def docx(
         self,
         nb_pages: Optional[int] = 1,
@@ -1379,6 +1423,7 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
+    @provider
     def pdf_file(
         self,
         nb_pages: int = 1,
@@ -1434,6 +1479,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
     def png_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1451,6 +1497,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def svg_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1468,6 +1515,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def bmp_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1485,6 +1533,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def gif_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1502,6 +1551,7 @@ class Faker:
             prefix=prefix,
         )
 
+    @provider
     def docx_file(
         self,
         nb_pages: int = 1,
@@ -1529,6 +1579,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
     def txt_file(
         self,
         nb_chars: Optional[int] = 200,
@@ -1578,54 +1629,11 @@ class FactoryMethod:
         return method(**self.kwargs)
 
 
-class FactoryMeta(type):
-    # List of methods to be created in the Factory class
-    enabled_methods = {
-        "bmp_file",
-        "date",
-        "date_time",
-        "docx_file",
-        "email",
-        "first_name",
-        "ipv4",
-        "last_name",
-        "name",
-        "paragraph",
-        "pdf_file",
-        "png_file",
-        "pybool",
-        "pyfloat",
-        "pyint",
-        "pystr",
-        "sentence",
-        "slug",
-        "svg_file",
-        "text",
-        "txt_file",
-        "url",
-        "username",
-        "uuid",
-        "word",
-    }
+def create_factory_method(method_name):
+    def method(self, **kwargs):
+        return FactoryMethod(method_name, faker=self.faker, **kwargs)
 
-    def __new__(cls, name, bases, attrs):
-        for method_name in cls.enabled_methods:
-            attrs[method_name] = cls.create_factory_method(method_name)
-        return super().__new__(cls, name, bases, attrs)
-
-    @staticmethod
-    def create_factory_method(method_name):
-        def method(self, **kwargs):
-            # # Special handling for boolean
-            # if method_name == "pybool":
-            #     return FactoryMethod("pybool")
-            # # Default argument for text
-            # if method_name == "text" and "nb_chars" not in kwargs:
-            #     kwargs["max_nb_chars"] = 200
-            return FactoryMethod(method_name, faker=self.faker, **kwargs)
-
-        # return staticmethod(method)
-        return method
+    return method
 
 
 class SubFactory:
@@ -1638,11 +1646,27 @@ class SubFactory:
         return self.factory_class.create(**self.factory_kwargs)
 
 
-class Factory(metaclass=FactoryMeta):
+class Factory:
     """Factory."""
 
     def __init__(self, faker: Optional[Faker] = None) -> None:
+        # Directly use the setter to ensure provider methods are added
         self.faker = faker or FAKER
+
+    @property
+    def faker(self):
+        return self._faker
+
+    @faker.setter
+    def faker(self, value):
+        self._faker = value
+        self._add_provider_methods(value)
+
+    def _add_provider_methods(self, faker_instance):
+        for method_name in PROVIDER_REGISTRY:
+            if hasattr(faker_instance, method_name):
+                bound_method = create_factory_method(method_name)
+                setattr(self, method_name, bound_method.__get__(self))
 
 
 FACTORY = Factory(faker=FAKER)
@@ -2475,12 +2499,12 @@ class TestFaker(unittest.TestCase):
         """Test MetaData."""
         with self.subTest("Test str"):
             metadata = MetaData()
-            content = FAKER.word()
+            content = self.faker.word()
             metadata.add_content(content)
             self.assertEqual(metadata.content, content)
         with self.subTest("Test list"):
             metadata = MetaData()
-            content = FAKER.words()
+            content = self.faker.words()
             metadata.add_content(content)
             self.assertEqual(metadata.content, "\n".join(content))
 
@@ -2495,12 +2519,19 @@ class TestFaker(unittest.TestCase):
             generated_int = pyint_factory_method()
             self.assertIsInstance(generated_int, int)
 
-    def test_factory_meta(self) -> None:
-        class TestFactory(Factory):
-            pass
+    def test_factory_methods(self) -> None:
+        # Assuming 'Faker' is the class with methods decorated by @provider
+        faker = Faker()
+        factory = Factory(faker)
 
-        for method_name in FactoryMeta.enabled_methods:
-            self.assertTrue(hasattr(TestFactory, method_name))
+        # Iterate through methods of Faker
+        for attr_name in dir(faker):
+            attr_value = getattr(faker, attr_name)
+            if callable(attr_value) and getattr(
+                attr_value, "is_provider", False
+            ):
+                # Check if Factory has the method
+                self.assertTrue(hasattr(factory, attr_name))
 
     def test_sub_factory(self) -> None:
         """Test FACTORY and SubFactory."""
