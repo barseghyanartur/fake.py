@@ -2499,6 +2499,14 @@ class TestFaker(unittest.TestCase):
             storage.unlink(str(file_3))
             self.assertFalse(storage.exists(file_3.data["filename"]))
 
+    def test_authorship_data(self):
+        """Test `AuthorshipData`."""
+        authorship_data = AuthorshipData()
+        with self.subTest("Testing UnicodeDecodeError case"):
+            path = ""
+            authorship_data._find_authorship_info(path)
+            # TODO
+
     def test_metadata(self) -> None:
         """Test MetaData."""
         with self.subTest("Test str"):
