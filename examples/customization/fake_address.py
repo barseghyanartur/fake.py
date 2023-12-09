@@ -3,7 +3,7 @@ import string
 
 from fake import Factory, Faker, provider
 
-from data import CITIES, FIRST_NAMES, LAST_NAMES, REGIONS, STREET_NAMES, WORDS
+from data import CITIES, REGIONS, STREET_NAMES
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
@@ -16,15 +16,6 @@ __all__ = (
 
 class FakerAddress(Faker):
     """Custom Faker class for addresses."""
-
-    def load_names(self) -> None:
-        """Override default first- and last-names dictionaries."""
-        self._first_names = FIRST_NAMES
-        self._last_names = LAST_NAMES
-
-    def load_words(self) -> None:
-        """Override default words dictionary."""
-        self._words = WORDS
 
     @provider
     def address_line(self) -> str:
@@ -60,5 +51,5 @@ class FakerAddress(Faker):
         return f"{number_part} {letter_part}"
 
 
-FAKER = FakerAddress(alias="nl_NL:address")
+FAKER = FakerAddress(alias="address")
 FACTORY = Factory(FAKER)
