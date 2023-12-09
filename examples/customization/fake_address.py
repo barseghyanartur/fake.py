@@ -60,5 +60,5 @@ class FakerAddress(Faker):
         return f"{number_part} {letter_part}"
 
 
-FAKER = FakerAddress()
+FAKER = FakerAddress(alias="nl_NL:address")
 FACTORY = Factory(FAKER)

@@ -825,6 +825,8 @@ class DocxGenerator:
 
 
 # Global registry for provider methods
+UID_REGISTRY: Dict[str, "Faker"] = {}
+ALIAS_REGISTRY: Dict[str, "Faker"] = {}
 PROVIDER_REGISTRY: Dict[str, Set] = defaultdict(set)
 
 
@@ -920,8 +922,20 @@ class Faker:
         self._words: List[str] = []
         self._first_names: List[str] = []
         self._last_names: List[str] = []
+
         self.uid = f"{self.__class__.__module__}.{self.__class__.__name__}"
+        if alias and alias in ALIAS_REGISTRY:
+            LOGGER.warning(
+                f"Alias '{alias}' already registered. "
+                f"Using '{self.uid}' as alias instead."
+            )
+            alias = None
+
         self.alias = alias or self.uid
+        if self.uid not in UID_REGISTRY:
+            UID_REGISTRY[self.uid] = self
+        if self.alias not in ALIAS_REGISTRY:
+            ALIAS_REGISTRY[self.alias] = self
 
         self.load_words()
         self.load_names()

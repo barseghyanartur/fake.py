@@ -59,5 +59,5 @@ class FakerBand(Faker):
         return random.choice(BANDS)
 
 
-FAKER = FakerBand()
+FAKER = FakerBand(alias="band")
 FACTORY = Factory(FAKER)
