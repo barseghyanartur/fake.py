@@ -37,7 +37,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.6"
+__version__ = "0.6.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -939,6 +939,14 @@ class Faker:
 
         self.load_words()
         self.load_names()
+
+    @staticmethod
+    def get_by_uid(uid: str) -> Union["Faker", None]:
+        return UID_REGISTRY.get(uid, None)
+
+    @staticmethod
+    def get_by_alias(alias: str) -> Union["Faker", None]:
+        return ALIAS_REGISTRY.get(alias, None)
 
     def load_words(self) -> None:
         with contextlib.redirect_stdout(io.StringIO()):
@@ -2609,6 +2617,18 @@ class TestFaker(unittest.TestCase):
             metadata.add_content(content)
             self.assertEqual(metadata.content, "\n".join(content))
 
+    def test_faker_init(self) -> None:
+        faker = Faker(alias="default")
+        self.assertNotEqual(faker.alias, "default")
+
+    def test_get_by_uid(self) -> None:
+        faker = Faker.get_by_uid("fake.Faker")
+        self.assertIs(faker, self.faker)
+
+    def test_get_by_alias(self) -> None:
+        faker = Faker.get_by_alias("default")
+        self.assertIs(faker, self.faker)
+
     def test_factory_method(self) -> None:
         """Test FactoryMethod."""
         with self.subTest("sentence"):
@@ -3166,7 +3186,3 @@ class TestFaker(unittest.TestCase):
 
         # Clean up by removing the handler
         LOGGER.removeHandler(handler)
-
-
-if __name__ == "__main__":
-    unittest.main()

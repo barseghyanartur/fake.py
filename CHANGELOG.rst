@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.1
+-----
+2023-12-10
+
+- Allow to load registered ``Faker`` instance by ``uid`` or ``alias``.
+- Improve test coverage.
+
 0.6
 ---
 2023-12-09
@@ -23,7 +30,6 @@ are used for versioning (schema follows below):
 - Add optional argument ``alias`` to the ``Faker`` class.
 - Improve multiple ``Faker`` instances.
 - Add ``generic_file`` provider.
-
 
 0.5
 ---

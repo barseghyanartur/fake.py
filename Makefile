@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.6
+VERSION := 0.6.1
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -124,4 +124,7 @@ test-release:
 	source $(VENV) && twine upload --repository testpypi dist/*
 
 mypy:
-	mypy .
+	source $(VENV) && mypy .
+
+%:
+	@:
