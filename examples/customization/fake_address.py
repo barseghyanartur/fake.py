@@ -14,8 +14,8 @@ __all__ = (
 )
 
 
-class CustomFaker(Faker):
-    """Custom Faker class."""
+class FakerAddress(Faker):
+    """Custom Faker class for addresses."""
 
     def load_names(self) -> None:
         """Override default first- and last-names dictionaries."""
@@ -60,5 +60,5 @@ class CustomFaker(Faker):
         return f"{number_part} {letter_part}"
 
 
-FAKER = CustomFaker()
+FAKER = FakerAddress(alias="nl_NL:address")
 FACTORY = Factory(FAKER)

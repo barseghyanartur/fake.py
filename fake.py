@@ -15,6 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
@@ -36,7 +37,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.5"
+__version__ = "0.6"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -824,13 +825,31 @@ class DocxGenerator:
 
 
 # Global registry for provider methods
-PROVIDER_REGISTRY = set()
+UID_REGISTRY: Dict[str, "Faker"] = {}
+ALIAS_REGISTRY: Dict[str, "Faker"] = {}
+PROVIDER_REGISTRY: Dict[str, Set] = defaultdict(set)
+
+
+class Provider:
+    def __init__(self, func):
+        self.func = func
+        self.is_provider = True
+        self.registered_name = None
+
+    def __set_name__(self, owner, name):
+        module = owner.__module__
+        class_name = owner.__name__
+        class_qualname = f"{module}.{class_name}"
+        self.registered_name = f"{module}.{class_name}.{name}"
+        PROVIDER_REGISTRY[class_qualname].add(self.func.__name__)
+
+    def __get__(self, instance, owner):
+        # Return a method bound to the instance or the unbound function
+        return self.func.__get__(instance, owner)
 
 
 def provider(func):
-    PROVIDER_REGISTRY.add(func.__name__)
-    func.is_provider = True
-    return func
+    return Provider(func)
 
 
 class Faker:
@@ -899,10 +918,24 @@ class Faker:
     and `color`(default: `(255, 0, 0)`) arguments.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, alias: Optional[str] = None) -> None:
         self._words: List[str] = []
         self._first_names: List[str] = []
         self._last_names: List[str] = []
+
+        self.uid = f"{self.__class__.__module__}.{self.__class__.__name__}"
+        if alias and alias in ALIAS_REGISTRY:
+            LOGGER.warning(
+                f"Alias '{alias}' already registered. "
+                f"Using '{self.uid}' as alias instead."
+            )
+            alias = None
+
+        self.alias = alias or self.uid
+        if self.uid not in UID_REGISTRY:
+            UID_REGISTRY[self.uid] = self
+        if self.alias not in ALIAS_REGISTRY:
+            ALIAS_REGISTRY[self.alias] = self
 
         self.load_words()
         self.load_names()
@@ -1609,8 +1642,39 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
+    def generic_file(
+        self,
+        content: Union[bytes, str],
+        extension: str,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension=extension,
+            prefix=prefix,
+            basename=basename,
+        )
 
-FAKER = Faker()
+        if isinstance(content, bytes):
+            storage.write_bytes(filename, content)
+        else:
+            storage.write_text(filename, content)
+
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "content": content,
+            "filename": filename,
+            "storage": storage,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+
+FAKER = Faker(alias="default")
 
 
 class FactoryMethod:
@@ -1663,10 +1727,12 @@ class Factory:
         self._add_provider_methods(value)
 
     def _add_provider_methods(self, faker_instance):
-        for method_name in PROVIDER_REGISTRY:
-            if hasattr(faker_instance, method_name):
-                bound_method = create_factory_method(method_name)
-                setattr(self, method_name, bound_method.__get__(self))
+        for class_name, methods in PROVIDER_REGISTRY.items():
+            if class_name == "fake.Faker" or class_name == self.faker.uid:
+                for method_name in methods:
+                    if hasattr(faker_instance, method_name):
+                        bound_method = create_factory_method(method_name)
+                        setattr(self, method_name, bound_method.__get__(self))
 
 
 FACTORY = Factory(faker=FAKER)
@@ -2458,6 +2524,21 @@ class TestFaker(unittest.TestCase):
             file = self.faker.txt_file(nb_chars=None)
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_generic_file(self) -> None:
+        with self.subTest("Without text content"):
+            file = self.faker.generic_file(
+                content=self.faker.text(),
+                extension="txt",
+            )
+            self.assertTrue(os.path.exists(file.data["filename"]))
+
+        with self.subTest("With bytes content"):
+            file = self.faker.generic_file(
+                content=self.faker.text().encode(),
+                extension="txt",
+            )
+            self.assertTrue(os.path.exists(file.data["filename"]))
+
     def test_storage(self) -> None:
         storage = FileSystemStorage()
         with self.assertRaises(Exception):
@@ -2479,8 +2560,12 @@ class TestFaker(unittest.TestCase):
         with self.subTest("Test storage.exists on abs path"):
             self.assertTrue(storage.exists(file.data["filename"]))
 
-        with self.subTest("Test storage.abspath"):
+        with self.subTest("Test storage.abspath using relative path"):
             self.assertEqual(storage.abspath(str(file)), file.data["filename"])
+        with self.subTest("Test storage.abspath using absolute path"):
+            self.assertEqual(
+                storage.abspath(file.data["filename"]), file.data["filename"]
+            )
 
         with self.subTest("Test storage.unlink on absolute path"):
             storage.unlink(file.data["filename"])
@@ -2494,6 +2579,22 @@ class TestFaker(unittest.TestCase):
         with self.subTest("Test storage.unlink on relative path"):
             storage.unlink(str(file_3))
             self.assertFalse(storage.exists(file_3.data["filename"]))
+
+    def test_authorship_data(self):
+        """Test `AuthorshipData`."""
+        authorship_data = AuthorshipData()
+        with self.subTest("Testing UnicodeDecodeError case"):
+            # Creating a text file with non-UTF-8 characters.
+            # Using a character that is not compatible with UTF-8 but is with
+            # Latin-1. For example, the byte sequence for a character not
+            # representable in UTF-8.
+            file = self.faker.generic_file(
+                content=b"\xff\xff",
+                extension="txt",
+                basename="non_utf8_file",
+            )
+            val = authorship_data._find_authorship_info(file.data["filename"])
+            self.assertFalse(val)
 
     def test_metadata(self) -> None:
         """Test MetaData."""

@@ -1,7 +1,7 @@
 from fake import ModelFactory, SubFactory, post_save, pre_save
 
 from address.models import Address, Person
-from custom_fake import FACTORY
+from fake_address import FACTORY
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"

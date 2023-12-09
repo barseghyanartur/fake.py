@@ -8,9 +8,9 @@ import IPython
 
 
 def run_tests():
-    """Function to run tests in the article directory."""
+    """Function to run tests in the customization directory."""
     loader = unittest.TestLoader()
-    suite = loader.discover(start_dir="./address", pattern="tests.py")
+    suite = loader.discover(start_dir="./", pattern="tests.py")
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

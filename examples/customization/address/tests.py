@@ -9,10 +9,10 @@ from data import CITIES, REGIONS
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
-__all__ = ("CustomFakerTestCase",)
+__all__ = ("AddressFakerTestCase",)
 
 
-class CustomFakerTestCase(unittest.TestCase):
+class AddressFakerTestCase(unittest.TestCase):
     def tearDown(self):
         FILE_REGISTRY.clean_up()
 
