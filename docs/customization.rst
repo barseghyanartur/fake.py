@@ -6,7 +6,7 @@ Customization
 
 The ``Faker`` class is easy to customize. See the following example:
 
-**custom_faker.py**
+**custom_fake.py**
 
 .. code-block:: python
 
