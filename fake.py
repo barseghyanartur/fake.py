@@ -940,6 +940,14 @@ class Faker:
         self.load_words()
         self.load_names()
 
+    @staticmethod
+    def get_by_uid(uid: str) -> Union["Faker", None]:
+        return UID_REGISTRY.get(uid, None)
+
+    @staticmethod
+    def get_by_alias(alias: str) -> Union["Faker", None]:
+        return ALIAS_REGISTRY.get(alias, None)
+
     def load_words(self) -> None:
         with contextlib.redirect_stdout(io.StringIO()):
             # Dynamically import 'this' module
@@ -2608,6 +2616,14 @@ class TestFaker(unittest.TestCase):
             content = self.faker.words()
             metadata.add_content(content)
             self.assertEqual(metadata.content, "\n".join(content))
+
+    def test_get_by_uid(self) -> None:
+        faker = Faker.get_by_uid("fake.Faker")
+        self.assertIs(faker, self.faker)
+
+    def test_get_by_alias(self) -> None:
+        faker = Faker.get_by_alias("default")
+        self.assertIs(faker, self.faker)
 
     def test_factory_method(self) -> None:
         """Test FactoryMethod."""
