@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.5"
+version = "0.6"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -85,7 +85,7 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 80
-known_first_party = ["article", "address", "custom_fake", "data"]
+known_first_party = ["article", "address", "fake_address", "fake_band", "data"]
 known_third_party = ["fake"]
 skip = ["wsgi.py", "builddocs/"]
 
@@ -134,7 +134,7 @@ ignore-path = [
 ]
 
 [tool.pytest.ini_options]
-minversion = "0.5"
+minversion = "0.6"
 addopts = [
     "-ra",
     "-vvv",
