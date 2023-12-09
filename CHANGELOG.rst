@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6
+---
+2023-12-09
+
+- Add optional argument ``alias`` to the ``Faker`` class.
+- Improve multiple ``Faker`` instances.
+
+
 0.5
 ---
 2023-12-08
