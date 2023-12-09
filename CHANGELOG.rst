@@ -22,6 +22,7 @@ are used for versioning (schema follows below):
 
 - Add optional argument ``alias`` to the ``Faker`` class.
 - Improve multiple ``Faker`` instances.
+- Add ``generic_file`` provider.
 
 
 0.5
