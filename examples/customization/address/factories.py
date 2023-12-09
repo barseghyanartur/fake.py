@@ -1,7 +1,8 @@
 from fake import ModelFactory, SubFactory, post_save, pre_save
+from override_default_data import FACTORY as OVERRIDE_DEFAULT_DATA_FACTORY
 
 from address.models import Address, Person
-from fake_address import FACTORY
+from fake_address import FACTORY as ADDRESS_FACTORY
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
@@ -13,11 +14,11 @@ __all__ = (
 
 
 class AddressFactory(ModelFactory):
-    id = FACTORY.pyint()
-    address_line = FACTORY.address_line()
-    postal_code = FACTORY.postal_code()
-    city = FACTORY.city()
-    region = FACTORY.region()
+    id = ADDRESS_FACTORY.pyint()
+    address_line = ADDRESS_FACTORY.address_line()
+    postal_code = ADDRESS_FACTORY.postal_code()
+    city = ADDRESS_FACTORY.city()
+    region = ADDRESS_FACTORY.region()
 
     class Meta:
         model = Address
@@ -32,11 +33,11 @@ class AddressFactory(ModelFactory):
 
 
 class PersonFactory(ModelFactory):
-    id = FACTORY.pyint()
-    first_name = FACTORY.first_name()
-    last_name = FACTORY.last_name()
-    email = FACTORY.email()
-    dob = FACTORY.date()
+    id = OVERRIDE_DEFAULT_DATA_FACTORY.pyint()
+    first_name = OVERRIDE_DEFAULT_DATA_FACTORY.first_name()
+    last_name = OVERRIDE_DEFAULT_DATA_FACTORY.last_name()
+    email = OVERRIDE_DEFAULT_DATA_FACTORY.email()
+    dob = OVERRIDE_DEFAULT_DATA_FACTORY.date()
     address = SubFactory(AddressFactory)
 
     class Meta:

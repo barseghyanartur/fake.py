@@ -124,4 +124,7 @@ test-release:
 	source $(VENV) && twine upload --repository testpypi dist/*
 
 mypy:
-	mypy .
+	source $(VENV) && mypy .
+
+%:
+	@:
