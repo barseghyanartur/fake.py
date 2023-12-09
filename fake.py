@@ -2617,6 +2617,10 @@ class TestFaker(unittest.TestCase):
             metadata.add_content(content)
             self.assertEqual(metadata.content, "\n".join(content))
 
+    def test_faker_init(self) -> None:
+        faker = Faker(alias="default")
+        self.assertNotEqual(faker.alias, "default")
+
     def test_get_by_uid(self) -> None:
         faker = Faker.get_by_uid("fake.Faker")
         self.assertIs(faker, self.faker)
@@ -3182,7 +3186,3 @@ class TestFaker(unittest.TestCase):
 
         # Clean up by removing the handler
         LOGGER.removeHandler(handler)
-
-
-if __name__ == "__main__":
-    unittest.main()
