@@ -30,6 +30,7 @@ fake.py.egg-info
 matyan.log*
 db.sqlite3
 sample_db.sqlite
+test_database.db
 local_settings.py
 /prof/
 *.cast
@@ -40,3 +41,4 @@ examples/pydantic/media/
 examples/tortoise/media/
 examples/django/media/
 examples/dataclasses/media/
+examples/sqlalchemy/media/

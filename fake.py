@@ -50,6 +50,7 @@ __all__ = (
     "FAKER",
     "FILE_REGISTRY",
     "Factory",
+    "FactoryMethod",
     "Faker",
     "FileRegistry",
     "FileSystemStorage",

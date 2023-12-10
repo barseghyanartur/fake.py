@@ -55,6 +55,9 @@ hypothesis-test:
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test
 
+sqlalchemy-test:
+	source $(VENV) && cd examples/sqlalchemy/ && python manage.py test
+
 tortoise-test:
 	source $(VENV) && cd examples/tortoise/ && python manage.py test
 
@@ -72,6 +75,9 @@ django-shell:
 
 pydantic-shell:
 	source $(VENV) && cd examples/pydantic/ && python manage.py shell
+
+sqlalchemy-shell:
+	source $(VENV) && cd examples/sqlalchemy/ && python manage.py shell
 
 tortoise-shell:
 	source $(VENV) && cd examples/tortoise/ && python manage.py shell
