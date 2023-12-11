@@ -34,15 +34,15 @@ def get_session():
 class UserFactory(SQLAlchemyModelFactory):
     """User factory."""
 
-    username = FACTORY.username()
-    first_name = FACTORY.first_name()
-    last_name = FACTORY.last_name()
-    email = FACTORY.email()
-    last_login = FACTORY.date_time()
+    username = FACTORY.username()  # mypy: ignore
+    first_name = FACTORY.first_name()  # mypy: ignore
+    last_name = FACTORY.last_name()  # mypy: ignore
+    email = FACTORY.email()  # mypy: ignore
+    last_login = FACTORY.date_time()  # mypy: ignore
     is_superuser = False
     is_staff = False
-    is_active = FACTORY.pybool()
-    date_joined = FACTORY.date_time()
+    is_active = FACTORY.pybool()  # mypy: ignore
+    date_joined = FACTORY.date_time()  # mypy: ignore
 
     class Meta:
         model = User
@@ -69,14 +69,14 @@ class UserFactory(SQLAlchemyModelFactory):
 class ArticleFactory(SQLAlchemyModelFactory):
     """Article factory."""
 
-    title = FACTORY.sentence()
-    slug = FACTORY.slug()
-    content = FACTORY.text()
-    image = FACTORY.png_file(storage=STORAGE)
-    pub_date = FACTORY.date()
-    safe_for_work = FACTORY.pybool()
-    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
-    author = SubFactory(UserFactory)
+    title = FACTORY.sentence()  # mypy: ignore
+    slug = FACTORY.slug()  # mypy: ignore
+    content = FACTORY.text()  # mypy: ignore
+    image = FACTORY.png_file(storage=STORAGE)  # mypy: ignore
+    pub_date = FACTORY.date()  # mypy: ignore
+    safe_for_work = FACTORY.pybool()  # mypy: ignore
+    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)  # mypy: ignore
+    author = SubFactory(UserFactory)  # mypy: ignore
 
     class Meta:
         model = Article
