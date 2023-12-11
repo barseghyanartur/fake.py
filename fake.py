@@ -235,7 +235,7 @@ class FileRegistry:
         FILE_REGISTRY.clean_up()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._registry: Set[StringValue] = set()
         self._lock = Lock()
 
