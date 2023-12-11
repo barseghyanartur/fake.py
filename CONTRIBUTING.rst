@@ -104,8 +104,10 @@ For example:
   Do not submit pull requests splitting the ``fake.py`` module into small
   parts.
 - Some tests contain simplified implementation of existing libraries (Django
-  ORM). If you need to add integration tests for existing functionality,
-  you can add the relevant code and requirements to the examples.
+  ORM, TortoiseORM, SQLAlchemy). If you need to add integration tests for
+  existing functionality, you can add the relevant code and requirements
+  to the examples, along with tests. Currently, all integration tests
+  are running in the CI against the latest version of Python.
 
 **General list to go through:**
 
