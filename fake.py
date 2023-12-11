@@ -37,7 +37,7 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.6.1"
+__version__ = "0.6.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -50,6 +50,7 @@ __all__ = (
     "FAKER",
     "FILE_REGISTRY",
     "Factory",
+    "FactoryMethod",
     "Faker",
     "FileRegistry",
     "FileSystemStorage",
@@ -58,6 +59,7 @@ __all__ = (
     "ModelFactory",
     "PROVIDER_REGISTRY",
     "StringValue",
+    "SQLAlchemyModelFactory",
     "SubFactory",
     "TextPdfGenerator",
     "TortoiseModelFactory",
@@ -233,7 +235,7 @@ class FileRegistry:
         FILE_REGISTRY.clean_up()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._registry: Set[StringValue] = set()
         self._lock = Lock()
 
@@ -243,23 +245,23 @@ class FileRegistry:
 
     def remove(self, string_value: Union[StringValue, str]) -> bool:
         if not isinstance(string_value, StringValue):
-            string_value = self.search(string_value)
+            string_value = self.search(string_value)  # type: ignore
 
         if not string_value:
             return False
 
         with self._lock:
             # No error if the element doesn't exist
-            self._registry.discard(string_value)
+            self._registry.discard(string_value)  # type: ignore
             try:
-                string_value.data["storage"].unlink(
-                    string_value.data["filename"]
+                string_value.data["storage"].unlink(  # type: ignore
+                    string_value.data["filename"]  # type: ignore
                 )
                 return True
             except Exception as e:
                 LOGGER.error(
                     f"Failed to unlink file "
-                    f"{string_value.data['filename']}: {e}"
+                    f"{string_value.data['filename']}: {e}"  # type: ignore
                 )
             return False
 
@@ -356,7 +358,7 @@ class FileSystemStorage(BaseStorage):
 
     def __init__(
         self: "FileSystemStorage",
-        root_path: Optional[str] = gettempdir(),
+        root_path: Optional[Union[str, Path]] = gettempdir(),
         rel_path: Optional[str] = "tmp",
         *args,
         **kwargs,
@@ -796,11 +798,11 @@ class DocxGenerator:
             texts = self.faker.sentences(nb=nb_pages)  # type: ignore
 
         if metadata:
-            metadata.add_content(texts)
+            metadata.add_content(texts)  # type: ignore
 
         # Construct the main document content
         document_content = DOCX_TPL_DOC_HEADER
-        for i, page_text in enumerate(texts):
+        for i, page_text in enumerate(texts):  # type: ignore
             document_content += self._create_page(
                 page_text, i == nb_pages - 1  # type: ignore
             )
@@ -956,7 +958,7 @@ class Faker:
         zen_encoded: str = this.s
         translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
         zen: str = self._rot13_translate(zen_encoded, translation_map)
-        self._words: List[str] = (
+        self._words = (
             zen.translate(str.maketrans("", "", string.punctuation))
             .lower()
             .split()
@@ -1640,7 +1642,7 @@ class Faker:
             if not nb_chars:
                 nb_chars = 200
             text = self.text(nb_chars=nb_chars)
-        storage.write_text(filename=filename, data=text)
+        storage.write_text(filename=filename, data=text)  # type: ignore
         file = StringValue(storage.relpath(filename))
         file.data = {
             "storage": storage,
@@ -2028,6 +2030,90 @@ class TortoiseModelFactory(ModelFactory):
                     )
 
                 related_instance = run_async_in_thread(async_related_instance())
+                setattr(instance, field_name, related_instance)
+
+        # Run pre-save hooks
+        pre_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_save", False)
+        ]
+        cls._run_hooks(pre_save_hooks, instance)
+
+        # Save instance
+        cls.save(instance)
+
+        # Run post-save hooks
+        post_save_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_post_save", False)
+        ]
+        cls._run_hooks(post_save_hooks, instance)
+
+        return instance
+
+
+class SQLAlchemyModelFactory(ModelFactory):
+    """SQLAlchemy ModelFactory."""
+
+    @classmethod
+    def save(cls, instance):
+        session = cls.MetaSQLAlchemy.get_session()
+        session.add(instance)
+        session.commit()
+
+    @classmethod
+    def create(cls, **kwargs):
+        session = cls.MetaSQLAlchemy.get_session()
+
+        model = cls.Meta.model
+        unique_fields = cls._meta.get("get_or_create", ["id"])
+
+        # Check for existing instance
+        if unique_fields:
+            query_kwargs = {field: kwargs.get(field) for field in unique_fields}
+            instance = session.query(model).filter_by(**query_kwargs).first()
+            if instance:
+                return instance
+
+        # Construct model_data from class attributes
+        model_data = {
+            field: value
+            for field, value in cls.__dict__.items()
+            if (
+                not field.startswith("_")
+                and not field.startswith("Meta")
+                and not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
+            )
+        }
+
+        # Separate nested attributes and direct attributes
+        nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
+        direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
+
+        # Update direct attributes with callable results
+        for field, value in model_data.items():
+            if isinstance(value, (FactoryMethod, SubFactory)):
+                model_data[field] = (
+                    value()
+                    if field not in direct_attrs
+                    else direct_attrs[field]
+                )
+
+        # Create a new instance
+        instance = model(**model_data)
+        cls._apply_traits(instance, **kwargs)
+
+        # Handle nested attributes
+        for attr, value in nested_attrs.items():
+            field_name, nested_attr = attr.split("__", 1)
+            if isinstance(getattr(cls, field_name, None), SubFactory):
+                related_instance = getattr(
+                    cls, field_name
+                ).factory_class.create(**{nested_attr: value})
                 setattr(instance, field_name, related_instance)
 
         # Run pre-save hooks
@@ -2550,7 +2636,7 @@ class TestFaker(unittest.TestCase):
     def test_storage(self) -> None:
         storage = FileSystemStorage()
         with self.assertRaises(Exception):
-            storage.generate_filename(extension=None)
+            storage.generate_filename(extension=None)  # type: ignore
 
     def test_storage_integration(self) -> None:
         file = self.faker.txt_file()
@@ -2762,26 +2848,26 @@ class TestFaker(unittest.TestCase):
         # *********** Other **********
         # ****************************
 
-        BASE_DIR = Path(__file__).resolve().parent.parent
-        MEDIA_ROOT = BASE_DIR / "media"
+        base_dir = Path(__file__).resolve().parent.parent
+        media_root = base_dir / "media"
 
-        STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+        storage = FileSystemStorage(root_path=media_root, rel_path="tmp")
 
         # ****************************
         # ******* ModelFactory *******
         # ****************************
 
         class UserFactory(ModelFactory):
-            id = FACTORY.pyint()
-            username = FACTORY.username()
-            first_name = FACTORY.first_name()
-            last_name = FACTORY.last_name()
-            email = FACTORY.email()
-            last_login = FACTORY.date_time()
+            id = FACTORY.pyint()  # type: ignore
+            username = FACTORY.username()  # type: ignore
+            first_name = FACTORY.first_name()  # type: ignore
+            last_name = FACTORY.last_name()  # type: ignore
+            email = FACTORY.email()  # type: ignore
+            last_login = FACTORY.date_time()  # type: ignore
             is_superuser = False
             is_staff = False
-            is_active = FACTORY.pybool()
-            date_joined = FACTORY.date_time()
+            is_active = FACTORY.pybool()  # type: ignore
+            date_joined = FACTORY.date_time()  # type: ignore
 
             class Meta:
                 model = User
@@ -2801,15 +2887,17 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         class ArticleFactory(ModelFactory):
-            id = FACTORY.pyint()
-            title = FACTORY.sentence()
-            slug = FACTORY.slug()
-            content = FACTORY.text()
-            image = FACTORY.png_file(storage=STORAGE)
-            pub_date = FACTORY.date()
-            safe_for_work = FACTORY.pybool()
-            minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
-            author = SubFactory(UserFactory)
+            id = FACTORY.pyint()  # type: ignore
+            title = FACTORY.sentence()  # type: ignore
+            slug = FACTORY.slug()  # type: ignore
+            content = FACTORY.text()  # type: ignore
+            image = FACTORY.png_file(storage=storage)  # type: ignore
+            pub_date = FACTORY.date()  # type: ignore
+            safe_for_work = FACTORY.pybool()  # type: ignore
+            minutes_to_read = FACTORY.pyint(  # type: ignore
+                min_value=1, max_value=10
+            )
+            author = SubFactory(UserFactory)  # type: ignore
 
             class Meta:
                 model = Article
@@ -2818,9 +2906,12 @@ class TestFaker(unittest.TestCase):
 
         # Testing SubFactory
         self.assertIsInstance(article.author, User)
-        self.assertIsInstance(article.author.id, int)
-        self.assertIsInstance(article.author.is_staff, bool)
-        self.assertIsInstance(article.author.date_joined, datetime)
+        self.assertIsInstance(article.author.id, int)  # type: ignore
+        self.assertIsInstance(article.author.is_staff, bool)  # type: ignore
+        self.assertIsInstance(
+            article.author.date_joined,  # type: ignore
+            datetime,
+        )
 
         # Testing Factory
         self.assertIsInstance(article.id, int)
@@ -2848,16 +2939,16 @@ class TestFaker(unittest.TestCase):
         # **********************************
 
         class DjangoUserFactory(DjangoModelFactory):
-            id = FACTORY.pyint()
-            username = FACTORY.username()
-            first_name = FACTORY.first_name()
-            last_name = FACTORY.last_name()
-            email = FACTORY.email()
-            last_login = FACTORY.date_time()
+            id = FACTORY.pyint()  # type: ignore
+            username = FACTORY.username()  # type: ignore
+            first_name = FACTORY.first_name()  # type: ignore
+            last_name = FACTORY.last_name()  # type: ignore
+            email = FACTORY.email()  # type: ignore
+            last_login = FACTORY.date_time()  # type: ignore
             is_superuser = False
             is_staff = False
-            is_active = FACTORY.pybool()
-            date_joined = FACTORY.date_time()
+            is_active = FACTORY.pybool()  # type: ignore
+            date_joined = FACTORY.date_time()  # type: ignore
 
             class Meta:
                 model = User
@@ -2878,14 +2969,17 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         class DjangoArticleFactory(DjangoModelFactory):
-            id = FACTORY.pyint()
-            title = FACTORY.sentence()
-            slug = FACTORY.slug()
-            content = FACTORY.text()
-            image = FACTORY.png_file(storage=STORAGE)
-            pub_date = FACTORY.date()
-            safe_for_work = FACTORY.pybool()
-            minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+            id = FACTORY.pyint()  # type: ignore
+            title = FACTORY.sentence()  # type: ignore
+            slug = FACTORY.slug()  # type: ignore
+            content = FACTORY.text()  # type: ignore
+            image = FACTORY.png_file(storage=storage)  # type: ignore
+            pub_date = FACTORY.date()  # type: ignore
+            safe_for_work = FACTORY.pybool()  # type: ignore
+            minutes_to_read = FACTORY.pyint(  # type: ignore
+                min_value=1,
+                max_value=10,
+            )
             author = SubFactory(DjangoUserFactory)
 
             class Meta:
@@ -2903,9 +2997,15 @@ class TestFaker(unittest.TestCase):
 
         # Testing SubFactory
         self.assertIsInstance(django_article.author, User)
-        self.assertIsInstance(django_article.author.id, int)
-        self.assertIsInstance(django_article.author.is_staff, bool)
-        self.assertIsInstance(django_article.author.date_joined, datetime)
+        self.assertIsInstance(django_article.author.id, int)  # type: ignore
+        self.assertIsInstance(
+            django_article.author.is_staff,  # type: ignore
+            bool,
+        )
+        self.assertIsInstance(
+            django_article.author.date_joined,  # type: ignore
+            datetime,
+        )
         # Since we're mimicking Django's behaviour, the following line would
         # fail on test, however would pass when testing against real Django
         # model (as done in the examples).
@@ -2939,17 +3039,26 @@ class TestFaker(unittest.TestCase):
         )
 
         # **********************************
-        # ******* TortoiseModelFactory *******
+        # ****** TortoiseModelFactory ******
         # **********************************
 
         class TortoiseQuerySet(list):
             """Mimicking Tortoise QuerySet class."""
 
-            def __init__(self, instance: Union["Article", "User"]) -> None:
+            return_instance_on_query_first: bool = False
+
+            def __init__(
+                self,
+                instance: Union["TortoiseArticle", "TortoiseUser"],
+            ) -> None:
                 super().__init__()
                 self.instance = instance
 
-            async def first(self) -> Union["Article", "User"]:
+            async def first(
+                self,
+            ) -> Optional[Union["TortoiseArticle", "TortoiseUser"]]:
+                if not self.return_instance_on_query_first:
+                    return None
                 return self.instance
 
         @dataclass
@@ -2992,7 +3101,7 @@ class TestFaker(unittest.TestCase):
             title: str
             slug: str
             content: str
-            author: User
+            author: TortoiseUser
             image: Optional[
                 str
             ] = None  # Use str to represent the image path or URL
@@ -3000,7 +3109,8 @@ class TestFaker(unittest.TestCase):
             safe_for_work: bool = False
             minutes_to_read: int = 5
 
-            def filter(self, *args, **kwargs) -> "TortoiseQuerySet":
+            @classmethod
+            def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
                 return TortoiseQuerySet(
                     instance=cls(  # noqa
                         id=FAKER.pyint(),
@@ -3024,16 +3134,16 @@ class TestFaker(unittest.TestCase):
                 self.save_called = True  # noqa
 
         class TortoiseUserFactory(TortoiseModelFactory):
-            id = FACTORY.pyint()
-            username = FACTORY.username()
-            first_name = FACTORY.first_name()
-            last_name = FACTORY.last_name()
-            email = FACTORY.email()
-            last_login = FACTORY.date_time()
+            id = FACTORY.pyint()  # type: ignore
+            username = FACTORY.username()  # type: ignore
+            first_name = FACTORY.first_name()  # type: ignore
+            last_name = FACTORY.last_name()  # type: ignore
+            email = FACTORY.email()  # type: ignore
+            last_login = FACTORY.date_time()  # type: ignore
             is_superuser = False
             is_staff = False
-            is_active = FACTORY.pybool()
-            date_joined = FACTORY.date_time()
+            is_active = FACTORY.pybool()  # type: ignore
+            date_joined = FACTORY.date_time()  # type: ignore
 
             class Meta:
                 model = TortoiseUser
@@ -3054,14 +3164,17 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         class TortoiseArticleFactory(TortoiseModelFactory):
-            id = FACTORY.pyint()
-            title = FACTORY.sentence()
-            slug = FACTORY.slug()
-            content = FACTORY.text()
-            image = FACTORY.png_file(storage=STORAGE)
-            pub_date = FACTORY.date()
-            safe_for_work = FACTORY.pybool()
-            minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+            id = FACTORY.pyint()  # type: ignore
+            title = FACTORY.sentence()  # type: ignore
+            slug = FACTORY.slug()  # type: ignore
+            content = FACTORY.text()  # type: ignore
+            image = FACTORY.png_file(storage=storage)  # type: ignore
+            pub_date = FACTORY.date()  # type: ignore
+            safe_for_work = FACTORY.pybool()  # type: ignore
+            minutes_to_read = FACTORY.pyint(  # type: ignore
+                min_value=1,
+                max_value=10,
+            )
             author = SubFactory(TortoiseUserFactory)
 
             class Meta:
@@ -3079,9 +3192,15 @@ class TestFaker(unittest.TestCase):
 
         # Testing SubFactory
         self.assertIsInstance(tortoise_article.author, TortoiseUser)
-        self.assertIsInstance(tortoise_article.author.id, int)
-        self.assertIsInstance(tortoise_article.author.is_staff, bool)
-        self.assertIsInstance(tortoise_article.author.date_joined, datetime)
+        self.assertIsInstance(tortoise_article.author.id, int)  # type: ignore
+        self.assertIsInstance(
+            tortoise_article.author.is_staff,  # type: ignore
+            bool,
+        )
+        self.assertIsInstance(
+            tortoise_article.author.date_joined,  # type: ignore
+            datetime,
+        )
         # Since we're mimicking Tortoise's behaviour, the following line would
         # fail on test, however would pass when testing against real Tortoise
         # model (as done in the examples).
@@ -3113,6 +3232,297 @@ class TestFaker(unittest.TestCase):
             and tortoise_admin_user.is_superuser
             and tortoise_admin_user.is_active
         )
+
+        # **********************************
+        # ** Repeat for another condition **
+        TortoiseQuerySet.return_instance_on_query_first = True
+
+        tortoise_article = TortoiseArticleFactory(author__username="admin")
+        tortoise_user = TortoiseUserFactory(username="admin")
+
+        # Testing SubFactory
+        self.assertIsInstance(tortoise_article.author, TortoiseUser)
+        self.assertIsInstance(tortoise_article, TortoiseArticle)
+        self.assertIsInstance(tortoise_user, TortoiseUser)
+        self.assertIsInstance(tortoise_article.author.id, int)  # type: ignore
+        self.assertIsInstance(
+            tortoise_article.author.is_staff,  # type: ignore
+            bool,
+        )
+        self.assertIsInstance(
+            tortoise_article.author.date_joined,  # type: ignore
+            datetime,
+        )
+        # Since we're mimicking Tortoise's behaviour, the following line would
+        # fail on test, however would pass when testing against real Tortoise
+        # model (as done in the examples).
+        # self.assertEqual(tortoise_article.author.username, "admin")
+
+        # Testing Factory
+        self.assertIsInstance(tortoise_article.id, int)
+        self.assertIsInstance(tortoise_article.slug, str)
+        self.assertIsInstance(tortoise_user.id, int)
+        self.assertIsInstance(tortoise_user.username, str)
+
+        # Testing hooks
+        # self.assertFalse(
+        #     hasattr(tortoise_article, "pre_save_called")
+        # )
+        # self.assertFalse(
+        #     hasattr(tortoise_article, "post_save_called")
+        # )
+
+        # Testing batch creation
+        tortoise_articles = TortoiseArticleFactory.create_batch(5)
+        self.assertEqual(len(tortoise_articles), 5)
+        self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+
+        # Testing traits
+        tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+        self.assertTrue(
+            tortoise_admin_user.is_staff
+            and tortoise_admin_user.is_superuser
+            and tortoise_admin_user.is_active
+        )
+
+        # **********************************
+        # ***** SQLAlchemyModelFactory *****
+        # **********************************
+
+        class SQLAlchemySession:
+            return_instance_on_query_first: bool = False
+
+            def __init__(self) -> None:
+                self.model = None
+                self.instance = None
+
+            def query(self, model) -> "SQLAlchemySession":
+                self.model = model
+                return self
+
+            def filter_by(self, **kwargs) -> "SQLAlchemySession":
+                return self
+
+            def add(self, instance) -> None:
+                self.instance = instance
+
+            def commit(self) -> None:
+                pass
+
+            def first(self):
+                if not self.return_instance_on_query_first:
+                    return None
+
+                if self.model == SQLAlchemyUser:
+                    return self.model(  # noqa
+                        id=FAKER.pyint(),
+                        username=FAKER.username(),
+                        first_name=FAKER.first_name(),
+                        last_name=FAKER.last_name(),
+                        email=FAKER.email(),
+                        last_login=FAKER.date_time(),
+                        date_joined=FAKER.date_time(),
+                    )
+                elif self.model == SQLAlchemyArticle:
+                    return self.model(  # noqa
+                        id=FAKER.pyint(),
+                        title=FAKER.word(),
+                        slug=FAKER.slug(),
+                        content=FAKER.text(),
+                        author=SQLAlchemyUser(
+                            id=FAKER.pyint(),
+                            username=FAKER.username(),
+                            first_name=FAKER.first_name(),
+                            last_name=FAKER.last_name(),
+                            email=FAKER.email(),
+                            last_login=FAKER.date_time(),
+                            date_joined=FAKER.date_time(),
+                        ),
+                    )
+
+        def get_sqlalchemy_session():
+            return SQLAlchemySession()
+
+        @dataclass
+        class SQLAlchemyUser:
+            """User model."""
+
+            id: int
+            username: str
+            first_name: str
+            last_name: str
+            email: str
+            last_login: Optional[datetime]
+            date_joined: Optional[datetime]
+            password: Optional[str] = None
+            is_superuser: bool = False
+            is_staff: bool = False
+            is_active: bool = True
+
+        @dataclass
+        class SQLAlchemyArticle:
+            id: int
+            title: str
+            slug: str
+            content: str
+            author: SQLAlchemyUser
+            image: Optional[
+                str
+            ] = None  # Use str to represent the image path or URL
+            pub_date: datetime = datetime.now()
+            safe_for_work: bool = False
+            minutes_to_read: int = 5
+
+        class SQLAlchemyUserFactory(SQLAlchemyModelFactory):
+            id = FACTORY.pyint()  # type: ignore
+            username = FACTORY.username()  # type: ignore
+            first_name = FACTORY.first_name()  # type: ignore
+            last_name = FACTORY.last_name()  # type: ignore
+            email = FACTORY.email()  # type: ignore
+            last_login = FACTORY.date_time()  # type: ignore
+            is_superuser = False
+            is_staff = False
+            is_active = FACTORY.pybool()  # type: ignore
+            date_joined = FACTORY.date_time()  # type: ignore
+
+            class Meta:
+                model = SQLAlchemyUser
+                get_or_create = ("username",)
+
+            class MetaSQLAlchemy:
+                get_session = get_sqlalchemy_session
+
+            @trait
+            def is_admin_user(self, instance: SQLAlchemyUser) -> None:
+                instance.is_superuser = True
+                instance.is_staff = True
+                instance.is_active = True
+
+            @pre_save
+            def _pre_save_method(self, instance):
+                instance.pre_save_called = True
+
+            @post_save
+            def _post_save_method(self, instance):
+                instance.post_save_called = True
+
+        class SQLAlchemyArticleFactory(SQLAlchemyModelFactory):
+            id = FACTORY.pyint()  # type: ignore
+            title = FACTORY.sentence()  # type: ignore
+            slug = FACTORY.slug()  # type: ignore
+            content = FACTORY.text()  # type: ignore
+            image = FACTORY.png_file(storage=storage)  # type: ignore
+            pub_date = FACTORY.date()  # type: ignore
+            safe_for_work = FACTORY.pybool()  # type: ignore
+            minutes_to_read = FACTORY.pyint(  # type: ignore
+                min_value=1,
+                max_value=10,
+            )
+            author = SubFactory(SQLAlchemyUserFactory)
+
+            class Meta:
+                model = SQLAlchemyArticle
+
+            class MetaSQLAlchemy:
+                get_session = get_sqlalchemy_session
+
+            @pre_save
+            def _pre_save_method(self, instance):
+                instance.pre_save_called = True
+
+            @post_save
+            def _post_save_method(self, instance):
+                instance.post_save_called = True
+
+        sqlalchemy_article = SQLAlchemyArticleFactory(author__username="admin")
+
+        # Testing SubFactory
+        self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
+        self.assertIsInstance(
+            sqlalchemy_article.author.id,  # type: ignore
+            int,
+        )
+        self.assertIsInstance(
+            sqlalchemy_article.author.is_staff,  # type: ignore
+            bool,
+        )
+        self.assertIsInstance(
+            sqlalchemy_article.author.date_joined,  # type: ignore
+            datetime,
+        )
+        # Since we're mimicking SQLAlchemy's behaviour, the following line
+        # would fail on test, however would pass when testing against real
+        # SQLAlchemy model (as done in the examples).
+        # self.assertEqual(sqlalchemy_article.author.username, "admin")
+
+        # Testing Factory
+        self.assertIsInstance(sqlalchemy_article.id, int)
+        self.assertIsInstance(sqlalchemy_article.slug, str)
+
+        # Testing hooks
+        self.assertTrue(
+            hasattr(sqlalchemy_article, "pre_save_called")
+            and sqlalchemy_article.pre_save_called
+        )
+        self.assertTrue(
+            hasattr(sqlalchemy_article, "post_save_called")
+            and sqlalchemy_article.post_save_called
+        )
+
+        # Testing batch creation
+        sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+        self.assertEqual(len(sqlalchemy_articles), 5)
+        self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
+
+        # Testing traits
+        sqlalchemy_admin_user = SQLAlchemyUserFactory(is_admin_user=True)
+        self.assertTrue(
+            sqlalchemy_admin_user.is_staff
+            and sqlalchemy_admin_user.is_superuser
+            and sqlalchemy_admin_user.is_active
+        )
+
+        # Repeat SQLAlchemy tests for another condition
+        SQLAlchemySession.return_instance_on_query_first = True
+
+        sqlalchemy_article = SQLAlchemyArticleFactory(author__username="admin")
+        sqlalchemy_user = SQLAlchemyUserFactory(username="admin")
+
+        # Testing SubFactory
+        self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
+        self.assertIsInstance(sqlalchemy_article, SQLAlchemyArticle)
+        self.assertIsInstance(sqlalchemy_user, SQLAlchemyUser)
+        self.assertIsInstance(
+            sqlalchemy_article.author.id,  # type: ignore
+            int,
+        )
+        self.assertIsInstance(
+            sqlalchemy_article.author.is_staff,  # type: ignore
+            bool,
+        )
+        self.assertIsInstance(
+            sqlalchemy_article.author.date_joined,  # type: ignore
+            datetime,
+        )
+        # Since we're mimicking SQLAlchemy's behaviour, the following line
+        # would fail on test, however would pass when testing against real
+        # SQLAlchemy model (as done in the examples).
+        # self.assertEqual(sqlalchemy_article.author.username, "admin")
+
+        # Testing Factory
+        self.assertIsInstance(sqlalchemy_article.id, int)
+        self.assertIsInstance(sqlalchemy_article.slug, str)
+        self.assertIsInstance(sqlalchemy_user.id, int)
+        self.assertIsInstance(sqlalchemy_user.username, str)
+
+        # Testing hooks
+        self.assertFalse(hasattr(sqlalchemy_article, "pre_save_called"))
+        self.assertFalse(hasattr(sqlalchemy_article, "post_save_called"))
+
+        # Testing batch creation
+        sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+        self.assertEqual(len(sqlalchemy_articles), 5)
+        self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
 
     def test_registry_integration(self) -> None:
         """Test `add`."""

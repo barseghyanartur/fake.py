@@ -11,6 +11,7 @@ fake.py
 .. _Django: https://www.djangoproject.com/
 .. _TortoiseORM: https://tortoise.github.io/
 .. _Pydantic: https://docs.pydantic.dev/
+.. _SQLAlchemy: https://www.sqlalchemy.org/
 
 .. Internal references
 
@@ -61,7 +62,7 @@ and `GIF`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
-and `Pydantic`_.
+`Pydantic`_ and `SQLAlchemy`_.
 
 Features
 ========
@@ -70,7 +71,7 @@ Features
 - Support for various file formats (`PDF`, `DOCX`, `TXT`, `PNG`, `SVG`,
   `BMP`, `GIF`) and file creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
-  and `TortoiseORM`_.
+  `TortoiseORM`_ and `SQLAlchemy`_.
 
 Prerequisites
 =============
