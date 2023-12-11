@@ -87,7 +87,7 @@ jobs:
   # *************************************
   test_customization_example:
     needs: pre-commit
-    name: test ${{ matrix.python-version }} - ${{ matrix.os }}
+    name: test customization example ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -125,7 +125,7 @@ jobs:
   # *************************************
   test_dataclasses_example:
     needs: pre-commit
-    name: test ${{ matrix.python-version }} - ${{ matrix.os }}
+    name: test dataclasse example ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -163,7 +163,7 @@ jobs:
   # *************************************
   test_django_example:
     needs: pre-commit
-    name: test ${{ matrix.python-version }} - ${{ matrix.os }}
+    name: test django example ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
