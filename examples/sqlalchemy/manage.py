@@ -19,18 +19,18 @@ def main():
     """Run administrative tasks based on command line arguments."""
     sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
     sys.path.insert(0, os.path.abspath("."))
+
+    from article.models import Base  # noqa
+    from config import ENGINE  # noqa
+
+    Base.metadata.create_all(ENGINE)
+
     parser = argparse.ArgumentParser(
         description="Management script for the project."
     )
     parser.add_argument("command", help="The command to run (test or shell)")
 
     args = parser.parse_args()
-
-    from sqlalchemy_model_factory import ENGINE
-
-    from article.models import Base
-
-    Base.metadata.create_all(ENGINE)
 
     if args.command == "test":
         run_tests()

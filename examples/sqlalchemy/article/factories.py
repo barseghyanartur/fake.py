@@ -3,14 +3,15 @@ from pathlib import Path
 from fake import (
     FACTORY,
     FileSystemStorage,
+    SQLAlchemyModelFactory,
     SubFactory,
     post_save,
     pre_save,
     trait,
 )
-from sqlalchemy_model_factory import SQLAlchemyModelFactory
 
 from article.models import Article, User
+from config import SESSION
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
@@ -20,11 +21,14 @@ __all__ = (
     "UserFactory",
 )
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Storage config. Build paths inside the project like this: BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
-
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+
+def get_session():
+    return SESSION()
 
 
 class UserFactory(SQLAlchemyModelFactory):
@@ -43,6 +47,9 @@ class UserFactory(SQLAlchemyModelFactory):
     class Meta:
         model = User
         get_or_create = ("username",)
+
+    class MetaSQLAlchemy:
+        get_session = get_session
 
     @trait
     def is_admin_user(self, instance: User) -> None:
@@ -73,6 +80,9 @@ class ArticleFactory(SQLAlchemyModelFactory):
 
     class Meta:
         model = Article
+
+    class MetaSQLAlchemy:
+        get_session = get_session
 
     @pre_save
     def _pre_save_method(self, instance):

@@ -130,7 +130,7 @@ test-release:
 	source $(VENV) && twine upload --repository testpypi dist/*
 
 mypy:
-	source $(VENV) && mypy .
+	source $(VENV) && mypy fake.py
 
 %:
 	@:

@@ -1,8 +1,7 @@
 import unittest
 
-from sqlalchemy_model_factory import SESSION
-
 from article.factories import ArticleFactory, UserFactory
+from config import SESSION
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
