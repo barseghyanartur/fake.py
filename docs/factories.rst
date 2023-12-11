@@ -406,3 +406,152 @@ Dataclasses example
             model = Article
 
 *Used just like in previous example.*
+
+SQLAlchemy example
+------------------
+
+**config.py**
+
+.. code-block:: python
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session, sessionmaker
+
+    DATABASE_URL = "sqlite:///test_database.db"
+    ENGINE = create_engine(DATABASE_URL)
+    SESSION = scoped_session(sessionmaker(bind=ENGINE))
+
+**article/models.py**
+
+.. code-block:: python
+
+    from datetime import datetime
+
+    from sqlalchemy import (
+        Boolean,
+        Column,
+        DateTime,
+        ForeignKey,
+        Integer,
+        String,
+        Text,
+    )
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import relationship
+
+    Base = declarative_base()
+
+    class User(Base):
+        """User model."""
+
+        __tablename__ = "users"
+
+        id = Column(Integer, primary_key=True)
+        username = Column(String(255), unique=True)
+        first_name = Column(String(255))
+        last_name = Column(String(255))
+        email = Column(String(255))
+        password = Column(String(255), nullable=True)
+        last_login = Column(DateTime, nullable=True)
+        is_superuser = Column(Boolean, default=False)
+        is_staff = Column(Boolean, default=False)
+        is_active = Column(Boolean, default=True)
+        date_joined = Column(DateTime, nullable=True)
+
+        articles = relationship("Article", back_populates="author")
+
+    class Article(Base):
+        """Article model."""
+
+        __tablename__ = "articles"
+
+        id = Column(Integer, primary_key=True)
+        title = Column(String(255))
+        slug = Column(String(255), unique=True)
+        content = Column(Text)
+        image = Column(Text, nullable=True)
+        pub_date = Column(DateTime, default=datetime.utcnow)
+        safe_for_work = Column(Boolean, default=False)
+        minutes_to_read = Column(Integer, default=5)
+        author_id = Column(Integer, ForeignKey("users.id"))
+
+        author = relationship("User", back_populates="articles")
+
+**article/factories.py**
+
+Pay attention to the ``MetaSQLAlchemy`` meta-class and the ``get_session`` 
+method.
+
+.. code-block:: python
+
+    from pathlib import Path
+
+    from fake import (
+        FACTORY,
+        FileSystemStorage,
+        SQLAlchemyModelFactory,
+        SubFactory,
+        post_save,
+        pre_save,
+        trait,
+    )
+
+    from article.models import Article, User
+    from config import SESSION
+
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    MEDIA_ROOT = BASE_DIR / "media"
+    STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+    def get_session():
+        return SESSION()
+
+    class UserFactory(SQLAlchemyModelFactory):
+        """User factory."""
+
+        username = FACTORY.username()
+        first_name = FACTORY.first_name()
+        last_name = FACTORY.last_name()
+        email = FACTORY.email()
+        last_login = FACTORY.date_time()
+        is_superuser = False
+        is_staff = False
+        is_active = FACTORY.pybool()
+        date_joined = FACTORY.date_time()
+
+        class Meta:
+            model = User
+            get_or_create = ("username",)
+
+        class MetaSQLAlchemy:
+            get_session = get_session
+
+        @trait
+        def is_admin_user(self, instance: User) -> None:
+            instance.is_superuser = True
+            instance.is_staff = True
+            instance.is_active = True
+
+        @pre_save
+        def _set_password(self, instance):
+            instance.set_password("test")
+
+    class ArticleFactory(SQLAlchemyModelFactory):
+        """Article factory."""
+
+        title = FACTORY.sentence()
+        slug = FACTORY.slug()
+        content = FACTORY.text()
+        image = FACTORY.png_file(storage=STORAGE)
+        pub_date = FACTORY.date()
+        safe_for_work = FACTORY.pybool()
+        minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+        author = SubFactory(UserFactory)
+
+        class Meta:
+            model = Article
+
+        class MetaSQLAlchemy:
+            get_session = get_session
+
+*Used just like in previous example.*
