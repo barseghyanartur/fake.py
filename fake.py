@@ -1800,6 +1800,7 @@ class ModelFactory:
 
     @classmethod
     def create(cls, **kwargs):
+        model = cls.Meta.model  # type: ignore
         trait_keys = {
             name
             for name, method in cls.__dict__.items()
@@ -1826,7 +1827,7 @@ class ModelFactory:
             {k: v for k, v in kwargs.items() if k not in trait_keys}
         )
 
-        instance = cls.Meta.model(**model_data)
+        instance = model(**model_data)
         cls._apply_traits(instance, **kwargs)
 
         pre_save_hooks = [
@@ -1868,7 +1869,7 @@ class DjangoModelFactory(ModelFactory):
 
     @classmethod
     def create(cls, **kwargs):
-        model = cls.Meta.model
+        model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])
 
         # Construct a query for unique fields
@@ -1908,7 +1909,7 @@ class DjangoModelFactory(ModelFactory):
                 )
 
         # Create a new instance if none found
-        instance = cls.Meta.model(**model_data)
+        instance = model(**model_data)
         cls._apply_traits(instance, **kwargs)
 
         # Handle nested attributes
@@ -1971,7 +1972,7 @@ class TortoiseModelFactory(ModelFactory):
 
     @classmethod
     def create(cls, **kwargs):
-        model = cls.Meta.model
+        model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])
 
         # Construct a query for unique fields
@@ -2016,7 +2017,7 @@ class TortoiseModelFactory(ModelFactory):
                 )
 
         # Create a new instance if none found
-        instance = cls.Meta.model(**model_data)
+        instance = model(**model_data)
         cls._apply_traits(instance, **kwargs)
 
         # Handle nested attributes
@@ -2059,15 +2060,15 @@ class SQLAlchemyModelFactory(ModelFactory):
 
     @classmethod
     def save(cls, instance):
-        session = cls.MetaSQLAlchemy.get_session()
+        session = cls.MetaSQLAlchemy.get_session()  # type: ignore
         session.add(instance)
         session.commit()
 
     @classmethod
     def create(cls, **kwargs):
-        session = cls.MetaSQLAlchemy.get_session()
+        session = cls.MetaSQLAlchemy.get_session()  # type: ignore
 
-        model = cls.Meta.model
+        model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])
 
         # Check for existing instance
@@ -2708,7 +2709,7 @@ class TestFaker(unittest.TestCase):
         self.assertNotEqual(faker.alias, "default")
 
     def test_get_by_uid(self) -> None:
-        faker = Faker.get_by_uid("fake.Faker")
+        faker = Faker.get_by_uid(f"{__name__}.Faker")
         self.assertIs(faker, self.faker)
 
     def test_get_by_alias(self) -> None:

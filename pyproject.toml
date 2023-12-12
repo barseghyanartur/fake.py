@@ -159,6 +159,7 @@ addopts = [
 ]
 testpaths = [
     "fake.py",
+    "__copy_fake.py",
 ]
 
 [tool.coverage.run]
