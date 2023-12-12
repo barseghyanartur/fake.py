@@ -1738,7 +1738,10 @@ class Factory:
 
     def _add_provider_methods(self, faker_instance):
         for class_name, methods in PROVIDER_REGISTRY.items():
-            if class_name == "fake.Faker" or class_name == self.faker.uid:
+            if (
+                class_name == f"{__name__}.{Faker.__name__}"
+                or class_name == self.faker.uid
+            ):
                 for method_name in methods:
                     if hasattr(faker_instance, method_name):
                         bound_method = create_factory_method(method_name)
@@ -2709,7 +2712,7 @@ class TestFaker(unittest.TestCase):
         self.assertNotEqual(faker.alias, "default")
 
     def test_get_by_uid(self) -> None:
-        faker = Faker.get_by_uid(f"{__name__}.Faker")
+        faker = Faker.get_by_uid(f"{__name__}.{Faker.__name__}")
         self.assertIs(faker, self.faker)
 
     def test_get_by_alias(self) -> None:
