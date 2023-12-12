@@ -795,7 +795,7 @@ class DocxGenerator:
         if texts:
             nb_pages = len(texts)
         else:
-            texts = self.faker.sentences(nb=nb_pages)  # type: ignore
+            texts = self.faker.sentences(nb=nb_pages)
 
         if metadata:
             metadata.add_content(texts)  # type: ignore
@@ -1774,8 +1774,8 @@ class ModelFactory:
             cls.__bases__[0],
             "_meta",
             {
-                attr: getattr(cls.__bases__[0].Meta, attr)
-                for attr in dir(cls.__bases__[0].Meta)
+                attr: getattr(cls.__bases__[0].Meta, attr)  # type: ignore
+                for attr in dir(cls.__bases__[0].Meta)  # type: ignore
                 if not attr.startswith("_")
             },
         )
@@ -1785,7 +1785,7 @@ class ModelFactory:
             if not attr.startswith("_")
         }
 
-        cls._meta = {**base_meta, **cls_meta}
+        cls._meta = {**base_meta, **cls_meta}  # type: ignore
 
     @classmethod
     def _run_hooks(cls, hooks, instance):
@@ -1870,7 +1870,7 @@ class DjangoModelFactory(ModelFactory):
     @classmethod
     def create(cls, **kwargs):
         model = cls.Meta.model  # type: ignore
-        unique_fields = cls._meta.get("get_or_create", ["id"])
+        unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
         # Construct a query for unique fields
         query = {
@@ -1973,7 +1973,7 @@ class TortoiseModelFactory(ModelFactory):
     @classmethod
     def create(cls, **kwargs):
         model = cls.Meta.model  # type: ignore
-        unique_fields = cls._meta.get("get_or_create", ["id"])
+        unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
         # Construct a query for unique fields
         query = {
@@ -2069,7 +2069,7 @@ class SQLAlchemyModelFactory(ModelFactory):
         session = cls.MetaSQLAlchemy.get_session()  # type: ignore
 
         model = cls.Meta.model  # type: ignore
-        unique_fields = cls._meta.get("get_or_create", ["id"])
+        unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
         # Check for existing instance
         if unique_fields:
@@ -2145,7 +2145,7 @@ class ClassProperty(property):
 
     def __get__(self, cls, owner):
         """Get."""
-        return classmethod(self.fget).__get__(None, owner)()
+        return classmethod(self.fget).__get__(None, owner)()  # type: ignore
 
 
 classproperty = ClassProperty
@@ -2247,7 +2247,7 @@ class TestFaker(unittest.TestCase):
         for domain, expected_domain in domains:
             with self.subTest(domain=domain, expected_domain=expected_domain):
                 kwargs = {"domain": domain}
-                email: str = self.faker.email(**kwargs)  # type: ignore
+                email: str = self.faker.email(**kwargs)
                 self.assertIsInstance(email, str)
                 self.assertTrue(email.endswith(f"@{expected_domain}"))
 
@@ -2507,7 +2507,7 @@ class TestFaker(unittest.TestCase):
         with self.subTest("All params None, should fail"):
             with self.assertRaises(ValueError):
                 self.faker.pdf(
-                    nb_pages=None,  # type: ignore
+                    nb_pages=None,
                     texts=None,
                     generator=TextPdfGenerator,
                 )
@@ -2561,14 +2561,14 @@ class TestFaker(unittest.TestCase):
         for image_format in {"png", "svg", "bmp", "gif"}:
             with self.subTest(image_format=image_format):
                 image = self.faker.image(
-                    image_format=image_format,  # type: ignore
+                    image_format=image_format,
                 )
                 self.assertTrue(image)
                 self.assertIsInstance(image, bytes)
         for image_format in {"bin"}:
             with self.subTest(image_format=image_format):
                 with self.assertRaises(ValueError):
-                    self.faker.image(image_format=image_format)  # type: ignore
+                    self.faker.image(image_format=image_format)
 
     def test_docx(self) -> None:
         with self.subTest("All params None, should fail"):
@@ -2793,7 +2793,7 @@ class TestFaker(unittest.TestCase):
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
-                    instance=cls(  # noqa
+                    instance=cls(  # type: ignore
                         id=FAKER.pyint(),
                         username=FAKER.username(),
                         first_name=FAKER.first_name(),
@@ -2828,7 +2828,7 @@ class TestFaker(unittest.TestCase):
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
-                    instance=cls(  # noqa
+                    instance=cls(  # type: ignore
                         id=FAKER.pyint(),
                         title=FAKER.word(),
                         slug=FAKER.slug(),
@@ -2898,7 +2898,7 @@ class TestFaker(unittest.TestCase):
             minutes_to_read = FACTORY.pyint(  # type: ignore
                 min_value=1, max_value=10
             )
-            author = SubFactory(UserFactory)  # type: ignore
+            author = SubFactory(UserFactory)
 
             class Meta:
                 model = Article
@@ -3315,7 +3315,7 @@ class TestFaker(unittest.TestCase):
                     return None
 
                 if self.model == SQLAlchemyUser:
-                    return self.model(  # noqa
+                    return self.model(  # type: ignore
                         id=FAKER.pyint(),
                         username=FAKER.username(),
                         first_name=FAKER.first_name(),
@@ -3325,7 +3325,7 @@ class TestFaker(unittest.TestCase):
                         date_joined=FAKER.date_time(),
                     )
                 elif self.model == SQLAlchemyArticle:
-                    return self.model(  # noqa
+                    return self.model(  # type: ignore
                         id=FAKER.pyint(),
                         title=FAKER.word(),
                         slug=FAKER.slug(),
