@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -1766,6 +1767,31 @@ def trait(func):
     return func
 
 
+class LazyAttribute:
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        value = self.func(obj)
+        setattr(obj, self.func.__name__, value)
+        return value
+
+
+class LazyFunction:
+    def __init__(self, func):
+        self.func = func
+
+    def __call__(self):
+        return self.func()
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return self.func()
+
+
 class ModelFactory:
     """ModelFactory."""
 
@@ -1802,6 +1828,13 @@ class ModelFactory:
                 method(cls, instance)
 
     @classmethod
+    def _apply_lazy_attributes(cls, instance, model_data):
+        for field, value in model_data.items():
+            if isinstance(value, LazyAttribute):
+                # Trigger computation and setting of the attribute
+                setattr(instance, field, value.__get__(instance, cls))
+
+    @classmethod
     def create(cls, **kwargs):
         model = cls.Meta.model  # type: ignore
         trait_keys = {
@@ -1813,7 +1846,7 @@ class ModelFactory:
         model_data = {
             field: (
                 value()
-                if isinstance(value, (FactoryMethod, SubFactory))
+                if isinstance(value, (FactoryMethod, SubFactory, LazyFunction))
                 else value
             )
             for field, value in cls.__dict__.items()
@@ -1830,8 +1863,14 @@ class ModelFactory:
             {k: v for k, v in kwargs.items() if k not in trait_keys}
         )
 
+        # Create a new instance
         instance = model(**model_data)
+
+        # Apply traits
         cls._apply_traits(instance, **kwargs)
+
+        # Apply LazyAttribute values
+        cls._apply_lazy_attributes(instance, model_data)
 
         pre_save_hooks = [
             method
@@ -1913,7 +1952,12 @@ class DjangoModelFactory(ModelFactory):
 
         # Create a new instance if none found
         instance = model(**model_data)
+
+        # Apply traits
         cls._apply_traits(instance, **kwargs)
+
+        # Apply LazyAttribute values
+        cls._apply_lazy_attributes(instance, model_data)
 
         # Handle nested attributes
         for attr, value in nested_attrs.items():
@@ -2021,7 +2065,12 @@ class TortoiseModelFactory(ModelFactory):
 
         # Create a new instance if none found
         instance = model(**model_data)
+
+        # Apply traits
         cls._apply_traits(instance, **kwargs)
+
+        # Apply LazyAttribute values
+        cls._apply_lazy_attributes(instance, model_data)
 
         # Handle nested attributes
         for attr, value in nested_attrs.items():
@@ -2109,7 +2158,12 @@ class SQLAlchemyModelFactory(ModelFactory):
 
         # Create a new instance
         instance = model(**model_data)
+
+        # Apply traits
         cls._apply_traits(instance, **kwargs)
+
+        # Apply LazyAttribute values
+        cls._apply_lazy_attributes(instance, model_data)
 
         # Handle nested attributes
         for attr, value in nested_attrs.items():
@@ -2813,6 +2867,8 @@ class TestFaker(unittest.TestCase):
             title: str
             slug: str
             content: str
+            headline: str
+            category: str
             author: User
             image: Optional[
                 str
@@ -2836,6 +2892,8 @@ class TestFaker(unittest.TestCase):
                         title=FAKER.word(),
                         slug=FAKER.slug(),
                         content=FAKER.text(),
+                        headline=FAKER.sentence(),
+                        category=random.choice(categories),
                         author=User(
                             id=FAKER.pyint(),
                             username=FAKER.username(),
@@ -2860,6 +2918,11 @@ class TestFaker(unittest.TestCase):
         # ****************************
         # ******* ModelFactory *******
         # ****************************
+        categories = (
+            "art",
+            "technology",
+            "literature",
+        )
 
         class UserFactory(ModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -2895,6 +2958,8 @@ class TestFaker(unittest.TestCase):
             title = FACTORY.sentence()  # type: ignore
             slug = FACTORY.slug()  # type: ignore
             content = FACTORY.text()  # type: ignore
+            headline = LazyAttribute(lambda o: o.content[:25])
+            category = LazyFunction(partial(random.choice, categories))
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -2906,37 +2971,47 @@ class TestFaker(unittest.TestCase):
             class Meta:
                 model = Article
 
-        article = ArticleFactory()
+        with self.subTest("ModelFactory"):
+            article = ArticleFactory()
 
-        # Testing SubFactory
-        self.assertIsInstance(article.author, User)
-        self.assertIsInstance(article.author.id, int)  # type: ignore
-        self.assertIsInstance(article.author.is_staff, bool)  # type: ignore
-        self.assertIsInstance(
-            article.author.date_joined,  # type: ignore
-            datetime,
-        )
+            # Testing SubFactory
+            self.assertIsInstance(article.author, User)
+            self.assertIsInstance(article.author.id, int)  # type: ignore
+            self.assertIsInstance(
+                article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                article.author.date_joined,  # type: ignore
+                datetime,
+            )
 
-        # Testing Factory
-        self.assertIsInstance(article.id, int)
-        self.assertIsInstance(article.slug, str)
+            # Testing LazyFunction
+            self.assertIn(article.category, categories)
 
-        # Testing hooks
-        user = article.author
-        self.assertTrue(
-            hasattr(user, "pre_save_called") and user.pre_save_called
-        )
-        self.assertTrue(
-            hasattr(user, "post_save_called") and user.post_save_called
-        )
+            # Testing LazyAttribute
+            self.assertIn(article.headline, article.content)
 
-        # Testing traits
-        admin_user = UserFactory(is_admin_user=True)
-        self.assertTrue(
-            admin_user.is_staff
-            and admin_user.is_superuser
-            and admin_user.is_active
-        )
+            # Testing Factory
+            self.assertIsInstance(article.id, int)
+            self.assertIsInstance(article.slug, str)
+
+            # Testing hooks
+            user = article.author
+            self.assertTrue(
+                hasattr(user, "pre_save_called") and user.pre_save_called
+            )
+            self.assertTrue(
+                hasattr(user, "post_save_called") and user.post_save_called
+            )
+
+            # Testing traits
+            admin_user = UserFactory(is_admin_user=True)
+            self.assertTrue(
+                admin_user.is_staff
+                and admin_user.is_superuser
+                and admin_user.is_active
+            )
 
         # **********************************
         # ******* DjangoModelFactory *******
@@ -2977,6 +3052,8 @@ class TestFaker(unittest.TestCase):
             title = FACTORY.sentence()  # type: ignore
             slug = FACTORY.slug()  # type: ignore
             content = FACTORY.text()  # type: ignore
+            headline = LazyAttribute(lambda o: o.content[:25])
+            category = LazyFunction(partial(random.choice, categories))
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -2997,50 +3074,51 @@ class TestFaker(unittest.TestCase):
             def _post_save_method(self, instance):
                 instance.post_save_called = True
 
-        django_article = DjangoArticleFactory(author__username="admin")
+        with self.subTest("DjangoModelFactory"):
+            django_article = DjangoArticleFactory(author__username="admin")
 
-        # Testing SubFactory
-        self.assertIsInstance(django_article.author, User)
-        self.assertIsInstance(django_article.author.id, int)  # type: ignore
-        self.assertIsInstance(
-            django_article.author.is_staff,  # type: ignore
-            bool,
-        )
-        self.assertIsInstance(
-            django_article.author.date_joined,  # type: ignore
-            datetime,
-        )
-        # Since we're mimicking Django's behaviour, the following line would
-        # fail on test, however would pass when testing against real Django
-        # model (as done in the examples).
-        # self.assertEqual(django_article.author.username, "admin")
+            # Testing SubFactory
+            self.assertIsInstance(django_article.author, User)
+            self.assertIsInstance(django_article.author.id, int)  # type: ignore
+            self.assertIsInstance(
+                django_article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                django_article.author.date_joined,  # type: ignore
+                datetime,
+            )
+            # Since we're mimicking Django's behaviour, the following line would
+            # fail on test, however would pass when testing against real Django
+            # model (as done in the examples).
+            # self.assertEqual(django_article.author.username, "admin")
 
-        # Testing Factory
-        self.assertIsInstance(django_article.id, int)
-        self.assertIsInstance(django_article.slug, str)
+            # Testing Factory
+            self.assertIsInstance(django_article.id, int)
+            self.assertIsInstance(django_article.slug, str)
 
-        # Testing hooks
-        self.assertTrue(
-            hasattr(django_article, "pre_save_called")
-            and django_article.pre_save_called
-        )
-        self.assertTrue(
-            hasattr(django_article, "post_save_called")
-            and django_article.post_save_called
-        )
+            # Testing hooks
+            self.assertTrue(
+                hasattr(django_article, "pre_save_called")
+                and django_article.pre_save_called
+            )
+            self.assertTrue(
+                hasattr(django_article, "post_save_called")
+                and django_article.post_save_called
+            )
 
-        # Testing batch creation
-        django_articles = DjangoArticleFactory.create_batch(5)
-        self.assertEqual(len(django_articles), 5)
-        self.assertIsInstance(django_articles[0], Article)
+            # Testing batch creation
+            django_articles = DjangoArticleFactory.create_batch(5)
+            self.assertEqual(len(django_articles), 5)
+            self.assertIsInstance(django_articles[0], Article)
 
-        # Testing traits
-        django_admin_user = DjangoUserFactory(is_admin_user=True)
-        self.assertTrue(
-            django_admin_user.is_staff
-            and django_admin_user.is_superuser
-            and django_admin_user.is_active
-        )
+            # Testing traits
+            django_admin_user = DjangoUserFactory(is_admin_user=True)
+            self.assertTrue(
+                django_admin_user.is_staff
+                and django_admin_user.is_superuser
+                and django_admin_user.is_active
+            )
 
         # **********************************
         # ****** TortoiseModelFactory ******
@@ -3105,6 +3183,8 @@ class TestFaker(unittest.TestCase):
             title: str
             slug: str
             content: str
+            headline: str
+            category: str
             author: TortoiseUser
             image: Optional[
                 str
@@ -3121,6 +3201,8 @@ class TestFaker(unittest.TestCase):
                         title=FAKER.word(),
                         slug=FAKER.slug(),
                         content=FAKER.text(),
+                        headline=FAKER.sentence(),
+                        category=random.choice(categories),
                         author=TortoiseUser(
                             id=FAKER.pyint(),
                             username=FAKER.username(),
@@ -3172,6 +3254,8 @@ class TestFaker(unittest.TestCase):
             title = FACTORY.sentence()  # type: ignore
             slug = FACTORY.slug()  # type: ignore
             content = FACTORY.text()  # type: ignore
+            headline = LazyAttribute(lambda o: o.content[:25])
+            category = LazyFunction(partial(random.choice, categories))
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3192,102 +3276,109 @@ class TestFaker(unittest.TestCase):
             def _post_save_method(self, instance):
                 instance.post_save_called = True
 
-        tortoise_article = TortoiseArticleFactory(author__username="admin")
+        with self.subTest("TortoiseModelFactory"):
+            tortoise_article = TortoiseArticleFactory(author__username="admin")
 
-        # Testing SubFactory
-        self.assertIsInstance(tortoise_article.author, TortoiseUser)
-        self.assertIsInstance(tortoise_article.author.id, int)  # type: ignore
-        self.assertIsInstance(
-            tortoise_article.author.is_staff,  # type: ignore
-            bool,
-        )
-        self.assertIsInstance(
-            tortoise_article.author.date_joined,  # type: ignore
-            datetime,
-        )
-        # Since we're mimicking Tortoise's behaviour, the following line would
-        # fail on test, however would pass when testing against real Tortoise
-        # model (as done in the examples).
-        # self.assertEqual(tortoise_article.author.username, "admin")
+            # Testing SubFactory
+            self.assertIsInstance(tortoise_article.author, TortoiseUser)
+            self.assertIsInstance(
+                tortoise_article.author.id,  # type: ignore
+                int,
+            )
+            self.assertIsInstance(
+                tortoise_article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                tortoise_article.author.date_joined,  # type: ignore
+                datetime,
+            )
+            # Since we're mimicking Tortoise's behaviour, the following line
+            # would fail on test, however would pass when testing against
+            # real Tortoise model (as done in the examples).
+            # self.assertEqual(tortoise_article.author.username, "admin")
 
-        # Testing Factory
-        self.assertIsInstance(tortoise_article.id, int)
-        self.assertIsInstance(tortoise_article.slug, str)
+            # Testing Factory
+            self.assertIsInstance(tortoise_article.id, int)
+            self.assertIsInstance(tortoise_article.slug, str)
 
-        # Testing hooks
-        self.assertTrue(
-            hasattr(tortoise_article, "pre_save_called")
-            and tortoise_article.pre_save_called
-        )
-        self.assertTrue(
-            hasattr(tortoise_article, "post_save_called")
-            and tortoise_article.post_save_called
-        )
+            # Testing hooks
+            self.assertTrue(
+                hasattr(tortoise_article, "pre_save_called")
+                and tortoise_article.pre_save_called
+            )
+            self.assertTrue(
+                hasattr(tortoise_article, "post_save_called")
+                and tortoise_article.post_save_called
+            )
 
-        # Testing batch creation
-        tortoise_articles = TortoiseArticleFactory.create_batch(5)
-        self.assertEqual(len(tortoise_articles), 5)
-        self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+            # Testing batch creation
+            tortoise_articles = TortoiseArticleFactory.create_batch(5)
+            self.assertEqual(len(tortoise_articles), 5)
+            self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
 
-        # Testing traits
-        tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
-        self.assertTrue(
-            tortoise_admin_user.is_staff
-            and tortoise_admin_user.is_superuser
-            and tortoise_admin_user.is_active
-        )
+            # Testing traits
+            tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+            self.assertTrue(
+                tortoise_admin_user.is_staff
+                and tortoise_admin_user.is_superuser
+                and tortoise_admin_user.is_active
+            )
 
-        # **********************************
-        # ** Repeat for another condition **
-        TortoiseQuerySet.return_instance_on_query_first = True
+            # **********************************
+            # ** Repeat for another condition **
+            TortoiseQuerySet.return_instance_on_query_first = True
 
-        tortoise_article = TortoiseArticleFactory(author__username="admin")
-        tortoise_user = TortoiseUserFactory(username="admin")
+            tortoise_article = TortoiseArticleFactory(author__username="admin")
+            tortoise_user = TortoiseUserFactory(username="admin")
 
-        # Testing SubFactory
-        self.assertIsInstance(tortoise_article.author, TortoiseUser)
-        self.assertIsInstance(tortoise_article, TortoiseArticle)
-        self.assertIsInstance(tortoise_user, TortoiseUser)
-        self.assertIsInstance(tortoise_article.author.id, int)  # type: ignore
-        self.assertIsInstance(
-            tortoise_article.author.is_staff,  # type: ignore
-            bool,
-        )
-        self.assertIsInstance(
-            tortoise_article.author.date_joined,  # type: ignore
-            datetime,
-        )
-        # Since we're mimicking Tortoise's behaviour, the following line would
-        # fail on test, however would pass when testing against real Tortoise
-        # model (as done in the examples).
-        # self.assertEqual(tortoise_article.author.username, "admin")
+            # Testing SubFactory
+            self.assertIsInstance(tortoise_article.author, TortoiseUser)
+            self.assertIsInstance(tortoise_article, TortoiseArticle)
+            self.assertIsInstance(tortoise_user, TortoiseUser)
+            self.assertIsInstance(
+                tortoise_article.author.id,  # type: ignore
+                int,
+            )
+            self.assertIsInstance(
+                tortoise_article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                tortoise_article.author.date_joined,  # type: ignore
+                datetime,
+            )
+            # Since we're mimicking Tortoise's behaviour, the following line
+            # would fail on test, however would pass when testing against
+            # real Tortoise model (as done in the examples).
+            # self.assertEqual(tortoise_article.author.username, "admin")
 
-        # Testing Factory
-        self.assertIsInstance(tortoise_article.id, int)
-        self.assertIsInstance(tortoise_article.slug, str)
-        self.assertIsInstance(tortoise_user.id, int)
-        self.assertIsInstance(tortoise_user.username, str)
+            # Testing Factory
+            self.assertIsInstance(tortoise_article.id, int)
+            self.assertIsInstance(tortoise_article.slug, str)
+            self.assertIsInstance(tortoise_user.id, int)
+            self.assertIsInstance(tortoise_user.username, str)
 
-        # Testing hooks
-        # self.assertFalse(
-        #     hasattr(tortoise_article, "pre_save_called")
-        # )
-        # self.assertFalse(
-        #     hasattr(tortoise_article, "post_save_called")
-        # )
+            # Testing hooks
+            # self.assertFalse(
+            #     hasattr(tortoise_article, "pre_save_called")
+            # )
+            # self.assertFalse(
+            #     hasattr(tortoise_article, "post_save_called")
+            # )
 
-        # Testing batch creation
-        tortoise_articles = TortoiseArticleFactory.create_batch(5)
-        self.assertEqual(len(tortoise_articles), 5)
-        self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+            # Testing batch creation
+            tortoise_articles = TortoiseArticleFactory.create_batch(5)
+            self.assertEqual(len(tortoise_articles), 5)
+            self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
 
-        # Testing traits
-        tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
-        self.assertTrue(
-            tortoise_admin_user.is_staff
-            and tortoise_admin_user.is_superuser
-            and tortoise_admin_user.is_active
-        )
+            # Testing traits
+            tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+            self.assertTrue(
+                tortoise_admin_user.is_staff
+                and tortoise_admin_user.is_superuser
+                and tortoise_admin_user.is_active
+            )
 
         # **********************************
         # ***** SQLAlchemyModelFactory *****
@@ -3333,6 +3424,8 @@ class TestFaker(unittest.TestCase):
                         title=FAKER.word(),
                         slug=FAKER.slug(),
                         content=FAKER.text(),
+                        headline=FAKER.sentence(),
+                        category=random.choice(categories),
                         author=SQLAlchemyUser(
                             id=FAKER.pyint(),
                             username=FAKER.username(),
@@ -3369,6 +3462,8 @@ class TestFaker(unittest.TestCase):
             title: str
             slug: str
             content: str
+            headline: str
+            category: str
             author: SQLAlchemyUser
             image: Optional[
                 str
@@ -3415,6 +3510,8 @@ class TestFaker(unittest.TestCase):
             title = FACTORY.sentence()  # type: ignore
             slug = FACTORY.slug()  # type: ignore
             content = FACTORY.text()  # type: ignore
+            headline = LazyAttribute(lambda o: o.content[:25])
+            category = LazyFunction(partial(random.choice, categories))
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3438,95 +3535,100 @@ class TestFaker(unittest.TestCase):
             def _post_save_method(self, instance):
                 instance.post_save_called = True
 
-        sqlalchemy_article = SQLAlchemyArticleFactory(author__username="admin")
+        with self.subTest("SQLAlchemyModelFactory"):
+            sqlalchemy_article = SQLAlchemyArticleFactory(
+                author__username="admin"
+            )
 
-        # Testing SubFactory
-        self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
-        self.assertIsInstance(
-            sqlalchemy_article.author.id,  # type: ignore
-            int,
-        )
-        self.assertIsInstance(
-            sqlalchemy_article.author.is_staff,  # type: ignore
-            bool,
-        )
-        self.assertIsInstance(
-            sqlalchemy_article.author.date_joined,  # type: ignore
-            datetime,
-        )
-        # Since we're mimicking SQLAlchemy's behaviour, the following line
-        # would fail on test, however would pass when testing against real
-        # SQLAlchemy model (as done in the examples).
-        # self.assertEqual(sqlalchemy_article.author.username, "admin")
+            # Testing SubFactory
+            self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
+            self.assertIsInstance(
+                sqlalchemy_article.author.id,  # type: ignore
+                int,
+            )
+            self.assertIsInstance(
+                sqlalchemy_article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                sqlalchemy_article.author.date_joined,  # type: ignore
+                datetime,
+            )
+            # Since we're mimicking SQLAlchemy's behaviour, the following line
+            # would fail on test, however would pass when testing against real
+            # SQLAlchemy model (as done in the examples).
+            # self.assertEqual(sqlalchemy_article.author.username, "admin")
 
-        # Testing Factory
-        self.assertIsInstance(sqlalchemy_article.id, int)
-        self.assertIsInstance(sqlalchemy_article.slug, str)
+            # Testing Factory
+            self.assertIsInstance(sqlalchemy_article.id, int)
+            self.assertIsInstance(sqlalchemy_article.slug, str)
 
-        # Testing hooks
-        self.assertTrue(
-            hasattr(sqlalchemy_article, "pre_save_called")
-            and sqlalchemy_article.pre_save_called
-        )
-        self.assertTrue(
-            hasattr(sqlalchemy_article, "post_save_called")
-            and sqlalchemy_article.post_save_called
-        )
+            # Testing hooks
+            self.assertTrue(
+                hasattr(sqlalchemy_article, "pre_save_called")
+                and sqlalchemy_article.pre_save_called
+            )
+            self.assertTrue(
+                hasattr(sqlalchemy_article, "post_save_called")
+                and sqlalchemy_article.post_save_called
+            )
 
-        # Testing batch creation
-        sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
-        self.assertEqual(len(sqlalchemy_articles), 5)
-        self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
+            # Testing batch creation
+            sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+            self.assertEqual(len(sqlalchemy_articles), 5)
+            self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
 
-        # Testing traits
-        sqlalchemy_admin_user = SQLAlchemyUserFactory(is_admin_user=True)
-        self.assertTrue(
-            sqlalchemy_admin_user.is_staff
-            and sqlalchemy_admin_user.is_superuser
-            and sqlalchemy_admin_user.is_active
-        )
+            # Testing traits
+            sqlalchemy_admin_user = SQLAlchemyUserFactory(is_admin_user=True)
+            self.assertTrue(
+                sqlalchemy_admin_user.is_staff
+                and sqlalchemy_admin_user.is_superuser
+                and sqlalchemy_admin_user.is_active
+            )
 
-        # Repeat SQLAlchemy tests for another condition
-        SQLAlchemySession.return_instance_on_query_first = True
+            # Repeat SQLAlchemy tests for another condition
+            SQLAlchemySession.return_instance_on_query_first = True
 
-        sqlalchemy_article = SQLAlchemyArticleFactory(author__username="admin")
-        sqlalchemy_user = SQLAlchemyUserFactory(username="admin")
+            sqlalchemy_article = SQLAlchemyArticleFactory(
+                author__username="admin"
+            )
+            sqlalchemy_user = SQLAlchemyUserFactory(username="admin")
 
-        # Testing SubFactory
-        self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
-        self.assertIsInstance(sqlalchemy_article, SQLAlchemyArticle)
-        self.assertIsInstance(sqlalchemy_user, SQLAlchemyUser)
-        self.assertIsInstance(
-            sqlalchemy_article.author.id,  # type: ignore
-            int,
-        )
-        self.assertIsInstance(
-            sqlalchemy_article.author.is_staff,  # type: ignore
-            bool,
-        )
-        self.assertIsInstance(
-            sqlalchemy_article.author.date_joined,  # type: ignore
-            datetime,
-        )
-        # Since we're mimicking SQLAlchemy's behaviour, the following line
-        # would fail on test, however would pass when testing against real
-        # SQLAlchemy model (as done in the examples).
-        # self.assertEqual(sqlalchemy_article.author.username, "admin")
+            # Testing SubFactory
+            self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
+            self.assertIsInstance(sqlalchemy_article, SQLAlchemyArticle)
+            self.assertIsInstance(sqlalchemy_user, SQLAlchemyUser)
+            self.assertIsInstance(
+                sqlalchemy_article.author.id,  # type: ignore
+                int,
+            )
+            self.assertIsInstance(
+                sqlalchemy_article.author.is_staff,  # type: ignore
+                bool,
+            )
+            self.assertIsInstance(
+                sqlalchemy_article.author.date_joined,  # type: ignore
+                datetime,
+            )
+            # Since we're mimicking SQLAlchemy's behaviour, the following line
+            # would fail on test, however would pass when testing against real
+            # SQLAlchemy model (as done in the examples).
+            # self.assertEqual(sqlalchemy_article.author.username, "admin")
 
-        # Testing Factory
-        self.assertIsInstance(sqlalchemy_article.id, int)
-        self.assertIsInstance(sqlalchemy_article.slug, str)
-        self.assertIsInstance(sqlalchemy_user.id, int)
-        self.assertIsInstance(sqlalchemy_user.username, str)
+            # Testing Factory
+            self.assertIsInstance(sqlalchemy_article.id, int)
+            self.assertIsInstance(sqlalchemy_article.slug, str)
+            self.assertIsInstance(sqlalchemy_user.id, int)
+            self.assertIsInstance(sqlalchemy_user.username, str)
 
-        # Testing hooks
-        self.assertFalse(hasattr(sqlalchemy_article, "pre_save_called"))
-        self.assertFalse(hasattr(sqlalchemy_article, "post_save_called"))
+            # Testing hooks
+            self.assertFalse(hasattr(sqlalchemy_article, "pre_save_called"))
+            self.assertFalse(hasattr(sqlalchemy_article, "post_save_called"))
 
-        # Testing batch creation
-        sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
-        self.assertEqual(len(sqlalchemy_articles), 5)
-        self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
+            # Testing batch creation
+            sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+            self.assertEqual(len(sqlalchemy_articles), 5)
+            self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
 
     def test_registry_integration(self) -> None:
         """Test `add`."""
