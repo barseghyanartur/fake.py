@@ -1794,6 +1794,26 @@ class LazyFunction:
         return self.func()
 
 
+class PreSave:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, instance):
+        self.func(instance, *self.args, **self.kwargs)
+
+
+class PostSave:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, instance):
+        self.func(instance, *self.args, **self.kwargs)
+
+
 class ModelFactory:
     """ModelFactory."""
 
@@ -1845,25 +1865,33 @@ class ModelFactory:
             if getattr(method, "is_trait", False)
         }
 
-        model_data = {
-            field: (
-                value()
-                if isinstance(value, (FactoryMethod, SubFactory, LazyFunction))
-                else value
-            )
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field == "Meta"
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
-        # Update model_data with non-trait kwargs
-        model_data.update(
-            {k: v for k, v in kwargs.items() if k not in trait_keys}
-        )
+        # Collect PreSave methods and prepare model data
+        pre_save_methods = {}
+        model_data = {}
+        for field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[field] = value
+            elif not field.startswith("_") and field != "Meta":
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave from
+        # kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance
         instance = model(**model_data)
@@ -1874,6 +1902,11 @@ class ModelFactory:
         # Apply LazyAttribute values
         cls._apply_lazy_attributes(instance, model_data)
 
+        # Execute PreSave methods
+        for value in pre_save_methods.values():
+            value.execute(instance)
+
+        # Pre-save hooks
         pre_save_hooks = [
             method
             for method in dir(cls)
@@ -1881,8 +1914,10 @@ class ModelFactory:
         ]
         cls._run_hooks(pre_save_hooks, instance)
 
+        # Save the instance
         cls.save(instance)
 
+        # Post-save hooks
         post_save_hooks = [
             method
             for method in dir(cls)
@@ -1891,6 +1926,68 @@ class ModelFactory:
         cls._run_hooks(post_save_hooks, instance)
 
         return instance
+
+    # @classmethod
+    # def create(cls, **kwargs):
+    #     model = cls.Meta.model  # type: ignore
+    #
+    #     trait_keys = {
+    #         name
+    #         for name, method in cls.__dict__.items()
+    #         if getattr(method, "is_trait", False)
+    #     }
+    #
+    #    model_data = {
+    #        field: (
+    #            value()
+    #            if isinstance(
+    #                value,
+    #                (FactoryMethod, SubFactory, LazyFunction),
+    #            )
+    #            else value
+    #        )
+    #         for field, value in cls.__dict__.items()
+    #         if (
+    #             not field.startswith("_")
+    #             and not field == "Meta"
+    #             and not getattr(value, "is_trait", False)
+    #             and not getattr(value, "is_pre_save", False)
+    #             and not getattr(value, "is_post_save", False)
+    #         )
+    #     }
+    #
+    #     # Update model_data with non-trait kwargs
+    #     model_data.update(
+    #         {k: v for k, v in kwargs.items() if k not in trait_keys}
+    #     )
+    #
+    #     # Create a new instance
+    #     instance = model(**model_data)
+    #
+    #
+    #     # Apply traits
+    #     cls._apply_traits(instance, **kwargs)
+    #
+    #     # Apply LazyAttribute values
+    #     cls._apply_lazy_attributes(instance, model_data)
+    #
+    #     pre_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_pre_save", False)
+    #     ]
+    #     cls._run_hooks(pre_save_hooks, instance)
+    #
+    #     cls.save(instance)
+    #
+    #     post_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_post_save", False)
+    #     ]
+    #     cls._run_hooks(post_save_hooks, instance)
+    #
+    #     return instance
 
     @classmethod
     def create_batch(cls, count, **kwargs):
@@ -1916,6 +2013,12 @@ class DjangoModelFactory(ModelFactory):
         model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         # Construct a query for unique fields
         query = {
             field: kwargs[field] for field in unique_fields if field in kwargs
@@ -1927,17 +2030,31 @@ class DjangoModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        model_data = {
-            field: value
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field == "Meta"
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
+        # Collect PreSave methods and prepare model data
+        pre_save_methods = {}
+        model_data = {}
+        for field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[field] = value
+            elif not field.startswith("_") and field != "Meta":
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
@@ -1951,6 +2068,14 @@ class DjangoModelFactory(ModelFactory):
                     if field not in direct_attrs
                     else direct_attrs[field]
                 )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in direct_attrs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -1969,6 +2094,10 @@ class DjangoModelFactory(ModelFactory):
                     cls, field_name
                 ).factory_class.create(**{nested_attr: value})
                 setattr(instance, field_name, related_instance)
+
+        # Execute PreSave methods
+        for value in pre_save_methods.values():
+            value.execute(instance)
 
         # Run pre-save hooks
         pre_save_hooks = [
@@ -1990,6 +2119,86 @@ class DjangoModelFactory(ModelFactory):
         cls._run_hooks(post_save_hooks, instance)
 
         return instance
+
+    # @classmethod
+    # def create(cls, **kwargs):
+    #     model = cls.Meta.model  # type: ignore
+    #     unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
+    #
+    #     # Construct a query for unique fields
+    #     query = {
+    #         field: kwargs[field] for field in unique_fields if field in kwargs
+    #     }
+    #
+    #     # Try to get an existing instance
+    #     if query:
+    #         instance = model.objects.filter(**query).first()
+    #         if instance:
+    #             return instance
+    #
+    #     model_data = {
+    #         field: value
+    #         for field, value in cls.__dict__.items()
+    #         if (
+    #             not field.startswith("_")
+    #             and not field == "Meta"
+    #             and not getattr(value, "is_trait", False)
+    #             and not getattr(value, "is_pre_save", False)
+    #             and not getattr(value, "is_post_save", False)
+    #         )
+    #     }
+    #
+    #     # Separate nested attributes and direct attributes
+    #     nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
+    #     direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
+    #
+    #     # Update direct attributes with callable results
+    #     for field, value in model_data.items():
+    #         if isinstance(value, (FactoryMethod, SubFactory)):
+    #             model_data[field] = (
+    #                 value()
+    #                 if field not in direct_attrs
+    #                 else direct_attrs[field]
+    #             )
+    #
+    #     # Create a new instance if none found
+    #     instance = model(**model_data)
+    #
+    #     # Apply traits
+    #     cls._apply_traits(instance, **kwargs)
+    #
+    #     # Apply LazyAttribute values
+    #     cls._apply_lazy_attributes(instance, model_data)
+    #
+    #     # Handle nested attributes
+    #     for attr, value in nested_attrs.items():
+    #         field_name, nested_attr = attr.split("__", 1)
+    #         if isinstance(getattr(cls, field_name, None), SubFactory):
+    #             related_instance = getattr(
+    #                 cls, field_name
+    #             ).factory_class.create(**{nested_attr: value})
+    #             setattr(instance, field_name, related_instance)
+    #
+    #     # Run pre-save hooks
+    #     pre_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_pre_save", False)
+    #     ]
+    #     cls._run_hooks(pre_save_hooks, instance)
+    #
+    #     # Save instance
+    #     cls.save(instance)
+    #
+    #     # Run post-save hooks
+    #     post_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_post_save", False)
+    #     ]
+    #     cls._run_hooks(post_save_hooks, instance)
+    #
+    #     return instance
 
 
 def run_async_in_thread(coroutine):

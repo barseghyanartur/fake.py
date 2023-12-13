@@ -5,6 +5,7 @@ from fake import (
     FACTORY,
     DjangoModelFactory,
     FileSystemStorage,
+    PreSave,
     SubFactory,
     post_save,
     pre_save,
@@ -22,6 +23,10 @@ __all__ = (
 )
 
 STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
+
+def set_password(user: User, password: str) -> None:
+    user.set_password(password)
 
 
 class UserFactory(DjangoModelFactory):
@@ -44,6 +49,7 @@ class UserFactory(DjangoModelFactory):
     is_staff = False
     is_active = FACTORY.pybool()
     date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+    password = PreSave(set_password, password="test1234")
 
     class Meta:
         model = User
@@ -54,10 +60,6 @@ class UserFactory(DjangoModelFactory):
         instance.is_superuser = True
         instance.is_staff = True
         instance.is_active = True
-
-    @pre_save
-    def _set_password(self, instance):
-        instance.set_password("test")
 
     @pre_save
     def _pre_save_method(self, instance):

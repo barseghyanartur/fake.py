@@ -60,6 +60,7 @@ docs = [
 line-length = 80
 target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
+force-exclude = '__copy_fake\.py'
 extend-exclude = '''
 /(
   # The following are specific to Black, you probably don't want those.
