@@ -50,10 +50,10 @@ django-test:
 	source $(VENV) && cd examples/django/ && ./manage.py test
 
 hypothesis-test:
-	source $(VENV) && cd examples/hypothesis/ && ./manage.py test
+	source $(VENV) && cd examples/hypothesis/ && python manage.py test
 
 lazyfuzzy-test:
-	source $(VENV) && cd examples/lazyfuzzy/ && ./manage.py test
+	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py test
 
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test

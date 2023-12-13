@@ -43,3 +43,4 @@ examples/tortoise/media/
 examples/django/media/
 examples/dataclasses/media/
 examples/sqlalchemy/media/
+examples/hypothesis/.hypothesis/
