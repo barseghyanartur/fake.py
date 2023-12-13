@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.3
+-----
+2023-12-13
+
+- Add ``LazyAttribute`` and ``LazyFunction``.
+- Improve package portability (tests).
+- Improve tests.
+
 0.6.2
 -----
 2023-12-11
