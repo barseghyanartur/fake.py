@@ -15,6 +15,8 @@ Django example
         title = models.CharField(max_length=255)
         slug = models.SlugField(unique=True)
         content = models.TextField()
+        headline = models.TextField()
+        category = models.CharField()
         image = models.ImageField(null=True, blank=True)
         pub_date = models.DateTimeField(default=timezone.now)
         safe_for_work = models.BooleanField(default=False)
@@ -30,12 +32,17 @@ Django example
 
 .. code-block:: python
 
+    import random
+    from functools import partial
+
     from django.conf import settings
     from django.contrib.auth.models import User
     from fake import (
         FACTORY,
         DjangoModelFactory,
         FileSystemStorage,
+        LazyAttribute,
+        LazyFunction,
         SubFactory,
         pre_save,
         trait,
@@ -48,6 +55,11 @@ Django example
     # custom `FileSystemStorage` class and pass it to the file factory as
     # `storage` argument.
     STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+    CATEGORIES = (
+        "art",
+        "technology",
+        "literature",
+    )
 
     class UserFactory(DjangoModelFactory):
 
@@ -80,6 +92,8 @@ Django example
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
+        headline = LazyAttribute(lambda o: o.content[:25])
+        category = LazyFunction(partial(random.choice, CATEGORIES))
         image = FACTORY.png_file(storage=STORAGE)
         pub_date = FACTORY.date()
         safe_for_work = FACTORY.pybool()
@@ -140,6 +154,8 @@ Pydantic example
         title: str = Field(..., max_length=255)
         slug: str = Field(..., max_length=255, unique=True)
         content: str
+        headline: str
+        category: str
         image: Optional[str] = None  # Use str to represent the image path or URL
         pub_date: datetime = Field(default_factory=datetime.now)
         safe_for_work: bool = False
@@ -153,6 +169,8 @@ Pydantic example
 
 .. code-block:: python
 
+    import random
+    from functools import partial
     from pathlib import Path
 
     from fake import FACTORY, FileSystemStorage, ModelFactory, SubFactory
@@ -161,8 +179,12 @@ Pydantic example
 
     BASE_DIR = Path(__file__).resolve().parent.parent
     MEDIA_ROOT = BASE_DIR / "media"
-
     STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+    CATEGORIES = (
+        "art",
+        "technology",
+        "literature",
+    )
 
     class UserFactory(ModelFactory):
         id = FACTORY.pyint()
@@ -194,6 +216,8 @@ Pydantic example
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
+        headline = LazyAttribute(lambda o: o.content[:25])
+        category = LazyFunction(partial(random.choice, CATEGORIES))
         image = FACTORY.png_file(storage=STORAGE)
         pub_date = FACTORY.date()
         safe_for_work = FACTORY.pybool()
@@ -240,6 +264,8 @@ TortoiseORM example
         title = fields.CharField(max_length=255)
         slug = fields.CharField(max_length=255, unique=True)
         content = fields.TextField()
+        headline = fields.TextField()
+        category = fields.CharField(max_length=255)
         image = fields.TextField(null=True, blank=True)
         pub_date = fields.DatetimeField(default=datetime.now)
         safe_for_work = fields.BooleanField(default=False)
@@ -253,6 +279,8 @@ TortoiseORM example
 
 .. code-block:: python
 
+    import random
+    from functools import partial
     from pathlib import Path
 
     from fake import FACTORY, FileSystemStorage, SubFactory, TortoiseModelFactory
@@ -261,8 +289,12 @@ TortoiseORM example
 
     BASE_DIR = Path(__file__).resolve().parent.parent
     MEDIA_ROOT = BASE_DIR / "media"
-
     STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+    CATEGORIES = (
+        "art",
+        "technology",
+        "literature",
+    )
 
     class UserFactory(TortoiseModelFactory):
         """User factory."""
@@ -297,6 +329,8 @@ TortoiseORM example
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
+        headline = LazyAttribute(lambda o: o.content[:25])
+        category = LazyFunction(partial(random.choice, CATEGORIES))
         image = FACTORY.png_file(storage=STORAGE)
         pub_date = FACTORY.date_time()
         safe_for_work = FACTORY.pybool()
@@ -315,8 +349,10 @@ Dataclasses example
 
 .. code-block:: python
 
+    import random
     from dataclasses import dataclass
     from datetime import datetime
+    from functools import partial
     from typing import Optional
 
     @dataclass
@@ -342,6 +378,8 @@ Dataclasses example
         title: str
         slug: str
         content: str
+        headline: str
+        category: str
         author: User
         image: Optional[str] = None  # Use str to represent the image path or URL
         pub_date: datetime = datetime.now()
@@ -355,6 +393,8 @@ Dataclasses example
 
 .. code-block:: python
 
+    import random
+    from functools import partial
     from pathlib import Path
 
     from fake import FACTORY, FileSystemStorage, ModelFactory, SubFactory
@@ -363,8 +403,12 @@ Dataclasses example
 
     BASE_DIR = Path(__file__).resolve().parent.parent
     MEDIA_ROOT = BASE_DIR / "media"
-
     STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+    CATEGORIES = (
+        "art",
+        "technology",
+        "literature",
+    )
 
     class UserFactory(ModelFactory):
         id = FACTORY.pyint()
@@ -396,6 +440,8 @@ Dataclasses example
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
+        headline = LazyAttribute(lambda o: o.content[:25])
+        category = LazyFunction(partial(random.choice, CATEGORIES))
         image = FACTORY.png_file(storage=STORAGE)
         pub_date = FACTORY.date()
         safe_for_work = FACTORY.pybool()
@@ -469,6 +515,8 @@ SQLAlchemy example
         title = Column(String(255))
         slug = Column(String(255), unique=True)
         content = Column(Text)
+        headline = Column(Text)
+        category = Column(String(255))
         image = Column(Text, nullable=True)
         pub_date = Column(DateTime, default=datetime.utcnow)
         safe_for_work = Column(Boolean, default=False)
@@ -484,6 +532,8 @@ method.
 
 .. code-block:: python
 
+    import random
+    from functools import partial
     from pathlib import Path
 
     from fake import (
@@ -502,6 +552,11 @@ method.
     BASE_DIR = Path(__file__).resolve().parent.parent
     MEDIA_ROOT = BASE_DIR / "media"
     STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+    CATEGORIES = (
+        "art",
+        "technology",
+        "literature",
+    )
 
     def get_session():
         return SESSION()
@@ -542,6 +597,8 @@ method.
         title = FACTORY.sentence()
         slug = FACTORY.slug()
         content = FACTORY.text()
+        headline = LazyAttribute(lambda o: o.content[:25])
+        category = LazyFunction(partial(random.choice, CATEGORIES))
         image = FACTORY.png_file(storage=STORAGE)
         pub_date = FACTORY.date()
         safe_for_work = FACTORY.pybool()

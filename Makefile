@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.6.2
+VERSION := 0.6.3
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -37,7 +37,7 @@ serve_docs:
 install:
 	source $(VENV) && pip install -e .[all]
 
-test:
+test: clean
 	source $(VENV) && pytest -vrx -s
 
 customization-test:
@@ -51,6 +51,9 @@ django-test:
 
 hypothesis-test:
 	source $(VENV) && cd examples/hypothesis/ && ./manage.py test
+
+lazyfuzzy-test:
+	source $(VENV) && cd examples/lazyfuzzy/ && ./manage.py test
 
 pydantic-test:
 	source $(VENV) && cd examples/pydantic/ && python manage.py test
@@ -72,6 +75,9 @@ dataclasses-shell:
 
 django-shell:
 	source $(VENV) && python examples/django/manage.py shell
+
+lazyfuzzy-shell:
+	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py shell
 
 pydantic-shell:
 	source $(VENV) && cd examples/pydantic/ && python manage.py shell
