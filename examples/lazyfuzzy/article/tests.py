@@ -21,9 +21,12 @@ class FactoriesTestCase(unittest.TestCase):
 
         # Testing SubFactory
         self.assertIsInstance(article.author, User)
-        self.assertIsInstance(article.author.id, int)
-        self.assertIsInstance(article.author.is_staff, bool)
-        self.assertIsInstance(article.author.date_joined, datetime)
+        self.assertIsInstance(article.author.id, int)  # type: ignore
+        self.assertIsInstance(article.author.is_staff, bool)  # type: ignore
+        self.assertIsInstance(
+            article.author.date_joined,  # type: ignore
+            datetime,
+        )
 
         # Testing Factory
         self.assertIsInstance(article.id, int)

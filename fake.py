@@ -58,6 +58,8 @@ __all__ = (
     "GraphicPdfGenerator",
     "MetaData",
     "ModelFactory",
+    "LazyAttribute",
+    "LazyFunction",
     "PROVIDER_REGISTRY",
     "StringValue",
     "SQLAlchemyModelFactory",
