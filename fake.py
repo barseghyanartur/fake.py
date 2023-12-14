@@ -3250,6 +3250,19 @@ class TestFaker(unittest.TestCase):
         # ********* Models ********
         # *************************
 
+        def xor_transform(val: str, key: int = 10) -> str:
+            """Simple, deterministic string encoder/decoder.
+
+            Usage example:
+
+            .. code-block:: python
+
+                val = "abcd"
+                encoded_val = xor_transform(val)
+                decoded_val = xor_transform(encoded_val)
+            """
+            return "".join(chr(ord(__c) ^ key) for __c in val)
+
         class DjangoQuerySet(list):
             """Mimicking Django QuerySet class."""
 
@@ -3288,6 +3301,9 @@ class TestFaker(unittest.TestCase):
             def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True  # noqa
+
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
 
             # TODO: Remove once Python 3.8 support is dropped
             #  and replace with @classmethod @property combo.
@@ -3363,6 +3379,10 @@ class TestFaker(unittest.TestCase):
         # ****************************
         # ******* ModelFactory *******
         # ****************************
+
+        def set_password(instance: Any, password: str) -> None:
+            instance.set_password(password)
+
         categories = (
             "art",
             "technology",
@@ -3380,6 +3400,7 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="test1234")
 
             class Meta:
                 model = User
@@ -3458,6 +3479,13 @@ class TestFaker(unittest.TestCase):
                 and admin_user.is_active
             )
 
+            # Testing PreSave
+            self.assertEqual(xor_transform(user.password), "test1234")
+            user = UserFactory(
+                password=PreSave(set_password, password="1234test")
+            )
+            self.assertEqual(xor_transform(user.password), "1234test")
+
         # **********************************
         # ******* DjangoModelFactory *******
         # **********************************
@@ -3473,6 +3501,7 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="jest1234")
 
             class Meta:
                 model = User
@@ -3565,6 +3594,14 @@ class TestFaker(unittest.TestCase):
                 and django_admin_user.is_active
             )
 
+            # Testing PreSave
+            django_user = DjangoUserFactory()
+            self.assertEqual(xor_transform(django_user.password), "jest1234")
+            django_user = DjangoUserFactory(
+                password=PreSave(set_password, password="1234jest")
+            )
+            self.assertEqual(xor_transform(django_user.password), "1234jest")
+
         # **********************************
         # ****** TortoiseModelFactory ******
         # **********************************
@@ -3603,6 +3640,9 @@ class TestFaker(unittest.TestCase):
             is_superuser: bool = False
             is_staff: bool = False
             is_active: bool = True
+
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
 
             @classmethod
             def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
@@ -3675,6 +3715,7 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="tost1234")
 
             class Meta:
                 model = TortoiseUser
@@ -3769,6 +3810,14 @@ class TestFaker(unittest.TestCase):
                 and tortoise_admin_user.is_superuser
                 and tortoise_admin_user.is_active
             )
+
+            # Testing PreSave
+            tortoise_user = TortoiseUserFactory()
+            self.assertEqual(xor_transform(tortoise_user.password), "tost1234")
+            tortoise_user = UserFactory(
+                password=PreSave(set_password, password="1234tost")
+            )
+            self.assertEqual(xor_transform(tortoise_user.password), "1234tost")
 
             # **********************************
             # ** Repeat for another condition **
@@ -3901,6 +3950,9 @@ class TestFaker(unittest.TestCase):
             is_staff: bool = False
             is_active: bool = True
 
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
+
         @dataclass
         class SQLAlchemyArticle:
             id: int
@@ -3928,6 +3980,7 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="sest1234")
 
             class Meta:
                 model = SQLAlchemyUser
@@ -4029,6 +4082,18 @@ class TestFaker(unittest.TestCase):
                 sqlalchemy_admin_user.is_staff
                 and sqlalchemy_admin_user.is_superuser
                 and sqlalchemy_admin_user.is_active
+            )
+
+            # Testing PreSave
+            sqlalchemy_user = SQLAlchemyUserFactory()
+            self.assertEqual(
+                xor_transform(sqlalchemy_user.password), "sest1234"
+            )
+            sqlalchemy_user = SQLAlchemyUserFactory(
+                password=PreSave(set_password, password="1234sest")
+            )
+            self.assertEqual(
+                xor_transform(sqlalchemy_user.password), "1234sest"
             )
 
             # Repeat SQLAlchemy tests for another condition
