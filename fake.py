@@ -2500,12 +2500,15 @@ class SQLAlchemyModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave methods and prepare model data
+        # Collect PreSave, PostSave methods and prepare model data
         pre_save_methods = {}
+        post_save_methods = {}
         model_data = {}
         for field, value in cls.__dict__.items():
             if isinstance(value, PreSave):
                 pre_save_methods[field] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[field] = value
             elif not field.startswith("_") and not field.startswith("Meta"):
                 if (
                     not getattr(value, "is_trait", False)
@@ -2525,6 +2528,8 @@ class SQLAlchemyModelFactory(ModelFactory):
         for key, value in kwargs.items():
             if isinstance(value, PreSave):
                 pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
@@ -2540,10 +2545,12 @@ class SQLAlchemyModelFactory(ModelFactory):
                 )
 
         # Update model_data with non-trait kwargs and collect PreSave
-        # from kwargs.
+        # from direct_attrs.
         for key, value in direct_attrs.items():
             if isinstance(value, PreSave):
                 pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
 
@@ -2566,8 +2573,8 @@ class SQLAlchemyModelFactory(ModelFactory):
                 setattr(instance, field_name, related_instance)
 
         # Execute PreSave methods
-        for value in pre_save_methods.values():
-            value.execute(instance)
+        for __value in pre_save_methods.values():
+            __value.execute(instance)
 
         # Run pre-save hooks
         pre_save_hooks = [
@@ -2579,6 +2586,10 @@ class SQLAlchemyModelFactory(ModelFactory):
 
         # Save instance
         cls.save(instance)
+
+        # Execute PostSave methods
+        for __value in post_save_methods.values():
+            __value.execute(instance)
 
         # Run post-save hooks
         post_save_hooks = [
