@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.6.3"
+version = "0.6.4"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -142,7 +142,7 @@ ignore-path = [
 ]
 
 [tool.pytest.ini_options]
-minversion = "0.6.3"
+minversion = "0.6.4"
 addopts = [
     "-ra",
     "-vvv",
