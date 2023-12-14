@@ -1871,7 +1871,7 @@ class ModelFactory:
         for field, value in cls.__dict__.items():
             if isinstance(value, PreSave):
                 pre_save_methods[field] = value
-            elif not field.startswith("_") and field != "Meta":
+            elif not field.startswith("_") and not field.startswith("Meta"):
                 if (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_save", False)
@@ -2036,7 +2036,7 @@ class DjangoModelFactory(ModelFactory):
         for field, value in cls.__dict__.items():
             if isinstance(value, PreSave):
                 pre_save_methods[field] = value
-            elif not field.startswith("_") and field != "Meta":
+            elif not field.startswith("_") and not field.startswith("Meta"):
                 if (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_save", False)
@@ -2455,6 +2455,12 @@ class SQLAlchemyModelFactory(ModelFactory):
         model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         # Check for existing instance
         if unique_fields:
             query_kwargs = {field: kwargs.get(field) for field in unique_fields}
@@ -2462,18 +2468,31 @@ class SQLAlchemyModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Construct model_data from class attributes
-        model_data = {
-            field: value
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field.startswith("Meta")
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
+        # Collect PreSave methods and prepare model data
+        pre_save_methods = {}
+        model_data = {}
+        for field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[field] = value
+            elif not field.startswith("_") and not field.startswith("Meta"):
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
@@ -2487,6 +2506,14 @@ class SQLAlchemyModelFactory(ModelFactory):
                     if field not in direct_attrs
                     else direct_attrs[field]
                 )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in direct_attrs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance
         instance = model(**model_data)
@@ -2505,6 +2532,10 @@ class SQLAlchemyModelFactory(ModelFactory):
                     cls, field_name
                 ).factory_class.create(**{nested_attr: value})
                 setattr(instance, field_name, related_instance)
+
+        # Execute PreSave methods
+        for value in pre_save_methods.values():
+            value.execute(instance)
 
         # Run pre-save hooks
         pre_save_hooks = [
@@ -2526,6 +2557,87 @@ class SQLAlchemyModelFactory(ModelFactory):
         cls._run_hooks(post_save_hooks, instance)
 
         return instance
+
+    # @classmethod
+    # def create(cls, **kwargs):
+    #     session = cls.MetaSQLAlchemy.get_session()  # type: ignore
+    #
+    #     model = cls.Meta.model  # type: ignore
+    #     unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
+    #
+    #     # Check for existing instance
+    #     if unique_fields:
+    #         query_kwargs = {
+    #             field: kwargs.get(field) for field in unique_fields
+    #         }
+    #         instance = session.query(model).filter_by(**query_kwargs).first()
+    #         if instance:
+    #             return instance
+    #
+    #     # Construct model_data from class attributes
+    #     model_data = {
+    #         field: value
+    #         for field, value in cls.__dict__.items()
+    #         if (
+    #             not field.startswith("_")
+    #             and not field.startswith("Meta")
+    #             and not getattr(value, "is_trait", False)
+    #             and not getattr(value, "is_pre_save", False)
+    #             and not getattr(value, "is_post_save", False)
+    #         )
+    #     }
+    #
+    #     # Separate nested attributes and direct attributes
+    #     nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
+    #     direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
+    #
+    #     # Update direct attributes with callable results
+    #     for field, value in model_data.items():
+    #         if isinstance(value, (FactoryMethod, SubFactory)):
+    #             model_data[field] = (
+    #                 value()
+    #                 if field not in direct_attrs
+    #                 else direct_attrs[field]
+    #             )
+    #
+    #     # Create a new instance
+    #     instance = model(**model_data)
+    #
+    #     # Apply traits
+    #     cls._apply_traits(instance, **kwargs)
+    #
+    #     # Apply LazyAttribute values
+    #     cls._apply_lazy_attributes(instance, model_data)
+    #
+    #     # Handle nested attributes
+    #     for attr, value in nested_attrs.items():
+    #         field_name, nested_attr = attr.split("__", 1)
+    #         if isinstance(getattr(cls, field_name, None), SubFactory):
+    #             related_instance = getattr(
+    #                 cls, field_name
+    #             ).factory_class.create(**{nested_attr: value})
+    #             setattr(instance, field_name, related_instance)
+    #
+    #     # Run pre-save hooks
+    #     pre_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_pre_save", False)
+    #     ]
+    #     cls._run_hooks(pre_save_hooks, instance)
+    #
+    #     # Save instance
+    #     cls.save(instance)
+    #
+    #     # Run post-save hooks
+    #     post_save_hooks = [
+    #         method
+    #         for method in dir(cls)
+    #         if getattr(getattr(cls, method), "is_post_save", False)
+    #     ]
+    #     cls._run_hooks(post_save_hooks, instance)
+    #
+    #     return instance
 
 
 # TODO: Remove once Python 3.8 support is dropped
