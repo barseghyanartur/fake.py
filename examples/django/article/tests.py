@@ -89,7 +89,7 @@ class FactoriesTestCase(TestCase):
 
     def test_pre_save_and_post_save(self) -> None:
         """Test PreSave and PostSave."""
-        user = UserFactory(is_staff=True)
+        user = UserFactory(is_staff=True, is_active=True)
         self.assertTrue(
             self.client.login(
                 username=user.username,
