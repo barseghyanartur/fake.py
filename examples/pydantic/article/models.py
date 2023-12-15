@@ -19,11 +19,11 @@ class User(BaseModel):
     last_name: str = Field(..., max_length=255)
     email: str = Field(..., max_length=255)
     password: Optional[str] = Field("", max_length=255)
-    last_login: Optional[datetime]
+    last_login: Optional[datetime] = None
     is_superuser: bool = Field(default=False)
     is_staff: bool = Field(default=False)
     is_active: bool = Field(default=True)
-    date_joined: Optional[datetime]
+    date_joined: Optional[datetime] = None
 
     class Config:
         extra = "allow"  # For testing purposes only

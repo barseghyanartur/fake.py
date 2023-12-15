@@ -38,6 +38,7 @@ from typing import (
     Union,
     get_args,
     get_origin,
+    get_type_hints,
 )
 
 __title__ = "fake.py"
@@ -71,6 +72,7 @@ __all__ = (
     "TextPdfGenerator",
     "TortoiseModelFactory",
     "fill_dataclass",
+    "fill_pydantic_model",
     "post_save",
     "pre_save",
     "provider",
@@ -2748,68 +2750,125 @@ def xor_transform(val: str, key: int = 10) -> str:
     return "".join(chr(ord(__c) ^ key) for __c in val)
 
 
-TYPE_TO_PROVIDER = {
-    bool: FAKER.pybool,
-    int: FAKER.pyint,
-    str: FAKER.pystr,
-    datetime: FAKER.date_time,
-    date: FAKER.date,
-    float: FAKER.pyfloat,
-    Decimal: FAKER.pydecimal,
-}
+class BaseDataFiller:
+    TYPE_TO_PROVIDER = {
+        bool: FAKER.pybool,
+        int: FAKER.pyint,
+        str: FAKER.pystr,
+        datetime: FAKER.date_time,
+        date: FAKER.date,
+        float: FAKER.pyfloat,
+        Decimal: FAKER.pydecimal,
+    }
 
-FIELD_NAME_TO_PROVIDER = {
-    "name": FAKER.word,
-    "title": FAKER.sentence,
-    "slug": FAKER.slug,
-    "content": FAKER.text,
-    "category": FAKER.word,
-    "username": FAKER.username,
-    "email": FAKER.email,
-    "headline": FAKER.sentence,
-    "first_name": FAKER.first_name,
-    "last_name": FAKER.last_name,
-}
+    FIELD_NAME_TO_PROVIDER = {
+        "name": FAKER.word,
+        "title": FAKER.sentence,
+        "slug": FAKER.slug,
+        "content": FAKER.text,
+        "category": FAKER.word,
+        "username": FAKER.username,
+        "email": FAKER.email,
+        "headline": FAKER.sentence,
+        "first_name": FAKER.first_name,
+        "last_name": FAKER.last_name,
+    }
 
-
-def get_provider_for_field_name(field_name) -> Optional[Callable]:
-    """Get provider function for field name given."""
-    return FIELD_NAME_TO_PROVIDER.get(field_name)
-
-
-def get_provider_for_type(field_type) -> Optional[Callable]:
-    """Get provider function for the type given."""
-    # Extract the base type from Optional
-    if get_origin(field_type) is Optional:
-        field_type = get_args(field_type)[0]
-    return TYPE_TO_PROVIDER.get(field_type)
+    @classmethod
+    def get_provider_for_field_name(cls, field_name) -> Optional[Callable]:
+        return BaseDataFiller.FIELD_NAME_TO_PROVIDER.get(field_name)
 
 
-def fill_dataclass(dataclass_type: Type) -> object:
-    """Fill dataclass with data."""
-    if not is_dataclass(dataclass_type):
-        raise ValueError("The provided type must be a dataclass")
+class DataclassDataFiller(BaseDataFiller):
+    @classmethod
+    def get_provider_for_type(cls, field_type) -> Optional[Callable]:
+        """Get provider function for the type given."""
+        # Extract the base type from Optional
+        if get_origin(field_type) is Optional:
+            field_type = get_args(field_type)[0]
+        return cls.TYPE_TO_PROVIDER.get(field_type)
 
-    kwargs = {}
-    for _field in fields(dataclass_type):
-        provider_func = get_provider_for_field_name(_field.name)
-        if not provider_func:
-            if is_dataclass(_field.type):
-                # Recursive call for nested dataclass
-                def provider_func():
-                    return fill_dataclass(_field.type)
+    @classmethod
+    def fill(cls, dataclass_type: Type) -> object:
+        """Fill dataclass with data."""
+        if not is_dataclass(dataclass_type):
+            raise ValueError("The provided type must be a dataclass")
 
+        kwargs = {}
+        for _field in fields(dataclass_type):
+            provider_func = cls.get_provider_for_field_name(_field.name)
+            if not provider_func:
+                if is_dataclass(_field.type):
+                    # Recursive call for nested dataclass
+                    def provider_func():
+                        return cls.fill(_field.type)
+
+                else:
+                    provider_func = cls.get_provider_for_type(_field.type)
+
+            if provider_func:
+                kwargs[_field.name] = provider_func()
             else:
-                provider_func = get_provider_for_type(_field.type)
+                # Skip if no provider function is defined
+                continue
 
-        if provider_func:
-            kwargs[_field.name] = provider_func()
-        else:
-            # Skip if no provider function is defined
-            continue
+        return dataclass_type(**kwargs)
 
-    return dataclass_type(**kwargs)
 
+fill_dataclass = DataclassDataFiller.fill
+
+
+class PydanticDataFiller(BaseDataFiller):
+    @classmethod
+    def get_provider_for_type(cls, field_type) -> Optional[Callable]:
+        if isinstance(field_type, type) and issubclass(
+            field_type, (list, dict, set)
+        ):
+            return None
+        if (
+            hasattr(field_type, "__origin__")
+            and field_type.__origin__ is Optional
+        ):
+            field_type = field_type.__args__[0]
+        return cls.TYPE_TO_PROVIDER.get(field_type)
+
+    @classmethod
+    def is_class_type(cls, type_hint):
+        return isinstance(type_hint, type) and not any(
+            issubclass(type_hint, primitive)
+            for primitive in (int, str, float, bool, Decimal)
+        )
+
+    @classmethod
+    def fill(cls, object_type: Type) -> object:
+        type_hints = get_type_hints(object_type)
+        kwargs = {}
+        for field_name, field_type in type_hints.items():
+            # Check for Pydantic's default_factory
+            default_factory = getattr(
+                object_type.__fields__[field_name], "default_factory", None
+            )
+            if default_factory is not None:
+                kwargs[field_name] = default_factory()
+                continue
+
+            provider_func = cls.get_provider_for_field_name(field_name)
+
+            if not provider_func:
+                if cls.is_class_type(field_type):
+                    kwargs[field_name] = cls.fill(field_type)
+                else:
+                    provider_func = cls.get_provider_for_type(field_type)
+                    if provider_func:
+                        kwargs[field_name] = provider_func()
+                    else:
+                        continue
+            else:
+                kwargs[field_name] = provider_func()
+        return object_type(**kwargs)
+
+
+fill_pydantic_model = PydanticDataFiller.fill
 
 # ************************************************
 # ******************** Tests *********************
