@@ -47,7 +47,7 @@ Django example
         SubFactory,
         PreSave,
         PostSave,
-        pre_save,
+        post_save,
         trait,
     )
 
@@ -101,7 +101,7 @@ Django example
             model = User
             get_or_create = ("username",)
 
-        @pre_save
+        @post_save
         def _send_registration_email(self, instance):
             """Send an email with registration information."""
             # Your code here
