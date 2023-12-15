@@ -4122,7 +4122,7 @@ class TestFaker(unittest.TestCase):
             group = SQLAlchemyGroupFactory(name=name)
             user.groups.add(group)
 
-        class SQLAlchemyGroupFactory(TortoiseModelFactory):
+        class SQLAlchemyGroupFactory(SQLAlchemyModelFactory):
             id = FACTORY.pyint()  # type: ignore
             name = FACTORY.word()  # type: ignore
 
@@ -4145,7 +4145,7 @@ class TestFaker(unittest.TestCase):
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
             password = PreSave(set_password, password="sest1234")
-            group = PostSave(add_to_tortoise_group, name="SestGroup1234")
+            group = PostSave(add_to_sqlalchemy_group, name="SestGroup1234")
 
             class Meta:
                 model = SQLAlchemyUser
