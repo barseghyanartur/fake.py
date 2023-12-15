@@ -44,3 +44,4 @@ examples/django/media/
 examples/dataclasses/media/
 examples/sqlalchemy/media/
 examples/hypothesis/.hypothesis/
+.mypy_cache/

@@ -42,24 +42,24 @@ def set_password(user: User, password: str) -> None:
     user.set_password(password)
 
 
-def add_to_group(user: User, group_name: str) -> None:
-    group = GroupFactory(name=group_name)
+def add_to_group(user: User, name: str) -> None:
+    group = GroupFactory(name=name)
     user.groups.add(group)
 
 
 class UserFactory(ModelFactory):
-    id = FACTORY.pyint()
-    username = FACTORY.username()
-    first_name = FACTORY.first_name()
-    last_name = FACTORY.last_name()
-    email = FACTORY.email()
-    last_login = FACTORY.date_time()
+    id = FACTORY.pyint()  # type: ignore
+    username = FACTORY.username()  # type: ignore
+    first_name = FACTORY.first_name()  # type: ignore
+    last_name = FACTORY.last_name()  # type: ignore
+    email = FACTORY.email()  # type: ignore
+    last_login = FACTORY.date_time()  # type: ignore
     is_superuser = False
     is_staff = False
-    is_active = FACTORY.pybool()
-    date_joined = FACTORY.date_time()
-    password = PreSave(set_password, password="test1234")
-    group = PostSave(add_to_group, group_name="TestGroup1234")
+    is_active = FACTORY.pybool()  # type: ignore
+    date_joined = FACTORY.date_time()  # type: ignore
+    password = PreSave(set_password, password="test1234")  # type: ignore
+    group = PostSave(add_to_group, name="TestGroup1234")  # type: ignore
 
     class Meta:
         model = User
@@ -80,14 +80,14 @@ class UserFactory(ModelFactory):
 
 
 class ArticleFactory(ModelFactory):
-    id = FACTORY.pyint()
-    title = FACTORY.sentence()
-    slug = FACTORY.slug()
-    content = FACTORY.text()
-    image = FACTORY.png_file(storage=STORAGE)
-    pub_date = FACTORY.date()
-    safe_for_work = FACTORY.pybool()
-    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+    id = FACTORY.pyint()  # type: ignore
+    title = FACTORY.sentence()  # type: ignore
+    slug = FACTORY.slug()  # type: ignore
+    content = FACTORY.text()  # type: ignore
+    image = FACTORY.png_file(storage=STORAGE)  # type: ignore
+    pub_date = FACTORY.date()  # type: ignore
+    safe_for_work = FACTORY.pybool()  # type: ignore
+    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)  # type: ignore
     author = SubFactory(UserFactory)
 
     class Meta:

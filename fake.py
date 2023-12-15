@@ -3968,6 +3968,10 @@ class TestFaker(unittest.TestCase):
             self.assertEqual(len(_tortoise_articles), 5)
             self.assertIsInstance(_tortoise_articles[0], TortoiseArticle)
 
+            # Testing get_or_create for Article model
+            _tortoise_article = TortoiseArticleFactory(id=1)
+            self.assertIsInstance(_tortoise_article, TortoiseArticle)
+
             # Testing traits
             _tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
             self.assertTrue(

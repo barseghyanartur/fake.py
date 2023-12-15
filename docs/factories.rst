@@ -11,6 +11,7 @@ Django example
     from django.db import models
     from django.utils import timezone
 
+
     class Article(models.Model):
         title = models.CharField(max_length=255)
         slug = models.SlugField(unique=True)
@@ -36,7 +37,7 @@ Django example
     from functools import partial
 
     from django.conf import settings
-    from django.contrib.auth.models import User
+    from django.contrib.auth.models import Group, User
     from fake import (
         FACTORY,
         DjangoModelFactory,
@@ -44,6 +45,8 @@ Django example
         LazyAttribute,
         LazyFunction,
         SubFactory,
+        PreSave,
+        PostSave,
         pre_save,
         trait,
     )
@@ -61,6 +64,25 @@ Django example
         "literature",
     )
 
+
+    class GroupFactory(ModelFactory):
+        
+        name = FACTORY.word()
+
+        class Meta:
+            model = Group
+            get_or_create = ("name",)
+
+
+    def set_password(user: User, password: str) -> None:
+        user.set_password(password)
+
+
+    def add_to_group(user: User, name: str) -> None:
+        group = GroupFactory(name=name)
+        user.groups.add(group)
+
+
     class UserFactory(DjangoModelFactory):
 
         username = FACTORY.username()
@@ -72,20 +94,24 @@ Django example
         is_staff = False
         is_active = FACTORY.pybool()
         date_joined = FACTORY.date_time()
+        password = PreSave(set_password, password="test1234")
+        group = PostSave(add_to_group, name="Test group")
 
         class Meta:
             model = User
             get_or_create = ("username",)
 
         @pre_save
-        def _set_password(self, instance):
-            instance.set_password("test")
+        def _send_registration_email(self, instance):
+            """Send an email with registration information."""
+            # Your code here
 
         @trait
         def is_admin_user(self, instance: User) -> None:
             instance.is_superuser = True
             instance.is_staff = True
             instance.is_active = True
+
 
     class ArticleFactory(DjangoModelFactory):
 
@@ -121,6 +147,21 @@ Django example
 
     # Using trait in SubFactory
     article = ArticleFactory(author__is_admin_user=True)
+
+    # Create a user. Created user will automatically have his password
+    # set to "test1234" and will be added to the group "Test group".
+    user = UserFactory()
+
+    # Create a user with custom password
+    user = UserFactory(
+        password = PreSave(set_password, password="another-pass"),
+    )
+
+    # Add a user to another group
+    user = UserFactory(
+        group = PostSave(add_to_group, name="Another group"),
+    )
+
 
 Pydantic example
 ----------------
