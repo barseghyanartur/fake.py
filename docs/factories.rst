@@ -162,7 +162,6 @@ Django example
         group = PostSave(add_to_group, name="Another group"),
     )
 
-
 Pydantic example
 ----------------
 **article/models.py**
