@@ -70,6 +70,7 @@ __all__ = (
     "SubFactory",
     "TextPdfGenerator",
     "TortoiseModelFactory",
+    "fill_dataclass",
     "post_save",
     "pre_save",
     "provider",
