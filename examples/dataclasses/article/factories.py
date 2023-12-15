@@ -4,13 +4,15 @@ from fake import (
     FACTORY,
     FileSystemStorage,
     ModelFactory,
+    PostSave,
+    PreSave,
     SubFactory,
     post_save,
     pre_save,
     trait,
 )
 
-from article.models import Article, User
+from article.models import Article, Group, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
@@ -27,6 +29,24 @@ MEDIA_ROOT = BASE_DIR / "media"
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 
 
+class GroupFactory(ModelFactory):
+    id = FACTORY.pyint()
+    name = FACTORY.word()
+
+    class Meta:
+        model = Group
+        get_or_create = ("name",)
+
+
+def set_password(user: User, password: str) -> None:
+    user.set_password(password)
+
+
+def add_to_group(user: User, group_name: str) -> None:
+    group = GroupFactory(name=group_name)
+    user.groups.add(group)
+
+
 class UserFactory(ModelFactory):
     id = FACTORY.pyint()
     username = FACTORY.username()
@@ -38,6 +58,8 @@ class UserFactory(ModelFactory):
     is_staff = False
     is_active = FACTORY.pybool()
     date_joined = FACTORY.date_time()
+    password = PreSave(set_password, password="test1234")
+    group = PostSave(add_to_group, group_name="TestGroup1234")
 
     class Meta:
         model = User

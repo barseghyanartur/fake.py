@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from fake import FILE_REGISTRY
 
-from article.factories import ArticleFactory
+from article.factories import ArticleFactory, UserFactory
 from article.models import Article
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -86,3 +86,14 @@ class FactoriesTestCase(TestCase):
         articles = ArticleFactory.create_batch(5)
         self.assertEqual(len(articles), 5)
         self.assertIsInstance(articles[0], Article)
+
+    def test_pre_save_and_post_save(self) -> None:
+        """Test PreSave and PostSave."""
+        user = UserFactory(is_staff=True)
+        self.assertTrue(
+            self.client.login(
+                username=user.username,
+                password="test1234",
+            )
+        )
+        self.assertTrue(user.groups.first().name == "TestGroup1234")
