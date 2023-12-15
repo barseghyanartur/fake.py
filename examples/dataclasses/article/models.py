@@ -38,8 +38,8 @@ class User:
     first_name: str
     last_name: str
     email: str
-    last_login: Optional[datetime]
-    date_joined: Optional[datetime]
+    date_joined: datetime = field(default_factory=datetime.utcnow)
+    last_login: Optional[datetime] = None
     password: Optional[str] = None
     is_superuser: bool = False
     is_staff: bool = False
@@ -61,7 +61,7 @@ class Article:
     content: str
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
-    pub_date: date = date.today()
+    pub_date: date = field(default_factory=date.today)
     safe_for_work: bool = False
     minutes_to_read: int = 5
 
