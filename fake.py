@@ -3431,9 +3431,6 @@ class TestFaker(unittest.TestCase):
             def filter(self, *args, **kwargs) -> "DjangoQuerySet":
                 return DjangoQuerySet(instance=self.instance)
 
-            def add(self, *args) -> None:
-                self.instance.groups.add(*args)
-
         @dataclass(frozen=True)
         class Group:
             id: int
@@ -3614,6 +3611,11 @@ class TestFaker(unittest.TestCase):
                 hasattr(_user, "post_save_called") and _user.post_save_called
             )
 
+            # Testing get_or_create for Article model
+            _article = ArticleFactory(id=1)
+            self.assertIsInstance(_article, Article)
+            self.assertEqual(_article.id, 1)
+
             # Testing traits
             _admin_user = UserFactory(is_admin_user=True)
             self.assertTrue(
@@ -3739,6 +3741,10 @@ class TestFaker(unittest.TestCase):
             _django_articles = DjangoArticleFactory.create_batch(5)
             self.assertEqual(len(_django_articles), 5)
             self.assertIsInstance(_django_articles[0], Article)
+
+            # Testing get_or_create for Article model
+            _django_article = DjangoArticleFactory(id=1)
+            self.assertIsInstance(_django_article, Article)
 
             # Testing traits
             _django_admin_user = DjangoUserFactory(is_admin_user=True)
