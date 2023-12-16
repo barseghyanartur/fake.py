@@ -1,9 +1,9 @@
 Factories
 =========
 
-- ``pre_save`` a method decorator that will always run before the instance
+- ``pre_save`` is a method decorator that will always run before the instance
   is saved.
-- ``post_save`` a method decorator that will always run after the instance
+- ``post_save`` is a method decorator that will always run after the instance
   is saved.
 - ``trait`` decorator runs the code if set to True in factory constructor.
 - ``PreSave`` is like the ``pre_save`` decorator of the ``ModelFactory``,
@@ -16,7 +16,7 @@ Factories
 - ``LazyAttribute`` expects a callable, will take the instance as a first
   argument, runs it with extra arguments specified and sets the value as
   an attribute name.
-- ``LazyFunction`` expect a callable, runs it (without any arguments) and
+- ``LazyFunction`` expects a callable, runs it (without any arguments) and
   sets the value as an attribute name.
 - ``SubFactory`` is for specifying relations (typically - ForeignKeys).
 
