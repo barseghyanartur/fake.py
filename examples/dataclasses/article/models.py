@@ -2,27 +2,16 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Optional, Set
 
+from fake import xor_transform
+
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "Article",
+    "Group",
     "User",
 )
-
-
-def xor_transform(val: str, key: int = 10) -> str:
-    """Simple, deterministic string encoder/decoder.
-
-    Usage example:
-
-    .. code-block:: python
-
-        val = "abcd"
-        encoded_val = xor_transform(val)
-        decoded_val = xor_transform(encoded_val)
-    """
-    return "".join(chr(ord(__c) ^ key) for __c in val)
 
 
 @dataclass(frozen=True)

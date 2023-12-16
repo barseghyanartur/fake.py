@@ -79,6 +79,7 @@ __all__ = (
     "provider",
     "run_async_in_thread",
     "trait",
+    "xor_transform",
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -2460,6 +2461,13 @@ class BaseDataFiller:
         "headline": FAKER.sentence,
         "first_name": FAKER.first_name,
         "last_name": FAKER.last_name,
+        "uuid": FAKER.uuid,
+        "body": FAKER.text,
+        "summary": FAKER.paragraph,
+        "date_of_birth": FAKER.date,
+        "dob": FAKER.date,
+        "age": partial(FAKER.pyint, min_value=1, max_value=100),
+        "url": FAKER.url,
     }
 
     @classmethod

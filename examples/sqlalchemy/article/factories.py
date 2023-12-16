@@ -3,6 +3,8 @@ from pathlib import Path
 from fake import (
     FACTORY,
     FileSystemStorage,
+    PostSave,
+    PreSave,
     SQLAlchemyModelFactory,
     SubFactory,
     post_save,
@@ -10,7 +12,7 @@ from fake import (
     trait,
 )
 
-from article.models import Article, User
+from article.models import Article, Group, User
 from config import SESSION
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -31,6 +33,40 @@ def get_session():
     return SESSION()
 
 
+class GroupFactory(SQLAlchemyModelFactory):
+    """User factory."""
+
+    name = FACTORY.word()
+
+    class Meta:
+        model = Group
+        get_or_create = ("name",)
+
+    class MetaSQLAlchemy:
+        get_session = get_session
+
+
+def set_password(user: User, password: str) -> None:
+    user.set_password(password)
+
+
+def add_to_group(user: User, name: str) -> None:
+    session = get_session()
+    # Check if the group already exists
+    group = session.query(Group).filter_by(name=name).first()
+
+    # If the group doesn't exist, create a new one
+    if not group:
+        group = Group(name=name)
+        session.add(group)
+        session.commit()  # Commit to assign an ID to the new group
+
+    # Add the group to the user's groups using append
+    if group not in user.groups:
+        user.groups.append(group)
+        session.commit()  # Commit the changes
+
+
 class UserFactory(SQLAlchemyModelFactory):
     """User factory."""
 
@@ -38,11 +74,13 @@ class UserFactory(SQLAlchemyModelFactory):
     first_name = FACTORY.first_name()  # mypy: ignore
     last_name = FACTORY.last_name()  # mypy: ignore
     email = FACTORY.email()  # mypy: ignore
+    date_joined = FACTORY.date_time()  # mypy: ignore
     last_login = FACTORY.date_time()  # mypy: ignore
     is_superuser = False
     is_staff = False
     is_active = FACTORY.pybool()  # mypy: ignore
-    date_joined = FACTORY.date_time()  # mypy: ignore
+    password = PreSave(set_password, password="test1234")  # type: ignore
+    group = PostSave(add_to_group, name="TestGroup1234")  # type: ignore
 
     class Meta:
         model = User

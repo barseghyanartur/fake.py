@@ -1,5 +1,7 @@
 import unittest
 
+from fake import xor_transform
+
 from article.factories import ArticleFactory, UserFactory
 from config import SESSION
 
@@ -29,3 +31,12 @@ class TestFactories(unittest.TestCase):
         article = ArticleFactory(title="Test Article", author=user)
         self.assertIsNotNone(article.id)
         self.assertEqual(article.author.username, "authoruser")
+
+    def test_pre_save_and_post_save(self) -> None:
+        """Test PreSave and PostSave."""
+        user = UserFactory(is_staff=True)
+        self.assertEqual(
+            xor_transform(user.password),
+            "test1234",
+        )
+        self.assertEqual(list(user.groups)[0].name, "TestGroup1234")
