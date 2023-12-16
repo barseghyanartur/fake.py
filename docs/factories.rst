@@ -1,6 +1,22 @@
 Factories
 =========
 
+- ``pre_save`` a method that will always run before the instance is saved.
+- ``post_save`` a method that will always run after the instance is saved.
+- ``trait`` decorator runs the code if set to True in factory constructor.
+- ``PreSave`` is like the ``pre_save`` decorator of the ``ModelFactory``,
+  but you can pass arguments to it and have a lot of flexibility. See
+  a working example (below) of how set a user password in Django.
+- ``PostSave`` is like the ``post_save`` decorator of the ``ModelFactory``,
+  but you can pass arguments to it and have a lot of flexibility. See a
+  working example (below) of how to create to assign a user to a Group after
+  user creation.
+- ``LazyAttribute`` expects a callable, will take the instance, runs it and
+  sets the value as an attribute name.
+- ``LazyFunction`` expect a callable, runs it and sets the value as
+  an attribute name.
+- ``SubFactory`` is for specifying relations (typically - ForeignKeys).
+
 Django example
 --------------
 **article/models.py**

@@ -18,7 +18,7 @@ are used for versioning (schema follows below):
 
 0.6.4
 -----
-2023-12-15
+2023-12-16
 
 - Add ``PreSave`` and ``PostSave``.
 

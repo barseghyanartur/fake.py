@@ -65,6 +65,7 @@ __all__ = (
     "MetaData",
     "ModelFactory",
     "PROVIDER_REGISTRY",
+    "PostSave",
     "PreSave",
     "SQLAlchemyModelFactory",
     "StringValue",
