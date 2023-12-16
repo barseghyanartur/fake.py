@@ -1,10 +1,12 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from fake import (
     FACTORY,
     DjangoModelFactory,
     FileSystemStorage,
+    PostSave,
+    PreSave,
     SubFactory,
     post_save,
     pre_save,
@@ -22,6 +24,25 @@ __all__ = (
 )
 
 STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
+
+class GroupFactory(DjangoModelFactory):
+    """Group factory."""
+
+    name = FACTORY.word()
+
+    class Meta:
+        model = Group
+        get_or_create = ("name",)
+
+
+def set_password(user: User, password: str) -> None:
+    user.set_password(password)
+
+
+def add_to_group(user: User, group_name: str) -> None:
+    group = GroupFactory(name=group_name)
+    user.groups.add(group)
 
 
 class UserFactory(DjangoModelFactory):
@@ -44,6 +65,8 @@ class UserFactory(DjangoModelFactory):
     is_staff = False
     is_active = FACTORY.pybool()
     date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+    password = PreSave(set_password, password="test1234")
+    group = PostSave(add_to_group, group_name="TestGroup1234")
 
     class Meta:
         model = User
@@ -54,10 +77,6 @@ class UserFactory(DjangoModelFactory):
         instance.is_superuser = True
         instance.is_staff = True
         instance.is_active = True
-
-    @pre_save
-    def _set_password(self, instance):
-        instance.set_password("test")
 
     @pre_save
     def _pre_save_method(self, instance):

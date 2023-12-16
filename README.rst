@@ -19,6 +19,7 @@ fake.py
 .. _Read the Docs: http://fakepy.readthedocs.io/
 .. _Quick start: https://fakepy.readthedocs.io/en/latest/quick_start.html
 .. _Recipes: https://fakepy.readthedocs.io/en/latest/recipes.html
+.. _Factories: https://fakepy.readthedocs.io/en/latest/factories.html
 .. _Customization: https://fakepy.readthedocs.io/en/latest/customization.html
 .. _Creating PDF: https://fakepy.readthedocs.io/en/latest/creating_pdf.html
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
@@ -99,6 +100,7 @@ Documentation
 =============
 - Documentation is available on `Read the Docs`_.
 - For various ready to use code examples see the `Recipes`_.
+- For tips on how to use the factories see the `Factories`_.
 - For customization tips see the `Customization`_.
 - For tips on ``PDF`` creation see `Creating PDF`_.
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
