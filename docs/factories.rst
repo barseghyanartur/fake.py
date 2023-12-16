@@ -11,12 +11,13 @@ Factories
   a working example (below) of how set a user password in Django.
 - ``PostSave`` is like the ``post_save`` decorator of the ``ModelFactory``,
   but you can pass arguments to it and have a lot of flexibility. See a
-  working example (below) of how to create to assign a user to a Group after
+  working example (below) of how to assign a user to a Group after
   user creation.
-- ``LazyAttribute`` expects a callable, will take the instance, runs it and
-  sets the value as an attribute name.
-- ``LazyFunction`` expect a callable, runs it and sets the value as
+- ``LazyAttribute`` expects a callable, will take the instance as a first
+  argument, runs it with extra arguments specified and sets the value as
   an attribute name.
+- ``LazyFunction`` expect a callable, runs it (without any arguments) and
+  sets the value as an attribute name.
 - ``SubFactory`` is for specifying relations (typically - ForeignKeys).
 
 Django example
