@@ -4,9 +4,7 @@ Recipes
 
 .. code-block:: python
 
-    from fake import Faker
-
-    FAKER = Faker()
+    from fake import FAKER
 
 ----
 
