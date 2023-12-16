@@ -60,11 +60,11 @@ class UserFactory(DjangoModelFactory):
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
     email = FACTORY.email()
+    date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     is_superuser = False
     is_staff = False
     is_active = FACTORY.pybool()
-    date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     password = PreSave(set_password, password="test1234")
     group = PostSave(add_to_group, name="TestGroup1234")
 

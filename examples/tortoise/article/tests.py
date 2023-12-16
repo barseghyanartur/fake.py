@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from fake import FILE_REGISTRY
+from fake import FILE_REGISTRY, run_async_in_thread, xor_transform
 from tortoise.contrib import test
 from tortoise.contrib.test import finalizer, initializer
 
-from article.factories import ArticleFactory
+from article.factories import ArticleFactory, UserFactory
 from article.models import Article, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -98,3 +98,20 @@ class FactoriesTestCase(test.TestCase):
             articles = ArticleFactory.create_batch(5)
             self.assertEqual(len(articles), 5)
             self.assertIsInstance(articles[0], Article)
+
+    def test_pre_save_and_post_save(self) -> None:
+        """Test PreSave and PostSave."""
+        user = UserFactory(is_staff=True, is_active=True)
+        self.assertEqual(
+            xor_transform(user.password),
+            "test1234",
+        )
+
+        async def get_first_group_name():
+            first_group = await user.groups.all().first()
+            if first_group:
+                return first_group.name
+            return None
+
+        group_name = run_async_in_thread(get_first_group_name())
+        self.assertEqual(group_name, "TestGroup1234")
