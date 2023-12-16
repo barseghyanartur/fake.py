@@ -1952,68 +1952,6 @@ class ModelFactory:
 
         return instance
 
-    # @classmethod
-    # def create(cls, **kwargs):
-    #     model = cls.Meta.model  # type: ignore
-    #
-    #     trait_keys = {
-    #         name
-    #         for name, method in cls.__dict__.items()
-    #         if getattr(method, "is_trait", False)
-    #     }
-    #
-    #    model_data = {
-    #        field: (
-    #            value()
-    #            if isinstance(
-    #                value,
-    #                (FactoryMethod, SubFactory, LazyFunction),
-    #            )
-    #            else value
-    #        )
-    #         for field, value in cls.__dict__.items()
-    #         if (
-    #             not field.startswith("_")
-    #             and not field == "Meta"
-    #             and not getattr(value, "is_trait", False)
-    #             and not getattr(value, "is_pre_save", False)
-    #             and not getattr(value, "is_post_save", False)
-    #         )
-    #     }
-    #
-    #     # Update model_data with non-trait kwargs
-    #     model_data.update(
-    #         {k: v for k, v in kwargs.items() if k not in trait_keys}
-    #     )
-    #
-    #     # Create a new instance
-    #     instance = model(**model_data)
-    #
-    #
-    #     # Apply traits
-    #     cls._apply_traits(instance, **kwargs)
-    #
-    #     # Apply LazyAttribute values
-    #     cls._apply_lazy_attributes(instance, model_data)
-    #
-    #     pre_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_pre_save", False)
-    #     ]
-    #     cls._run_hooks(pre_save_hooks, instance)
-    #
-    #     cls.save(instance)
-    #
-    #     post_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_post_save", False)
-    #     ]
-    #     cls._run_hooks(post_save_hooks, instance)
-    #
-    #     return instance
-
     @classmethod
     def create_batch(cls, count, **kwargs):
         return [cls.create(**kwargs) for _ in range(count)]
@@ -2162,86 +2100,6 @@ class DjangoModelFactory(ModelFactory):
         cls._run_hooks(post_save_hooks, instance)
 
         return instance
-
-    # @classmethod
-    # def create(cls, **kwargs):
-    #     model = cls.Meta.model  # type: ignore
-    #     unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
-    #
-    #     # Construct a query for unique fields
-    #     query = {
-    #         field: kwargs[field] for field in unique_fields if field in kwargs
-    #     }
-    #
-    #     # Try to get an existing instance
-    #     if query:
-    #         instance = model.objects.filter(**query).first()
-    #         if instance:
-    #             return instance
-    #
-    #     model_data = {
-    #         field: value
-    #         for field, value in cls.__dict__.items()
-    #         if (
-    #             not field.startswith("_")
-    #             and not field == "Meta"
-    #             and not getattr(value, "is_trait", False)
-    #             and not getattr(value, "is_pre_save", False)
-    #             and not getattr(value, "is_post_save", False)
-    #         )
-    #     }
-    #
-    #     # Separate nested attributes and direct attributes
-    #     nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
-    #     direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
-    #
-    #     # Update direct attributes with callable results
-    #     for field, value in model_data.items():
-    #         if isinstance(value, (FactoryMethod, SubFactory)):
-    #             model_data[field] = (
-    #                 value()
-    #                 if field not in direct_attrs
-    #                 else direct_attrs[field]
-    #             )
-    #
-    #     # Create a new instance if none found
-    #     instance = model(**model_data)
-    #
-    #     # Apply traits
-    #     cls._apply_traits(instance, **kwargs)
-    #
-    #     # Apply LazyAttribute values
-    #     cls._apply_lazy_attributes(instance, model_data)
-    #
-    #     # Handle nested attributes
-    #     for attr, value in nested_attrs.items():
-    #         field_name, nested_attr = attr.split("__", 1)
-    #         if isinstance(getattr(cls, field_name, None), SubFactory):
-    #             related_instance = getattr(
-    #                 cls, field_name
-    #             ).factory_class.create(**{nested_attr: value})
-    #             setattr(instance, field_name, related_instance)
-    #
-    #     # Run pre-save hooks
-    #     pre_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_pre_save", False)
-    #     ]
-    #     cls._run_hooks(pre_save_hooks, instance)
-    #
-    #     # Save instance
-    #     cls.save(instance)
-    #
-    #     # Run post-save hooks
-    #     post_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_post_save", False)
-    #     ]
-    #     cls._run_hooks(post_save_hooks, instance)
-    #
-    #     return instance
 
 
 def run_async_in_thread(coroutine):
@@ -2409,96 +2267,6 @@ class TortoiseModelFactory(ModelFactory):
 
         return instance
 
-    # @classmethod
-    # def create(cls, **kwargs):
-    #     model = cls.Meta.model  # type: ignore
-    #     unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
-    #
-    #     # Construct a query for unique fields
-    #     query = {
-    #         field: kwargs[field] for field in unique_fields if field in kwargs
-    #     }
-    #
-    #     # Try to get an existing instance
-    #     if query:
-    #
-    #         async def async_filter():
-    #             return await model.filter(**query).first()
-    #
-    #         instance = run_async_in_thread(async_filter())
-    #
-    #         if instance:
-    #             return instance
-    #
-    #     model_data = {
-    #         field: value
-    #         for field, value in cls.__dict__.items()
-    #         if (
-    #             not field.startswith("_")
-    #             and not field == "Meta"
-    #             and not getattr(value, "is_trait", False)
-    #             and not getattr(value, "is_pre_save", False)
-    #             and not getattr(value, "is_post_save", False)
-    #         )
-    #     }
-    #
-    #     # Separate nested attributes and direct attributes
-    #     nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
-    #     direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
-    #
-    #     # Update direct attributes with callable results
-    #     for field, value in model_data.items():
-    #         if isinstance(value, (FactoryMethod, SubFactory)):
-    #             model_data[field] = (
-    #                 value()
-    #                 if field not in direct_attrs
-    #                 else direct_attrs[field]
-    #             )
-    #
-    #     # Create a new instance if none found
-    #     instance = model(**model_data)
-    #
-    #     # Apply traits
-    #     cls._apply_traits(instance, **kwargs)
-    #
-    #     # Apply LazyAttribute values
-    #     cls._apply_lazy_attributes(instance, model_data)
-    #
-    #     # Handle nested attributes
-    #     for attr, value in nested_attrs.items():
-    #         field_name, nested_attr = attr.split("__", 1)
-    #         if isinstance(getattr(cls, field_name, None), SubFactory):
-    #             async def async_related_instance():
-    #                 return getattr(cls, field_name).factory_class.create(
-    #                     **{nested_attr: value}
-    #                 )
-    #
-    #             related_instance = run_async_in_thread(
-    #                 async_related_instance(),
-    #             )
-    #             setattr(instance, field_name, related_instance)
-    #
-    #     # Run pre-save hooks
-    #     pre_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_pre_save", False)
-    #     ]
-    #     cls._run_hooks(pre_save_hooks, instance)
-    #
-    #     # Save instance
-    #     cls.save(instance)
-    #
-    #     # Run post-save hooks
-    #     post_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_post_save", False)
-    #     ]
-    #     cls._run_hooks(post_save_hooks, instance)
-    #
-    #     return instance
-
 
 class SQLAlchemyModelFactory(ModelFactory):
     """SQLAlchemy ModelFactory."""
@@ -2637,87 +2405,6 @@ class SQLAlchemyModelFactory(ModelFactory):
 
         return instance
 
-    # @classmethod
-    # def create(cls, **kwargs):
-    #     session = cls.MetaSQLAlchemy.get_session()  # type: ignore
-    #
-    #     model = cls.Meta.model  # type: ignore
-    #     unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
-    #
-    #     # Check for existing instance
-    #     if unique_fields:
-    #         query_kwargs = {
-    #             field: kwargs.get(field) for field in unique_fields
-    #         }
-    #         instance = session.query(model).filter_by(**query_kwargs).first()
-    #         if instance:
-    #             return instance
-    #
-    #     # Construct model_data from class attributes
-    #     model_data = {
-    #         field: value
-    #         for field, value in cls.__dict__.items()
-    #         if (
-    #             not field.startswith("_")
-    #             and not field.startswith("Meta")
-    #             and not getattr(value, "is_trait", False)
-    #             and not getattr(value, "is_pre_save", False)
-    #             and not getattr(value, "is_post_save", False)
-    #         )
-    #     }
-    #
-    #     # Separate nested attributes and direct attributes
-    #     nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
-    #     direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
-    #
-    #     # Update direct attributes with callable results
-    #     for field, value in model_data.items():
-    #         if isinstance(value, (FactoryMethod, SubFactory)):
-    #             model_data[field] = (
-    #                 value()
-    #                 if field not in direct_attrs
-    #                 else direct_attrs[field]
-    #             )
-    #
-    #     # Create a new instance
-    #     instance = model(**model_data)
-    #
-    #     # Apply traits
-    #     cls._apply_traits(instance, **kwargs)
-    #
-    #     # Apply LazyAttribute values
-    #     cls._apply_lazy_attributes(instance, model_data)
-    #
-    #     # Handle nested attributes
-    #     for attr, value in nested_attrs.items():
-    #         field_name, nested_attr = attr.split("__", 1)
-    #         if isinstance(getattr(cls, field_name, None), SubFactory):
-    #             related_instance = getattr(
-    #                 cls, field_name
-    #             ).factory_class.create(**{nested_attr: value})
-    #             setattr(instance, field_name, related_instance)
-    #
-    #     # Run pre-save hooks
-    #     pre_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_pre_save", False)
-    #     ]
-    #     cls._run_hooks(pre_save_hooks, instance)
-    #
-    #     # Save instance
-    #     cls.save(instance)
-    #
-    #     # Run post-save hooks
-    #     post_save_hooks = [
-    #         method
-    #         for method in dir(cls)
-    #         if getattr(getattr(cls, method), "is_post_save", False)
-    #     ]
-    #     cls._run_hooks(post_save_hooks, instance)
-    #
-    #     return instance
-
 
 # ************************************************
 # ******************* Internal *******************
@@ -2841,7 +2528,14 @@ class PydanticDataFiller(BaseDataFiller):
 
     @classmethod
     def fill(cls, object_type: Type) -> object:
+        if not (
+            hasattr(object_type, "__fields__")
+            and hasattr(object_type, "Config")
+        ):
+            raise ValueError("The provided type must be a Pydantic model")
+
         type_hints = get_type_hints(object_type)
+
         kwargs = {}
         for field_name, field_type in type_hints.items():
             # Check for Pydantic's default_factory
@@ -3472,6 +3166,40 @@ class TestFaker(unittest.TestCase):
         # ********* Models ********
         # *************************
 
+        class MockPydanticField:
+            """Mock field simulating a Pydantic model field."""
+
+            def __init__(self, type, default_factory):
+                self.type = type
+                self.default_factory = default_factory
+
+        class MockPydanticModel:
+            """Mock class simulating a Pydantic model."""
+
+            # Adjusting __fields__ to mimic Pydantic's structure
+            __fields__ = {
+                "id": MockPydanticField(int, lambda: 1),
+                "name": MockPydanticField(str, lambda: "default"),
+                "is_active": MockPydanticField(bool, lambda: True),
+                "created_at": MockPydanticField(datetime, datetime.now),
+                "optional_field": MockPydanticField(
+                    Optional[str], lambda: None
+                ),
+            }
+
+            class Config:
+                arbitrary_types_allowed = True
+
+            id: int
+            name: str
+            is_active: bool
+            created_at: datetime
+            optional_field: Optional[str] = None
+
+            def __init__(self, **kwargs):
+                for name, value in kwargs.items():
+                    setattr(self, name, value)
+
         class DjangoQuerySet(list):
             """Mimicking Django QuerySet class."""
 
@@ -3553,6 +3281,16 @@ class TestFaker(unittest.TestCase):
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(instance=fill_dataclass(cls))
+
+        with self.subTest("fill_pydantic_model on dataclass"):
+            with self.assertRaises(ValueError):
+                _article = fill_pydantic_model(Article)
+
+        with self.subTest("fill_pydantic_model"):
+            _obj = fill_pydantic_model(MockPydanticModel)
+
+        with self.subTest("fill_dataclass"):
+            _article = fill_dataclass(Article)
 
         # ****************************
         # *********** Other **********
