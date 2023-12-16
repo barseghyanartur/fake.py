@@ -17,7 +17,7 @@ import zlib
 from abc import abstractmethod
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from functools import partial
@@ -26,6 +26,7 @@ from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
 from typing import (
     Any,
+    Callable,
     Dict,
     List,
     Literal,
@@ -35,10 +36,13 @@ from typing import (
     Tuple,
     Type,
     Union,
+    get_args,
+    get_origin,
+    get_type_hints,
 )
 
 __title__ = "fake.py"
-__version__ = "0.6.3"
+__version__ = "0.6.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
@@ -56,16 +60,20 @@ __all__ = (
     "FileRegistry",
     "FileSystemStorage",
     "GraphicPdfGenerator",
-    "MetaData",
-    "ModelFactory",
     "LazyAttribute",
     "LazyFunction",
+    "MetaData",
+    "ModelFactory",
     "PROVIDER_REGISTRY",
-    "StringValue",
+    "PostSave",
+    "PreSave",
     "SQLAlchemyModelFactory",
+    "StringValue",
     "SubFactory",
     "TextPdfGenerator",
     "TortoiseModelFactory",
+    "fill_dataclass",
+    "fill_pydantic_model",
     "post_save",
     "pre_save",
     "provider",
@@ -74,6 +82,10 @@ __all__ = (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+# ************************************************
+# ******************* Public *********************
+# ************************************************
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -1794,6 +1806,26 @@ class LazyFunction:
         return self.func()
 
 
+class PreSave:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, instance):
+        self.func(instance, *self.args, **self.kwargs)
+
+
+class PostSave:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, instance):
+        self.func(instance, *self.args, **self.kwargs)
+
+
 class ModelFactory:
     """ModelFactory."""
 
@@ -1831,10 +1863,10 @@ class ModelFactory:
 
     @classmethod
     def _apply_lazy_attributes(cls, instance, model_data):
-        for field, value in model_data.items():
+        for _field, value in model_data.items():
             if isinstance(value, LazyAttribute):
                 # Trigger computation and setting of the attribute
-                setattr(instance, field, value.__get__(instance, cls))
+                setattr(instance, _field, value.__get__(instance, cls))
 
     @classmethod
     def create(cls, **kwargs):
@@ -1845,25 +1877,43 @@ class ModelFactory:
             if getattr(method, "is_trait", False)
         }
 
-        model_data = {
-            field: (
-                value()
-                if isinstance(value, (FactoryMethod, SubFactory, LazyFunction))
-                else value
-            )
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field == "Meta"
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
-        # Update model_data with non-trait kwargs
-        model_data.update(
-            {k: v for k, v in kwargs.items() if k not in trait_keys}
-        )
+        # Collect PreSave, PostSave methods and prepare model data
+        pre_save_methods = {}
+        post_save_methods = {}
+        model_data = {}
+        for _field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[_field] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[_field] = value
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
+                )
+            ):
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[_field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave from
+        # kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance
         instance = model(**model_data)
@@ -1874,6 +1924,11 @@ class ModelFactory:
         # Apply LazyAttribute values
         cls._apply_lazy_attributes(instance, model_data)
 
+        # Execute PreSave methods
+        for __pre_save_method in pre_save_methods.values():
+            __pre_save_method.execute(instance)
+
+        # Pre-save hooks
         pre_save_hooks = [
             method
             for method in dir(cls)
@@ -1881,8 +1936,14 @@ class ModelFactory:
         ]
         cls._run_hooks(pre_save_hooks, instance)
 
+        # Save the instance
         cls.save(instance)
 
+        # Execute PostSave methods
+        for __post_save_method in post_save_methods.values():
+            __post_save_method.execute(instance)
+
+        # Post-save hooks
         post_save_hooks = [
             method
             for method in dir(cls)
@@ -1916,9 +1977,17 @@ class DjangoModelFactory(ModelFactory):
         model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         # Construct a query for unique fields
         query = {
-            field: kwargs[field] for field in unique_fields if field in kwargs
+            _field: kwargs[_field]
+            for _field in unique_fields
+            if _field in kwargs
         }
 
         # Try to get an existing instance
@@ -1927,30 +1996,64 @@ class DjangoModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        model_data = {
-            field: value
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field == "Meta"
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
+        # Collect PreSave methods and prepare model data
+        pre_save_methods = {}
+        post_save_methods = {}
+        model_data = {}
+        for _field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[_field] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[_field] = value
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
+                )
+            ):
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[_field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
         direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
 
         # Update direct attributes with callable results
-        for field, value in model_data.items():
+        for _field, value in model_data.items():
             if isinstance(value, (FactoryMethod, SubFactory)):
-                model_data[field] = (
+                model_data[_field] = (
                     value()
-                    if field not in direct_attrs
-                    else direct_attrs[field]
+                    if _field not in direct_attrs
+                    else direct_attrs[_field]
                 )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # and PostSave from direct_attrs.
+        for key, value in direct_attrs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -1970,6 +2073,10 @@ class DjangoModelFactory(ModelFactory):
                 ).factory_class.create(**{nested_attr: value})
                 setattr(instance, field_name, related_instance)
 
+        # Execute PreSave methods
+        for __pre_save_method in pre_save_methods.values():
+            __pre_save_method.execute(instance)
+
         # Run pre-save hooks
         pre_save_hooks = [
             method
@@ -1980,6 +2087,10 @@ class DjangoModelFactory(ModelFactory):
 
         # Save instance
         cls.save(instance)
+
+        # Execute PostSave methods
+        for __post_save_method in post_save_methods.values():
+            __post_save_method.execute(instance)
 
         # Run post-save hooks
         post_save_hooks = [
@@ -2024,9 +2135,17 @@ class TortoiseModelFactory(ModelFactory):
         model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         # Construct a query for unique fields
         query = {
-            field: kwargs[field] for field in unique_fields if field in kwargs
+            _field: kwargs[_field]
+            for _field in unique_fields
+            if _field in kwargs
         }
 
         # Try to get an existing instance
@@ -2036,34 +2155,67 @@ class TortoiseModelFactory(ModelFactory):
                 return await model.filter(**query).first()
 
             instance = run_async_in_thread(async_filter())
-
             if instance:
                 return instance
 
-        model_data = {
-            field: value
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field == "Meta"
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
+        # Collect PreSave, PostSave methods and prepare model data
+        pre_save_methods = {}
+        post_save_methods = {}
+        model_data = {}
+        for _field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[_field] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[_field] = value
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
+                )
+            ):
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[_field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # and PostSave from kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
         direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
 
         # Update direct attributes with callable results
-        for field, value in model_data.items():
+        for _field, value in model_data.items():
             if isinstance(value, (FactoryMethod, SubFactory)):
-                model_data[field] = (
+                model_data[_field] = (
                     value()
-                    if field not in direct_attrs
-                    else direct_attrs[field]
+                    if _field not in direct_attrs
+                    else direct_attrs[_field]
                 )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from direct_attrs.
+        for key, value in direct_attrs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -2087,6 +2239,10 @@ class TortoiseModelFactory(ModelFactory):
                 related_instance = run_async_in_thread(async_related_instance())
                 setattr(instance, field_name, related_instance)
 
+        # Execute PreSave methods
+        for __pre_save_method in pre_save_methods.values():
+            __pre_save_method.execute(instance)
+
         # Run pre-save hooks
         pre_save_hooks = [
             method
@@ -2097,6 +2253,10 @@ class TortoiseModelFactory(ModelFactory):
 
         # Save instance
         cls.save(instance)
+
+        # Execute PostSave methods
+        for __post_save_method in post_save_methods.values():
+            __post_save_method.execute(instance)
 
         # Run post-save hooks
         post_save_hooks = [
@@ -2125,38 +2285,79 @@ class SQLAlchemyModelFactory(ModelFactory):
         model = cls.Meta.model  # type: ignore
         unique_fields = cls._meta.get("get_or_create", ["id"])  # type: ignore
 
+        trait_keys = {
+            name
+            for name, method in cls.__dict__.items()
+            if getattr(method, "is_trait", False)
+        }
+
         # Check for existing instance
         if unique_fields:
-            query_kwargs = {field: kwargs.get(field) for field in unique_fields}
+            query_kwargs = {
+                _field: kwargs.get(_field) for _field in unique_fields
+            }
             instance = session.query(model).filter_by(**query_kwargs).first()
             if instance:
                 return instance
 
-        # Construct model_data from class attributes
-        model_data = {
-            field: value
-            for field, value in cls.__dict__.items()
-            if (
-                not field.startswith("_")
-                and not field.startswith("Meta")
-                and not getattr(value, "is_trait", False)
-                and not getattr(value, "is_pre_save", False)
-                and not getattr(value, "is_post_save", False)
-            )
-        }
+        # Collect PreSave, PostSave methods and prepare model data
+        pre_save_methods = {}
+        post_save_methods = {}
+        model_data = {}
+        for _field, value in cls.__dict__.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[_field] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[_field] = value
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
+                )
+            ):
+                if (
+                    not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_save", False)
+                    and not getattr(value, "is_post_save", False)
+                ):
+                    model_data[_field] = (
+                        value()
+                        if isinstance(
+                            value, (FactoryMethod, SubFactory, LazyFunction)
+                        )
+                        else value
+                    )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from kwargs.
+        for key, value in kwargs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
 
         # Separate nested attributes and direct attributes
         nested_attrs = {k: v for k, v in kwargs.items() if "__" in k}
         direct_attrs = {k: v for k, v in kwargs.items() if "__" not in k}
 
         # Update direct attributes with callable results
-        for field, value in model_data.items():
+        for _field, value in model_data.items():
             if isinstance(value, (FactoryMethod, SubFactory)):
-                model_data[field] = (
+                model_data[_field] = (
                     value()
-                    if field not in direct_attrs
-                    else direct_attrs[field]
+                    if _field not in direct_attrs
+                    else direct_attrs[_field]
                 )
+
+        # Update model_data with non-trait kwargs and collect PreSave
+        # from direct_attrs.
+        for key, value in direct_attrs.items():
+            if isinstance(value, PreSave):
+                pre_save_methods[key] = value
+            elif isinstance(value, PostSave):
+                post_save_methods[key] = value
+            elif key not in trait_keys and key not in pre_save_methods:
+                model_data[key] = value
 
         # Create a new instance
         instance = model(**model_data)
@@ -2176,6 +2377,10 @@ class SQLAlchemyModelFactory(ModelFactory):
                 ).factory_class.create(**{nested_attr: value})
                 setattr(instance, field_name, related_instance)
 
+        # Execute PreSave methods
+        for __pre_save_method in pre_save_methods.values():
+            __pre_save_method.execute(instance)
+
         # Run pre-save hooks
         pre_save_hooks = [
             method
@@ -2186,6 +2391,10 @@ class SQLAlchemyModelFactory(ModelFactory):
 
         # Save instance
         cls.save(instance)
+
+        # Execute PostSave methods
+        for __post_save_method in post_save_methods.values():
+            __post_save_method.execute(instance)
 
         # Run post-save hooks
         post_save_hooks = [
@@ -2198,6 +2407,11 @@ class SQLAlchemyModelFactory(ModelFactory):
         return instance
 
 
+# ************************************************
+# ******************* Internal *******************
+# ************************************************
+
+
 # TODO: Remove once Python 3.8 support is dropped
 class ClassProperty(property):
     """ClassProperty."""
@@ -2208,6 +2422,152 @@ class ClassProperty(property):
 
 
 classproperty = ClassProperty
+
+
+def xor_transform(val: str, key: int = 10) -> str:
+    """Simple, deterministic string encoder/decoder.
+
+    Usage example:
+
+    .. code-block:: python
+
+        val = "abcd"
+        encoded_val = xor_transform(val)
+        decoded_val = xor_transform(encoded_val)
+    """
+    return "".join(chr(ord(__c) ^ key) for __c in val)
+
+
+class BaseDataFiller:
+    TYPE_TO_PROVIDER = {
+        bool: FAKER.pybool,
+        int: FAKER.pyint,
+        str: FAKER.pystr,
+        datetime: FAKER.date_time,
+        date: FAKER.date,
+        float: FAKER.pyfloat,
+        Decimal: FAKER.pydecimal,
+    }
+
+    FIELD_NAME_TO_PROVIDER = {
+        "name": FAKER.word,
+        "title": FAKER.sentence,
+        "slug": FAKER.slug,
+        "content": FAKER.text,
+        "category": FAKER.word,
+        "username": FAKER.username,
+        "email": FAKER.email,
+        "headline": FAKER.sentence,
+        "first_name": FAKER.first_name,
+        "last_name": FAKER.last_name,
+    }
+
+    @classmethod
+    def get_provider_for_field_name(cls, field_name) -> Optional[Callable]:
+        return BaseDataFiller.FIELD_NAME_TO_PROVIDER.get(field_name)
+
+
+class DataclassDataFiller(BaseDataFiller):
+    @classmethod
+    def get_provider_for_type(cls, field_type) -> Optional[Callable]:
+        """Get provider function for the type given."""
+        # Extract the base type from Optional
+        if get_origin(field_type) is Optional:
+            field_type = get_args(field_type)[0]
+        return cls.TYPE_TO_PROVIDER.get(field_type)
+
+    @classmethod
+    def fill(cls, dataclass_type: Type) -> object:
+        """Fill dataclass with data."""
+        if not is_dataclass(dataclass_type):
+            raise ValueError("The provided type must be a dataclass")
+
+        kwargs = {}
+        for _field in fields(dataclass_type):
+            provider_func = cls.get_provider_for_field_name(_field.name)
+            if not provider_func:
+                if is_dataclass(_field.type):
+                    # Recursive call for nested dataclass
+                    def provider_func():
+                        return cls.fill(_field.type)
+
+                else:
+                    provider_func = cls.get_provider_for_type(_field.type)
+
+            if provider_func:
+                kwargs[_field.name] = provider_func()
+            else:
+                # Skip if no provider function is defined
+                continue
+
+        return dataclass_type(**kwargs)
+
+
+fill_dataclass = DataclassDataFiller.fill
+
+
+class PydanticDataFiller(BaseDataFiller):
+    @classmethod
+    def get_provider_for_type(cls, field_type) -> Optional[Callable]:
+        if isinstance(field_type, type) and issubclass(
+            field_type, (list, dict, set)
+        ):
+            return None
+        if (
+            hasattr(field_type, "__origin__")
+            and field_type.__origin__ is Optional
+        ):
+            field_type = field_type.__args__[0]
+        return cls.TYPE_TO_PROVIDER.get(field_type)
+
+    @classmethod
+    def is_class_type(cls, type_hint):
+        return isinstance(type_hint, type) and not any(
+            issubclass(type_hint, primitive)
+            for primitive in (int, str, float, bool, Decimal)
+        )
+
+    @classmethod
+    def fill(cls, object_type: Type) -> object:
+        if not (
+            hasattr(object_type, "__fields__")
+            and hasattr(object_type, "Config")
+        ):
+            raise ValueError("The provided type must be a Pydantic model")
+
+        type_hints = get_type_hints(object_type)
+
+        kwargs = {}
+        for field_name, field_type in type_hints.items():
+            # Check for Pydantic's default_factory
+            default_factory = getattr(
+                object_type.__fields__[field_name], "default_factory", None
+            )
+            if default_factory is not None:
+                kwargs[field_name] = default_factory()
+                continue
+
+            provider_func = cls.get_provider_for_field_name(field_name)
+
+            if not provider_func:
+                if cls.is_class_type(field_type):
+                    kwargs[field_name] = cls.fill(field_type)
+                else:
+                    provider_func = cls.get_provider_for_type(field_type)
+                    if provider_func:
+                        kwargs[field_name] = provider_func()
+                    else:
+                        continue
+            else:
+                kwargs[field_name] = provider_func()
+        return object_type(**kwargs)
+
+
+fill_pydantic_model = PydanticDataFiller.fill
+
+# ************************************************
+# ******************** Tests *********************
+# ************************************************
 
 
 class TestFaker(unittest.TestCase):
@@ -2807,6 +3167,40 @@ class TestFaker(unittest.TestCase):
         # ********* Models ********
         # *************************
 
+        class MockPydanticField:
+            """Mock field simulating a Pydantic model field."""
+
+            def __init__(self, type, default_factory):
+                self.type = type
+                self.default_factory = default_factory
+
+        class MockPydanticModel:
+            """Mock class simulating a Pydantic model."""
+
+            # Adjusting __fields__ to mimic Pydantic's structure
+            __fields__ = {
+                "id": MockPydanticField(int, lambda: 1),
+                "name": MockPydanticField(str, lambda: "default"),
+                "is_active": MockPydanticField(bool, lambda: True),
+                "created_at": MockPydanticField(datetime, datetime.now),
+                "optional_field": MockPydanticField(
+                    Optional[str], lambda: None
+                ),
+            }
+
+            class Config:
+                arbitrary_types_allowed = True
+
+            id: int
+            name: str
+            is_active: bool
+            created_at: datetime
+            optional_field: Optional[str] = None
+
+            def __init__(self, **kwargs):
+                for name, value in kwargs.items():
+                    setattr(self, name, value)
+
         class DjangoQuerySet(list):
             """Mimicking Django QuerySet class."""
 
@@ -2826,6 +3220,11 @@ class TestFaker(unittest.TestCase):
             def filter(self, *args, **kwargs) -> "DjangoQuerySet":
                 return DjangoQuerySet(instance=self.instance)
 
+        @dataclass(frozen=True)
+        class Group:
+            id: int
+            name: str
+
         @dataclass
         class User:
             """User model."""
@@ -2835,33 +3234,27 @@ class TestFaker(unittest.TestCase):
             first_name: str
             last_name: str
             email: str
-            last_login: Optional[datetime]
-            date_joined: Optional[datetime]
+            date_joined: datetime = field(default_factory=datetime.utcnow)
+            last_login: Optional[datetime] = None
             password: Optional[str] = None
             is_superuser: bool = False
             is_staff: bool = False
             is_active: bool = True
+            groups: Set[Group] = field(default_factory=set)
 
             def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True  # noqa
+
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
 
             # TODO: Remove once Python 3.8 support is dropped
             #  and replace with @classmethod @property combo.
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return DjangoManager(
-                    instance=cls(  # type: ignore
-                        id=FAKER.pyint(),
-                        username=FAKER.username(),
-                        first_name=FAKER.first_name(),
-                        last_name=FAKER.last_name(),
-                        email=FAKER.email(),
-                        last_login=FAKER.date_time(),
-                        date_joined=FAKER.date_time(),
-                    )
-                )
+                return DjangoManager(instance=fill_dataclass(cls))
 
         @dataclass
         class Article:
@@ -2875,7 +3268,7 @@ class TestFaker(unittest.TestCase):
             image: Optional[
                 str
             ] = None  # Use str to represent the image path or URL
-            pub_date: datetime = datetime.now()
+            pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
 
@@ -2888,25 +3281,17 @@ class TestFaker(unittest.TestCase):
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return DjangoManager(
-                    instance=cls(  # type: ignore
-                        id=FAKER.pyint(),
-                        title=FAKER.word(),
-                        slug=FAKER.slug(),
-                        content=FAKER.text(),
-                        headline=FAKER.sentence(),
-                        category=random.choice(categories),
-                        author=User(
-                            id=FAKER.pyint(),
-                            username=FAKER.username(),
-                            first_name=FAKER.first_name(),
-                            last_name=FAKER.last_name(),
-                            email=FAKER.email(),
-                            last_login=FAKER.date_time(),
-                            date_joined=FAKER.date_time(),
-                        ),
-                    )
-                )
+                return DjangoManager(instance=fill_dataclass(cls))
+
+        with self.subTest("fill_pydantic_model on dataclass"):
+            with self.assertRaises(ValueError):
+                _article = fill_pydantic_model(Article)
+
+        with self.subTest("fill_pydantic_model"):
+            _obj = fill_pydantic_model(MockPydanticModel)
+
+        with self.subTest("fill_dataclass"):
+            _article = fill_dataclass(Article)
 
         # ****************************
         # *********** Other **********
@@ -2920,11 +3305,27 @@ class TestFaker(unittest.TestCase):
         # ****************************
         # ******* ModelFactory *******
         # ****************************
+
+        def set_password(user: Any, password: str) -> None:
+            user.set_password(password)
+
+        def add_to_group(user: Any, name: str) -> None:
+            group = GroupFactory(name=name)
+            user.groups.add(group)
+
         categories = (
             "art",
             "technology",
             "literature",
         )
+
+        class GroupFactory(ModelFactory):
+            id = FACTORY.pyint()  # type: ignore
+            name = FACTORY.word()  # type: ignore
+
+            class Meta:
+                model = Group
+                get_or_create = ("name",)
 
         class UserFactory(ModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -2937,6 +3338,8 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="test1234")
+            group = PostSave(add_to_group, name="TestGroup1234")
 
             class Meta:
                 model = User
@@ -2974,46 +3377,65 @@ class TestFaker(unittest.TestCase):
                 model = Article
 
         with self.subTest("ModelFactory"):
-            article = ArticleFactory()
+            _article = ArticleFactory()
 
             # Testing SubFactory
-            self.assertIsInstance(article.author, User)
-            self.assertIsInstance(article.author.id, int)  # type: ignore
+            self.assertIsInstance(_article.author, User)
+            self.assertIsInstance(_article.author.id, int)  # type: ignore
             self.assertIsInstance(
-                article.author.is_staff,  # type: ignore
+                _article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                article.author.date_joined,  # type: ignore
+                _article.author.date_joined,  # type: ignore
                 datetime,
             )
 
             # Testing LazyFunction
-            self.assertIn(article.category, categories)
+            self.assertIn(_article.category, categories)
 
             # Testing LazyAttribute
-            self.assertIn(article.headline, article.content)
+            self.assertIn(_article.headline, _article.content)
 
             # Testing Factory
-            self.assertIsInstance(article.id, int)
-            self.assertIsInstance(article.slug, str)
+            self.assertIsInstance(_article.id, int)
+            self.assertIsInstance(_article.slug, str)
 
             # Testing hooks
-            user = article.author
+            _user = _article.author
             self.assertTrue(
-                hasattr(user, "pre_save_called") and user.pre_save_called
+                hasattr(_user, "pre_save_called") and _user.pre_save_called
             )
             self.assertTrue(
-                hasattr(user, "post_save_called") and user.post_save_called
+                hasattr(_user, "post_save_called") and _user.post_save_called
             )
 
+            # Testing get_or_create for Article model
+            _article = ArticleFactory(id=1)
+            self.assertIsInstance(_article, Article)
+            self.assertEqual(_article.id, 1)
+
             # Testing traits
-            admin_user = UserFactory(is_admin_user=True)
+            _admin_user = UserFactory(is_admin_user=True)
             self.assertTrue(
-                admin_user.is_staff
-                and admin_user.is_superuser
-                and admin_user.is_active
+                _admin_user.is_staff
+                and _admin_user.is_superuser
+                and _admin_user.is_active
             )
+
+            # Testing PreSave
+            self.assertEqual(xor_transform(_user.password), "test1234")
+            _user = UserFactory(
+                password=PreSave(set_password, password="1234test")
+            )
+            self.assertEqual(xor_transform(_user.password), "1234test")
+
+            # Testing PostSave
+            self.assertEqual(list(_user.groups)[0].name, "TestGroup1234")
+            _user = UserFactory(
+                group=PostSave(add_to_group, name="1234TestGroup")
+            )
+            self.assertEqual(list(_user.groups)[0].name, "1234TestGroup")
 
         # **********************************
         # ******* DjangoModelFactory *******
@@ -3030,6 +3452,8 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="jest1234")
+            group = PostSave(add_to_group, name="JestGroup1234")
 
             class Meta:
                 model = User
@@ -3077,17 +3501,20 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         with self.subTest("DjangoModelFactory"):
-            django_article = DjangoArticleFactory(author__username="admin")
+            _django_article = DjangoArticleFactory(author__username="admin")
 
             # Testing SubFactory
-            self.assertIsInstance(django_article.author, User)
-            self.assertIsInstance(django_article.author.id, int)  # type: ignore
+            self.assertIsInstance(_django_article.author, User)
             self.assertIsInstance(
-                django_article.author.is_staff,  # type: ignore
+                _django_article.author.id,  # type: ignore
+                int,
+            )
+            self.assertIsInstance(
+                _django_article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                django_article.author.date_joined,  # type: ignore
+                _django_article.author.date_joined,  # type: ignore
                 datetime,
             )
             # Since we're mimicking Django's behaviour, the following line would
@@ -3096,31 +3523,50 @@ class TestFaker(unittest.TestCase):
             # self.assertEqual(django_article.author.username, "admin")
 
             # Testing Factory
-            self.assertIsInstance(django_article.id, int)
-            self.assertIsInstance(django_article.slug, str)
+            self.assertIsInstance(_django_article.id, int)
+            self.assertIsInstance(_django_article.slug, str)
 
             # Testing hooks
             self.assertTrue(
-                hasattr(django_article, "pre_save_called")
-                and django_article.pre_save_called
+                hasattr(_django_article, "pre_save_called")
+                and _django_article.pre_save_called
             )
             self.assertTrue(
-                hasattr(django_article, "post_save_called")
-                and django_article.post_save_called
+                hasattr(_django_article, "post_save_called")
+                and _django_article.post_save_called
             )
 
             # Testing batch creation
-            django_articles = DjangoArticleFactory.create_batch(5)
-            self.assertEqual(len(django_articles), 5)
-            self.assertIsInstance(django_articles[0], Article)
+            _django_articles = DjangoArticleFactory.create_batch(5)
+            self.assertEqual(len(_django_articles), 5)
+            self.assertIsInstance(_django_articles[0], Article)
+
+            # Testing get_or_create for Article model
+            _django_article = DjangoArticleFactory(id=1)
+            self.assertIsInstance(_django_article, Article)
 
             # Testing traits
-            django_admin_user = DjangoUserFactory(is_admin_user=True)
+            _django_admin_user = DjangoUserFactory(is_admin_user=True)
             self.assertTrue(
-                django_admin_user.is_staff
-                and django_admin_user.is_superuser
-                and django_admin_user.is_active
+                _django_admin_user.is_staff
+                and _django_admin_user.is_superuser
+                and _django_admin_user.is_active
             )
+
+            # Testing PreSave
+            _django_user = DjangoUserFactory()
+            self.assertEqual(xor_transform(_django_user.password), "jest1234")
+            _django_user = DjangoUserFactory(
+                password=PreSave(set_password, password="1234jest")
+            )
+            self.assertEqual(xor_transform(_django_user.password), "1234jest")
+
+            # Testing PostSave
+            self.assertEqual(list(_django_user.groups)[0].name, "JestGroup1234")
+            _django_user = DjangoUserFactory(
+                group=PostSave(add_to_group, name="1234JestGroup")
+            )
+            self.assertEqual(list(_django_user.groups)[0].name, "1234JestGroup")
 
         # **********************************
         # ****** TortoiseModelFactory ******
@@ -3145,6 +3591,18 @@ class TestFaker(unittest.TestCase):
                     return None
                 return self.instance
 
+        @dataclass(frozen=True)
+        class TortoiseGroup:
+            id: int
+            name: str
+
+            @classmethod
+            def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
+                return TortoiseQuerySet(instance=fill_dataclass(cls))
+
+            async def save(self, *args, **kwargs):
+                """Mimicking Django's Mode save method."""
+
         @dataclass
         class TortoiseUser:
             """User model."""
@@ -3154,26 +3612,20 @@ class TestFaker(unittest.TestCase):
             first_name: str
             last_name: str
             email: str
-            last_login: Optional[datetime]
-            date_joined: Optional[datetime]
+            date_joined: datetime = field(default_factory=datetime.utcnow)
+            last_login: Optional[datetime] = None
             password: Optional[str] = None
             is_superuser: bool = False
             is_staff: bool = False
             is_active: bool = True
+            groups: Set[TortoiseGroup] = field(default_factory=set)
+
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
 
             @classmethod
             def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
-                return TortoiseQuerySet(
-                    instance=cls(  # noqa
-                        id=FAKER.pyint(),
-                        username=FAKER.username(),
-                        first_name=FAKER.first_name(),
-                        last_name=FAKER.last_name(),
-                        email=FAKER.email(),
-                        last_login=FAKER.date_time(),
-                        date_joined=FAKER.date_time(),
-                    )
-                )
+                return TortoiseQuerySet(instance=fill_dataclass(cls))
 
             async def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
@@ -3191,35 +3643,29 @@ class TestFaker(unittest.TestCase):
             image: Optional[
                 str
             ] = None  # Use str to represent the image path or URL
-            pub_date: datetime = datetime.now()
+            pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
 
             @classmethod
             def filter(cls, *args, **kwargs) -> "TortoiseQuerySet":
-                return TortoiseQuerySet(
-                    instance=cls(  # noqa
-                        id=FAKER.pyint(),
-                        title=FAKER.word(),
-                        slug=FAKER.slug(),
-                        content=FAKER.text(),
-                        headline=FAKER.sentence(),
-                        category=random.choice(categories),
-                        author=TortoiseUser(
-                            id=FAKER.pyint(),
-                            username=FAKER.username(),
-                            first_name=FAKER.first_name(),
-                            last_name=FAKER.last_name(),
-                            email=FAKER.email(),
-                            last_login=FAKER.date_time(),
-                            date_joined=FAKER.date_time(),
-                        ),
-                    )
-                )
+                return TortoiseQuerySet(instance=fill_dataclass(cls))
 
             async def save(self, *args, **kwargs):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True  # noqa
+
+        def add_to_tortoise_group(user: Any, name: str) -> None:
+            group = TortoiseGroupFactory(name=name)
+            user.groups.add(group)
+
+        class TortoiseGroupFactory(TortoiseModelFactory):
+            id = FACTORY.pyint()  # type: ignore
+            name = FACTORY.word()  # type: ignore
+
+            class Meta:
+                model = TortoiseGroup
+                get_or_create = ("name",)
 
         class TortoiseUserFactory(TortoiseModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3232,6 +3678,8 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="tost1234")
+            group = PostSave(add_to_tortoise_group, name="TostGroup1234")
 
             class Meta:
                 model = TortoiseUser
@@ -3279,20 +3727,20 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         with self.subTest("TortoiseModelFactory"):
-            tortoise_article = TortoiseArticleFactory(author__username="admin")
+            _tortoise_article = TortoiseArticleFactory(author__username="admin")
 
             # Testing SubFactory
-            self.assertIsInstance(tortoise_article.author, TortoiseUser)
+            self.assertIsInstance(_tortoise_article.author, TortoiseUser)
             self.assertIsInstance(
-                tortoise_article.author.id,  # type: ignore
+                _tortoise_article.author.id,  # type: ignore
                 int,
             )
             self.assertIsInstance(
-                tortoise_article.author.is_staff,  # type: ignore
+                _tortoise_article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                tortoise_article.author.date_joined,  # type: ignore
+                _tortoise_article.author.date_joined,  # type: ignore
                 datetime,
             )
             # Since we're mimicking Tortoise's behaviour, the following line
@@ -3301,85 +3749,108 @@ class TestFaker(unittest.TestCase):
             # self.assertEqual(tortoise_article.author.username, "admin")
 
             # Testing Factory
-            self.assertIsInstance(tortoise_article.id, int)
-            self.assertIsInstance(tortoise_article.slug, str)
+            self.assertIsInstance(_tortoise_article.id, int)
+            self.assertIsInstance(_tortoise_article.slug, str)
 
             # Testing hooks
             self.assertTrue(
-                hasattr(tortoise_article, "pre_save_called")
-                and tortoise_article.pre_save_called
+                hasattr(_tortoise_article, "pre_save_called")
+                and _tortoise_article.pre_save_called
             )
             self.assertTrue(
-                hasattr(tortoise_article, "post_save_called")
-                and tortoise_article.post_save_called
+                hasattr(_tortoise_article, "post_save_called")
+                and _tortoise_article.post_save_called
             )
 
             # Testing batch creation
-            tortoise_articles = TortoiseArticleFactory.create_batch(5)
-            self.assertEqual(len(tortoise_articles), 5)
-            self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+            _tortoise_articles = TortoiseArticleFactory.create_batch(5)
+            self.assertEqual(len(_tortoise_articles), 5)
+            self.assertIsInstance(_tortoise_articles[0], TortoiseArticle)
+
+            # Testing get_or_create for Article model
+            _tortoise_article = TortoiseArticleFactory(id=1)
+            self.assertIsInstance(_tortoise_article, TortoiseArticle)
 
             # Testing traits
-            tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+            _tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
             self.assertTrue(
-                tortoise_admin_user.is_staff
-                and tortoise_admin_user.is_superuser
-                and tortoise_admin_user.is_active
+                _tortoise_admin_user.is_staff
+                and _tortoise_admin_user.is_superuser
+                and _tortoise_admin_user.is_active
+            )
+
+            # Testing PreSave
+            _tortoise_user = TortoiseUserFactory()
+            self.assertEqual(xor_transform(_tortoise_user.password), "tost1234")
+            _tortoise_user = TortoiseUserFactory(
+                password=PreSave(set_password, password="1234tost")
+            )
+            self.assertEqual(xor_transform(_tortoise_user.password), "1234tost")
+
+            # Testing PostSave
+            self.assertEqual(
+                list(_tortoise_user.groups)[0].name, "TostGroup1234"
+            )
+            _tortoise_user = TortoiseUserFactory(
+                group=PostSave(add_to_tortoise_group, name="1234TostGroup")
+            )
+            self.assertEqual(
+                list(_tortoise_user.groups)[0].name, "1234TostGroup"
             )
 
             # **********************************
             # ** Repeat for another condition **
             TortoiseQuerySet.return_instance_on_query_first = True
 
-            tortoise_article = TortoiseArticleFactory(author__username="admin")
-            tortoise_user = TortoiseUserFactory(username="admin")
+            _tortoise_article = TortoiseArticleFactory(author__username="admin")
+            _tortoise_user = TortoiseUserFactory(username="admin")
 
             # Testing SubFactory
-            self.assertIsInstance(tortoise_article.author, TortoiseUser)
-            self.assertIsInstance(tortoise_article, TortoiseArticle)
-            self.assertIsInstance(tortoise_user, TortoiseUser)
+            self.assertIsInstance(_tortoise_article.author, TortoiseUser)
+            self.assertIsInstance(_tortoise_article, TortoiseArticle)
+            self.assertIsInstance(_tortoise_user, TortoiseUser)
             self.assertIsInstance(
-                tortoise_article.author.id,  # type: ignore
+                _tortoise_article.author.id,  # type: ignore
                 int,
             )
             self.assertIsInstance(
-                tortoise_article.author.is_staff,  # type: ignore
+                _tortoise_article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                tortoise_article.author.date_joined,  # type: ignore
+                _tortoise_article.author.date_joined,  # type: ignore
                 datetime,
             )
             # Since we're mimicking Tortoise's behaviour, the following line
             # would fail on test, however would pass when testing against
             # real Tortoise model (as done in the examples).
-            # self.assertEqual(tortoise_article.author.username, "admin")
+            # self.assertEqual(_tortoise_article.author.username, "admin")
 
             # Testing Factory
-            self.assertIsInstance(tortoise_article.id, int)
-            self.assertIsInstance(tortoise_article.slug, str)
-            self.assertIsInstance(tortoise_user.id, int)
-            self.assertIsInstance(tortoise_user.username, str)
+            self.assertIsInstance(_tortoise_article.id, int)
+            self.assertIsInstance(_tortoise_article.slug, str)
+            self.assertIsInstance(_tortoise_user.id, int)
+            self.assertIsInstance(_tortoise_user.username, str)
 
             # Testing hooks
             # self.assertFalse(
-            #     hasattr(tortoise_article, "pre_save_called")
+            #     hasattr(_tortoise_article, "pre_save_called")
             # )
             # self.assertFalse(
-            #     hasattr(tortoise_article, "post_save_called")
+            #     hasattr(_tortoise_article, "post_save_called")
             # )
 
             # Testing batch creation
-            tortoise_articles = TortoiseArticleFactory.create_batch(5)
-            self.assertEqual(len(tortoise_articles), 5)
-            self.assertIsInstance(tortoise_articles[0], TortoiseArticle)
+            _tortoise_articles = TortoiseArticleFactory.create_batch(5)
+            self.assertEqual(len(_tortoise_articles), 5)
+            self.assertIsInstance(_tortoise_articles[0], TortoiseArticle)
 
             # Testing traits
-            tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
+            _tortoise_admin_user = TortoiseUserFactory(is_admin_user=True)
             self.assertTrue(
-                tortoise_admin_user.is_staff
-                and tortoise_admin_user.is_superuser
-                and tortoise_admin_user.is_active
+                _tortoise_admin_user.is_staff
+                and _tortoise_admin_user.is_superuser
+                and _tortoise_admin_user.is_active
             )
 
         # **********************************
@@ -3410,37 +3881,15 @@ class TestFaker(unittest.TestCase):
                 if not self.return_instance_on_query_first:
                     return None
 
-                if self.model == SQLAlchemyUser:
-                    return self.model(  # type: ignore
-                        id=FAKER.pyint(),
-                        username=FAKER.username(),
-                        first_name=FAKER.first_name(),
-                        last_name=FAKER.last_name(),
-                        email=FAKER.email(),
-                        last_login=FAKER.date_time(),
-                        date_joined=FAKER.date_time(),
-                    )
-                elif self.model == SQLAlchemyArticle:
-                    return self.model(  # type: ignore
-                        id=FAKER.pyint(),
-                        title=FAKER.word(),
-                        slug=FAKER.slug(),
-                        content=FAKER.text(),
-                        headline=FAKER.sentence(),
-                        category=random.choice(categories),
-                        author=SQLAlchemyUser(
-                            id=FAKER.pyint(),
-                            username=FAKER.username(),
-                            first_name=FAKER.first_name(),
-                            last_name=FAKER.last_name(),
-                            email=FAKER.email(),
-                            last_login=FAKER.date_time(),
-                            date_joined=FAKER.date_time(),
-                        ),
-                    )
+                return fill_dataclass(self.model)
 
         def get_sqlalchemy_session():
             return SQLAlchemySession()
+
+        @dataclass(frozen=True)
+        class SQLAlchemyGroup:
+            id: int
+            name: str
 
         @dataclass
         class SQLAlchemyUser:
@@ -3451,12 +3900,16 @@ class TestFaker(unittest.TestCase):
             first_name: str
             last_name: str
             email: str
-            last_login: Optional[datetime]
-            date_joined: Optional[datetime]
+            date_joined: datetime = field(default_factory=datetime.utcnow)
+            last_login: Optional[datetime] = None
             password: Optional[str] = None
             is_superuser: bool = False
             is_staff: bool = False
             is_active: bool = True
+            groups: Set[SQLAlchemyGroup] = field(default_factory=set)
+
+            def set_password(self, password: str) -> None:
+                self.password = xor_transform(password)
 
         @dataclass
         class SQLAlchemyArticle:
@@ -3470,9 +3923,24 @@ class TestFaker(unittest.TestCase):
             image: Optional[
                 str
             ] = None  # Use str to represent the image path or URL
-            pub_date: datetime = datetime.now()
+            pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
+
+        def add_to_sqlalchemy_group(user: Any, name: str) -> None:
+            group = SQLAlchemyGroupFactory(name=name)
+            user.groups.add(group)
+
+        class SQLAlchemyGroupFactory(SQLAlchemyModelFactory):
+            id = FACTORY.pyint()  # type: ignore
+            name = FACTORY.word()  # type: ignore
+
+            class Meta:
+                model = SQLAlchemyGroup
+                get_or_create = ("name",)
+
+            class MetaSQLAlchemy:
+                get_session = get_sqlalchemy_session
 
         class SQLAlchemyUserFactory(SQLAlchemyModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3485,6 +3953,8 @@ class TestFaker(unittest.TestCase):
             is_staff = False
             is_active = FACTORY.pybool()  # type: ignore
             date_joined = FACTORY.date_time()  # type: ignore
+            password = PreSave(set_password, password="sest1234")
+            group = PostSave(add_to_sqlalchemy_group, name="SestGroup1234")
 
             class Meta:
                 model = SQLAlchemyUser
@@ -3538,22 +4008,22 @@ class TestFaker(unittest.TestCase):
                 instance.post_save_called = True
 
         with self.subTest("SQLAlchemyModelFactory"):
-            sqlalchemy_article = SQLAlchemyArticleFactory(
+            _sqlalchemy_article = SQLAlchemyArticleFactory(
                 author__username="admin"
             )
 
             # Testing SubFactory
-            self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
+            self.assertIsInstance(_sqlalchemy_article.author, SQLAlchemyUser)
             self.assertIsInstance(
-                sqlalchemy_article.author.id,  # type: ignore
+                _sqlalchemy_article.author.id,  # type: ignore
                 int,
             )
             self.assertIsInstance(
-                sqlalchemy_article.author.is_staff,  # type: ignore
+                _sqlalchemy_article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                sqlalchemy_article.author.date_joined,  # type: ignore
+                _sqlalchemy_article.author.date_joined,  # type: ignore
                 datetime,
             )
             # Since we're mimicking SQLAlchemy's behaviour, the following line
@@ -3562,54 +4032,77 @@ class TestFaker(unittest.TestCase):
             # self.assertEqual(sqlalchemy_article.author.username, "admin")
 
             # Testing Factory
-            self.assertIsInstance(sqlalchemy_article.id, int)
-            self.assertIsInstance(sqlalchemy_article.slug, str)
+            self.assertIsInstance(_sqlalchemy_article.id, int)
+            self.assertIsInstance(_sqlalchemy_article.slug, str)
 
             # Testing hooks
             self.assertTrue(
-                hasattr(sqlalchemy_article, "pre_save_called")
-                and sqlalchemy_article.pre_save_called
+                hasattr(_sqlalchemy_article, "pre_save_called")
+                and _sqlalchemy_article.pre_save_called
             )
             self.assertTrue(
-                hasattr(sqlalchemy_article, "post_save_called")
-                and sqlalchemy_article.post_save_called
+                hasattr(_sqlalchemy_article, "post_save_called")
+                and _sqlalchemy_article.post_save_called
             )
 
             # Testing batch creation
-            sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
-            self.assertEqual(len(sqlalchemy_articles), 5)
-            self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
+            _sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+            self.assertEqual(len(_sqlalchemy_articles), 5)
+            self.assertIsInstance(_sqlalchemy_articles[0], SQLAlchemyArticle)
 
             # Testing traits
-            sqlalchemy_admin_user = SQLAlchemyUserFactory(is_admin_user=True)
+            _sqlalchemy_admin_user = SQLAlchemyUserFactory(is_admin_user=True)
             self.assertTrue(
-                sqlalchemy_admin_user.is_staff
-                and sqlalchemy_admin_user.is_superuser
-                and sqlalchemy_admin_user.is_active
+                _sqlalchemy_admin_user.is_staff
+                and _sqlalchemy_admin_user.is_superuser
+                and _sqlalchemy_admin_user.is_active
+            )
+
+            # Testing PreSave
+            _sqlalchemy_user = SQLAlchemyUserFactory()
+            self.assertEqual(
+                xor_transform(_sqlalchemy_user.password), "sest1234"
+            )
+            _sqlalchemy_user = SQLAlchemyUserFactory(
+                password=PreSave(set_password, password="1234sest")
+            )
+            self.assertEqual(
+                xor_transform(_sqlalchemy_user.password), "1234sest"
+            )
+
+            # Testing PostSave
+            self.assertEqual(
+                list(_sqlalchemy_user.groups)[0].name, "SestGroup1234"
+            )
+            _sqlalchemy_user = SQLAlchemyUserFactory(
+                group=PostSave(add_to_sqlalchemy_group, name="1234SestGroup")
+            )
+            self.assertEqual(
+                list(_sqlalchemy_user.groups)[0].name, "1234SestGroup"
             )
 
             # Repeat SQLAlchemy tests for another condition
             SQLAlchemySession.return_instance_on_query_first = True
 
-            sqlalchemy_article = SQLAlchemyArticleFactory(
+            _sqlalchemy_article = SQLAlchemyArticleFactory(
                 author__username="admin"
             )
-            sqlalchemy_user = SQLAlchemyUserFactory(username="admin")
+            _sqlalchemy_user = SQLAlchemyUserFactory(username="admin")
 
             # Testing SubFactory
-            self.assertIsInstance(sqlalchemy_article.author, SQLAlchemyUser)
-            self.assertIsInstance(sqlalchemy_article, SQLAlchemyArticle)
-            self.assertIsInstance(sqlalchemy_user, SQLAlchemyUser)
+            self.assertIsInstance(_sqlalchemy_article.author, SQLAlchemyUser)
+            self.assertIsInstance(_sqlalchemy_article, SQLAlchemyArticle)
+            self.assertIsInstance(_sqlalchemy_user, SQLAlchemyUser)
             self.assertIsInstance(
-                sqlalchemy_article.author.id,  # type: ignore
+                _sqlalchemy_article.author.id,  # type: ignore
                 int,
             )
             self.assertIsInstance(
-                sqlalchemy_article.author.is_staff,  # type: ignore
+                _sqlalchemy_article.author.is_staff,  # type: ignore
                 bool,
             )
             self.assertIsInstance(
-                sqlalchemy_article.author.date_joined,  # type: ignore
+                _sqlalchemy_article.author.date_joined,  # type: ignore
                 datetime,
             )
             # Since we're mimicking SQLAlchemy's behaviour, the following line
@@ -3618,19 +4111,19 @@ class TestFaker(unittest.TestCase):
             # self.assertEqual(sqlalchemy_article.author.username, "admin")
 
             # Testing Factory
-            self.assertIsInstance(sqlalchemy_article.id, int)
-            self.assertIsInstance(sqlalchemy_article.slug, str)
-            self.assertIsInstance(sqlalchemy_user.id, int)
-            self.assertIsInstance(sqlalchemy_user.username, str)
+            self.assertIsInstance(_sqlalchemy_article.id, int)
+            self.assertIsInstance(_sqlalchemy_article.slug, str)
+            self.assertIsInstance(_sqlalchemy_user.id, int)
+            self.assertIsInstance(_sqlalchemy_user.username, str)
 
             # Testing hooks
-            self.assertFalse(hasattr(sqlalchemy_article, "pre_save_called"))
-            self.assertFalse(hasattr(sqlalchemy_article, "post_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "pre_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "post_save_called"))
 
             # Testing batch creation
-            sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
-            self.assertEqual(len(sqlalchemy_articles), 5)
-            self.assertIsInstance(sqlalchemy_articles[0], SQLAlchemyArticle)
+            _sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
+            self.assertEqual(len(_sqlalchemy_articles), 5)
+            self.assertIsInstance(_sqlalchemy_articles[0], SQLAlchemyArticle)
 
     def test_registry_integration(self) -> None:
         """Test `add`."""

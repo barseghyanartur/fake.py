@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.6.3
+VERSION := 0.6.4
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -75,6 +75,9 @@ dataclasses-shell:
 
 django-shell:
 	source $(VENV) && python examples/django/manage.py shell
+
+django-runserver:
+	source $(VENV) && python examples/django/manage.py runserver 0.0.0.0:8000 --traceback -v 3
 
 lazyfuzzy-shell:
 	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py shell

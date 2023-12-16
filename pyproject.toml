@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.6.3"
+version = "0.6.4"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -60,6 +60,7 @@ docs = [
 line-length = 80
 target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
+force-exclude = '__copy_fake\.py'
 extend-exclude = '''
 /(
   # The following are specific to Black, you probably don't want those.
@@ -141,7 +142,7 @@ ignore-path = [
 ]
 
 [tool.pytest.ini_options]
-minversion = "0.6.3"
+minversion = "0.6.4"
 addopts = [
     "-ra",
     "-vvv",
