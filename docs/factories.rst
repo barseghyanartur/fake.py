@@ -1,8 +1,10 @@
 Factories
 =========
 
-- ``pre_save`` a method that will always run before the instance is saved.
-- ``post_save`` a method that will always run after the instance is saved.
+- ``pre_save`` a method decorator that will always run before the instance
+  is saved.
+- ``post_save`` a method decorator that will always run after the instance
+  is saved.
 - ``trait`` decorator runs the code if set to True in factory constructor.
 - ``PreSave`` is like the ``pre_save`` decorator of the ``ModelFactory``,
   but you can pass arguments to it and have a lot of flexibility. See
