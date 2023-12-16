@@ -265,13 +265,13 @@ Returns a random IPv4 address.
 
 ----
 
-**date_between**
+**date*
 
 Generates a random date between ``start_date`` and ``end_date``.
 
 .. code-block:: python
 
-    FAKER.date_between(start_date="-1d", end_date="+1d")
+    FAKER.date(start_date="-1d", end_date="+1d")
 
 Arguments:
 
@@ -281,13 +281,13 @@ Arguments:
 
 ----
 
-**date_time_between**
+**date_time**
 
 Generates a random datetime between ``start_date`` and ``end_date``.
 
 .. code-block:: python
 
-    FAKER.date_time_between(start_date="-1d", end_date="+1d")
+    FAKER.date_time(start_date="-1d", end_date="+1d")
 
 Arguments:
 
