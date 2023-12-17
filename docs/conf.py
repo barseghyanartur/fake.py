@@ -52,6 +52,7 @@ pygments_style = "sphinx"
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+# html_extra_path = ["examples"]
 
 prismjs_base = "//cdnjs.cloudflare.com/ajax/libs/prism/1.29.0"
 

@@ -263,7 +263,7 @@ Returns a random IPv4 address.
 
 ----
 
-**date*
+**date**
 
 Generates a random date between ``start_date`` and ``end_date``.
 
