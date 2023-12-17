@@ -19,6 +19,7 @@ __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "ArticleFactory",
+    "GroupFactory",
     "UserFactory",
 )
 
@@ -53,11 +54,11 @@ class UserFactory(ModelFactory):
     first_name = FACTORY.first_name()  # type: ignore
     last_name = FACTORY.last_name()  # type: ignore
     email = FACTORY.email()  # type: ignore
+    date_joined = FACTORY.date_time()  # type: ignore
     last_login = FACTORY.date_time()  # type: ignore
     is_superuser = False
     is_staff = False
     is_active = FACTORY.pybool()  # type: ignore
-    date_joined = FACTORY.date_time()  # type: ignore
     password = PreSave(set_password, password="test1234")  # type: ignore
     group = PostSave(add_to_group, name="TestGroup1234")  # type: ignore
 

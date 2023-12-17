@@ -3,20 +3,24 @@ from pathlib import Path
 from fake import (
     FACTORY,
     FileSystemStorage,
+    PostSave,
+    PreSave,
     SubFactory,
     TortoiseModelFactory,
     post_save,
     pre_save,
+    run_async_in_thread,
     trait,
 )
 
-from article.models import Article, User
+from article.models import Article, Group, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "ArticleFactory",
+    "GroupFactory",
     "UserFactory",
 )
 
@@ -27,6 +31,30 @@ MEDIA_ROOT = BASE_DIR / "media"
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
 
 
+class GroupFactory(TortoiseModelFactory):
+    """Group factory."""
+
+    name = FACTORY.word()
+
+    class Meta:
+        model = Group
+        get_or_create = ("name",)
+
+
+def set_password(user: User, password: str) -> None:
+    user.set_password(password)
+
+
+def add_to_group(user: User, name: str) -> None:
+    group = GroupFactory(name=name)
+
+    async def _add_to_group():
+        await user.groups.add(group)
+        await user.save()
+
+    run_async_in_thread(_add_to_group())
+
+
 class UserFactory(TortoiseModelFactory):
     """User factory."""
 
@@ -34,11 +62,13 @@ class UserFactory(TortoiseModelFactory):
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
     email = FACTORY.email()
+    date_joined = FACTORY.date_time()
     last_login = FACTORY.date_time()
     is_superuser = False
     is_staff = False
     is_active = FACTORY.pybool()
-    date_joined = FACTORY.date_time()
+    password = PreSave(set_password, password="test1234")
+    group = PostSave(add_to_group, name="TestGroup1234")
 
     class Meta:
         model = User

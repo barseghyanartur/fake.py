@@ -1,9 +1,9 @@
 import unittest
 from datetime import datetime
 
-from fake import FILE_REGISTRY
+from fake import FILE_REGISTRY, xor_transform
 
-from article.factories import ArticleFactory
+from article.factories import ArticleFactory, UserFactory
 from article.models import Article, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -49,3 +49,12 @@ class FactoriesTestCase(unittest.TestCase):
         articles = ArticleFactory.create_batch(5)
         self.assertEqual(len(articles), 5)
         self.assertIsInstance(articles[0], Article)
+
+    def test_pre_save_and_post_save(self) -> None:
+        """Test PreSave and PostSave."""
+        user = UserFactory(is_staff=True)
+        self.assertEqual(
+            xor_transform(user.password),
+            "test1234",
+        )
+        self.assertEqual(list(user.groups)[0].name, "TestGroup1234")

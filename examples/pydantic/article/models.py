@@ -1,6 +1,7 @@
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, Set
 
+from fake import xor_transform
 from pydantic import BaseModel, Field
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -8,8 +9,25 @@ __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "Article",
+    "Group",
     "User",
 )
+
+
+class Group(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        allow_mutation = False
+
+    def __hash__(self):
+        return hash((self.id, self.name))
+
+    def __eq__(self, other):
+        if isinstance(other, Group):
+            return self.id == other.id and self.name == other.name
+        return False
 
 
 class User(BaseModel):
@@ -18,18 +36,22 @@ class User(BaseModel):
     first_name: str = Field(..., max_length=255)
     last_name: str = Field(..., max_length=255)
     email: str = Field(..., max_length=255)
-    password: Optional[str] = Field("", max_length=255)
+    date_joined: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    password: Optional[str] = Field("", max_length=255)
     is_superuser: bool = Field(default=False)
     is_staff: bool = Field(default=False)
     is_active: bool = Field(default=True)
-    date_joined: Optional[datetime] = None
+    groups: Set[Group] = Field(default_factory=set)
 
     class Config:
         extra = "allow"  # For testing purposes only
 
     def __str__(self):
         return self.username
+
+    def set_password(self, password: str) -> None:
+        self.password = xor_transform(password)
 
 
 class Article(BaseModel):
