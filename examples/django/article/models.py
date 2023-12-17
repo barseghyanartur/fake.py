@@ -12,6 +12,8 @@ class Article(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     content = models.TextField()
+    headline = models.TextField()
+    category = models.CharField(max_length=255)
     image = models.ImageField(null=True, blank=True)
     pub_date = models.DateField(default=timezone.now)
     safe_for_work = models.BooleanField(default=False)

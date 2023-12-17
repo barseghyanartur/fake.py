@@ -1,0 +1,1 @@
+../../../../../../examples/django/article/factories.py
