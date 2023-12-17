@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.5
+-----
+2023-12-18
+
+- Improve docs.
+- MyPy fixes.
+
 0.6.4
 -----
 2023-12-16
