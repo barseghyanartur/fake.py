@@ -1,10 +1,10 @@
 import unittest
 from datetime import datetime
 
-from fake import FILE_REGISTRY
+from fake import FILE_REGISTRY, xor_transform
 
 from article.factories import ArticleFactory, UserFactory
-from article.models import Article, User, xor_transform
+from article.models import Article, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023 Artur Barseghyan"

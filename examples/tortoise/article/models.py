@@ -1,5 +1,6 @@
 from datetime import date
 
+from fake import xor_transform
 from tortoise import fields
 from tortoise.models import Model
 
@@ -8,8 +9,19 @@ __copyright__ = "2023 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "Article",
+    "Group",
     "User",
 )
+
+
+class Group(Model):
+    """Group model."""
+
+    id = fields.IntField(pk=True)
+    name = fields.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class User(Model):
@@ -26,9 +38,13 @@ class User(Model):
     is_staff = fields.BooleanField(default=False)
     is_active = fields.BooleanField(default=True)
     date_joined = fields.DatetimeField(null=True, blank=True)
+    groups = fields.ManyToManyField("models.Group", on_delete=fields.CASCADE)
 
     def __str__(self):
         return self.title
+
+    def set_password(self, password: str) -> None:
+        self.password = xor_transform(password)
 
 
 class Article(Model):
