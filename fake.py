@@ -2485,7 +2485,7 @@ class DataclassDataFiller(BaseDataFiller):
         return cls.TYPE_TO_PROVIDER.get(field_type)
 
     @classmethod
-    def fill(cls, dataclass_type: Type) -> object:
+    def fill(cls, dataclass_type: Type) -> Any:
         """Fill dataclass with data."""
         if not is_dataclass(dataclass_type):
             raise ValueError("The provided type must be a dataclass")
@@ -2536,7 +2536,7 @@ class PydanticDataFiller(BaseDataFiller):
         )
 
     @classmethod
-    def fill(cls, object_type: Type) -> object:
+    def fill(cls, object_type: Type) -> Any:
         if not (
             hasattr(object_type, "__fields__")
             and hasattr(object_type, "Config")
@@ -3262,7 +3262,9 @@ class TestFaker(unittest.TestCase):
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return DjangoManager(instance=fill_dataclass(cls))
+                return DjangoManager(
+                    instance=fill_dataclass(cls),  # type: ignore
+                )
 
         @dataclass
         class Article:
@@ -3289,7 +3291,9 @@ class TestFaker(unittest.TestCase):
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
-                return DjangoManager(instance=fill_dataclass(cls))
+                return DjangoManager(
+                    instance=fill_dataclass(cls),  # type: ignore
+                )
 
         with self.subTest("fill_pydantic_model on dataclass"):
             with self.assertRaises(ValueError):
@@ -3389,13 +3393,13 @@ class TestFaker(unittest.TestCase):
 
             # Testing SubFactory
             self.assertIsInstance(_article.author, User)
-            self.assertIsInstance(_article.author.id, int)  # type: ignore
+            self.assertIsInstance(_article.author.id, int)
             self.assertIsInstance(
-                _article.author.is_staff,  # type: ignore
+                _article.author.is_staff,
                 bool,
             )
             self.assertIsInstance(
-                _article.author.date_joined,  # type: ignore
+                _article.author.date_joined,
                 datetime,
             )
 
@@ -3432,11 +3436,11 @@ class TestFaker(unittest.TestCase):
             )
 
             # Testing PreSave
-            self.assertEqual(xor_transform(_user.password), "test1234")
+            self.assertEqual(xor_transform(str(_user.password)), "test1234")
             _user = UserFactory(
                 password=PreSave(set_password, password="1234test")
             )
-            self.assertEqual(xor_transform(_user.password), "1234test")
+            self.assertEqual(xor_transform(str(_user.password)), "1234test")
 
             # Testing PostSave
             self.assertEqual(list(_user.groups)[0].name, "TestGroup1234")
@@ -3563,18 +3567,30 @@ class TestFaker(unittest.TestCase):
 
             # Testing PreSave
             _django_user = DjangoUserFactory()
-            self.assertEqual(xor_transform(_django_user.password), "jest1234")
+            self.assertEqual(
+                xor_transform(str(_django_user.password)),
+                "jest1234",
+            )
             _django_user = DjangoUserFactory(
                 password=PreSave(set_password, password="1234jest")
             )
-            self.assertEqual(xor_transform(_django_user.password), "1234jest")
+            self.assertEqual(
+                xor_transform(str(_django_user.password)),
+                "1234jest",
+            )
 
             # Testing PostSave
-            self.assertEqual(list(_django_user.groups)[0].name, "JestGroup1234")
+            self.assertEqual(
+                list(_django_user.groups)[0].name,  # type: ignore
+                "JestGroup1234",
+            )
             _django_user = DjangoUserFactory(
                 group=PostSave(add_to_group, name="1234JestGroup")
             )
-            self.assertEqual(list(_django_user.groups)[0].name, "1234JestGroup")
+            self.assertEqual(
+                list(_django_user.groups)[0].name,  # type: ignore
+                "1234JestGroup",
+            )
 
         # **********************************
         # ****** TortoiseModelFactory ******
@@ -3789,21 +3805,29 @@ class TestFaker(unittest.TestCase):
 
             # Testing PreSave
             _tortoise_user = TortoiseUserFactory()
-            self.assertEqual(xor_transform(_tortoise_user.password), "tost1234")
+            self.assertEqual(
+                xor_transform(str(_tortoise_user.password)),
+                "tost1234",
+            )
             _tortoise_user = TortoiseUserFactory(
                 password=PreSave(set_password, password="1234tost")
             )
-            self.assertEqual(xor_transform(_tortoise_user.password), "1234tost")
+            self.assertEqual(
+                xor_transform(str(_tortoise_user.password)),
+                "1234tost",
+            )
 
             # Testing PostSave
             self.assertEqual(
-                list(_tortoise_user.groups)[0].name, "TostGroup1234"
+                list(_tortoise_user.groups)[0].name,  # type: ignore
+                "TostGroup1234",
             )
             _tortoise_user = TortoiseUserFactory(
                 group=PostSave(add_to_tortoise_group, name="1234TostGroup")
             )
             self.assertEqual(
-                list(_tortoise_user.groups)[0].name, "1234TostGroup"
+                list(_tortoise_user.groups)[0].name,  # type: ignore
+                "1234TostGroup",
             )
 
             # **********************************
@@ -3889,7 +3913,7 @@ class TestFaker(unittest.TestCase):
                 if not self.return_instance_on_query_first:
                     return None
 
-                return fill_dataclass(self.model)
+                return fill_dataclass(self.model)  # type: ignore
 
         def get_sqlalchemy_session():
             return SQLAlchemySession()
@@ -4069,24 +4093,26 @@ class TestFaker(unittest.TestCase):
             # Testing PreSave
             _sqlalchemy_user = SQLAlchemyUserFactory()
             self.assertEqual(
-                xor_transform(_sqlalchemy_user.password), "sest1234"
+                xor_transform(str(_sqlalchemy_user.password)), "sest1234"
             )
             _sqlalchemy_user = SQLAlchemyUserFactory(
                 password=PreSave(set_password, password="1234sest")
             )
             self.assertEqual(
-                xor_transform(_sqlalchemy_user.password), "1234sest"
+                xor_transform(str(_sqlalchemy_user.password)), "1234sest"
             )
 
             # Testing PostSave
             self.assertEqual(
-                list(_sqlalchemy_user.groups)[0].name, "SestGroup1234"
+                list(_sqlalchemy_user.groups)[0].name,  # type: ignore
+                "SestGroup1234",
             )
             _sqlalchemy_user = SQLAlchemyUserFactory(
                 group=PostSave(add_to_sqlalchemy_group, name="1234SestGroup")
             )
             self.assertEqual(
-                list(_sqlalchemy_user.groups)[0].name, "1234SestGroup"
+                list(_sqlalchemy_user.groups)[0].name,  # type: ignore
+                "1234SestGroup",
             )
 
             # Repeat SQLAlchemy tests for another condition
