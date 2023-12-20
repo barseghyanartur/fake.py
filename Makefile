@@ -11,7 +11,7 @@ build_docs:
 
 rebuild_docs:
 	source $(VENV) && sphinx-apidoc . --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
-	#cp docs/conf.py.distrib docs/conf.py
+	cp docs/conf.py.distrib docs/conf.py
 	cp docs/index.rst.distrib docs/index.rst
 
 # Format code using Black
