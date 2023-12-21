@@ -2523,9 +2523,9 @@ class PydanticDataFiller(BaseDataFiller):
             return None
         if (
             hasattr(field_type, "__origin__")
-            and field_type.__origin__ is Optional
+            and field_type.__origin__ is Optional  # noqa
         ):
-            field_type = field_type.__args__[0]
+            field_type = field_type.__args__[0]  # noqa
         return cls.TYPE_TO_PROVIDER.get(field_type)
 
     @classmethod

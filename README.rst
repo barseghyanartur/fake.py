@@ -25,6 +25,7 @@ fake.py
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
 .. _Creating images: https://fakepy.readthedocs.io/en/latest/creating_images.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
+.. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
 
 Minimalistic, standalone alternative fake data generator with no dependencies.
 
@@ -106,6 +107,7 @@ Documentation
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
 - For tips on images creation see `Creating images`_.
 - For guidelines on contributing check the `Contributor guidelines`_.
+- For various implementation examples, see the `Examples`_.
 
 Usage
 =====

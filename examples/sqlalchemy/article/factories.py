@@ -70,15 +70,15 @@ def add_to_group(user: User, name: str) -> None:
 class UserFactory(SQLAlchemyModelFactory):
     """User factory."""
 
-    username = FACTORY.username()  # mypy: ignore
-    first_name = FACTORY.first_name()  # mypy: ignore
-    last_name = FACTORY.last_name()  # mypy: ignore
-    email = FACTORY.email()  # mypy: ignore
-    date_joined = FACTORY.date_time()  # mypy: ignore
-    last_login = FACTORY.date_time()  # mypy: ignore
+    username = FACTORY.username()  # type: ignore
+    first_name = FACTORY.first_name()  # type: ignore
+    last_name = FACTORY.last_name()  # type: ignore
+    email = FACTORY.email()  # type: ignore
+    date_joined = FACTORY.date_time()  # type: ignore
+    last_login = FACTORY.date_time()  # type: ignore
     is_superuser = False
     is_staff = False
-    is_active = FACTORY.pybool()  # mypy: ignore
+    is_active = FACTORY.pybool()  # type: ignore
     password = PreSave(set_password, password="test1234")  # type: ignore
     group = PostSave(add_to_group, name="TestGroup1234")  # type: ignore
 
@@ -109,14 +109,14 @@ class UserFactory(SQLAlchemyModelFactory):
 class ArticleFactory(SQLAlchemyModelFactory):
     """Article factory."""
 
-    title = FACTORY.sentence()  # mypy: ignore
-    slug = FACTORY.slug()  # mypy: ignore
-    content = FACTORY.text()  # mypy: ignore
-    image = FACTORY.png_file(storage=STORAGE)  # mypy: ignore
-    pub_date = FACTORY.date()  # mypy: ignore
-    safe_for_work = FACTORY.pybool()  # mypy: ignore
-    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)  # mypy: ignore
-    author = SubFactory(UserFactory)  # mypy: ignore
+    title = FACTORY.sentence()  # type: ignore
+    slug = FACTORY.slug()  # type: ignore
+    content = FACTORY.text()  # type: ignore
+    image = FACTORY.png_file(storage=STORAGE)  # type: ignore
+    pub_date = FACTORY.date()  # type: ignore
+    safe_for_work = FACTORY.pybool()  # type: ignore
+    minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)  # type: ignore
+    author = SubFactory(UserFactory)  # type: ignore
 
     class Meta:
         model = Article
