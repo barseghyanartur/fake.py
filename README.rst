@@ -205,7 +205,8 @@ As files on the file system
 
 Factories
 ---------
-This is how you could define a factory for `Django`_'s built-in ``User`` model.
+This is how you could define a factory for `Django`_'s built-in ``Group``
+and ``User`` models.
 
 .. code-block:: python
 
