@@ -209,25 +209,51 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
 
 .. code-block:: python
 
-    from django.contrib.auth.models import User
+    from django.contrib.auth.models import Group, User
     from fake import (
-        FACTORY,
         DjangoModelFactory,
-        pre_save,
+        FACTORY,
+        PostSave,
+        PreSave,
         trait,
     )
 
+
+    class GroupFactory(DjangoModelFactory):
+        """Group factory."""
+
+        name = FACTORY.word()
+
+        class Meta:
+            model = Group
+            get_or_create = ("name",)
+
+
+    def set_password(user: User, password: str) -> None:
+        """Helper function for setting password for the User."""
+        user.set_password(password)
+
+
+    def add_to_group(user: User, name: str) -> None:
+        """Helper function for adding the User to a Group."""
+        group = GroupFactory(name=name)
+        user.groups.add(group)
+
+
     class UserFactory(DjangoModelFactory):
+        """User factory."""
 
         username = FACTORY.username()
         first_name = FACTORY.first_name()
         last_name = FACTORY.last_name()
         email = FACTORY.email()
+        date_joined = FACTORY.date_time()
         last_login = FACTORY.date_time()
         is_superuser = False
         is_staff = False
         is_active = FACTORY.pybool()
-        date_joined = FACTORY.date_time()
+        password = PreSave(set_password, password="test1234")
+        group = PostSave(add_to_group, name="Test group")
 
         class Meta:
             model = User
@@ -235,13 +261,10 @@ This is how you could define a factory for `Django`_'s built-in ``User`` model.
 
         @trait
         def is_admin_user(self, instance: User) -> None:
+            """Trait."""
             instance.is_superuser = True
             instance.is_staff = True
             instance.is_active = True
-
-        @pre_save
-        def _set_password(self, instance: User) -> None:
-            instance.set_password("test")
 
 And this is how you could use it:
 
@@ -255,6 +278,22 @@ And this is how you could use it:
 
     # Create a user using `is_admin_user` trait
     user = UserFactory(is_admin_user=True)
+
+    # Create a user with custom password
+    user = UserFactory(
+        password=PreSave(set_password, password="another-password"),
+    )
+
+    # Add a user to another group
+    user = UserFactory(
+        group=PostSave(add_to_group, name="Another group"),
+    )
+
+    # Or even add user to multiple groups at once
+    user = UserFactory(
+        group_1=PostSave(add_to_group, name="Another group"),
+        group_2=PostSave(add_to_group, name="Yet another group"),
+    )
 
 Customize
 ---------
