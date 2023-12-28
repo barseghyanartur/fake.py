@@ -563,6 +563,16 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.png_file(
+        basename="png_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **svg_file**
@@ -584,6 +594,16 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.svg_file(
+        basename="svg_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
 
 ----
 
@@ -607,6 +627,16 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.bmp_file(
+        basename="bmp_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **gif_file**
@@ -628,6 +658,16 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.gif_file(
+        basename="gif_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
 
 ----
 
