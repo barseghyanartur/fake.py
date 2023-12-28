@@ -363,23 +363,31 @@ Returns a random IPv4 address.
 
 **date**
 
-Generates a random date between ``start_date`` and ``end_date``.
+Generates a random date.
+
+.. code-block:: python
+
+    FAKER.date()
+
+Arguments:
+
+- ``start_date`` (type: ``str``, default value: ``-7d``) is a optional
+  argument.
+- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
+  argument.
+
+Example with arguments, generate a random date between given ``start_date``
+and ``end_date``:
 
 .. code-block:: python
 
     FAKER.date(start_date="-1d", end_date="+1d")
 
-Arguments:
-
-- ``start_date`` (type: ``str``) is a required argument.
-- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
-  argument.
-
 ----
 
 **date_time**
 
-Generates a random datetime between ``start_date`` and ``end_date``.
+Generates a random datetime.
 
 .. code-block:: python
 
@@ -387,9 +395,17 @@ Generates a random datetime between ``start_date`` and ``end_date``.
 
 Arguments:
 
-- ``start_date`` (type: ``str``) is a required argument.
+- ``start_date`` (type: ``str``, default value: ``-7d``) is an optional
+  argument.
 - ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
   argument.
+
+Example with arguments, generate a random date between given ``start_date``
+and ``end_date``:
+
+.. code-block:: python
+
+    FAKER.date_time(start_date="-1d", end_date="+1d")
 
 ----
 
