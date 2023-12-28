@@ -325,6 +325,32 @@ Example with arguments (returns a float between 0 and 100):
 
 ----
 
+**pydecimal**
+
+Returns a random decimal, according to given ``left_digits`` and
+``right_digits``.
+
+.. code-block:: python
+
+    FAKER.pydecimal()
+
+Arguments:
+
+- ``left_digits`` (type: ``int``, default value: ``5``) is an optional
+  argument.
+- ``right_digits`` (type: ``int``, default value: ``2``) is an optional
+  argument.
+- ``positive`` (type: ``bool``, default value: ``True``) is an optional
+  argument.
+
+Example with arguments:
+
+.. code-block:: python
+
+    FAKER.pydecimal(left_digits=1, right_digits=4, positive=False)
+
+----
+
 **ipv4**
 
 Returns a random IPv4 address.
