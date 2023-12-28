@@ -562,6 +562,34 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Examples with arguments.
+
+Generate a PDF document of 100 pages with random graphics:
+
+.. code-block:: python
+
+    FAKER.pdf_file(nb_pages=100)
+
+Generate a PDF document of 100 pages with random texts:
+
+.. code-block:: python
+
+    from fake import TextPdfGenerator
+
+    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData, TextPdfGenerator
+
+    metadata = MetaData()
+    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
+
 ----
 
 **png_file**
@@ -711,3 +739,12 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.txt_file(
+        basename="txt_file",  # Basename
+        nb_chars=10_000,  # 10_000 characters long
+    )
