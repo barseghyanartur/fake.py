@@ -519,6 +519,27 @@ Arguments:
     default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
     is adjusted accordingly.
 
+Examples with arguments.
+
+Generate a content (``bytes``) of a DOCX document of 100 pages with random
+texts:
+
+.. code-block:: python
+
+    FAKER.docx(nb_pages=100)
+
+If you want to get insights of the content used to generate the DOCX (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData
+
+    metadata = MetaData()
+    FAKER.docx(nb_pages=100, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
+
 ----
 
 **pdf_file**
