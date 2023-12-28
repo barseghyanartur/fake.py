@@ -487,6 +487,16 @@ Arguments:
 - ``color`` (type: ``Tuple[int, int, int]``, default value: ``(0, 0, 255)``)
   is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.image(
+        image_format="svg",  # SVG format
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **docx**
