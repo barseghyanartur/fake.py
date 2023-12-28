@@ -60,6 +60,12 @@ Arguments:
 
 - ``nb`` (type: ``int``, default value: ``5``) is an optional argument.
 
+Example with arguments (returns a list of 10 words):
+
+.. code-block:: python
+
+    FAKER.words(nb=10)
+
 ----
 
 **sentence**
@@ -74,6 +80,12 @@ Arguments:
 
 - ``nb_words`` (type: ``int``, default value: ``5``) is an optional argument.
 
+Example with arguments (returns a sentence of 10 words):
+
+.. code-block:: python
+
+    FAKER.sentence(nb_words=10)
+
 ----
 
 **sentences**
@@ -87,6 +99,12 @@ Returns ``nb`` number of random sentences.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 sentences):
+
+.. code-block:: python
+
+    FAKER.sentences(nb=10)
 
 ----
 
@@ -103,6 +121,12 @@ Arguments:
 - ``nb_sentences`` (type: ``int``, default value: ``5``) is an optional
   argument.
 
+Example with arguments (returns a paragraph of 10 sentences):
+
+.. code-block:: python
+
+    FAKER.paragraph(nb_sentences=10)
+
 ----
 
 **paragraphs**
@@ -116,6 +140,12 @@ Returns ``nb`` number of random paragraphs.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 paragraphs):
+
+.. code-block:: python
+
+    FAKER.paragraphs(nb=10)
 
 ----
 
@@ -131,6 +161,12 @@ Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``200``) is an optional argument.
 
+Example with arguments (returns a 1000 character long text):
+
+.. code-block:: python
+
+    FAKER.text(nb_chars=1_000)
+
 ----
 
 **texts**
@@ -144,6 +180,12 @@ Returns ``nb`` number of random texts.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 texts):
+
+.. code-block:: python
+
+    FAKER.texts(nb=10)
 
 ----
 
@@ -160,6 +202,12 @@ Arguments:
 - ``extension`` (type: ``str``, default value: ``txt``) is an optional
   argument.
 
+Example with arguments (returns a filename with "png" extension):
+
+.. code-block:: python
+
+    FAKER.file_name(extension="png")
+
 ----
 
 **email**
@@ -174,6 +222,12 @@ Arguments:
 
 - ``domain`` (type: ``str``, default value: ``example.com``) is an optional
   argument.
+
+Example with arguments (returns an email with "gmail.com" domain):
+
+.. code-block:: python
+
+    FAKER.email(domain="gmail.com")
 
 ----
 
@@ -210,6 +264,12 @@ Arguments:
 - ``max_value`` (type: ``int``, default value: ``9999``) is an optional
   argument.
 
+Example with arguments (returns an integer between 0 and 100):
+
+.. code-block:: python
+
+    FAKER.pyint(min_value=0, max_value=100)
+
 ----
 
 **pybool**
@@ -234,6 +294,12 @@ Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``20``) is an optional argument.
 
+Example with arguments (returns a string of 64 characters):
+
+.. code-block:: python
+
+    FAKER.pystr(nb_chars=64)
+
 ----
 
 **pyfloat**
@@ -250,6 +316,12 @@ Arguments:
   argument.
 - ``max_value`` (type: ``float``, default value: ``10.00``) is an optional
   argument.
+
+Example with arguments (returns a float between 0 and 100):
+
+.. code-block:: python
+
+    FAKER.pyfloat(min_value=0.0, max_value=100.0)
 
 ----
 
