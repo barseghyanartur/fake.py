@@ -60,6 +60,12 @@ Arguments:
 
 - ``nb`` (type: ``int``, default value: ``5``) is an optional argument.
 
+Example with arguments (returns a list of 10 words):
+
+.. code-block:: python
+
+    FAKER.words(nb=10)
+
 ----
 
 **sentence**
@@ -74,6 +80,12 @@ Arguments:
 
 - ``nb_words`` (type: ``int``, default value: ``5``) is an optional argument.
 
+Example with arguments (returns a sentence of 10 words):
+
+.. code-block:: python
+
+    FAKER.sentence(nb_words=10)
+
 ----
 
 **sentences**
@@ -87,6 +99,12 @@ Returns ``nb`` number of random sentences.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 sentences):
+
+.. code-block:: python
+
+    FAKER.sentences(nb=10)
 
 ----
 
@@ -103,6 +121,12 @@ Arguments:
 - ``nb_sentences`` (type: ``int``, default value: ``5``) is an optional
   argument.
 
+Example with arguments (returns a paragraph of 10 sentences):
+
+.. code-block:: python
+
+    FAKER.paragraph(nb_sentences=10)
+
 ----
 
 **paragraphs**
@@ -116,6 +140,12 @@ Returns ``nb`` number of random paragraphs.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 paragraphs):
+
+.. code-block:: python
+
+    FAKER.paragraphs(nb=10)
 
 ----
 
@@ -131,6 +161,12 @@ Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``200``) is an optional argument.
 
+Example with arguments (returns a 1000 character long text):
+
+.. code-block:: python
+
+    FAKER.text(nb_chars=1_000)
+
 ----
 
 **texts**
@@ -144,6 +180,12 @@ Returns ``nb`` number of random texts.
 Arguments:
 
 - ``nb`` (type: ``int``, default value: ``3``) is an optional argument.
+
+Example with arguments (returns a list of 10 texts):
+
+.. code-block:: python
+
+    FAKER.texts(nb=10)
 
 ----
 
@@ -160,6 +202,12 @@ Arguments:
 - ``extension`` (type: ``str``, default value: ``txt``) is an optional
   argument.
 
+Example with arguments (returns a filename with "png" extension):
+
+.. code-block:: python
+
+    FAKER.file_name(extension="png")
+
 ----
 
 **email**
@@ -174,6 +222,12 @@ Arguments:
 
 - ``domain`` (type: ``str``, default value: ``example.com``) is an optional
   argument.
+
+Example with arguments (returns an email with "gmail.com" domain):
+
+.. code-block:: python
+
+    FAKER.email(domain="gmail.com")
 
 ----
 
@@ -210,6 +264,12 @@ Arguments:
 - ``max_value`` (type: ``int``, default value: ``9999``) is an optional
   argument.
 
+Example with arguments (returns an integer between 0 and 100):
+
+.. code-block:: python
+
+    FAKER.pyint(min_value=0, max_value=100)
+
 ----
 
 **pybool**
@@ -234,6 +294,12 @@ Arguments:
 
 - ``nb_chars`` (type: ``int``, default value: ``20``) is an optional argument.
 
+Example with arguments (returns a string of 64 characters):
+
+.. code-block:: python
+
+    FAKER.pystr(nb_chars=64)
+
 ----
 
 **pyfloat**
@@ -251,6 +317,38 @@ Arguments:
 - ``max_value`` (type: ``float``, default value: ``10.00``) is an optional
   argument.
 
+Example with arguments (returns a float between 0 and 100):
+
+.. code-block:: python
+
+    FAKER.pyfloat(min_value=0.0, max_value=100.0)
+
+----
+
+**pydecimal**
+
+Returns a random decimal, according to given ``left_digits`` and
+``right_digits``.
+
+.. code-block:: python
+
+    FAKER.pydecimal()
+
+Arguments:
+
+- ``left_digits`` (type: ``int``, default value: ``5``) is an optional
+  argument.
+- ``right_digits`` (type: ``int``, default value: ``2``) is an optional
+  argument.
+- ``positive`` (type: ``bool``, default value: ``True``) is an optional
+  argument.
+
+Example with arguments:
+
+.. code-block:: python
+
+    FAKER.pydecimal(left_digits=1, right_digits=4, positive=False)
+
 ----
 
 **ipv4**
@@ -265,23 +363,31 @@ Returns a random IPv4 address.
 
 **date**
 
-Generates a random date between ``start_date`` and ``end_date``.
+Generates a random date.
+
+.. code-block:: python
+
+    FAKER.date()
+
+Arguments:
+
+- ``start_date`` (type: ``str``, default value: ``-7d``) is a optional
+  argument.
+- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
+  argument.
+
+Example with arguments, generate a random date between given ``start_date``
+and ``end_date``:
 
 .. code-block:: python
 
     FAKER.date(start_date="-1d", end_date="+1d")
 
-Arguments:
-
-- ``start_date`` (type: ``str``) is a required argument.
-- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
-  argument.
-
 ----
 
 **date_time**
 
-Generates a random datetime between ``start_date`` and ``end_date``.
+Generates a random datetime.
 
 .. code-block:: python
 
@@ -289,9 +395,17 @@ Generates a random datetime between ``start_date`` and ``end_date``.
 
 Arguments:
 
-- ``start_date`` (type: ``str``) is a required argument.
+- ``start_date`` (type: ``str``, default value: ``-7d``) is an optional
+  argument.
 - ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
   argument.
+
+Example with arguments, generate a random date between given ``start_date``
+and ``end_date``:
+
+.. code-block:: python
+
+    FAKER.date_time(start_date="-1d", end_date="+1d")
 
 ----
 
@@ -311,6 +425,8 @@ Arguments:
 - ``generator``
   (type: ``Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]]``,
   default value: ``GraphicPdfGenerator``) is an optional argument.
+- ``metadata`` (type: ``MetaData``, default value: ``None``) is an optional
+  argument.
 
 .. note::
 
@@ -321,6 +437,36 @@ Arguments:
     Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
     default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
     is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content (``bytes``) of a PDF document of 100 pages with random
+graphics:
+
+.. code-block:: python
+
+    FAKER.pdf(nb_pages=100)
+
+Generate a content (``bytes``) of a PDF document of 100 pages with random
+texts:
+
+.. code-block:: python
+
+    from fake import TextPdfGenerator
+
+    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData, TextPdfGenerator
+
+    metadata = MetaData()
+    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
 
 ----
 
@@ -340,6 +486,16 @@ Arguments:
   optional argument.
 - ``color`` (type: ``Tuple[int, int, int]``, default value: ``(0, 0, 255)``)
   is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.image(
+        image_format="svg",  # SVG format
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
 
 ----
 
@@ -363,6 +519,27 @@ Arguments:
     default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
     is adjusted accordingly.
 
+Examples with arguments.
+
+Generate a content (``bytes``) of a DOCX document of 100 pages with random
+texts:
+
+.. code-block:: python
+
+    FAKER.docx(nb_pages=100)
+
+If you want to get insights of the content used to generate the DOCX (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData
+
+    metadata = MetaData()
+    FAKER.docx(nb_pages=100, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
+
 ----
 
 **pdf_file**
@@ -384,6 +561,34 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Examples with arguments.
+
+Generate a PDF document of 100 pages with random graphics:
+
+.. code-block:: python
+
+    FAKER.pdf_file(nb_pages=100)
+
+Generate a PDF document of 100 pages with random texts:
+
+.. code-block:: python
+
+    from fake import TextPdfGenerator
+
+    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData, TextPdfGenerator
+
+    metadata = MetaData()
+    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
 
 ----
 
@@ -407,6 +612,16 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.png_file(
+        basename="png_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **svg_file**
@@ -428,6 +643,16 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.svg_file(
+        basename="svg_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
 
 ----
 
@@ -451,6 +676,16 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.bmp_file(
+        basename="bmp_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **gif_file**
@@ -473,6 +708,16 @@ Arguments:
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
 
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.gif_file(
+        basename="gif_file",  # Basename
+        size=(640, 480),  # 640px width, 480px height
+        color: (0, 0, 0),  # Fill rectangle with black
+    )
+
 ----
 
 **txt_file**
@@ -494,3 +739,12 @@ Arguments:
 - ``basename`` (type: ``str``, default value: ``None``) is an optional
   argument.
 - ``prefix`` (type: ``str``, default value: ``None``) is an optional argument.
+
+Example with arguments.
+
+.. code-block:: python
+
+    FAKER.txt_file(
+        basename="txt_file",  # Basename
+        nb_chars=10_000,  # 10_000 characters long
+    )
