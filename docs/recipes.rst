@@ -425,6 +425,8 @@ Arguments:
 - ``generator``
   (type: ``Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]]``,
   default value: ``GraphicPdfGenerator``) is an optional argument.
+- ``metadata`` (type: ``MetaData``, default value: ``None``) is an optional
+  argument.
 
 .. note::
 
@@ -435,6 +437,36 @@ Arguments:
     Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
     default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
     is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content (``bytes``) of a PDF document of 100 pages with random
+graphics:
+
+.. code-block:: python
+
+    FAKER.pdf(nb_pages=100)
+
+Generate a content (``bytes``) of a PDF document of 100 pages with random
+texts:
+
+.. code-block:: python
+
+    from fake import TextPdfGenerator
+
+    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF (texts),
+pass the ``metadata`` argument.
+
+.. code-block:: python
+
+    from fake import MetaData, TextPdfGenerator
+
+    metadata = MetaData()
+    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+    print(metadata.data)  # Inspect ``metadata``
 
 ----
 
