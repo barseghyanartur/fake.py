@@ -89,6 +89,12 @@ django-shell:
 django-runserver:
 	source $(VENV) && python examples/django/manage.py runserver 0.0.0.0:8000 --traceback -v 3
 
+django-makemigrations:
+	source $(VENV) && python examples/django/manage.py makemigrations
+
+django-apply-migrations:
+	source $(VENV) && python examples/django/manage.py migrate
+
 lazyfuzzy-shell:
 	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py shell
 
