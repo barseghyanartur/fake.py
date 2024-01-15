@@ -42,9 +42,9 @@ from typing import (
 )
 
 __title__ = "fake.py"
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "AuthorshipData",
@@ -842,6 +842,13 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
+IMAGE_SERVICES = (
+    "https://picsum.photos/{width}/{height}",
+    "https://dummyimage.com/{width}x{height}",
+    "https://placekitten.com/{width}/{height}",
+    "https://loremflickr.com/{width}/{height}",
+)
+
 # Global registry for provider methods
 UID_REGISTRY: Dict[str, "Faker"] = {}
 ALIAS_REGISTRY: Dict[str, "Faker"] = {}
@@ -1086,6 +1093,18 @@ class Faker:
         )
         suffix = random.choice(suffixes or (".html", ".php", ".go", "", "/"))
         return f"{protocol}://{domain}.{tld}/{self.word().lower()}{suffix}"
+
+    @provider
+    def image_url(
+        self,
+        width: int = 800,
+        height: int = 600,
+        service_url: Optional[str] = None,
+    ) -> str:
+        """Image URL."""
+        if service_url is None:
+            service_url = random.choice(IMAGE_SERVICES)
+        return service_url.format(width=width, height=height)
 
     @provider
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
@@ -2699,6 +2718,30 @@ class TestFaker(unittest.TestCase):
                         self.assertTrue(
                             url.endswith(suffix) or url.endswith(f"{suffix}/")
                         )
+
+    def test_image_url(self) -> None:
+        params = (
+            (None, None, None, {"width": 800, "height": 600}),
+            (640, 480, None, {"width": 640, "height": 480}),
+            (
+                None,
+                None,
+                "https://example.com/{width}x{height}",
+                {"width": 800, "height": 600},
+            ),
+        )
+        for width, height, service_url, expected in params:
+            kwargs = {}
+            if width:
+                kwargs["width"] = width
+            if height:
+                kwargs["height"] = height
+            if service_url:
+                kwargs["service_url"] = service_url
+            image_url = self.faker.image_url(**kwargs)
+            self.assertIn(str(expected["width"]), image_url)
+            self.assertIn(str(expected["height"]), image_url)
+            self.assertTrue(image_url.startswith("https://"))
 
     def test_pyint(self) -> None:
         ranges = [
