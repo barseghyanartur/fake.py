@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.6
+-----
+2024-01-15
+
+- Add ``image_url`` provider.
+
 0.6.5
 -----
 2023-12-18

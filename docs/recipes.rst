@@ -249,6 +249,30 @@ Arguments:
   an optional argument.
 
 ----
+**image_url**
+
+Returns a valid random image URL.
+
+.. code-block:: python
+
+    FAKER.image_url()
+
+Arguments:
+
+- ``width`` (type: ``int``, default value: ``800``) is
+  a required argument.
+- ``height`` (type: ``int``, default value: ``600``) is
+  an required argument.
+- ``service_url`` (type: ``Optional[str]``, default value: ``None``) is
+  an optional argument.
+
+Example with arguments (alternative dimensions):
+
+.. code-block:: python
+
+    FAKER.image_url(width=640, height=480)
+
+----
 
 **pyint**
 
