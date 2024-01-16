@@ -40,9 +40,10 @@ from typing import (
     get_origin,
     get_type_hints,
 )
+from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.6.6"
+__version__ = "0.6.7"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -997,20 +998,36 @@ class Faker:
         return "".join([translation_map.get(c, c) for c in text])
 
     @provider
-    def uuid(self) -> uuid.UUID:
+    def uuid(self) -> UUID:
         return uuid.uuid4()
+
+    @provider
+    def uuids(self, nb: int = 5) -> List[UUID]:
+        return [uuid.uuid4() for _ in range(nb)]
 
     @provider
     def first_name(self) -> str:
         return random.choice(self._first_names)
 
     @provider
+    def first_names(self, nb: int = 5) -> List[str]:
+        return [self.first_name() for _ in range(nb)]
+
+    @provider
     def last_name(self) -> str:
         return random.choice(self._last_names)
 
     @provider
+    def last_names(self, nb: int = 5) -> List[str]:
+        return [self.last_name() for _ in range(nb)]
+
+    @provider
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
+
+    @provider
+    def names(self, nb: int = 5) -> List[str]:
+        return [self.name() for _ in range(nb)]
 
     @provider
     def username(self) -> str:
@@ -1019,10 +1036,18 @@ class Faker:
         ).lower()
 
     @provider
+    def usernames(self, nb: int = 5) -> List[str]:
+        return [self.username() for _ in range(nb)]
+
+    @provider
     def slug(self) -> str:
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
+
+    @provider
+    def slugs(self, nb: int = 5) -> List[str]:
+        return [self.slug() for _ in range(nb)]
 
     @provider
     def word(self) -> str:
@@ -2608,17 +2633,36 @@ class TestFaker(unittest.TestCase):
         uuid_value = self.faker.uuid()
         self.assertIsInstance(uuid_value, uuid.UUID)
 
+    def test_uuids(self) -> None:
+        uuids = self.faker.uuids()
+        for uuid_value in uuids:
+            self.assertIsInstance(uuid_value, uuid.UUID)
+
     def test_first_name(self) -> None:
         first_name: str = self.faker.first_name()
         self.assertIsInstance(first_name, str)
         self.assertTrue(len(first_name) > 0)
         self.assertIn(first_name, self.faker._first_names)
 
+    def test_first_names(self) -> None:
+        first_names: List[str] = self.faker.first_names()
+        for first_name in first_names:
+            self.assertIsInstance(first_name, str)
+            self.assertTrue(len(first_name) > 0)
+            self.assertIn(first_name, self.faker._first_names)
+
     def test_last_name(self) -> None:
         last_name: str = self.faker.last_name()
         self.assertIsInstance(last_name, str)
         self.assertTrue(len(last_name) > 0)
         self.assertIn(last_name, self.faker._last_names)
+
+    def test_last_names(self) -> None:
+        last_names: List[str] = self.faker.last_names()
+        for last_name in last_names:
+            self.assertIsInstance(last_name, str)
+            self.assertTrue(len(last_name) > 0)
+            self.assertIn(last_name, self.faker._last_names)
 
     def test_name(self) -> None:
         name: str = self.faker.name()
@@ -2629,6 +2673,35 @@ class TestFaker(unittest.TestCase):
         last_name = " ".join(parts[1:])
         self.assertIn(first_name, self.faker._first_names)
         self.assertIn(last_name, self.faker._last_names)
+
+    def test_names(self) -> None:
+        names: List[str] = self.faker.names()
+        for name in names:
+            self.assertIsInstance(name, str)
+            self.assertTrue(len(name) > 0)
+            parts = name.split(" ")
+            first_name = parts[0]
+            last_name = " ".join(parts[1:])
+            self.assertIn(first_name, self.faker._first_names)
+            self.assertIn(last_name, self.faker._last_names)
+
+    def test_username(self) -> None:
+        username: str = self.faker.username()
+        self.assertIsInstance(username, str)
+
+    def test_usernames(self) -> None:
+        usernames: List[str] = self.faker.usernames()
+        for username in usernames:
+            self.assertIsInstance(username, str)
+
+    def test_slug(self) -> None:
+        slug: str = self.faker.slug()
+        self.assertIsInstance(slug, str)
+
+    def test_slugs(self) -> None:
+        slugs: List[str] = self.faker.slugs()
+        for slug in slugs:
+            self.assertIsInstance(slug, str)
 
     def test_word(self) -> None:
         word: str = self.faker.word()
