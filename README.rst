@@ -119,10 +119,14 @@ Person names
 
     from fake import FAKER
 
-    FAKER.first_name()
-    FAKER.last_name()
-    FAKER.name()
-    FAKER.username()
+    FAKER.first_name()  # str
+    FAKER.first_names()  # List[str]
+    FAKER.last_name()  # str
+    FAKER.last_names()  # List[str]
+    FAKER.name()  # str
+    FAKER.names()  # List[str]
+    FAKER.username()  # str
+    FAKER.usernames()  # List[str]
 
 Random texts
 ~~~~~~~~~~~~
@@ -130,11 +134,16 @@ Random texts
 
     from fake import FAKER
 
-    FAKER.slug()
-    FAKER.word()
-    FAKER.sentence()
-    FAKER.paragraph()
-    FAKER.text()
+    FAKER.slug()  # str
+    FAKER.slugs()  # List[str]
+    FAKER.word()  # str
+    FAKER.words()  # List[str]
+    FAKER.sentence()  # str
+    FAKER.sentences()  # List[str]
+    FAKER.paragraph()  # str
+    FAKER.paragraphs()  # List[str]
+    FAKER.text()  # str
+    FAKER.texts()  # List[str]
 
 Internet
 ~~~~~~~~
@@ -144,6 +153,7 @@ Internet
 
     FAKER.email()
     FAKER.url()
+    FAKER.image_url()
     FAKER.ipv4()
 
 Filenames
@@ -164,6 +174,7 @@ Primitive data types
     FAKER.pybool()
     FAKER.pystr()
     FAKER.pyfloat()
+    FAKER.uuid()
 
 Dates
 ~~~~~
