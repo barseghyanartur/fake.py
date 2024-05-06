@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.6.7"
+version = "0.6.8"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -50,6 +50,7 @@ dev = [
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-rst",
 ]
 docs = [
     "sphinx<6.0",
@@ -162,6 +163,8 @@ addopts = [
 testpaths = [
     "fake.py",
     "__copy_fake.py",
+    "*.rst",
+    "**/*.rst",
 ]
 
 [tool.coverage.run]

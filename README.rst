@@ -116,103 +116,111 @@ Generate data
 Person names
 ~~~~~~~~~~~~
 .. code-block:: python
+    :name: test_person_names
 
     from fake import FAKER
 
     FAKER.first_name()  # str
-    FAKER.first_names()  # List[str]
+    FAKER.first_names()  # list[str]
     FAKER.last_name()  # str
-    FAKER.last_names()  # List[str]
+    FAKER.last_names()  # list[str]
     FAKER.name()  # str
-    FAKER.names()  # List[str]
+    FAKER.names()  # list[str]
     FAKER.username()  # str
-    FAKER.usernames()  # List[str]
+    FAKER.usernames()  # list[str]
 
 Random texts
 ~~~~~~~~~~~~
 .. code-block:: python
+    :name: test_random_texts
 
     from fake import FAKER
 
     FAKER.slug()  # str
-    FAKER.slugs()  # List[str]
+    FAKER.slugs()  # list[str]
     FAKER.word()  # str
-    FAKER.words()  # List[str]
+    FAKER.words()  # list[str]
     FAKER.sentence()  # str
-    FAKER.sentences()  # List[str]
+    FAKER.sentences()  # list[str]
     FAKER.paragraph()  # str
-    FAKER.paragraphs()  # List[str]
+    FAKER.paragraphs()  # list[str]
     FAKER.text()  # str
-    FAKER.texts()  # List[str]
+    FAKER.texts()  # list[str]
 
 Internet
 ~~~~~~~~
 .. code-block:: python
+    :name: test_internet
 
     from fake import FAKER
 
-    FAKER.email()
-    FAKER.url()
-    FAKER.image_url()
-    FAKER.ipv4()
+    FAKER.email()  # str
+    FAKER.url()  # str
+    FAKER.image_url()  # str
+    FAKER.ipv4()  # str
 
 Filenames
 ~~~~~~~~~
 .. code-block:: python
+    :name: test_filenames
 
     from fake import FAKER
 
-    FAKER.filename()
+    FAKER.file_name()  # str
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: python
+    :name: test_primitive_data_types
 
     from fake import FAKER
 
-    FAKER.pyint()
-    FAKER.pybool()
-    FAKER.pystr()
-    FAKER.pyfloat()
-    FAKER.uuid()
+    FAKER.pyint()  # int
+    FAKER.pybool()  # bool
+    FAKER.pystr()  # str
+    FAKER.pyfloat()  # flot
+    FAKER.uuid()  # uuid.UUID
 
 Dates
 ~~~~~
 .. code-block:: python
+    :name: test_dates
 
     from fake import FAKER
 
-    FAKER.date()
-    FAKER.date_time()
+    FAKER.date()  # datetime.date
+    FAKER.date_time()  # datetime.datetime
 
 Generate files
 --------------
 As bytes
 ~~~~~~~~
 .. code-block:: python
+    :name: test_generate_files_as_bytes
 
     from fake import FAKER
 
-    FAKER.pdf()
-    FAKER.docx()
-    FAKER.png()
-    FAKER.svg()
-    FAKER.bmp()
-    FAKER.gif()
+    FAKER.pdf()  # bytes
+    FAKER.docx()  # bytes
+    FAKER.png()  # bytes
+    FAKER.svg()  # bytes
+    FAKER.bmp()  # bytes
+    FAKER.gif()  # bytes
 
 As files on the file system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: python
+    :name: test_generate_files_as_files_on_file_system
 
     from fake import FAKER
 
-    FAKER.pdf_file()
-    FAKER.docx_file()
-    FAKER.png_file()
-    FAKER.svg_file()
-    FAKER.bmp_file()
-    FAKER.gif_file()
-    FAKER.txt_file()
+    FAKER.pdf_file()  # str
+    FAKER.docx_file()  # str
+    FAKER.png_file()  # str
+    FAKER.svg_file()  # str
+    FAKER.bmp_file()  # str
+    FAKER.gif_file()  # str
+    FAKER.txt_file()  # str
 
 Factories
 ---------
@@ -312,6 +320,7 @@ Customize
 Make your own custom providers and utilize factories with them.
 
 .. code-block:: python
+    :name: test_customize
 
     import random
     import string
