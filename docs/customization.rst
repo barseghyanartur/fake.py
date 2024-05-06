@@ -9,6 +9,7 @@ The ``Faker`` class is easy to customize. See the following example:
 **custom_fake.py**
 
 .. code-block:: python
+    :name: test_customization_custom_fake
 
     import random
     import string
@@ -177,6 +178,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 **models.py**
 
 .. code-block:: python
+    :name: test_customization_models
 
     from dataclasses import dataclass
     from datetime import date
@@ -209,6 +211,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 **factories.py**
 
 .. code-block:: python
+    :name: test_customization_factories
 
     from fake import ModelFactory, SubFactory, post_save, pre_save
 

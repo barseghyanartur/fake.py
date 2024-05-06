@@ -71,8 +71,16 @@ html_js_files = [
     "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx@1.3.4/src/js/download_adapter.js",
 ]
 
-
 # -- Options for todo extension ----------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
 
 todo_include_todos = True
+
+# -- Options for Epub output  ----------------------------------------------
+epub_title = project
+epub_author = author
+epub_publisher = "GitHub"
+epub_copyright = copyright
+epub_identifier = "https://github.com/barseghyanartur/fake.py"  # URL or ISBN
+epub_scheme = "URL"  # or "ISBN"
+epub_uid = "https://github.com/barseghyanartur/fake.py"
