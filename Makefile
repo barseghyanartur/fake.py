@@ -14,6 +14,12 @@ rebuild_docs:
 	cp docs/conf.py.distrib docs/conf.py
 	cp docs/index.rst.distrib docs/index.rst
 
+build_docs_epub:
+	$(MAKE) -C docs/ epub
+
+build_docs_pdf:
+	$(MAKE) -C docs/ latexpdf
+
 # Format code using Black
 black:
 	source $(VENV) && black .
@@ -29,9 +35,9 @@ doc8:
 ruff:
 	source $(VENV) && ruff .
 
-# Serve the built docs on port 5000
+# Serve the built docs on port 5001
 serve_docs:
-	source $(VENV) && cd builddocs && python -m http.server 5000
+	source $(VENV) && cd builddocs && python -m http.server 5001
 
 # Install the project
 install:
@@ -134,6 +140,9 @@ clean:
 
 compile-requirements:
 	source $(VENV) && python -m piptools compile --extra all -o docs/requirements.txt pyproject.toml
+
+compile-requirements-upgrade:
+	source $(VENV) && python -m piptools compile --extra all -o docs/requirements.txt pyproject.toml --upgrade
 
 update-version:
 	#sed -i 's/"version": "[0-9.]\+"/"version": "$(VERSION)"/' package.json
