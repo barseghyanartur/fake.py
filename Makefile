@@ -20,6 +20,9 @@ build_docs_epub:
 build_docs_pdf:
 	$(MAKE) -C docs/ latexpdf
 
+pre-commit:
+	pre-commit run --all-files
+
 # Format code using Black
 black:
 	source $(VENV) && black .
