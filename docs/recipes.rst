@@ -3,6 +3,7 @@ Recipes
 **Imports and initialization**
 
 .. code-block:: python
+    :name: test_init
 
     from fake import FAKER
 
@@ -12,9 +13,15 @@ Recipes
 
 Returns a random first name.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.first_name()
+    .. code-block:: python
+        :name: test_first_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.first_name()
 
 ----
 
@@ -22,9 +29,15 @@ Returns a random first name.
 
 Returns a random last name.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.last_name()
+    .. code-block:: python
+        :name: test_last_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.last_name()
 
 ----
 
@@ -32,9 +45,15 @@ Returns a random last name.
 
 Returns a random full name.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.name()
+    .. code-block:: python
+        :name: test_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.name()
 
 ----
 
@@ -42,9 +61,15 @@ Returns a random full name.
 
 Returns a random word.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.word()
+    .. code-block:: python
+        :name: test_word
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.word()
 
 ----
 
@@ -52,9 +77,15 @@ Returns a random word.
 
 Returns a list of ``nb`` random words.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.words()
+    .. code-block:: python
+        :name: test_words
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.words()
 
 Arguments:
 
@@ -62,9 +93,15 @@ Arguments:
 
 Example with arguments (returns a list of 10 words):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.words(nb=10)
+    .. code-block:: python
+        :name: test_words_nb_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.words(nb=10)
 
 ----
 
@@ -72,9 +109,15 @@ Example with arguments (returns a list of 10 words):
 
 Returns a random sentence with ``nb_words`` number of words.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.sentence()
+    .. code-block:: python
+        :name: test_sentence
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.sentence()
 
 Arguments:
 
@@ -82,9 +125,15 @@ Arguments:
 
 Example with arguments (returns a sentence of 10 words):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.sentence(nb_words=10)
+    .. code-block:: python
+        :name: test_sentence_nb_words_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.sentence(nb_words=10)
 
 ----
 
@@ -92,9 +141,15 @@ Example with arguments (returns a sentence of 10 words):
 
 Returns ``nb`` number of random sentences.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.sentences()
+    .. code-block:: python
+        :name: test_sentences
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.sentences()
 
 Arguments:
 
@@ -102,9 +157,15 @@ Arguments:
 
 Example with arguments (returns a list of 10 sentences):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.sentences(nb=10)
+    .. code-block:: python
+        :name: test_sentences_nb_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.sentences(nb=10)
 
 ----
 
@@ -112,9 +173,15 @@ Example with arguments (returns a list of 10 sentences):
 
 Returns a random paragraph with ``nb_sentences`` number of sentences.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.paragraph()
+    .. code-block:: python
+        :name: test_paragraph
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.paragraph()
 
 Arguments:
 
@@ -123,9 +190,15 @@ Arguments:
 
 Example with arguments (returns a paragraph of 10 sentences):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.paragraph(nb_sentences=10)
+    .. code-block:: python
+        :name: test_paragraph_nb_sentences_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.paragraph(nb_sentences=10)
 
 ----
 
@@ -133,9 +206,15 @@ Example with arguments (returns a paragraph of 10 sentences):
 
 Returns ``nb`` number of random paragraphs.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.paragraphs()
+    .. code-block:: python
+        :name: test_paragraphs
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.paragraphs()
 
 Arguments:
 
@@ -143,9 +222,15 @@ Arguments:
 
 Example with arguments (returns a list of 10 paragraphs):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.paragraphs(nb=10)
+    .. code-block:: python
+        :name: test_paragraphs_nb_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.paragraphs(nb=10)
 
 ----
 
@@ -153,9 +238,15 @@ Example with arguments (returns a list of 10 paragraphs):
 
 Returns random text with up to ``nb_chars`` characters.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.text()
+    .. code-block:: python
+        :name: test_text
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.text()
 
 Arguments:
 
@@ -163,9 +254,15 @@ Arguments:
 
 Example with arguments (returns a 1000 character long text):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.text(nb_chars=1_000)
+    .. code-block:: python
+        :name: test_text_nb_chars_1000
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.text(nb_chars=1_000)
 
 ----
 
@@ -173,9 +270,15 @@ Example with arguments (returns a 1000 character long text):
 
 Returns ``nb`` number of random texts.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.texts()
+    .. code-block:: python
+        :name: test_texts
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.texts()
 
 Arguments:
 
@@ -183,9 +286,15 @@ Arguments:
 
 Example with arguments (returns a list of 10 texts):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.texts(nb=10)
+    .. code-block:: python
+        :name: test_texts_nb_10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.texts(nb=10)
 
 ----
 
@@ -193,9 +302,15 @@ Example with arguments (returns a list of 10 texts):
 
 Returns a random file name with the given extension.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.file_name()
+    .. code-block:: python
+        :name: test_file_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.file_name()
 
 Arguments:
 
@@ -204,9 +319,15 @@ Arguments:
 
 Example with arguments (returns a filename with "png" extension):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.file_name(extension="png")
+    .. code-block:: python
+        :name: test_file_name_extension_png
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.file_name(extension="png")
 
 ----
 
@@ -214,9 +335,15 @@ Example with arguments (returns a filename with "png" extension):
 
 Returns a random email with the specified domain.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.email()
+    .. code-block:: python
+        :name: test_email
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email()
 
 Arguments:
 
@@ -225,9 +352,15 @@ Arguments:
 
 Example with arguments (returns an email with "gmail.com" domain):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.email(domain="gmail.com")
+    .. code-block:: python
+        :name: test_email_domain_gmail
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email(domain="gmail.com")
 
 ----
 
@@ -235,9 +368,15 @@ Example with arguments (returns an email with "gmail.com" domain):
 
 Returns a random URL.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.url()
+    .. code-block:: python
+        :name: test_url
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.url()
 
 Arguments:
 
@@ -253,9 +392,15 @@ Arguments:
 
 Returns a valid random image URL.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.image_url()
+    .. code-block:: python
+        :name: test_image_url
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.image_url()
 
 Arguments:
 
@@ -268,9 +413,15 @@ Arguments:
 
 Example with arguments (alternative dimensions):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.image_url(width=640, height=480)
+    .. code-block:: python
+        :name: test_image_url_width_640_height_480
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.image_url(width=640, height=480)
 
 ----
 
@@ -278,9 +429,15 @@ Example with arguments (alternative dimensions):
 
 Returns a random integer between ``min_value`` and ``max_value``.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pyint()
+    .. code-block:: python
+        :name: test_pyint
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pyint()
 
 Arguments:
 
@@ -290,9 +447,15 @@ Arguments:
 
 Example with arguments (returns an integer between 0 and 100):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pyint(min_value=0, max_value=100)
+    .. code-block:: python
+        :name: test_pyint_min_value_0_max_value_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pyint(min_value=0, max_value=100)
 
 ----
 
@@ -300,9 +463,15 @@ Example with arguments (returns an integer between 0 and 100):
 
 Returns a random boolean value.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pybool()
+    .. code-block:: python
+        :name: test_pybool
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pybool()
 
 ----
 
@@ -310,9 +479,15 @@ Returns a random boolean value.
 
 Returns a random string of ``nb_chars`` length.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pystr()
+    .. code-block:: python
+        :name: test_pystr
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pystr()
 
 Arguments:
 
@@ -320,9 +495,15 @@ Arguments:
 
 Example with arguments (returns a string of 64 characters):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pystr(nb_chars=64)
+    .. code-block:: python
+        :name: test_pystr_nb_chars_64
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pystr(nb_chars=64)
 
 ----
 
@@ -330,9 +511,15 @@ Example with arguments (returns a string of 64 characters):
 
 Returns a random float between ``min_value`` and ``max_value``.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pyfloat()
+    .. code-block:: python
+        :name: test_pyfloat
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pyfloat()
 
 Arguments:
 
@@ -343,9 +530,15 @@ Arguments:
 
 Example with arguments (returns a float between 0 and 100):
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pyfloat(min_value=0.0, max_value=100.0)
+    .. code-block:: python
+        :name: test_pyfloat_min_value_0_max_value_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pyfloat(min_value=0.0, max_value=100.0)
 
 ----
 
@@ -354,9 +547,15 @@ Example with arguments (returns a float between 0 and 100):
 Returns a random decimal, according to given ``left_digits`` and
 ``right_digits``.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pydecimal()
+    .. code-block:: python
+        :name: test_pydecimal
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pydecimal()
 
 Arguments:
 
@@ -369,9 +568,15 @@ Arguments:
 
 Example with arguments:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pydecimal(left_digits=1, right_digits=4, positive=False)
+    .. code-block:: python
+        :name: test_pydecimal_left_digits_1_right_digits_4_positive_false
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pydecimal(left_digits=1, right_digits=4, positive=False)
 
 ----
 
@@ -379,9 +584,15 @@ Example with arguments:
 
 Returns a random IPv4 address.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.ipv4()
+    .. code-block:: python
+        :name: test_ipv4
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.ipv4()
 
 ----
 
@@ -389,9 +600,15 @@ Returns a random IPv4 address.
 
 Generates a random date.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.date()
+    .. code-block:: python
+        :name: test_date
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.date()
 
 Arguments:
 
@@ -403,9 +620,15 @@ Arguments:
 Example with arguments, generate a random date between given ``start_date``
 and ``end_date``:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.date(start_date="-1d", end_date="+1d")
+    .. code-block:: python
+        :name: test_date_start_date_end_date
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.date(start_date="-1d", end_date="+1d")
 
 ----
 
@@ -413,9 +636,15 @@ and ``end_date``:
 
 Generates a random datetime.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.date_time(start_date="-1d", end_date="+1d")
+    .. code-block:: python
+        :name: test_date_time
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.date_time()
 
 Arguments:
 
@@ -427,9 +656,15 @@ Arguments:
 Example with arguments, generate a random date between given ``start_date``
 and ``end_date``:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.date_time(start_date="-1d", end_date="+1d")
+    .. code-block:: python
+        :name: test_date_time_start_date_end_date
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.date_time(start_date="-1d", end_date="+1d")
 
 ----
 
@@ -437,9 +672,15 @@ and ``end_date``:
 
 Generates a content (``bytes``) of a PDF document.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pdf()
+    .. code-block:: python
+        :name: test_pdf
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pdf()
 
 Arguments:
 
@@ -467,30 +708,46 @@ Examples with arguments.
 Generate a content (``bytes``) of a PDF document of 100 pages with random
 graphics:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pdf(nb_pages=100)
+    .. code-block:: python
+        :name: test_pdf_nb_pages_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pdf(nb_pages=100)
 
 Generate a content (``bytes``) of a PDF document of 100 pages with random
 texts:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import TextPdfGenerator
+    .. code-block:: python
+        :name: test_pdf_nb_pages_100_generator_text
+        :emphasize-lines: 2-
 
-    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
+        from fake import FAKER
+        from fake import TextPdfGenerator
+
+        FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
 
 If you want to get insights of the content used to generate the PDF (texts),
 pass the ``metadata`` argument.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import MetaData, TextPdfGenerator
+    .. code-block:: python
+        :name: test_nb_pages_100_generator_text_metadata
+        :emphasize-lines: 2-
 
-    metadata = MetaData()
-    FAKER.pdf(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+        from fake import FAKER
+        from fake import MetaData, TextPdfGenerator
 
-    print(metadata.data)  # Inspect ``metadata``
+        metadata = MetaData()
+        FAKER.pdf(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+        print(metadata.content)  # Inspect ``metadata``
 
 ----
 
@@ -498,9 +755,15 @@ pass the ``metadata`` argument.
 
 Generates a content (``bytes``) of a image of the specified format and colour.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.image()  # Supported formats are `png`, `svg`, `bmp` and `gif`
+    .. code-block:: python
+        :name: test_image
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.image()  # Supported formats are `png`, `svg`, `bmp` and `gif`
 
 Arguments:
 
@@ -513,13 +776,19 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.image(
-        image_format="svg",  # SVG format
-        size=(640, 480),  # 640px width, 480px height
-        color: (0, 0, 0),  # Fill rectangle with black
-    )
+    .. code-block:: python
+        :name: test_image_image_format_svg
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.image(
+            image_format="svg",  # SVG format
+            size=(640, 480),  # 640px width, 480px height
+            color=(0, 0, 0),  # Fill rectangle with black
+        )
 
 ----
 
@@ -527,9 +796,15 @@ Example with arguments.
 
 Generates a content (``bytes``) of a DOCX document.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.docx()
+    .. code-block:: python
+        :name: test_docx
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.docx()
 
 Arguments:
 
@@ -548,21 +823,32 @@ Examples with arguments.
 Generate a content (``bytes``) of a DOCX document of 100 pages with random
 texts:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.docx(nb_pages=100)
+    .. code-block:: python
+        :name: test_docx_nb_pages_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.docx(nb_pages=100)
 
 If you want to get insights of the content used to generate the DOCX (texts),
 pass the ``metadata`` argument.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import MetaData
+    .. code-block:: python
+        :name: test_docx_nb_pages_100_metadata
+        :emphasize-lines: 2-
 
-    metadata = MetaData()
-    FAKER.docx(nb_pages=100, metadata=metadata)
+        from fake import FAKER
+        from fake import MetaData
 
-    print(metadata.data)  # Inspect ``metadata``
+        metadata = MetaData()
+        FAKER.docx(nb_pages=100, metadata=metadata)
+
+        print(metadata.content)  # Inspect ``metadata``
 
 ----
 
@@ -570,9 +856,15 @@ pass the ``metadata`` argument.
 
 Generates a ``PDF`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pdf_file()
+    .. code-block:: python
+        :name: test_pdf_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pdf_file()
 
 Arguments:
 
@@ -590,29 +882,45 @@ Examples with arguments.
 
 Generate a PDF document of 100 pages with random graphics:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.pdf_file(nb_pages=100)
+    .. code-block:: python
+        :name: test_pdf_file_nb_pages_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.pdf_file(nb_pages=100)
 
 Generate a PDF document of 100 pages with random texts:
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import TextPdfGenerator
+    .. code-block:: python
+        :name: test_pdf_file_nb_pages_100_generator_text
+        :emphasize-lines: 2-
 
-    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
+        from fake import FAKER
+        from fake import TextPdfGenerator
+
+        FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
 
 If you want to get insights of the content used to generate the PDF (texts),
 pass the ``metadata`` argument.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import MetaData, TextPdfGenerator
+    .. code-block:: python
+        :name: test_pdf_file_nb_pages_100_generator_text_metadata
+        :emphasize-lines: 2-
 
-    metadata = MetaData()
-    FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+        from fake import FAKER
+        from fake import MetaData, TextPdfGenerator
 
-    print(metadata.data)  # Inspect ``metadata``
+        metadata = MetaData()
+        FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+        print(metadata.content)  # Inspect ``metadata``
 
 ----
 
@@ -620,9 +928,15 @@ pass the ``metadata`` argument.
 
 Generates a ``PNG`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.png_file()
+    .. code-block:: python
+        :name: test_png_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.png_file()
 
 Arguments:
 
@@ -638,13 +952,19 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.png_file(
-        basename="png_file",  # Basename
-        size=(640, 480),  # 640px width, 480px height
-        color: (0, 0, 0),  # Fill rectangle with black
-    )
+    .. code-block:: python
+        :name: test_png_file_basename_size_color
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.png_file(
+            basename="png_file",  # Basename
+            size=(640, 480),  # 640px width, 480px height
+            color=(0, 0, 0),  # Fill rectangle with black
+        )
 
 ----
 
@@ -652,9 +972,15 @@ Example with arguments.
 
 Generates an ``SVG`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.svg_file()
+    .. code-block:: python
+        :name: test_svg_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.svg_file()
 
 Arguments:
 
@@ -670,13 +996,19 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.svg_file(
-        basename="svg_file",  # Basename
-        size=(640, 480),  # 640px width, 480px height
-        color: (0, 0, 0),  # Fill rectangle with black
-    )
+    .. code-block:: python
+        :name: test_svg_file_basename_size_color
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.svg_file(
+            basename="svg_file",  # Basename
+            size=(640, 480),  # 640px width, 480px height
+            color=(0, 0, 0),  # Fill rectangle with black
+        )
 
 ----
 
@@ -684,9 +1016,15 @@ Example with arguments.
 
 Generates a ``BMP`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.bmp_file()
+    .. code-block:: python
+        :name: test_bmp_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.bmp_file()
 
 Arguments:
 
@@ -702,13 +1040,19 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.bmp_file(
-        basename="bmp_file",  # Basename
-        size=(640, 480),  # 640px width, 480px height
-        color: (0, 0, 0),  # Fill rectangle with black
-    )
+    .. code-block:: python
+        :name: test_bmp_file_basename_size_color
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.bmp_file(
+            basename="bmp_file",  # Basename
+            size=(640, 480),  # 640px width, 480px height
+            color=(0, 0, 0),  # Fill rectangle with black
+        )
 
 ----
 
@@ -716,9 +1060,15 @@ Example with arguments.
 
 Generates a ``GIF`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.gif_file()
+    .. code-block:: python
+        :name: test_gif_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.gif_file()
 
 Arguments:
 
@@ -734,13 +1084,19 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.gif_file(
-        basename="gif_file",  # Basename
-        size=(640, 480),  # 640px width, 480px height
-        color: (0, 0, 0),  # Fill rectangle with black
-    )
+    .. code-block:: python
+        :name: test_gif_file_basename_size_color
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.gif_file(
+            basename="gif_file",  # Basename
+            size=(640, 480),  # 640px width, 480px height
+            color=(0, 0, 0),  # Fill rectangle with black
+        )
 
 ----
 
@@ -748,9 +1104,15 @@ Example with arguments.
 
 Generates a ``TXT`` file.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.txt_file()
+    .. code-block:: python
+        :name: test_txt_file
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.txt_file()
 
 Arguments:
 
@@ -766,9 +1128,15 @@ Arguments:
 
 Example with arguments.
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    FAKER.txt_file(
-        basename="txt_file",  # Basename
-        nb_chars=10_000,  # 10_000 characters long
-    )
+    .. code-block:: python
+        :name: test_txt_file_basename_nb_chars
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.txt_file(
+            basename="txt_file",  # Basename
+            nb_chars=10_000,  # 10_000 characters long
+        )

@@ -222,12 +222,13 @@ As files on the file system
     FAKER.gif_file()  # str
     FAKER.txt_file()  # str
 
-Factories
----------
+Factories/dynamic fixtures
+--------------------------
 This is how you could define factories for `Django`_'s built-in ``Group``
 and ``User`` models.
 
 .. code-block:: python
+    :name: test_factories
 
     from django.contrib.auth.models import Group, User
     from fake import (
