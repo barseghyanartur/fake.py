@@ -43,7 +43,7 @@ from typing import (
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.6.8"
+__version__ = "0.6.9"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -1533,6 +1533,7 @@ class Faker:
         generator: Union[
             Type[TextPdfGenerator], Type[GraphicPdfGenerator]
         ] = GraphicPdfGenerator,
+        metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
@@ -1545,7 +1546,8 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
-        metadata = MetaData()
+        if not metadata:
+            metadata = MetaData()
         data = self.pdf(
             nb_pages=nb_pages, generator=generator, metadata=metadata, **kwargs
         )
@@ -1659,6 +1661,7 @@ class Faker:
         self,
         nb_pages: int = 1,
         texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
@@ -1670,7 +1673,8 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
-        metadata = MetaData()
+        if not metadata:
+            metadata = MetaData()
         data = self.docx(texts=texts, metadata=metadata)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))

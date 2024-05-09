@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.9
+-----
+2024-05-10
+
+- Minor fixes in ``pdf_file`` and ``docx_file`` providers.
+- Minor fixes in docs.
+
 0.6.8
 -----
 2024-05-06
