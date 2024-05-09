@@ -780,7 +780,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_image_image_format_svg
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
@@ -956,7 +956,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_png_file_basename_size_color
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
@@ -1000,7 +1000,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_svg_file_basename_size_color
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
@@ -1044,7 +1044,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_bmp_file_basename_size_color
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
@@ -1088,7 +1088,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_gif_file_basename_size_color
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
@@ -1132,7 +1132,7 @@ Example with arguments.
 
     .. code-block:: python
         :name: test_txt_file_basename_nb_chars
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
