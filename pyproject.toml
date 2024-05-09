@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.6.8"
+version = "0.6.9"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -166,6 +166,10 @@ testpaths = [
     "*.rst",
     "**/*.rst",
 ]
+pythonpath = [
+    "examples/django",
+]
+DJANGO_SETTINGS_MODULE = "blog.settings"
 
 [tool.coverage.run]
 relative_files = true
