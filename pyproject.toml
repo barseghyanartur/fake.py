@@ -33,7 +33,6 @@ keywords = ["fake data", "test data"]
 "Source Code" = "https://github.com/barseghyanartur/fake.py/"
 "Changelog" = "https://fakepy.readthedocs.io/en/latest/changelog.html"
 
-
 [project.optional-dependencies]
 all = ["fake.py[dev,test,docs]"]
 dev = [
@@ -48,8 +47,10 @@ dev = [
     "twine",
 ]
 test = [
+    "django",
     "pytest",
     "pytest-cov",
+    "pytest-django",
     "pytest-rst",
 ]
 docs = [
