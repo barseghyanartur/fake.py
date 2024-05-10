@@ -6,7 +6,7 @@ Customization
 
 The ``Faker`` class is easy to customize. See the following example:
 
-**custom_fake.py**
+*Filename: custom_fake.py*
 
 .. code-block:: python
     :name: test_customization_custom_fake
@@ -175,7 +175,9 @@ The ``postal_code`` is the provider method and shall be decorated with
 
 You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
-**models.py**
+----
+
+*Filename: models.py*
 
 .. code-block:: python
     :name: test_customization_models
@@ -208,7 +210,9 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
         def __str__(self) -> str:
             return self.username
 
-**factories.py**
+----
+
+*Filename: factories.py*
 
 .. code-block:: python
     :name: test_customization_factories
