@@ -22,7 +22,7 @@ Factories
 
 Django example
 --------------
-**article/models.py**
+*Filename: article/models.py*
 
 .. container:: jsphinx-download
 
@@ -33,16 +33,20 @@ Django example
     *See the full example*
     :download:`here <_static/examples/factories/django/article/models.py>`
 
-**article/factories.py**
+----
+
+*Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-21, 31-120, 130-162
+        :lines: 1-21, 31-63, 93-120, 130-132, 148-162
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
+
+----
 
 **Usage example**
 
@@ -83,9 +87,11 @@ Django example
         group_2=PostSave(add_to_group, name="Yet another group"),
     )
 
+----
+
 Pydantic example
 ----------------
-**article/models.py**
+*Filename: article/models.py*
 
 .. container:: jsphinx-download
 
@@ -96,7 +102,9 @@ Pydantic example
     *See the full example*
     :download:`here <_static/examples/factories/pydantic/article/models.py>`
 
-**article/factories.py**
+----
+
+*Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
@@ -109,9 +117,11 @@ Pydantic example
 
 *Used just like in previous example.*
 
+----
+
 TortoiseORM example
 -------------------
-**article/models.py**
+*Filename: article/models.py*
 
 .. container:: jsphinx-download
 
@@ -122,7 +132,9 @@ TortoiseORM example
     *See the full example*
     :download:`here <_static/examples/factories/tortoise/article/models.py>`
 
-**article/factories.py**
+----
+
+*Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
@@ -135,9 +147,11 @@ TortoiseORM example
 
 *Used just like in previous example.*
 
+----
+
 Dataclasses example
 -------------------
-**article/models.py**
+*Filename: article/models.py*
 
 .. container:: jsphinx-download
 
@@ -148,7 +162,9 @@ Dataclasses example
     *See the full example*
     :download:`here <_static/examples/factories/dataclasses/article/models.py>`
 
-**article/factories.py**
+----
+
+*Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
@@ -161,10 +177,12 @@ Dataclasses example
 
 *Used just like in previous example.*
 
+----
+
 SQLAlchemy example
 ------------------
 
-**config.py**
+*Filename: config.py*
 
 .. container:: jsphinx-download
 
@@ -175,7 +193,9 @@ SQLAlchemy example
     *See the full example*
     :download:`here <_static/examples/factories/sqlalchemy/config.py>`
 
-**article/models.py**
+----
+
+*Filename: article/models.py*
 
 .. container:: jsphinx-download
 
@@ -186,7 +206,9 @@ SQLAlchemy example
     *See the full example*
     :download:`here <_static/examples/factories/sqlalchemy/article/models.py>`
 
-**article/factories.py**
+----
+
+*Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
