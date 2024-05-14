@@ -6,6 +6,8 @@
 #
 alabaster==0.7.16
     # via sphinx
+asgiref==3.8.1
+    # via django
 asttokens==2.4.1
     # via stack-data
 babel==2.15.0
@@ -28,6 +30,7 @@ click==8.1.7
     # via
     #   black
     #   pip-tools
+    #   pydoclint
 coverage[toml]==7.5.1
     # via pytest-cov
 cryptography==42.0.7
@@ -38,10 +41,16 @@ detect-secrets==1.5.0
     # via
     #   fake-py
     #   fake.py (pyproject.toml)
+django==5.0.6
+    # via
+    #   fake-py
+    #   fake.py (pyproject.toml)
 doc8==1.1.1
     # via
     #   fake-py
     #   fake.py (pyproject.toml)
+docstring-parser-fork==0.0.5
+    # via pydoclint
 docutils==0.19
     # via
     #   doc8
@@ -88,7 +97,7 @@ jeepney==0.8.0
     #   secretstorage
 jinja2==3.1.4
     # via sphinx
-keyring==25.2.0
+keyring==25.2.1
     # via twine
 markdown-it-py==3.0.0
     # via rich
@@ -144,6 +153,10 @@ pure-eval==0.2.2
     # via stack-data
 pycparser==2.22
     # via cffi
+pydoclint==0.4.1
+    # via
+    #   fake-py
+    #   fake.py (pyproject.toml)
 pygments==2.18.0
     # via
     #   doc8
@@ -160,7 +173,12 @@ pytest==8.2.0
     #   fake-py
     #   fake.py (pyproject.toml)
     #   pytest-cov
+    #   pytest-django
 pytest-cov==5.0.0
+    # via
+    #   fake-py
+    #   fake.py (pyproject.toml)
+pytest-django==4.8.0
     # via
     #   fake-py
     #   fake.py (pyproject.toml)
@@ -186,7 +204,7 @@ rfc3986==2.0.0
     # via twine
 rich==13.7.1
     # via twine
-ruff==0.4.3
+ruff==0.4.4
     # via
     #   fake-py
     #   fake.py (pyproject.toml)
@@ -225,6 +243,8 @@ sphinxcontrib-qthelp==1.0.7
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
+sqlparse==0.5.0
+    # via django
 stack-data==0.6.3
     # via ipython
 stevedore==5.2.0
@@ -237,6 +257,7 @@ tomli==2.0.1
     #   doc8
     #   mypy
     #   pip-tools
+    #   pydoclint
     #   pytest
 traitlets==5.14.3
     # via
@@ -248,6 +269,7 @@ twine==5.0.0
     #   fake.py (pyproject.toml)
 typing-extensions==4.11.0
     # via
+    #   asgiref
     #   black
     #   ipython
     #   mypy

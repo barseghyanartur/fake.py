@@ -43,6 +43,7 @@ dev = [
     "isort",
     "mypy",
     "pip-tools",
+    "pydoclint",
     "ruff",
     "twine",
 ]
@@ -190,3 +191,10 @@ check_untyped_defs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true
+
+[tool.pydoclint]
+style = 'sphinx'
+exclude = '\.git|\.tox|tests/data|__copy_fake\.py'
+require-return-section-when-returning-nothing = false
+allow-init-docstring = true
+arg-type-hints-in-docstring = false
