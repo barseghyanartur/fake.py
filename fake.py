@@ -26,7 +26,9 @@ from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
 from typing import (
     Any,
+    Awaitable,
     Callable,
+    Coroutine,
     Dict,
     List,
     Literal,
@@ -384,6 +386,8 @@ class FileSystemStorage(BaseStorage):
         :param root_path: Path of your files root directory (e.g., Django's
             `settings.MEDIA_ROOT`).
         :param rel_path: Relative path (from root directory).
+        :param *args:
+        :param **kwargs:
         """
         self.root_path = Path(root_path or "")
         self.rel_path = Path(rel_path or "")
@@ -1170,6 +1174,8 @@ class Faker:
         :param positive: If True, the number will be positive, otherwise it
             can be negative.
         :return: A randomly generated Decimal number.
+        :rtype: Decimal
+        :raises: ValueError
         """
         if left_digits < 0:
             raise ValueError("`left_digits` must be at least 0")
@@ -1206,7 +1212,7 @@ class Faker:
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
     def _parse_date_string(
-        self, date_str: str, tzinfo=timezone.utc
+        self, date_str: str, tzinfo: timezone = timezone.utc
     ) -> datetime:
         """Parse date string with notation below into a datetime object:
 
@@ -1216,7 +1222,10 @@ class Faker:
         - '-365d': 365 days ago
 
         :param date_str: The date string with shorthand notation.
+        :param tzinfo: Timezone info.
         :return: A datetime object representing the time offset.
+        :rtype: datetime
+        :raises: ValueError
         """
         if date_str in ["now", "today"]:
             return datetime.now(tzinfo)
@@ -1242,7 +1251,7 @@ class Faker:
         self,
         start_date: str = "-7d",
         end_date: str = "+0d",
-        tzinfo=timezone.utc,
+        tzinfo: timezone = timezone.utc,
     ) -> date:
         """Generate random date between `start_date` and `end_date`.
 
@@ -1252,6 +1261,7 @@ class Faker:
             generated in the shorthand notation.
         :param tzinfo: The timezone.
         :return: A string representing the formatted date.
+        :rtype: date
         """
         start_datetime = self._parse_date_string(start_date, tzinfo)
         end_datetime = self._parse_date_string(end_date, tzinfo)
@@ -1267,7 +1277,7 @@ class Faker:
         self,
         start_date: str = "-7d",
         end_date: str = "+0d",
-        tzinfo=timezone.utc,
+        tzinfo: timezone = timezone.utc,
     ) -> datetime:
         """Generate a random datetime between `start_date` and `end_date`.
 
@@ -1277,6 +1287,7 @@ class Faker:
             should be generated in the shorthand notation.
         :param tzinfo: The timezone.
         :return: A string representing the formatted datetime.
+        :rtype: datetime
         """
         start_datetime = self._parse_date_string(start_date, tzinfo)
         end_datetime = self._parse_date_string(end_date, tzinfo)
@@ -1315,6 +1326,7 @@ class Faker:
         :param color: Color of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the PNG image.
+        :rtype: bytes
         """
         width, height = size
 
@@ -1370,6 +1382,7 @@ class Faker:
         :param color: Color of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the SVG image.
+        :rtype: bytes
         """
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
@@ -1386,6 +1399,7 @@ class Faker:
         :param color: Color of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the BMP image.
+        :rtype: bytes
         """
         width, height = size
 
@@ -1446,6 +1460,7 @@ class Faker:
         :param color: Color of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the GIF image.
+        :rtype: bytes
         """
         width, height = size
 
@@ -2152,11 +2167,12 @@ class DjangoModelFactory(ModelFactory):
         return instance
 
 
-def run_async_in_thread(coroutine):
+def run_async_in_thread(coroutine: Coroutine) -> Awaitable:
     """Run an asynchronous coroutine in a separate thread.
 
     :param coroutine: An asyncio coroutine to be run.
     :return: The result of the coroutine.
+    :rtype: Awaitable
     """
 
     def thread_target():
@@ -2808,7 +2824,7 @@ class TestFaker(unittest.TestCase):
             ),
         )
         for width, height, service_url, expected in params:
-            kwargs = {}
+            kwargs: Dict[str, Union[str, int, None]] = {}
             if width:
                 kwargs["width"] = width
             if height:
