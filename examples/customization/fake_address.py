@@ -22,6 +22,7 @@ class FakerAddress(Faker):
         """Generate a random Dutch address line like 'Oranjestraat 1'.
 
         :return: A randomly generated Dutch address line as a string.
+        :rtype: str
         """
         # Generate components of the address
         street = random.choice(STREET_NAMES)
@@ -45,6 +46,7 @@ class FakerAddress(Faker):
         """Generate a random Dutch postal code in the format '1234 AB'.
 
         :return: A randomly generated Dutch postal code as a string.
+        :rtype: str
         """
         number_part = "".join(random.choices(string.digits, k=4))
         letter_part = "".join(random.choices(string.ascii_uppercase, k=2))

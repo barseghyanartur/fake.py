@@ -3411,9 +3411,9 @@ class TestFaker(unittest.TestCase):
             headline: str
             category: str
             author: User
-            image: Optional[
-                str
-            ] = None  # Use str to represent the image path or URL
+            image: Optional[str] = (
+                None  # Use str to represent the image path or URL
+            )
             pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
@@ -3800,9 +3800,9 @@ class TestFaker(unittest.TestCase):
             headline: str
             category: str
             author: TortoiseUser
-            image: Optional[
-                str
-            ] = None  # Use str to represent the image path or URL
+            image: Optional[str] = (
+                None  # Use str to represent the image path or URL
+            )
             pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
@@ -4088,9 +4088,9 @@ class TestFaker(unittest.TestCase):
             headline: str
             category: str
             author: SQLAlchemyUser
-            image: Optional[
-                str
-            ] = None  # Use str to represent the image path or URL
+            image: Optional[str] = (
+                None  # Use str to represent the image path or URL
+            )
             pub_date: date = field(default_factory=date.today)
             safe_for_work: bool = False
             minutes_to_read: int = 5
