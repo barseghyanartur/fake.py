@@ -3219,10 +3219,14 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(storage.exists(file.data["filename"]))
 
         with self.subTest("Test storage.abspath using relative path"):
-            self.assertEqual(storage.abspath(str(file)), file.data["filename"])
+            self.assertEqual(
+                os.path.realpath(storage.abspath(str(file))),
+                os.path.realpath(file.data["filename"]),
+            )
         with self.subTest("Test storage.abspath using absolute path"):
             self.assertEqual(
-                storage.abspath(file.data["filename"]), file.data["filename"]
+                os.path.realpath(storage.abspath(file.data["filename"])),
+                os.path.realpath(file.data["filename"]),
             )
 
         with self.subTest("Test storage.unlink on absolute path"):
