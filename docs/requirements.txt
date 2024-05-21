@@ -190,7 +190,7 @@ pyyaml==6.0.1
     # via detect-secrets
 readme-renderer==43.0
     # via twine
-requests==2.31.0
+requests==2.32.0
     # via
     #   detect-secrets
     #   requests-toolbelt
