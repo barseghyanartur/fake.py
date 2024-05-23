@@ -685,7 +685,7 @@ Generates a content (``bytes``) of a PDF document.
 Arguments:
 
 - ``nb_pages`` (type: ``int``, default value: ``1``) is an optional argument.
-- ``texts`` (type: ``List[str]``, default value: ``None``) is an optional
+- ``texts`` (type: ``list[str]``, default value: ``None``) is an optional
   argument.
 - ``generator``
   (type: ``Union[Type[TextPdfGenerator], Type[GraphicPdfGenerator]]``,
@@ -809,7 +809,7 @@ Generates a content (``bytes``) of a DOCX document.
 Arguments:
 
 - ``nb_pages`` (type: ``int``, default value: ``1``) is an optional argument.
-- ``texts`` (type: ``List[str]``, default value: ``None``) is an optional
+- ``texts`` (type: ``list[str]``, default value: ``None``) is an optional
   argument.
 
 .. note::
