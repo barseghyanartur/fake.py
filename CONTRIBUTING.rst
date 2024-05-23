@@ -85,6 +85,13 @@ all supported environments. For that use tox.
 In any case, GitHub Actions will catch potential errors, but using tox speeds
 things up.
 
+For a quick test of the package and all examples, use the following `Makefile`
+command:
+
+.. code-block:: sh
+
+    make test-all
+
 Pull requests
 -------------
 You can contribute to the project by making a `pull request`_.
@@ -102,7 +109,8 @@ For example:
 - This library consists of a single ``fake.py`` module. That module is
   dependency free, self-contained (includes all tests) and portable.
   Do not submit pull requests splitting the ``fake.py`` module into small
-  parts.
+  parts. Pull requests with external dependencies in ``fake.py`` module will
+  not be accepted either.
 - Some tests contain simplified implementation of existing libraries (Django
   ORM, TortoiseORM, SQLAlchemy). If you need to add integration tests for
   existing functionality, you can add the relevant code and requirements
