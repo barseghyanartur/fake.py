@@ -227,6 +227,8 @@ Factories/dynamic fixtures
 This is how you could define factories for `Django`_'s built-in ``Group``
 and ``User`` models.
 
+*Filename: factories.py*
+
 .. code-block:: python
     :name: test_factories
 
@@ -320,6 +322,8 @@ Customize
 ---------
 Make your own custom providers and utilize factories with them.
 
+*Filename: custom_fake.py*
+
 .. code-block:: python
     :name: test_customize
 
@@ -346,9 +350,17 @@ of ``FAKER`` and ``FACTORY``):
 
 .. code-block:: python
 
+    from custom_fake import FAKER  # Custom `FAKER` instance
+
     FAKER.postal_code()
 
+Or as follows:
+
+.. code-block:: python
+
     from fake import ModelFactory
+
+    from custom_fake import FACTORY  # Custom `FACTORY` instance
 
 
     class AddressFactory(ModelFactory):
