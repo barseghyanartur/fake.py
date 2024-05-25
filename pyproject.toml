@@ -46,6 +46,7 @@ dev = [
     "pydoclint",
     "ruff",
     "twine",
+    "uv",
 ]
 test = [
     "django",

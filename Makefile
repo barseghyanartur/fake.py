@@ -141,11 +141,17 @@ clean:
 	rm -rf .ruff_cache/
 	rm -rf dist/
 
-compile-requirements:
+compile-requirements-pip-tools:
 	source $(VENV) && python -m piptools compile --all-extras -o docs/requirements.txt pyproject.toml
 
-compile-requirements-upgrade:
+compile-requirements-upgrade-pip-tools:
 	source $(VENV) && python -m piptools compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
+
+compile-requirements:
+	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
+
+compile-requirements-upgrade:
+	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
 
 update-version:
 	#sed -i 's/"version": "[0-9.]\+"/"version": "$(VERSION)"/' package.json
