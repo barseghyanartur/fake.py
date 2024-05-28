@@ -1,8 +1,12 @@
+import random
+from functools import partial
 from pathlib import Path
 
 from fake import (
     FACTORY,
     FileSystemStorage,
+    LazyAttribute,
+    LazyFunction,
     ModelFactory,
     PostSave,
     PreSave,
@@ -28,6 +32,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
 
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+CATEGORIES = (
+    "art",
+    "technology",
+    "literature",
+)
 
 
 class GroupFactory(ModelFactory):
@@ -87,6 +97,8 @@ class ArticleFactory(ModelFactory):
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
+    headline = LazyAttribute(lambda o: o.content[:25])
+    category = LazyFunction(partial(random.choice, CATEGORIES))
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date()
     safe_for_work = FACTORY.pybool()
