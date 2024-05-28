@@ -121,12 +121,12 @@ class UserFactory(DjangoModelFactory):
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
-        instance.pre_save_called = True
+        instance._pre_save_called = True
 
     @post_save
     def _post_save_method(self, instance):
         # For testing purposes only
-        instance.post_save_called = True
+        instance._post_save_called = True
 
 
 class ArticleFactory(DjangoModelFactory):
@@ -163,9 +163,9 @@ class ArticleFactory(DjangoModelFactory):
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
-        instance.pre_save_called = True
+        instance._pre_save_called = True
 
     @post_save
     def _post_save_method(self, instance):
         # For testing purposes only
-        instance.post_save_called = True
+        instance._post_save_called = True

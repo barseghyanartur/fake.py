@@ -3504,11 +3504,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class ArticleFactory(ModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3556,10 +3556,10 @@ class TestFaker(unittest.TestCase):
             # Testing hooks
             _user = _article.author
             self.assertTrue(
-                hasattr(_user, "pre_save_called") and _user.pre_save_called
+                hasattr(_user, "_pre_save_called") and _user._pre_save_called
             )
             self.assertTrue(
-                hasattr(_user, "post_save_called") and _user.post_save_called
+                hasattr(_user, "_post_save_called") and _user._post_save_called
             )
 
             # Testing get_or_create for Article model
@@ -3619,11 +3619,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class DjangoArticleFactory(DjangoModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3646,11 +3646,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("DjangoModelFactory"):
             _django_article = DjangoArticleFactory(author__username="admin")
@@ -3680,12 +3680,12 @@ class TestFaker(unittest.TestCase):
 
             # Testing hooks
             self.assertTrue(
-                hasattr(_django_article, "pre_save_called")
-                and _django_article.pre_save_called
+                hasattr(_django_article, "_pre_save_called")
+                and _django_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_django_article, "post_save_called")
-                and _django_article.post_save_called
+                hasattr(_django_article, "_post_save_called")
+                and _django_article._post_save_called
             )
 
             # Testing batch creation
@@ -3857,11 +3857,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class TortoiseArticleFactory(TortoiseModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3884,11 +3884,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("TortoiseModelFactory"):
             _tortoise_article = TortoiseArticleFactory(author__username="admin")
@@ -3918,12 +3918,12 @@ class TestFaker(unittest.TestCase):
 
             # Testing hooks
             self.assertTrue(
-                hasattr(_tortoise_article, "pre_save_called")
-                and _tortoise_article.pre_save_called
+                hasattr(_tortoise_article, "_pre_save_called")
+                and _tortoise_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_tortoise_article, "post_save_called")
-                and _tortoise_article.post_save_called
+                hasattr(_tortoise_article, "_post_save_called")
+                and _tortoise_article._post_save_called
             )
 
             # Testing batch creation
@@ -4006,10 +4006,10 @@ class TestFaker(unittest.TestCase):
 
             # Testing hooks
             # self.assertFalse(
-            #     hasattr(_tortoise_article, "pre_save_called")
+            #     hasattr(_tortoise_article, "_pre_save_called")
             # )
             # self.assertFalse(
-            #     hasattr(_tortoise_article, "post_save_called")
+            #     hasattr(_tortoise_article, "_post_save_called")
             # )
 
             # Testing batch creation
@@ -4143,11 +4143,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class SQLAlchemyArticleFactory(SQLAlchemyModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -4173,11 +4173,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("SQLAlchemyModelFactory"):
             _sqlalchemy_article = SQLAlchemyArticleFactory(
@@ -4209,12 +4209,12 @@ class TestFaker(unittest.TestCase):
 
             # Testing hooks
             self.assertTrue(
-                hasattr(_sqlalchemy_article, "pre_save_called")
-                and _sqlalchemy_article.pre_save_called
+                hasattr(_sqlalchemy_article, "_pre_save_called")
+                and _sqlalchemy_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_sqlalchemy_article, "post_save_called")
-                and _sqlalchemy_article.post_save_called
+                hasattr(_sqlalchemy_article, "_post_save_called")
+                and _sqlalchemy_article._post_save_called
             )
 
             # Testing batch creation
@@ -4291,8 +4291,8 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(_sqlalchemy_user.username, str)
 
             # Testing hooks
-            self.assertFalse(hasattr(_sqlalchemy_article, "pre_save_called"))
-            self.assertFalse(hasattr(_sqlalchemy_article, "post_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "_pre_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "_post_save_called"))
 
             # Testing batch creation
             _sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)
