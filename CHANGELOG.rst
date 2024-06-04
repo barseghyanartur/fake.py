@@ -16,6 +16,15 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.6.10
+------
+2024-06-04
+
+- Add a dedicated ``PydanticModelFactory`` (yet equal to ``ModelFactory``)
+  for future improvements.
+- Documented factory limitations.
+- Added ``FuzzyChoice`` and ``FuzzyChoices`` for more convenient factories.
+
 0.6.9
 -----
 2024-05-10

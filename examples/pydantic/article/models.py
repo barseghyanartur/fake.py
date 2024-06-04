@@ -59,13 +59,13 @@ class Article(BaseModel):
     title: str = Field(..., max_length=255)
     slug: str = Field(..., max_length=255, unique=True)
     content: str = Field(...)
-    headline: str = Field(...)
+    headline: str | None = Field(default=None)
     category: str = Field(..., max_length=255)
+    author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
     pub_date: date = Field(default_factory=date.today)
     safe_for_work: bool = False
     minutes_to_read: int = 5
-    author: User
 
     class Config:
         extra = "allow"  # For testing purposes only

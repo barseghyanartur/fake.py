@@ -7,9 +7,9 @@ from fake import (
     FileSystemStorage,
     LazyAttribute,
     LazyFunction,
-    ModelFactory,
     PostSave,
     PreSave,
+    PydanticModelFactory,
     SubFactory,
     post_save,
     pre_save,
@@ -40,7 +40,7 @@ CATEGORIES = (
 )
 
 
-class GroupFactory(ModelFactory):
+class GroupFactory(PydanticModelFactory):
     id = FACTORY.pyint()
     name = FACTORY.word()
 
@@ -58,7 +58,7 @@ def add_to_group(user: User, name: str) -> None:
     user.groups.add(group)
 
 
-class UserFactory(ModelFactory):
+class UserFactory(PydanticModelFactory):
     id = FACTORY.pyint()
     username = FACTORY.username()
     first_name = FACTORY.first_name()
@@ -92,7 +92,7 @@ class UserFactory(ModelFactory):
         instance._post_save_called = True
 
 
-class ArticleFactory(ModelFactory):
+class ArticleFactory(PydanticModelFactory):
     id = FACTORY.pyint()
     title = FACTORY.sentence()
     slug = FACTORY.slug()

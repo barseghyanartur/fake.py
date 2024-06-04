@@ -45,7 +45,7 @@ from typing import (
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.6.9"
+__version__ = "0.6.10"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -62,6 +62,8 @@ __all__ = (
     "Faker",
     "FileRegistry",
     "FileSystemStorage",
+    "FuzzyChoice",
+    "FuzzyChoices",
     "GraphicPdfGenerator",
     "LazyAttribute",
     "LazyFunction",
@@ -70,6 +72,7 @@ __all__ = (
     "PROVIDER_REGISTRY",
     "PostSave",
     "PreSave",
+    "PydanticModelFactory",
     "SQLAlchemyModelFactory",
     "StringValue",
     "SubFactory",
@@ -80,6 +83,8 @@ __all__ = (
     "post_save",
     "pre_save",
     "provider",
+    "RandomChoice",
+    "RandomSample",
     "run_async_in_thread",
     "trait",
     "xor_transform",
@@ -1870,6 +1875,29 @@ class LazyFunction:
         return self.func()
 
 
+class RandomChoice:
+    def __init__(self, choices: list | tuple):
+        self.choices = choices
+
+    def __call__(self):
+        return random.choice(self.choices)
+
+
+FuzzyChoice = RandomChoice  # noqa
+
+
+class RandomSample:
+    def __init__(self, choices: list | tuple, nb_choices: int = 1):
+        self.choices = choices
+        self.nb_choices = nb_choices
+
+    def __call__(self):
+        return random.sample(self.choices, self.nb_choices)
+
+
+FuzzyChoices = RandomSample  # noqa
+
+
 class PreSave:
     def __init__(self, func, *args, **kwargs):
         self.func = func
@@ -1964,7 +1992,8 @@ class ModelFactory:
                     model_data[_field] = (
                         value()
                         if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
+                            value,
+                            (FactoryMethod, SubFactory, LazyFunction),
                         )
                         else value
                     )
@@ -2027,6 +2056,10 @@ class ModelFactory:
     @classmethod
     def save(cls, instance):
         """Save the instance."""
+
+
+class PydanticModelFactory(ModelFactory):
+    """Pydantic ModelFactory."""
 
 
 class DjangoModelFactory(ModelFactory):

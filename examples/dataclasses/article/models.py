@@ -48,6 +48,8 @@ class Article:
     title: str
     slug: str
     content: str
+    headline: str
+    category: str
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
     pub_date: date = field(default_factory=date.today)
