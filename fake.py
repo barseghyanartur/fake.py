@@ -1876,7 +1876,7 @@ class LazyFunction:
 
 
 class RandomChoice:
-    def __init__(self, choices: list | tuple):
+    def __init__(self, choices: Union[List, Tuple]) -> None:
         self.choices = choices
 
     def __call__(self):
@@ -1887,7 +1887,11 @@ FuzzyChoice = RandomChoice  # noqa
 
 
 class RandomSample:
-    def __init__(self, choices: list | tuple, nb_choices: int = 1):
+    def __init__(
+        self,
+        choices: Union[List, Tuple],
+        nb_choices: int = 1,
+    ) -> None:
         self.choices = choices
         self.nb_choices = nb_choices
 
