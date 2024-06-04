@@ -5,7 +5,6 @@ from pathlib import Path
 from fake import (
     FACTORY,
     FileSystemStorage,
-    LazyAttribute,
     LazyFunction,
     PostSave,
     PreSave,
@@ -97,7 +96,7 @@ class ArticleFactory(PydanticModelFactory):
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
-    headline = LazyAttribute(lambda o: o.content[:25])
+    headline = PostSave(lambda o: o.content[:25])
     category = LazyFunction(partial(random.choice, CATEGORIES))
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date()
