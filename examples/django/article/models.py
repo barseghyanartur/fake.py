@@ -21,6 +21,7 @@ class Article(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
+    tags = models.JSONField(default=list)
 
     def __str__(self):
         return self.title

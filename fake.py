@@ -33,10 +33,12 @@ from typing import (
     List,
     Literal,
     Optional,
+    Sequence,
     Set,
     TextIO,
     Tuple,
     Type,
+    TypeVar,
     Union,
     get_args,
     get_origin,
@@ -62,8 +64,6 @@ __all__ = (
     "Faker",
     "FileRegistry",
     "FileSystemStorage",
-    "FuzzyChoice",
-    "FuzzyChoices",
     "GraphicPdfGenerator",
     "LazyAttribute",
     "LazyFunction",
@@ -83,14 +83,14 @@ __all__ = (
     "post_save",
     "pre_save",
     "provider",
-    "RandomChoice",
-    "RandomSample",
     "run_async_in_thread",
     "trait",
     "xor_transform",
 )
 
 LOGGER = logging.getLogger(__name__)
+T = TypeVar("T")
+ElementType = Sequence[T]
 
 # ************************************************
 # ******************* Public *********************
@@ -1767,6 +1767,18 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
+    def random_choice(self, elements: ElementType[T]) -> T:
+        return random.choice(elements)
+
+    random_element = random_choice  # noqa
+
+    @provider
+    def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
+        return random.sample(elements, length)
+
+    random_elements = random_sample  # noqa
+
 
 FAKER = Faker(alias="default")
 
@@ -1873,33 +1885,6 @@ class LazyFunction:
         if obj is None:
             return self
         return self.func()
-
-
-class RandomChoice:
-    def __init__(self, choices: Union[List, Tuple]) -> None:
-        self.choices = choices
-
-    def __call__(self):
-        return random.choice(self.choices)
-
-
-FuzzyChoice = RandomChoice  # noqa
-
-
-class RandomSample:
-    def __init__(
-        self,
-        choices: Union[List, Tuple],
-        nb_choices: int = 1,
-    ) -> None:
-        self.choices = choices
-        self.nb_choices = nb_choices
-
-    def __call__(self):
-        return random.sample(self.choices, self.nb_choices)
-
-
-FuzzyChoices = RandomSample  # noqa
 
 
 class PreSave:

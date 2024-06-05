@@ -1,11 +1,8 @@
-import random
-from functools import partial
 from pathlib import Path
 
 from fake import (
     FACTORY,
     FileSystemStorage,
-    LazyFunction,
     PostSave,
     PreSave,
     PydanticModelFactory,
@@ -97,7 +94,7 @@ class ArticleFactory(PydanticModelFactory):
     slug = FACTORY.slug()
     content = FACTORY.text()
     headline = PostSave(lambda o: o.content[:25])
-    category = LazyFunction(partial(random.choice, CATEGORIES))
+    category = FACTORY.random_choice(elements=CATEGORIES)
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date()
     safe_for_work = FACTORY.pybool()

@@ -23,7 +23,7 @@ are used for versioning (schema follows below):
 - Add a dedicated ``PydanticModelFactory`` (yet equal to ``ModelFactory``)
   for future improvements.
 - Documented factory limitations.
-- Added ``FuzzyChoice`` and ``FuzzyChoices`` for more convenient factories.
+- Added ``random_choice`` and ``random_sample`` providers.
 
 0.6.9
 -----

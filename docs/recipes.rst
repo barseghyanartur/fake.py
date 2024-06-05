@@ -1176,3 +1176,33 @@ Example with arguments.
             basename="txt_file",  # Basename
             nb_chars=10_000,  # 10_000 characters long
         )
+
+random_choice
+~~~~~~~~~~~~~
+
+Picks a random element from the sequence given.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_choice
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.random_choice(("Art", "Photography", "Generative AI"))
+
+random_sample
+~~~~~~~~~~~~~
+
+Picks a given number of random element from the sequence given.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_choice
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)

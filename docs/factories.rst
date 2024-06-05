@@ -22,13 +22,14 @@ Factories
 
 Django example
 --------------
+
 *Filename: article/models.py*
 
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/factories/django/article/models.py
         :language: python
-        :lines: 1-3, 9-23
+        :lines: 1-3, 9-24
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/models.py>`
@@ -41,7 +42,7 @@ Django example
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-21, 31-63, 93-120, 130-132, 148-162
+        :lines: 1-21, 31-53, 62-79, 109-135, 146-148, 164-178
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`

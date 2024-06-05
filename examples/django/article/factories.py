@@ -39,10 +39,26 @@ CATEGORIES = (
     "technology",
     "literature",
 )
+TAGS = (
+    "painting",
+    "photography",
+    "ai",
+    "data-engineering",
+    "fiction",
+    "poetry",
+    "manual",
+)
 
 
 class GroupFactory(DjangoModelFactory):
-    """Group factory."""
+    """Group factory.
+
+    Usage example:
+
+    .. code-block:: python
+
+        group = GroupFactory()
+    """
 
     name = FACTORY.word()
 
@@ -156,6 +172,7 @@ class ArticleFactory(DjangoModelFactory):
     safe_for_work = FACTORY.pybool()
     minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
+    tags = FACTORY.random_sample(elements=TAGS, length=3)
 
     class Meta:
         model = Article
