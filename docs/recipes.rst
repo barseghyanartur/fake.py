@@ -1200,7 +1200,7 @@ Picks a given number of random element from the sequence given.
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
-        :name: test_random_choice
+        :name: test_random_sample
         :emphasize-lines: 3
 
         from fake import FAKER
