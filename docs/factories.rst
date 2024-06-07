@@ -34,7 +34,7 @@ Django example
 
     .. literalinclude:: _static/examples/factories/django/article/models.py
         :language: python
-        :lines: 1-3, 9-24
+        :lines: 1-3, 9-26
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/models.py>`
@@ -47,7 +47,7 @@ Django example
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-21, 31-53, 62-79, 109-135, 146-148, 164-178
+        :lines: 1-22, 32-54, 64-80, 111-136, 147-153, 170-185
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`

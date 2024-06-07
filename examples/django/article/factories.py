@@ -11,6 +11,7 @@ from fake import (
     LazyAttribute,
     LazyFunction,
     PostSave,
+    PreInit,
     PreSave,
     SubFactory,
     post_save,
@@ -145,6 +146,10 @@ class UserFactory(DjangoModelFactory):
         instance._post_save_called = True
 
 
+def set_auto_minutes_to_read(data):
+    data["auto_minutes_to_read"] = data["pages"]
+
+
 class ArticleFactory(DjangoModelFactory):
     """Article factory.
 
@@ -167,6 +172,8 @@ class ArticleFactory(DjangoModelFactory):
     content = FACTORY.text()
     headline = LazyAttribute(lambda o: o.content[:25])
     category = LazyFunction(partial(random.choice, CATEGORIES))
+    pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+    auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
     safe_for_work = FACTORY.pybool()
