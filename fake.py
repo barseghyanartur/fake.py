@@ -1848,6 +1848,11 @@ class Factory:
 FACTORY = Factory(faker=FAKER)
 
 
+def pre_init(func):
+    func.is_pre_init = True
+    return func
+
+
 def pre_save(func):
     func.is_pre_save = True
     return func
@@ -1989,6 +1994,7 @@ class ModelFactory:
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2014,6 +2020,14 @@ class ModelFactory:
         # Execute pre-init methods
         for key, pre_init_method in pre_init_methods.items():
             pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance
         instance = model(**model_data)
