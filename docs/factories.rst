@@ -1,11 +1,16 @@
 Factories
 =========
 
+- ``pre_init`` is a method decorator that will always run before the instance
+  is initialised.
 - ``pre_save`` is a method decorator that will always run before the instance
   is saved.
 - ``post_save`` is a method decorator that will always run after the instance
   is saved.
 - ``trait`` decorator runs the code if set to True in factory constructor.
+- ``PreInit`` is like the ``pre_init`` decorator of the ``ModelFactory``,
+  but you can pass arguments to it and have a lot of flexibility. See
+  a working example (below) of how set a user password in Django.
 - ``PreSave`` is like the ``pre_save`` decorator of the ``ModelFactory``,
   but you can pass arguments to it and have a lot of flexibility. See
   a working example (below) of how set a user password in Django.

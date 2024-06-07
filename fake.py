@@ -1975,7 +1975,7 @@ class ModelFactory:
             if getattr(method, "is_trait", False)
         }
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
         pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
@@ -2115,12 +2115,15 @@ class DjangoModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2132,6 +2135,7 @@ class DjangoModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2173,6 +2177,18 @@ class DjangoModelFactory(ModelFactory):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -2278,12 +2294,15 @@ class TortoiseModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2295,6 +2314,7 @@ class TortoiseModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2336,6 +2356,18 @@ class TortoiseModelFactory(ModelFactory):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -2420,12 +2452,15 @@ class SQLAlchemyModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2437,6 +2472,7 @@ class SQLAlchemyModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2478,6 +2514,18 @@ class SQLAlchemyModelFactory(ModelFactory):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance
         instance = model(**model_data)
@@ -3252,6 +3300,18 @@ class TestFaker(unittest.TestCase):
             )
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_random_choice(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        _choice = self.faker.random_choice(_categories)
+        self.assertIn(_choice, _categories)
+
+    def test_random_sample(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        _sample = self.faker.random_sample(_categories, 2)
+        self.assertEqual(len(_sample), 2)
+        for _element in _sample:
+            self.assertIn(_element, _categories)
+
     def test_storage(self) -> None:
         storage = FileSystemStorage()
         with self.assertRaises(Exception):
@@ -3469,6 +3529,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: User
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -3565,6 +3627,9 @@ class TestFaker(unittest.TestCase):
             def _post_save_method(self, instance):
                 instance._post_save_called = True
 
+        def set_auto_minutes_to_read(data):
+            data["auto_minutes_to_read"] = data["pages"]
+
         class ArticleFactory(ModelFactory):
             id = FACTORY.pyint()  # type: ignore
             title = FACTORY.sentence()  # type: ignore
@@ -3572,6 +3637,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3603,6 +3670,9 @@ class TestFaker(unittest.TestCase):
 
             # Testing LazyAttribute
             self.assertIn(_article.headline, _article.content)
+
+            # Testing PreInit
+            self.assertEqual(_article.pages, _article.auto_minutes_to_read)
 
             # Testing Factory
             self.assertIsInstance(_article.id, int)
@@ -3687,6 +3757,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3732,6 +3804,12 @@ class TestFaker(unittest.TestCase):
             # Testing Factory
             self.assertIsInstance(_django_article.id, int)
             self.assertIsInstance(_django_article.slug, str)
+
+            # Testing PreInit
+            self.assertEqual(
+                _django_article.pages,
+                _django_article.auto_minutes_to_read,
+            )
 
             # Testing hooks
             self.assertTrue(
@@ -3858,6 +3936,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: TortoiseUser
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -3925,6 +4005,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3970,6 +4052,12 @@ class TestFaker(unittest.TestCase):
             # Testing Factory
             self.assertIsInstance(_tortoise_article.id, int)
             self.assertIsInstance(_tortoise_article.slug, str)
+
+            # Testing PreInit
+            self.assertEqual(
+                _tortoise_article.pages,
+                _tortoise_article.auto_minutes_to_read,
+            )
 
             # Testing hooks
             self.assertTrue(
@@ -4146,6 +4234,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: SQLAlchemyUser
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -4211,6 +4301,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -4261,6 +4353,12 @@ class TestFaker(unittest.TestCase):
             # Testing Factory
             self.assertIsInstance(_sqlalchemy_article.id, int)
             self.assertIsInstance(_sqlalchemy_article.slug, str)
+
+            # Testing PreInit
+            self.assertEqual(
+                _sqlalchemy_article.pages,
+                _sqlalchemy_article.auto_minutes_to_read,
+            )
 
             # Testing hooks
             self.assertTrue(
