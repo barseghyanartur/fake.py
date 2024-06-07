@@ -9,6 +9,7 @@ from fake import (
     PydanticModelFactory,
     SubFactory,
     post_save,
+    pre_init,
     pre_save,
     trait,
 )
@@ -78,6 +79,11 @@ class UserFactory(PydanticModelFactory):
         instance.is_staff = True
         instance.is_active = True
 
+    @pre_init
+    def _pre_init_method(self, data):
+        # For testing purposes only
+        data["_pre_init_called"] = True
+
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
@@ -98,7 +104,6 @@ class ArticleFactory(PydanticModelFactory):
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
-    # headline = PostSave(lambda o: o.content[:25])
     headline = PreInit(set_headline)
     category = FACTORY.random_choice(elements=CATEGORIES)
     image = FACTORY.png_file(storage=STORAGE)
@@ -109,6 +114,11 @@ class ArticleFactory(PydanticModelFactory):
 
     class Meta:
         model = Article
+
+    @pre_init
+    def _pre_init_method(self, data):
+        # For testing purposes only
+        data["_pre_init_called"] = True
 
     @pre_save
     def _pre_save_method(self, instance):

@@ -82,6 +82,7 @@ __all__ = (
     "fill_dataclass",
     "fill_pydantic_model",
     "post_save",
+    "pre_init",
     "pre_save",
     "provider",
     "run_async_in_thread",
