@@ -71,6 +71,7 @@ __all__ = (
     "ModelFactory",
     "PROVIDER_REGISTRY",
     "PostSave",
+    "PreInit",
     "PreSave",
     "PydanticModelFactory",
     "SQLAlchemyModelFactory",
@@ -1887,6 +1888,16 @@ class LazyFunction:
         return self.func()
 
 
+class PreInit:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, data: Dict[str, Any]) -> None:
+        self.func(data, *self.args, **self.kwargs)
+
+
 class PreSave:
     def __init__(self, func, *args, **kwargs):
         self.func = func
@@ -1959,11 +1970,14 @@ class ModelFactory:
         }
 
         # Collect PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -1996,6 +2010,10 @@ class ModelFactory:
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
 
         # Create a new instance
         instance = model(**model_data)

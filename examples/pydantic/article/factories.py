@@ -4,6 +4,7 @@ from fake import (
     FACTORY,
     FileSystemStorage,
     PostSave,
+    PreInit,
     PreSave,
     PydanticModelFactory,
     SubFactory,
@@ -88,12 +89,17 @@ class UserFactory(PydanticModelFactory):
         instance._post_save_called = True
 
 
+def set_headline(data) -> None:
+    data["headline"] = data["content"][:25]
+
+
 class ArticleFactory(PydanticModelFactory):
     id = FACTORY.pyint()
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
-    headline = PostSave(lambda o: o.content[:25])
+    # headline = PostSave(lambda o: o.content[:25])
+    headline = PreInit(set_headline)
     category = FACTORY.random_choice(elements=CATEGORIES)
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date()

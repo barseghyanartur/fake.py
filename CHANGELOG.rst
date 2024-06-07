@@ -24,6 +24,7 @@ are used for versioning (schema follows below):
   for future improvements.
 - Documented factory limitations.
 - Added ``random_choice`` and ``random_sample`` providers.
+- Added ``PreInit``.
 
 0.6.9
 -----

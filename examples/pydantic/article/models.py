@@ -59,7 +59,8 @@ class Article(BaseModel):
     title: str = Field(..., max_length=255)
     slug: str = Field(..., max_length=255, unique=True)
     content: str = Field(...)
-    headline: str | None = Field(default=None)
+    # headline: str | None = Field(default=None)
+    headline: str
     category: str = Field(..., max_length=255)
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
