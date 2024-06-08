@@ -16,15 +16,25 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
-0.6.10
-------
+0.7
+---
 2024-06-04
 
-- Add a dedicated ``PydanticModelFactory`` (yet equal to ``ModelFactory``)
+.. note::
+
+    This release contains minor backwards incompatible changes. Namely,
+    in the ``email`` provider.
+
+- The ``domain`` (type: ``str``, default value: ``example.com``) argument
+  of the ``email`` provider has been dropped in favour
+  of ``domain_names`` (type: ``Optional[Tuple[str]``, default value: ``None``).
+- Added a dedicated ``PydanticModelFactory`` (yet equal to ``ModelFactory``)
   for future improvements.
-- Documented factory limitations.
+- Added ``PreInit`` factory class and ``pre_init`` decorator.
+- Improved documentation of factories.
 - Added ``random_choice`` and ``random_sample`` providers.
-- Added ``PreInit``.
+- Added ``tld``, ``domain_name``, ``free_email_domain``, ``company_email``
+  and ``free_email`` providers.
 
 0.6.9
 -----

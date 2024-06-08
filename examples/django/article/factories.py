@@ -1,11 +1,13 @@
 import random
 from functools import partial
+from typing import Any, Dict
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from fake import (
     FACTORY,
+    FAKER,
     DjangoModelFactory,
     FileSystemStorage,
     LazyAttribute,
@@ -75,6 +77,12 @@ def set_password(user: User, password: str) -> None:
 def add_to_group(user: User, name: str) -> None:
     group = GroupFactory(name=name)
     user.groups.add(group)
+
+
+def set_email(data: Dict[str, Any]) -> None:
+    _first_name = data["first_name"].lower()
+    _last_name = data["last_name"].lower()
+    data["email"] = f"{_first_name} {_last_name}@{FAKER.domain()}"
 
 
 class UserFactory(DjangoModelFactory):

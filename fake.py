@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from email.utils import parseaddr
 from functools import partial
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
@@ -97,6 +98,43 @@ ElementType = Sequence[T]
 # ************************************************
 # ******************* Public *********************
 # ************************************************
+
+IMAGE_SERVICES = (
+    "https://picsum.photos/{width}/{height}",
+    "https://dummyimage.com/{width}x{height}",
+    "https://placekitten.com/{width}/{height}",
+    "https://loremflickr.com/{width}/{height}",
+)
+
+FREE_EMAIL_DOMAINS = (
+    "gmail.com",
+    "hotmail.com",
+    "mail.com",
+    "outlook.com",
+    "proton.me",
+    "protonmail.com",
+    "yahoo.com",
+)
+
+TLDS = (
+    "com",
+    "org",
+    "net",
+    "io",
+)
+
+URL_PROTOCOLS = (
+    "http",
+    "https",
+)
+
+URL_SUFFIXES = (
+    ".html",
+    ".php",
+    ".go",
+    "",
+    "/",
+)
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -854,13 +892,6 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
-IMAGE_SERVICES = (
-    "https://picsum.photos/{width}/{height}",
-    "https://dummyimage.com/{width}x{height}",
-    "https://placekitten.com/{width}/{height}",
-    "https://loremflickr.com/{width}/{height}",
-)
-
 # Global registry for provider methods
 UID_REGISTRY: Dict[str, "Faker"] = {}
 ALIAS_REGISTRY: Dict[str, "Faker"] = {}
@@ -1104,31 +1135,63 @@ class Faker:
             return temp_file.name
 
     @provider
-    def email(self, domain: str = "example.com") -> str:
-        if not domain:
-            domain = "example.com"
-        return f"{self.word().lower()}@{domain}"
+    def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        return random.choice(tlds or TLDS)
+
+    @provider
+    def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        domain = self.word().lower()
+        tld = self.tld(tlds)
+        return f"{domain}.{tld}"
+
+    @provider
+    def free_email_domain(self) -> str:
+        return random.choice(FREE_EMAIL_DOMAINS)
+
+    @provider
+    def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return f"{self.word().lower()}@{domain or self.domain_name()}"
+
+    @provider
+    def company_email(
+        self,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return (
+            f"{self.first_name().lower()}"
+            f"{self.last_name().lower()}"
+            f"@{domain or self.domain_name()}"
+        )
+
+    @provider
+    def free_email(
+        self,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return (
+            f"{self.first_name().lower()}"
+            f"{self.last_name().lower()}"
+            f"@{domain or self.free_email_domain()}"
+        )
 
     @provider
     def url(
         self,
-        protocols: Optional[Tuple[str]] = None,
-        tlds: Optional[Tuple[str]] = None,
-        suffixes: Optional[Tuple[str]] = None,
+        protocols: Optional[Tuple[str, ...]] = None,
+        tlds: Optional[Tuple[str, ...]] = None,
+        suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        protocol = random.choice(protocols or ("http", "https"))
-        domain = self.word().lower()
-        tld = random.choice(
-            tlds
-            or (
-                "com",
-                "org",
-                "net",
-                "io",
-            )
+        protocol = random.choice(protocols or URL_PROTOCOLS)
+        suffix = random.choice(suffixes or URL_SUFFIXES)
+        return (
+            f"{protocol}://"
+            f"{self.domain_name(tlds)}"
+            f"/{self.word().lower()}"
+            f"{suffix}"
         )
-        suffix = random.choice(suffixes or (".html", ".php", ".go", "", "/"))
-        return f"{protocol}://{domain}.{tld}/{self.word().lower()}{suffix}"
 
     @provider
     def image_url(
@@ -2752,6 +2815,11 @@ class TestFaker(unittest.TestCase):
     def tearDown(self):
         FILE_REGISTRY.clean_up()
 
+    @classmethod
+    def is_valid_email(cls, email: str) -> bool:
+        parsed_address = parseaddr(email)
+        return "@" in parsed_address[1]
+
     def test_uuid(self) -> None:
         uuid_value = self.faker.uuid()
         self.assertIsInstance(uuid_value, uuid.UUID)
@@ -2880,18 +2948,80 @@ class TestFaker(unittest.TestCase):
                 self.assertIsInstance(file_name, str)
                 self.assertTrue(file_name.endswith(f".{expected_extension}"))
 
+    def test_tld_with_defaults(self) -> None:
+        for _ in range(20):
+            result = self.faker.tld()
+            self.assertIn(result, TLDS)
+
+    def test_tld_with_custom_tlds(self) -> None:
+        custom_tlds = ("edu", "gov", "mil")
+        for _ in range(20):
+            result = self.faker.tld(custom_tlds)
+            self.assertIn(result, custom_tlds)
+
+    def test_domain_name_with_defaults(self) -> None:
+        result = self.faker.domain_name()
+        parts = result.split(".")
+        self.assertEqual(len(parts), 2)
+        domain, tld = parts
+        self.assertTrue(domain.islower())
+        self.assertIn(tld, TLDS)
+
+    def test_domain_name_custom_domain_names(self) -> None:
+        custom_tlds = ("edu", "gov", "mil")
+        for _ in range(20):
+            result = self.faker.domain_name(custom_tlds)
+            parts = result.split(".")
+            self.assertEqual(len(parts), 2)
+            domain, tld = parts
+            self.assertTrue(domain.islower())
+            self.assertIn(tld, custom_tlds)
+
+    def test_free_email_domain(self):
+        for _ in range(20):
+            result = self.faker.free_email_domain()
+            self.assertIn(result, FREE_EMAIL_DOMAINS)
+
     def test_email(self) -> None:
+        email: str = self.faker.email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
+
+    def test_email_custom_domain_names(self) -> None:
         domains = [
-            (None, "example.com"),
             ("example.com", "example.com"),
             ("gmail.com", "gmail.com"),
         ]
         for domain, expected_domain in domains:
             with self.subTest(domain=domain, expected_domain=expected_domain):
-                kwargs = {"domain": domain}
+                kwargs = {"domain_names": [domain]}
                 email: str = self.faker.email(**kwargs)
                 self.assertIsInstance(email, str)
+                self.assertTrue(self.is_valid_email(email))
                 self.assertTrue(email.endswith(f"@{expected_domain}"))
+
+    def test_company_email(self) -> None:
+        email: str = self.faker.company_email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
+
+    def test_company_email_custom_domain_names(self) -> None:
+        domains = [
+            ("microsoft.com", "microsoft.com"),
+            ("google.com", "google.com"),
+        ]
+        for domain, expected_domain in domains:
+            with self.subTest(domain=domain, expected_domain=expected_domain):
+                kwargs = {"domain_names": [domain]}
+                email: str = self.faker.company_email(**kwargs)
+                self.assertIsInstance(email, str)
+                self.assertTrue(self.is_valid_email(email))
+                self.assertTrue(email.endswith(f"@{expected_domain}"))
+
+    def test_free_email(self) -> None:
+        email: str = self.faker.free_email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
 
     def test_url(self) -> None:
         protocols = ("http", "https")

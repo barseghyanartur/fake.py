@@ -9,24 +9,25 @@ Please report security issues by emailing Artur Barseghyan
 
 Supported Versions
 ------------------
-**Make sure to use the latest version.**
-
 The two most recent ``fake.py`` release series receive security support.
-
-For example, during the development cycle leading to the release
-of ``fake.py`` 0.17.x, support will be provided for ``fake.py`` 0.16.x.
-
-Upon the release of ``fake.py`` 0.18.x, security support for ``fake.py``
-0.16.x will end.
+It's recommended to use the latest version.
 
 .. code-block:: text
 
     ┌─────────────────┬────────────────┐
     │ Version         │ Supported      │
     ├─────────────────┼────────────────┤
+    │ 0.7.x           │ Yes            │
+    ├─────────────────┼────────────────┤
     │ 0.6.x           │ Yes            │
     ├─────────────────┼────────────────┤
-    │ 0.5.x           │ Yes            │
-    ├─────────────────┼────────────────┤
-    │ < 0.5           │ No             │
+    │ < 0.6           │ No             │
     └─────────────────┴────────────────┘
+
+.. note::
+
+    For example, during the development cycle leading to the release
+    of ``fake.py`` 0.17.x, support will be provided for ``fake.py`` 0.16.x.
+
+    Upon the release of ``fake.py`` 0.18.x, security support for ``fake.py``
+    0.16.x will end.
