@@ -17,6 +17,7 @@ from fake import (
     PreSave,
     SubFactory,
     post_save,
+    pre_init,
     pre_save,
     trait,
 )
@@ -79,12 +80,6 @@ def add_to_group(user: User, name: str) -> None:
     user.groups.add(group)
 
 
-def set_email(data: Dict[str, Any]) -> None:
-    _first_name = data["first_name"].lower()
-    _last_name = data["last_name"].lower()
-    data["email"] = f"{_first_name}.{_last_name}@{FAKER.domain_name()}"
-
-
 class UserFactory(DjangoModelFactory):
     """User factory.
 
@@ -119,7 +114,6 @@ class UserFactory(DjangoModelFactory):
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
-    email = PreInit(set_email)
     date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     is_superuser = False
@@ -133,7 +127,7 @@ class UserFactory(DjangoModelFactory):
         get_or_create = ("username",)
 
     @post_save
-    def _send_registration_email(self, instance):
+    def send_registration_email(self, instance):
         """Send an email with registration information."""
         # Your code here
 
@@ -142,6 +136,12 @@ class UserFactory(DjangoModelFactory):
         instance.is_superuser = True
         instance.is_staff = True
         instance.is_active = True
+
+    @pre_init
+    def set_email(self, data: Dict[str, Any]) -> None:
+        first_name = data["first_name"].lower()
+        last_name = data["last_name"].lower()
+        data["email"] = f"{first_name}.{last_name}@{FAKER.domain_name()}"
 
     @pre_save
     def _pre_save_method(self, instance):
