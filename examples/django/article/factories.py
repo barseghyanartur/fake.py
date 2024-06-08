@@ -82,7 +82,7 @@ def add_to_group(user: User, name: str) -> None:
 def set_email(data: Dict[str, Any]) -> None:
     _first_name = data["first_name"].lower()
     _last_name = data["last_name"].lower()
-    data["email"] = f"{_first_name} {_last_name}@{FAKER.domain()}"
+    data["email"] = f"{_first_name}.{_last_name}@{FAKER.domain_name()}"
 
 
 class UserFactory(DjangoModelFactory):
@@ -119,7 +119,7 @@ class UserFactory(DjangoModelFactory):
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
-    email = FACTORY.email()
+    email = PreInit(set_email)
     date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     is_superuser = False

@@ -23,7 +23,8 @@ Factories
   an attribute name.
 - ``LazyFunction`` expects a callable, runs it (without any arguments) and
   sets the value as an attribute name.
-- ``SubFactory`` is for specifying relations (typically - ForeignKeys).
+- ``SubFactory`` is for specifying relations (typically - ForeignKeys or
+  nested objects).
 
 Django example
 --------------
@@ -47,7 +48,7 @@ Django example
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-22, 32-54, 64-80, 111-136, 147-153, 170-185
+        :lines: 1-24, 34-56, 66-88, 119-144, 155-161, 178-193
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
