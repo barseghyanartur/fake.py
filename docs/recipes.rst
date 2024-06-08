@@ -346,10 +346,96 @@ Example with arguments (returns a filename with "png" extension):
 
 ----
 
+tld
+~~~~~
+
+Returns a TLD (top level domain name).
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_tld
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.tld()
+
+Arguments:
+
+- ``tlds`` (type: ``Optional[Tuple[str, ...]]``, default value: ``None``) is
+  an optional argument.
+
+Example with arguments (returns either "com", "net" or "org" TLD):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_tld_tlds_com_net_org
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.tld(tlds=("com", "net", "org"))
+
+----
+
+domain_name
+~~~~~~~~~~~
+
+Returns a domain name.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_domain_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.domain_name()
+
+Arguments:
+
+- ``tlds`` (type: ``Optional[Tuple[str, ...]]``, default value: ``None``) is
+  an optional argument.
+
+Example with arguments (returns an domain name with either "com", "net" or
+"org" TLD):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_domain_name_tlds_com_net_org
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.domain_name(tlds=("com", "net", "org"))
+
+----
+
+free_email_domain
+~~~~~~~~~~~~~~~~~
+
+Returns a free e-mail domain name.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email_domain
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.free_email_domain()
+
+----
+
 email
 ~~~~~
 
-Returns a random email with the specified domain.
+Returns a random email.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -363,20 +449,91 @@ Returns a random email with the specified domain.
 
 Arguments:
 
-- ``domain`` (type: ``str``, default value: ``example.com``) is an optional
-  argument.
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
 
-Example with arguments (returns an email with "gmail.com" domain):
+Example with arguments (returns an email with either "gmail.com"
+or "proton.me" domain):
 
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
-        :name: test_email_domain_gmail
+        :name: test_email_domain_gmail_proton
         :emphasize-lines: 3
 
         from fake import FAKER
 
-        FAKER.email(domain="gmail.com")
+        FAKER.email(domain_names=("gmail.com", "proton.me"))
+
+----
+
+company_email
+~~~~~~~~~~~~~
+
+Returns a random company email.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_company_email
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.company_email()
+
+Arguments:
+
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
+
+Example with arguments (returns an email with either "microsoft.com"
+or "google.com" domain):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_company_email_domain_microsoft_google
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email(domain_names=("microsoft.com", "google.com"))
+
+----
+
+free_email
+~~~~~~~~~~
+
+Returns a random free email.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.free_email()
+
+Arguments:
+
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
+
+Example with arguments (returns an email with either "gmail.com"
+or "proton.me" domain):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email_domain_gmail_proton
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email(domain_names=("gmail.com", "proton.me"))
 
 ----
 
