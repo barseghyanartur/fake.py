@@ -35,6 +35,7 @@ __all__ = (
 # custom `FileSystemStorage` class and pass it to the file factory as
 # `storage` argument.
 STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
 CATEGORIES = (
     "art",
     "technology",

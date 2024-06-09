@@ -58,7 +58,7 @@ Factory for the Django's built-in ``Group`` model could look as simple as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 4, 7-8, 10, 20, 52-54, 64-68
+        :lines: 4-5, 7, 10-11, 13, 23, 56-58, 68-72
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -73,7 +73,7 @@ Factory for the Django's built-in ``User`` model could look as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-2, 5, 7, 9, 12-14, 20, 69-86, 117-131, 137-142
+        :lines: 1-2, 8, 10, 12, 15-17, 23, 73-90, 121-135, 141-146
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -82,16 +82,23 @@ Breakdown:
 
 - ``username`` is a required field. We shouldn't be using ``PreSave``
   or ``PostSave`` methods here, because we need it to be available and resolved
-  before we call the class constructor (missing required fields would fail on
+  before calling the class constructor (missing required fields would fail on
   Pydantic and other frameworks that enforce strong type checking). That's why
-  ``PreInit`` (which operates on the ``dict`` level, from which the model
-  instance is constructed) is used here to construct the ``username`` value
-  from ``first_name`` and the ``last_name``.
+  ``PreInit``, which operates on the ``dict`` level, from which the model
+  instance is constructed, is used here to construct the ``username`` value
+  from ``first_name`` and the ``last_name``. The ``set_username`` helper
+  function, which is used by ``PreInit``, accepts a dictionary with model data
+  as argument and all changes to that dictionary are passed further to the
+  class constructor. It's important to mention that functions passed to the
+  ``PreInit``, do hot have to return anything.
 - ``password`` is a non-required field and since Django has a well working way
-  for setting it, use of ``PreSave`` is the best option here.
+  for setting it, use of ``PreSave`` is the best option here. It's important
+  to mention that functions passed to the ``PreSave``, do hot have to return
+  anything.
 - ``group`` is a non-required many-to-many relationship. We need a user
   instance to be created before we can add user to groups. That's why
-  ``PostSave`` is best option here.
+  ``PostSave`` is best option here. It's important to mention that functions
+  passed to the ``PostSave``, do hot have to return anything.
 
 ----
 
@@ -103,30 +110,27 @@ Factory for the the ``Artice`` model could look as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 3, 7, 11, 15, 19-20, 21-23, 33-51, 153-159, 176-194
+        :lines: 3, 10, 14, 18, 22-25, 35-55, 157-163, 180-198
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
 
 Breakdown:
 
-- ``headline`` is a required field. We shouldn't be using ``PreSave``
-  or ``PostSave`` methods here, because we need it to be available and resolved
-  before we call the class constructor (missing required fields would fail on
-  Pydantic and other frameworks that enforce strong type checking). That's why
-  ``PreInit`` (which operates on the ``dict`` level, from which the model
-  instance is constructed) is used here to construct the ``headline`` value
-  from ``content``.
-- ``author`` is a non-required field and since Django has a well working way
-  for setting it, use of ``PreSave`` is the best option here.
+- ``headline`` is a required field that should be available and resolved
+  before the class constructor is called. We already know that ``PreInit``
+  should be used for such cases. The ``headline`` value is constructed from
+  ``content``.
+- ``author`` is a foreign key relation field to the ``User`` model. For
+  foreign key relations ``SubFactory`` is our best choice.
 - ``image`` is a file field. Files created shall be placed in the path
   specified in ``MEDIA_ROOT`` Django setting. That's why we create
   and configure the ``STORAGE`` instance to pass it to ``FACTORY.png_file``
   in a ``storage`` argument.
 - ``auto_minutes_to_read`` is a required field of the ``Article`` model.
   It needs to be resolved and available before the constructor class is
-  called. That's the ``@pre_init`` decorator is used (on
-  the ``set_auto_minutes_read`` method).
+  called. That's the ``@pre_init`` decorator is used on
+  the ``set_auto_minutes_read`` helper method.
 
 ----
 
@@ -138,7 +142,7 @@ All together it would look as follows:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-22, 32-54, 64-86, 117-142, 153-159, 176-194
+        :lines: 1-25, 35-58, 68-90, 121-135, 141-146, 157-163, 180-199
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -198,7 +202,7 @@ Example Pydantic models closely resemble the earlier shown Django models.
 
     .. literalinclude:: _static/examples/factories/pydantic/article/models.py
         :language: python
-        :lines: 1-5, 15-
+        :lines: 1-5, 15-25, 31-
 
     *See the full example*
     :download:`here <_static/examples/factories/pydantic/article/models.py>`
@@ -216,7 +220,7 @@ factories.
 
     .. literalinclude:: _static/examples/factories/pydantic/article/factories.py
         :language: python
-        :lines: 1-19, 29-105, 121-148
+        :lines: 1-19, 29-103, 119-145
 
     *See the full example*
     :download:`here <_static/examples/factories/pydantic/article/factories.py>`
@@ -294,7 +298,7 @@ factories.
 
     .. literalinclude:: _static/examples/factories/dataclasses/article/factories.py
         :language: python
-        :lines: 1-19, 29-102, 113-139
+        :lines: 1-19, 29-103, 114-140
 
     *See the full example*
     :download:`here <_static/examples/factories/dataclasses/article/factories.py>`
@@ -331,7 +335,7 @@ Example SQLAlchemy models closely resemble the earlier shown Django models.
 
     .. literalinclude:: _static/examples/factories/sqlalchemy/article/models.py
         :language: python
-        :lines: 1-15, 25-45, 49-74, 78-98
+        :lines: 1-16, 26-46, 50-75, 79-105
 
     *See the full example*
     :download:`here <_static/examples/factories/sqlalchemy/article/models.py>`
@@ -349,7 +353,7 @@ factories.
 
     .. literalinclude:: _static/examples/factories/sqlalchemy/article/factories.py
         :language: python
-        :lines: 1-16, 25-96, 107-125
+        :lines: 1-20, 29-127, 138-168
 
     *See the full example*
     :download:`here <_static/examples/factories/sqlalchemy/article/factories.py>`

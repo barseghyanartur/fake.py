@@ -32,6 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
 
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
 CATEGORIES = (
     "art",
     "technology",
@@ -67,11 +68,8 @@ def add_to_group(user: User, name: str) -> None:
 
 
 def slugify(text: str) -> str:
-    # Replace spaces and underscores with hyphens
     slug = text.replace(" ", "-").replace("_", "-")
-    # Remove characters that are not alphanumeric or hyphens
     slug = "".join(char for char in slug if char.isalnum() or char == "-")
-    # Convert to lowercase
     return slug.lower()
 
 

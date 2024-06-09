@@ -31,6 +31,7 @@ __all__ = (
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
 CATEGORIES = (
     "art",
     "technology",
