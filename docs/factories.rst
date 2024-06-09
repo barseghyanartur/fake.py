@@ -190,6 +190,7 @@ Pydantic example
 ----------------
 Models
 ~~~~~~
+Example Pydantic models closely resemble the earlier shown Django models.
 
 *Filename: article/models.py*
 
@@ -206,6 +207,8 @@ Models
 
 Factories
 ~~~~~~~~~
+Example Pydantic factories are almost identical to the earlier shown Django
+factories.
 
 *Filename: article/factories.py*
 
