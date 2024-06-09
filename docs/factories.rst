@@ -129,6 +129,7 @@ Breakdown:
   the ``set_auto_minutes_read`` method).
 
 ----
+
 All together it would look as follows:
 
 *Filename: article/factories.py*
