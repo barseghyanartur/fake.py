@@ -78,7 +78,7 @@ def slugify(text: str) -> str:
 def set_username(data: Dict[str, Any]) -> None:
     first_name = slugify(data["first_name"])
     last_name = slugify(data["last_name"])
-    data["username"] = f"{first_name}_{last_name}_{FAKER.pystr()}"
+    data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
 
 
 class UserFactory(PydanticModelFactory):
