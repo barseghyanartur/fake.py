@@ -2,8 +2,8 @@ from typing import Any, Dict
 
 from django.conf import settings
 from django.contrib.auth.models import (
-    Group,  # isort: skip
-    User,  # isort: skip
+    Group,
+    User,
 )
 from django.utils import timezone
 from django.utils.text import slugify
