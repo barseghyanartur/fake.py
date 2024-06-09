@@ -255,7 +255,7 @@ factories.
 
     .. literalinclude:: _static/examples/factories/tortoise/article/factories.py
         :language: python
-        :lines: 1-16, 26-81, 91-106
+        :lines: 1-20, 30-111, 121-148
 
     *See the full example*
     :download:`here <_static/examples/factories/tortoise/article/factories.py>`
@@ -294,7 +294,7 @@ factories.
 
     .. literalinclude:: _static/examples/factories/dataclasses/article/factories.py
         :language: python
-        :lines: 1-15, 25-72, 83-97
+        :lines: 1-19, 29-102, 113-139
 
     *See the full example*
     :download:`here <_static/examples/factories/dataclasses/article/factories.py>`

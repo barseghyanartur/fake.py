@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from fake import xor_transform
 
@@ -50,11 +50,14 @@ class Article:
     content: str
     headline: str
     category: str
+    pages: int
+    auto_minutes_to_read: int
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
     pub_date: date = field(default_factory=date.today)
     safe_for_work: bool = False
     minutes_to_read: int = 5
+    tags: List[str] = field(default_factory=list)
 
     def __str__(self):
         return self.title
