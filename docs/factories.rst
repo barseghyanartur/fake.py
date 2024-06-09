@@ -73,7 +73,7 @@ Factory for the Django's built-in ``User`` model could look as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-2, 8, 10, 12, 15-17, 23, 73-90, 121-135, 141-146
+        :lines: 1-2, 4, 6-10, 12, 15-17, 23, 73-90, 121-135, 141-146
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -110,7 +110,7 @@ Factory for the the ``Artice`` model could look as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 3, 10, 14, 18, 22-25, 35-55, 157-163, 180-198
+        :lines: 3, 10, 14, 18, 20, 23-25, 35-55, 157-163, 180-198
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
