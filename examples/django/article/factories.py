@@ -5,6 +5,7 @@ from typing import Any, Dict
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
+from django.utils.text import slugify
 from fake import (
     FACTORY,
     FAKER,
@@ -80,6 +81,12 @@ def add_to_group(user: User, name: str) -> None:
     user.groups.add(group)
 
 
+def set_email(data: Dict[str, Any]) -> None:
+    first_name = slugify(data["first_name"])
+    last_name = slugify(data["last_name"])
+    data["email"] = f"{first_name}.{last_name}@{FAKER.domain_name()}"
+
+
 class UserFactory(DjangoModelFactory):
     """User factory.
 
@@ -114,6 +121,7 @@ class UserFactory(DjangoModelFactory):
     username = FACTORY.username()
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
+    email = PreInit(set_email)
     date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
     is_superuser = False
@@ -137,12 +145,6 @@ class UserFactory(DjangoModelFactory):
         instance.is_staff = True
         instance.is_active = True
 
-    @pre_init
-    def set_email(self, data: Dict[str, Any]) -> None:
-        first_name = data["first_name"].lower()
-        last_name = data["last_name"].lower()
-        data["email"] = f"{first_name}.{last_name}@{FAKER.domain_name()}"
-
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
@@ -152,10 +154,6 @@ class UserFactory(DjangoModelFactory):
     def _post_save_method(self, instance):
         # For testing purposes only
         instance._post_save_called = True
-
-
-def set_auto_minutes_to_read(data):
-    data["auto_minutes_to_read"] = data["pages"]
 
 
 class ArticleFactory(DjangoModelFactory):
@@ -181,7 +179,6 @@ class ArticleFactory(DjangoModelFactory):
     headline = LazyAttribute(lambda o: o.content[:25])
     category = LazyFunction(partial(random.choice, CATEGORIES))
     pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
-    auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
     safe_for_work = FACTORY.pybool()
@@ -191,6 +188,10 @@ class ArticleFactory(DjangoModelFactory):
 
     class Meta:
         model = Article
+
+    @pre_init
+    def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+        data["auto_minutes_to_read"] = data["pages"]
 
     @pre_save
     def _pre_save_method(self, instance):

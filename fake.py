@@ -2044,6 +2044,10 @@ class ModelFactory:
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
             if isinstance(value, PreInit):
                 pre_init_methods[_field] = value
             elif isinstance(value, PreSave):
@@ -2074,7 +2078,9 @@ class ModelFactory:
         # Update model_data with non-trait kwargs and collect PreSave from
         # kwargs.
         for key, value in kwargs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
@@ -2184,6 +2190,10 @@ class DjangoModelFactory(ModelFactory):
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
             if isinstance(value, PreInit):
                 pre_init_methods[_field] = value
             elif isinstance(value, PreSave):
@@ -2210,10 +2220,15 @@ class DjangoModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check if this block is really needed now, that
+        # nested_attrs and direct_attrs are already handled separately
+        # later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # from kwargs.
         for key, value in kwargs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
@@ -2234,7 +2249,9 @@ class DjangoModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # and PostSave from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
@@ -2363,6 +2380,10 @@ class TortoiseModelFactory(ModelFactory):
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
             if isinstance(value, PreInit):
                 pre_init_methods[_field] = value
             elif isinstance(value, PreSave):
@@ -2389,6 +2410,8 @@ class TortoiseModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check is this block is needed now that kwargs are split
+        # into nested_attrs and direct_attrs later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # and PostSave from kwargs.
         for key, value in kwargs.items():
@@ -2413,7 +2436,9 @@ class TortoiseModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
@@ -2521,6 +2546,10 @@ class SQLAlchemyModelFactory(ModelFactory):
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
             if isinstance(value, PreInit):
                 pre_init_methods[_field] = value
             elif isinstance(value, PreSave):
@@ -2547,6 +2576,8 @@ class SQLAlchemyModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check if this is really needed now that kwargs are
+        # handled in direct_attrs later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # from kwargs.
         for key, value in kwargs.items():
@@ -2571,7 +2602,9 @@ class SQLAlchemyModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
