@@ -188,6 +188,9 @@ All together it would look as follows:
 
 Pydantic example
 ----------------
+Models
+~~~~~~
+
 *Filename: article/models.py*
 
 .. container:: jsphinx-download
@@ -201,13 +204,16 @@ Pydantic example
 
 ----
 
+Factories
+~~~~~~~~~
+
 *Filename: article/factories.py*
 
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/factories/pydantic/article/factories.py
         :language: python
-        :lines: 1-15, 25-72, 83-98
+        :lines: 1-19, 29-105, 121-148
 
     *See the full example*
     :download:`here <_static/examples/factories/pydantic/article/factories.py>`

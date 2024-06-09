@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 from fake import xor_transform
 from pydantic import BaseModel, Field
@@ -32,10 +32,10 @@ class Group(BaseModel):
 
 class User(BaseModel):
     id: int
-    username: str = Field(..., max_length=255)
-    first_name: str = Field(..., max_length=255)
-    last_name: str = Field(..., max_length=255)
-    email: str = Field(..., max_length=255)
+    username: str = Field(max_length=255)
+    first_name: str = Field(max_length=255)
+    last_name: str = Field(max_length=255)
+    email: str = Field(max_length=255)
     date_joined: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
     password: Optional[str] = Field("", max_length=255)
@@ -56,17 +56,19 @@ class User(BaseModel):
 
 class Article(BaseModel):
     id: int
-    title: str = Field(..., max_length=255)
-    slug: str = Field(..., max_length=255, unique=True)
-    content: str = Field(...)
-    # headline: str | None = Field(default=None)
+    title: str = Field(max_length=255)
+    slug: str = Field(max_length=255, unique=True)
+    content: str
     headline: str
-    category: str = Field(..., max_length=255)
+    category: str = Field(max_length=255)
+    pages: int
+    auto_minutes_to_read: int
     author: User
     image: Optional[str] = None  # Use str to represent the image path or URL
     pub_date: date = Field(default_factory=date.today)
     safe_for_work: bool = False
     minutes_to_read: int = 5
+    tags: List[str] = Field(default_factory=list)
 
     class Config:
         extra = "allow"  # For testing purposes only

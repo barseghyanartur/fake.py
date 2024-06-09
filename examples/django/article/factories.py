@@ -177,7 +177,7 @@ class ArticleFactory(DjangoModelFactory):
     slug = FACTORY.slug()
     content = FACTORY.text()
     headline = PreInit(set_headline)
-    category = FACTORY.random_sample(CATEGORIES)
+    category = FACTORY.random_choice(elements=CATEGORIES)
     pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
