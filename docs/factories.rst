@@ -227,6 +227,10 @@ factories.
 
 TortoiseORM example
 -------------------
+Models
+~~~~~~
+Example TortoiseORM models closely resemble the earlier shown Django models.
+
 *Filename: article/models.py*
 
 .. container:: jsphinx-download
@@ -239,6 +243,11 @@ TortoiseORM example
     :download:`here <_static/examples/factories/tortoise/article/models.py>`
 
 ----
+
+Factories
+~~~~~~~~~
+Example TortoiseORM factories are almost identical to the earlier shown Django
+factories.
 
 *Filename: article/factories.py*
 
@@ -257,6 +266,10 @@ TortoiseORM example
 
 Dataclasses example
 -------------------
+Models
+~~~~~~
+Example dataclass models closely resemble the earlier shown Django models.
+
 *Filename: article/models.py*
 
 .. container:: jsphinx-download
@@ -269,6 +282,11 @@ Dataclasses example
     :download:`here <_static/examples/factories/dataclasses/article/models.py>`
 
 ----
+
+Factories
+~~~~~~~~~
+Example dataclass factories are almost identical to the earlier shown Django
+factories.
 
 *Filename: article/factories.py*
 
@@ -287,6 +305,8 @@ Dataclasses example
 
 SQLAlchemy example
 ------------------
+Configuration
+~~~~~~~~~~~~~
 
 *Filename: config.py*
 
@@ -301,6 +321,10 @@ SQLAlchemy example
 
 ----
 
+Models
+~~~~~~
+Example SQLAlchemy models closely resemble the earlier shown Django models.
+
 *Filename: article/models.py*
 
 .. container:: jsphinx-download
@@ -313,6 +337,11 @@ SQLAlchemy example
     :download:`here <_static/examples/factories/sqlalchemy/article/models.py>`
 
 ----
+
+Factories
+~~~~~~~~~
+Example SQLAlchemy factories are almost identical to the earlier shown Django
+factories.
 
 *Filename: article/factories.py*
 
