@@ -1,19 +1,20 @@
-import random
-from functools import partial
+from typing import Any, Dict
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
+from django.utils.text import slugify
 from fake import (
     FACTORY,
+    FAKER,
     DjangoModelFactory,
     FileSystemStorage,
-    LazyAttribute,
-    LazyFunction,
     PostSave,
+    PreInit,
     PreSave,
     SubFactory,
     post_save,
+    pre_init,
     pre_save,
     trait,
 )
@@ -34,15 +35,32 @@ __all__ = (
 # custom `FileSystemStorage` class and pass it to the file factory as
 # `storage` argument.
 STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
 CATEGORIES = (
     "art",
     "technology",
     "literature",
 )
+TAGS = (
+    "painting",
+    "photography",
+    "ai",
+    "data-engineering",
+    "fiction",
+    "poetry",
+    "manual",
+)
 
 
 class GroupFactory(DjangoModelFactory):
-    """Group factory."""
+    """Group factory.
+
+    Usage example:
+
+    .. code-block:: python
+
+        group = GroupFactory()
+    """
 
     name = FACTORY.word()
 
@@ -58,6 +76,12 @@ def set_password(user: User, password: str) -> None:
 def add_to_group(user: User, name: str) -> None:
     group = GroupFactory(name=name)
     user.groups.add(group)
+
+
+def set_username(data: Dict[str, Any]) -> None:
+    first_name = slugify(data["first_name"])
+    last_name = slugify(data["last_name"])
+    data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
 
 
 class UserFactory(DjangoModelFactory):
@@ -91,7 +115,7 @@ class UserFactory(DjangoModelFactory):
         )
     """
 
-    username = FACTORY.username()
+    username = PreInit(set_username)
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
     email = FACTORY.email()
@@ -108,7 +132,7 @@ class UserFactory(DjangoModelFactory):
         get_or_create = ("username",)
 
     @post_save
-    def _send_registration_email(self, instance):
+    def send_registration_email(self, instance):
         """Send an email with registration information."""
         # Your code here
 
@@ -121,12 +145,16 @@ class UserFactory(DjangoModelFactory):
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
-        instance.pre_save_called = True
+        instance._pre_save_called = True
 
     @post_save
     def _post_save_method(self, instance):
         # For testing purposes only
-        instance.post_save_called = True
+        instance._post_save_called = True
+
+
+def set_headline(data: Dict[str, Any]) -> None:
+    data["headline"] = data["content"][:25]
 
 
 class ArticleFactory(DjangoModelFactory):
@@ -149,23 +177,29 @@ class ArticleFactory(DjangoModelFactory):
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
-    headline = LazyAttribute(lambda o: o.content[:25])
-    category = LazyFunction(partial(random.choice, CATEGORIES))
+    headline = PreInit(set_headline)
+    category = FACTORY.random_choice(elements=CATEGORIES)
+    pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
     safe_for_work = FACTORY.pybool()
     minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
+    tags = FACTORY.random_sample(elements=TAGS, length=3)
 
     class Meta:
         model = Article
 
+    @pre_init
+    def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+        data["auto_minutes_to_read"] = data["pages"]
+
     @pre_save
     def _pre_save_method(self, instance):
         # For testing purposes only
-        instance.pre_save_called = True
+        instance._pre_save_called = True
 
     @post_save
     def _post_save_method(self, instance):
         # For testing purposes only
-        instance.post_save_called = True
+        instance._post_save_called = True

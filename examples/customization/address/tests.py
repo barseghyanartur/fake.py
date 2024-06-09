@@ -28,18 +28,18 @@ class AddressFakerTestCase(unittest.TestCase):
 
         # Testing hooks
         self.assertTrue(
-            hasattr(person, "pre_save_called") and person.pre_save_called
+            hasattr(person, "_pre_save_called") and person._pre_save_called
         )
         self.assertTrue(
-            hasattr(person, "post_save_called") and person.post_save_called
+            hasattr(person, "_post_save_called") and person._post_save_called
         )
         self.assertTrue(
-            hasattr(person.address, "pre_save_called")
-            and person.address.pre_save_called
+            hasattr(person.address, "_pre_save_called")
+            and person.address._pre_save_called
         )
         self.assertTrue(
-            hasattr(person.address, "post_save_called")
-            and person.address.post_save_called
+            hasattr(person.address, "_post_save_called")
+            and person.address._post_save_called
         )
 
         # Testing batch creation

@@ -1,6 +1,7 @@
 Recipes
 =======
-**Imports and initialization**
+Imports and initialization
+--------------------------
 
 .. code-block:: python
     :name: test_init
@@ -9,7 +10,10 @@ Recipes
 
 ----
 
-**first_name**
+Providers
+---------
+first_name
+~~~~~~~~~~
 
 Returns a random first name.
 
@@ -25,7 +29,8 @@ Returns a random first name.
 
 ----
 
-**last_name**
+last_name
+~~~~~~~~~
 
 Returns a random last name.
 
@@ -41,7 +46,8 @@ Returns a random last name.
 
 ----
 
-**name**
+name
+~~~~
 
 Returns a random full name.
 
@@ -57,7 +63,8 @@ Returns a random full name.
 
 ----
 
-**word**
+word
+~~~~
 
 Returns a random word.
 
@@ -73,7 +80,8 @@ Returns a random word.
 
 ----
 
-**words**
+words
+~~~~~
 
 Returns a list of ``nb`` random words.
 
@@ -105,7 +113,8 @@ Example with arguments (returns a list of 10 words):
 
 ----
 
-**sentence**
+sentence
+~~~~~~~~
 
 Returns a random sentence with ``nb_words`` number of words.
 
@@ -137,7 +146,8 @@ Example with arguments (returns a sentence of 10 words):
 
 ----
 
-**sentences**
+sentences
+~~~~~~~~~
 
 Returns ``nb`` number of random sentences.
 
@@ -169,7 +179,8 @@ Example with arguments (returns a list of 10 sentences):
 
 ----
 
-**paragraph**
+paragraph
+~~~~~~~~~
 
 Returns a random paragraph with ``nb_sentences`` number of sentences.
 
@@ -202,7 +213,8 @@ Example with arguments (returns a paragraph of 10 sentences):
 
 ----
 
-**paragraphs**
+paragraphs
+~~~~~~~~~~
 
 Returns ``nb`` number of random paragraphs.
 
@@ -234,7 +246,8 @@ Example with arguments (returns a list of 10 paragraphs):
 
 ----
 
-**text**
+text
+~~~~
 
 Returns random text with up to ``nb_chars`` characters.
 
@@ -266,7 +279,8 @@ Example with arguments (returns a 1000 character long text):
 
 ----
 
-**texts**
+texts
+~~~~~
 
 Returns ``nb`` number of random texts.
 
@@ -298,7 +312,8 @@ Example with arguments (returns a list of 10 texts):
 
 ----
 
-**file_name**
+file_name
+~~~~~~~~~
 
 Returns a random file name with the given extension.
 
@@ -331,9 +346,96 @@ Example with arguments (returns a filename with "png" extension):
 
 ----
 
-**email**
+tld
+~~~~~
 
-Returns a random email with the specified domain.
+Returns a TLD (top level domain name).
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_tld
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.tld()
+
+Arguments:
+
+- ``tlds`` (type: ``Optional[Tuple[str, ...]]``, default value: ``None``) is
+  an optional argument.
+
+Example with arguments (returns either "com", "net" or "org" TLD):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_tld_tlds_com_net_org
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.tld(tlds=("com", "net", "org"))
+
+----
+
+domain_name
+~~~~~~~~~~~
+
+Returns a domain name.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_domain_name
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.domain_name()
+
+Arguments:
+
+- ``tlds`` (type: ``Optional[Tuple[str, ...]]``, default value: ``None``) is
+  an optional argument.
+
+Example with arguments (returns an domain name with either "com", "net" or
+"org" TLD):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_domain_name_tlds_com_net_org
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.domain_name(tlds=("com", "net", "org"))
+
+----
+
+free_email_domain
+~~~~~~~~~~~~~~~~~
+
+Returns a free e-mail domain name.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email_domain
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.free_email_domain()
+
+----
+
+email
+~~~~~
+
+Returns a random email.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -347,24 +449,96 @@ Returns a random email with the specified domain.
 
 Arguments:
 
-- ``domain`` (type: ``str``, default value: ``example.com``) is an optional
-  argument.
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
 
-Example with arguments (returns an email with "gmail.com" domain):
+Example with arguments (returns an email with either "gmail.com"
+or "proton.me" domain):
 
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
-        :name: test_email_domain_gmail
+        :name: test_email_domain_gmail_proton
         :emphasize-lines: 3
 
         from fake import FAKER
 
-        FAKER.email(domain="gmail.com")
+        FAKER.email(domain_names=("gmail.com", "proton.me"))
 
 ----
 
-**url**
+company_email
+~~~~~~~~~~~~~
+
+Returns a random company email.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_company_email
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.company_email()
+
+Arguments:
+
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
+
+Example with arguments (returns an email with either "microsoft.com"
+or "google.com" domain):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_company_email_domain_microsoft_google
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email(domain_names=("microsoft.com", "google.com"))
+
+----
+
+free_email
+~~~~~~~~~~
+
+Returns a random free email.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.free_email()
+
+Arguments:
+
+- ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
+  value: ``None``) is an optional argument.
+
+Example with arguments (returns an email with either "gmail.com"
+or "proton.me" domain):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_free_email_domain_gmail_proton
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.email(domain_names=("gmail.com", "proton.me"))
+
+----
+
+url
+~~~
 
 Returns a random URL.
 
@@ -388,7 +562,9 @@ Arguments:
   an optional argument.
 
 ----
-**image_url**
+
+image_url
+~~~~~~~~~
 
 Returns a valid random image URL.
 
@@ -425,7 +601,8 @@ Example with arguments (alternative dimensions):
 
 ----
 
-**pyint**
+pyint
+~~~~~
 
 Returns a random integer between ``min_value`` and ``max_value``.
 
@@ -459,7 +636,8 @@ Example with arguments (returns an integer between 0 and 100):
 
 ----
 
-**pybool**
+pybool
+~~~~~~
 
 Returns a random boolean value.
 
@@ -475,7 +653,8 @@ Returns a random boolean value.
 
 ----
 
-**pystr**
+pystr
+~~~~~
 
 Returns a random string of ``nb_chars`` length.
 
@@ -507,7 +686,8 @@ Example with arguments (returns a string of 64 characters):
 
 ----
 
-**pyfloat**
+pyfloat
+~~~~~~~
 
 Returns a random float between ``min_value`` and ``max_value``.
 
@@ -542,7 +722,8 @@ Example with arguments (returns a float between 0 and 100):
 
 ----
 
-**pydecimal**
+pydecimal
+~~~~~~~~~
 
 Returns a random decimal, according to given ``left_digits`` and
 ``right_digits``.
@@ -580,7 +761,8 @@ Example with arguments:
 
 ----
 
-**ipv4**
+ipv4
+~~~~
 
 Returns a random IPv4 address.
 
@@ -596,7 +778,8 @@ Returns a random IPv4 address.
 
 ----
 
-**date**
+date
+~~~~
 
 Generates a random date.
 
@@ -632,7 +815,8 @@ and ``end_date``:
 
 ----
 
-**date_time**
+date_time
+~~~~~~~~~
 
 Generates a random datetime.
 
@@ -668,7 +852,8 @@ and ``end_date``:
 
 ----
 
-**pdf**
+pdf
+~~~
 
 Generates a content (``bytes``) of a PDF document.
 
@@ -751,7 +936,8 @@ pass the ``metadata`` argument.
 
 ----
 
-**image**
+image
+~~~~~
 
 Generates a content (``bytes``) of a image of the specified format and colour.
 
@@ -792,7 +978,8 @@ Example with arguments.
 
 ----
 
-**docx**
+docx
+~~~~
 
 Generates a content (``bytes``) of a DOCX document.
 
@@ -852,7 +1039,8 @@ pass the ``metadata`` argument.
 
 ----
 
-**pdf_file**
+pdf_file
+~~~~~~~~
 
 Generates a ``PDF`` file.
 
@@ -924,7 +1112,8 @@ pass the ``metadata`` argument.
 
 ----
 
-**png_file**
+png_file
+~~~~~~~~
 
 Generates a ``PNG`` file.
 
@@ -968,7 +1157,8 @@ Example with arguments.
 
 ----
 
-**svg_file**
+svg_file
+~~~~~~~~
 
 Generates an ``SVG`` file.
 
@@ -1012,7 +1202,8 @@ Example with arguments.
 
 ----
 
-**bmp_file**
+bmp_file
+~~~~~~~~
 
 Generates a ``BMP`` file.
 
@@ -1056,7 +1247,8 @@ Example with arguments.
 
 ----
 
-**gif_file**
+gif_file
+~~~~~~~~
 
 Generates a ``GIF`` file.
 
@@ -1100,7 +1292,8 @@ Example with arguments.
 
 ----
 
-**txt_file**
+txt_file
+~~~~~~~~
 
 Generates a ``TXT`` file.
 
@@ -1140,3 +1333,33 @@ Example with arguments.
             basename="txt_file",  # Basename
             nb_chars=10_000,  # 10_000 characters long
         )
+
+random_choice
+~~~~~~~~~~~~~
+
+Picks a random element from the sequence given.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_choice
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.random_choice(("Art", "Photography", "Generative AI"))
+
+random_sample
+~~~~~~~~~~~~~
+
+Picks a given number of random element from the sequence given.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_sample
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)

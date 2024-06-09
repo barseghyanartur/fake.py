@@ -28,6 +28,7 @@ See the following full functional snippet for generating a ``PNG`` image.
 
     .. literalinclude:: _static/examples/creating_images/png_bytes_1.py
         :language: python
+        :lines: 1-3
 
     *See the full example*
     :download:`here <_static/examples/creating_images/png_bytes_1.py>`
