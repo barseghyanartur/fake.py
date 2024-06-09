@@ -28,6 +28,11 @@ Factories
 
 Django example
 --------------
+Models
+~~~~~~
+In the ``Django`` example, we will be using ``User`` and ``Group`` models from
+``django.contrib.auth`` sub-package. The ``Article`` would be the only
+application specific custom model.
 
 *Filename: article/models.py*
 
@@ -39,6 +44,58 @@ Django example
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/models.py>`
+
+----
+
+Factories
+~~~~~~~~~
+
+Factory for the Django's built-in ``Group`` model could look as simple as this:
+
+*Filename: article/factories.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/django/article/factories.py
+        :language: python
+        :lines: 6, 9-10, 12, 24, 56-58, 68-72
+
+    *See the full example*
+    :download:`here <_static/examples/factories/django/article/factories.py>`
+
+----
+
+Factory for the Django's built-in ``User`` model could look as this:
+
+*Filename: article/factories.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/django/article/factories.py
+        :language: python
+        :lines: 3-4, 7, 9, 16-18, 24, 73-90, 121-135, 141-146
+
+    *See the full example*
+    :download:`here <_static/examples/factories/django/article/factories.py>`
+
+Breakdown:
+
+- ``username`` is a required field. We shouldn't be using ``PreSave``
+  or ``PostSave`` methods here, because we need it to be available and resolved
+  before we call the class constructor (missing required fields would fail on
+  Pydantic and other frameworks that enforce strong type checking). That's why
+  ``PreInit`` (which operates on the ``dict`` level, from which the model
+  instance is constructd) is used here to construct the ``username`` value
+  from ``first_name`` and the ``last_name``.
+- ``password`` is a non-required field and since Django has a well working way
+  for setting it, use of ``PreSave`` is the best option here.
+- ``group`` is a non-required many-to-many relationship. We need a user
+  instance to be created before we can add user to groups. That's why
+  ``PostSave`` is best option here.
+
+----
+
+
 
 ----
 
