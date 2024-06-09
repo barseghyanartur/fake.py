@@ -1,5 +1,3 @@
-import random
-from functools import partial
 from typing import Any, Dict
 
 from django.conf import settings
@@ -11,8 +9,6 @@ from fake import (
     FAKER,
     DjangoModelFactory,
     FileSystemStorage,
-    LazyAttribute,
-    LazyFunction,
     PostSave,
     PreInit,
     PreSave,
@@ -156,6 +152,10 @@ class UserFactory(DjangoModelFactory):
         instance._post_save_called = True
 
 
+def set_headline(data: Dict[str, Any]) -> None:
+    data["headline"] = data["content"][:25]
+
+
 class ArticleFactory(DjangoModelFactory):
     """Article factory.
 
@@ -176,8 +176,8 @@ class ArticleFactory(DjangoModelFactory):
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
-    headline = LazyAttribute(lambda o: o.content[:25])
-    category = LazyFunction(partial(random.choice, CATEGORIES))
+    headline = PreInit(set_headline)
+    category = FACTORY.random_sample(CATEGORIES)
     pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())

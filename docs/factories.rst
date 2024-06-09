@@ -58,7 +58,7 @@ Factory for the Django's built-in ``Group`` model could look as simple as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 6, 9-10, 12, 24, 56-58, 68-72
+        :lines: 4, 7-8, 10, 20, 52-54, 64-68
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -73,7 +73,7 @@ Factory for the Django's built-in ``User`` model could look as this:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 3-4, 7, 9, 16-18, 24, 73-90, 121-135, 141-146
+        :lines: 1-2, 5, 7, 9, 12-14, 20, 69-86, 117-131, 137-142
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
@@ -85,7 +85,7 @@ Breakdown:
   before we call the class constructor (missing required fields would fail on
   Pydantic and other frameworks that enforce strong type checking). That's why
   ``PreInit`` (which operates on the ``dict`` level, from which the model
-  instance is constructd) is used here to construct the ``username`` value
+  instance is constructed) is used here to construct the ``username`` value
   from ``first_name`` and the ``last_name``.
 - ``password`` is a non-required field and since Django has a well working way
   for setting it, use of ``PreSave`` is the best option here.
@@ -95,7 +95,38 @@ Breakdown:
 
 ----
 
+Factory for the the ``Artice`` model could look as this:
 
+*Filename: article/factories.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/django/article/factories.py
+        :language: python
+        :lines: 3, 7, 11, 15, 19-20, 21-23, 33-51, 153-159, 176-194
+
+    *See the full example*
+    :download:`here <_static/examples/factories/django/article/factories.py>`
+
+Breakdown:
+
+- ``headline`` is a required field. We shouldn't be using ``PreSave``
+  or ``PostSave`` methods here, because we need it to be available and resolved
+  before we call the class constructor (missing required fields would fail on
+  Pydantic and other frameworks that enforce strong type checking). That's why
+  ``PreInit`` (which operates on the ``dict`` level, from which the model
+  instance is constructed) is used here to construct the ``headline`` value
+  from ``content``.
+- ``author`` is a non-required field and since Django has a well working way
+  for setting it, use of ``PreSave`` is the best option here.
+- ``image`` is a file field. Files created shall be placed in the path
+  specified in ``MEDIA_ROOT`` Django setting. That's why we create
+  and configure the ``STORAGE`` instance to pass it to ``FACTORY.png_file``
+  in a ``storage`` argument.
+- ``auto_minutes_to_read`` is a required field of the ``Article`` model.
+  It needs to be resolved and available before the constructor class is
+  called. That's the ``@pre_init`` decorator is used (on
+  the ``set_auto_minutes_read`` method).
 
 ----
 
@@ -105,7 +136,7 @@ Breakdown:
 
     .. literalinclude:: _static/examples/factories/django/article/factories.py
         :language: python
-        :lines: 1-26, 36-58, 68-90, 121-146, 157-159, 176-194
+        :lines: 1-22, 32-54, 64-86, 117-142, 153-159, 176-194
 
     *See the full example*
     :download:`here <_static/examples/factories/django/article/factories.py>`
