@@ -1,7 +1,10 @@
 from typing import Any, Dict
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import (
+    Group,
+    User,
+)
 from django.utils import timezone
 from django.utils.text import slugify
 from fake import (

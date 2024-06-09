@@ -40,16 +40,16 @@ repos:
         files: .
         args: [ "--config", "pyproject.toml" ]
 
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: isort
-        files: .
-        args: [ "--settings-path", "pyproject.toml", "--profile=black" ]
+#  - repo: https://github.com/pycqa/isort
+#    rev: 5.13.2
+#    hooks:
+#      - id: isort
+#        name: isort
+#        files: .
+#        args: [ "--settings-path", "pyproject.toml", "--profile=black" ]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.4.4
+    rev: v0.4.8
     hooks:
       - id: ruff
         name: lint
@@ -57,7 +57,7 @@ repos:
         args: [ "--config", "pyproject.toml" ]
 
   - repo: https://github.com/jsh9/pydoclint
-    rev: 0.4.1
+    rev: 0.4.2
     hooks:
       - id: pydoclint
 
