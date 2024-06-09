@@ -2,6 +2,7 @@ from datetime import datetime
 
 from fake import xor_transform
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -89,12 +90,18 @@ class Article(Base):
     title = Column(String(255))
     slug = Column(String(255), unique=True)
     content = Column(Text)
+    headline = Column(Text)
+    category = Column(String(255))
+    pages = Column(Integer)
+    auto_minutes_to_read = Column(Integer)
     image = Column(Text, nullable=True)
     pub_date = Column(DateTime, default=datetime.utcnow)
     safe_for_work = Column(Boolean, default=False)
     minutes_to_read = Column(Integer, default=5)
     author_id = Column(Integer, ForeignKey("users.id"))
+    tags = Column(JSON, default=list)
 
+    # Relationships
     author = relationship("User", back_populates="articles")
 
     def __repr__(self):

@@ -31,18 +31,18 @@ class FactoriesTestCase(unittest.TestCase):
 
         # Testing hooks
         self.assertTrue(
-            hasattr(article, "pre_save_called") and article.pre_save_called
+            hasattr(article, "_pre_save_called") and article._pre_save_called
         )
         self.assertTrue(
-            hasattr(article, "post_save_called") and article.post_save_called
+            hasattr(article, "_post_save_called") and article._post_save_called
         )
         self.assertTrue(
-            hasattr(article.author, "pre_save_called")
-            and article.author.pre_save_called
+            hasattr(article.author, "_pre_save_called")
+            and article.author._pre_save_called
         )
         self.assertTrue(
-            hasattr(article.author, "post_save_called")
-            and article.author.post_save_called
+            hasattr(article.author, "_post_save_called")
+            and article.author._post_save_called
         )
 
         # Testing batch creation

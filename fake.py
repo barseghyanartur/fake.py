@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from email.utils import parseaddr
 from functools import partial
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
@@ -33,10 +34,12 @@ from typing import (
     List,
     Literal,
     Optional,
+    Sequence,
     Set,
     TextIO,
     Tuple,
     Type,
+    TypeVar,
     Union,
     get_args,
     get_origin,
@@ -45,7 +48,7 @@ from typing import (
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.6.9"
+__version__ = "0.7"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -69,7 +72,9 @@ __all__ = (
     "ModelFactory",
     "PROVIDER_REGISTRY",
     "PostSave",
+    "PreInit",
     "PreSave",
+    "PydanticModelFactory",
     "SQLAlchemyModelFactory",
     "StringValue",
     "SubFactory",
@@ -78,6 +83,7 @@ __all__ = (
     "fill_dataclass",
     "fill_pydantic_model",
     "post_save",
+    "pre_init",
     "pre_save",
     "provider",
     "run_async_in_thread",
@@ -86,10 +92,49 @@ __all__ = (
 )
 
 LOGGER = logging.getLogger(__name__)
+T = TypeVar("T")
+ElementType = Sequence[T]
 
 # ************************************************
 # ******************* Public *********************
 # ************************************************
+
+IMAGE_SERVICES = (
+    "https://picsum.photos/{width}/{height}",
+    "https://dummyimage.com/{width}x{height}",
+    "https://placekitten.com/{width}/{height}",
+    "https://loremflickr.com/{width}/{height}",
+)
+
+FREE_EMAIL_DOMAINS = (
+    "gmail.com",
+    "hotmail.com",
+    "mail.com",
+    "outlook.com",
+    "proton.me",
+    "protonmail.com",
+    "yahoo.com",
+)
+
+TLDS = (
+    "com",
+    "org",
+    "net",
+    "io",
+)
+
+URL_PROTOCOLS = (
+    "http",
+    "https",
+)
+
+URL_SUFFIXES = (
+    ".html",
+    ".php",
+    ".go",
+    "",
+    "/",
+)
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -847,13 +892,6 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
-IMAGE_SERVICES = (
-    "https://picsum.photos/{width}/{height}",
-    "https://dummyimage.com/{width}x{height}",
-    "https://placekitten.com/{width}/{height}",
-    "https://loremflickr.com/{width}/{height}",
-)
-
 # Global registry for provider methods
 UID_REGISTRY: Dict[str, "Faker"] = {}
 ALIAS_REGISTRY: Dict[str, "Faker"] = {}
@@ -1097,31 +1135,63 @@ class Faker:
             return temp_file.name
 
     @provider
-    def email(self, domain: str = "example.com") -> str:
-        if not domain:
-            domain = "example.com"
-        return f"{self.word().lower()}@{domain}"
+    def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        return random.choice(tlds or TLDS)
+
+    @provider
+    def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        domain = self.word().lower()
+        tld = self.tld(tlds)
+        return f"{domain}.{tld}"
+
+    @provider
+    def free_email_domain(self) -> str:
+        return random.choice(FREE_EMAIL_DOMAINS)
+
+    @provider
+    def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return f"{self.word().lower()}@{domain or self.domain_name()}"
+
+    @provider
+    def company_email(
+        self,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return (
+            f"{self.first_name().lower()}"
+            f"{self.last_name().lower()}"
+            f"@{domain or self.domain_name()}"
+        )
+
+    @provider
+    def free_email(
+        self,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> str:
+        domain = random.choice(domain_names) if domain_names else None
+        return (
+            f"{self.first_name().lower()}"
+            f"{self.last_name().lower()}"
+            f"@{domain or self.free_email_domain()}"
+        )
 
     @provider
     def url(
         self,
-        protocols: Optional[Tuple[str]] = None,
-        tlds: Optional[Tuple[str]] = None,
-        suffixes: Optional[Tuple[str]] = None,
+        protocols: Optional[Tuple[str, ...]] = None,
+        tlds: Optional[Tuple[str, ...]] = None,
+        suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        protocol = random.choice(protocols or ("http", "https"))
-        domain = self.word().lower()
-        tld = random.choice(
-            tlds
-            or (
-                "com",
-                "org",
-                "net",
-                "io",
-            )
+        protocol = random.choice(protocols or URL_PROTOCOLS)
+        suffix = random.choice(suffixes or URL_SUFFIXES)
+        return (
+            f"{protocol}://"
+            f"{self.domain_name(tlds)}"
+            f"/{self.word().lower()}"
+            f"{suffix}"
         )
-        suffix = random.choice(suffixes or (".html", ".php", ".go", "", "/"))
-        return f"{protocol}://{domain}.{tld}/{self.word().lower()}{suffix}"
 
     @provider
     def image_url(
@@ -1762,6 +1832,18 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider
+    def random_choice(self, elements: ElementType[T]) -> T:
+        return random.choice(elements)
+
+    random_element = random_choice  # noqa
+
+    @provider
+    def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
+        return random.sample(elements, length)
+
+    random_elements = random_sample  # noqa
+
 
 FAKER = Faker(alias="default")
 
@@ -1830,6 +1912,11 @@ class Factory:
 FACTORY = Factory(faker=FAKER)
 
 
+def pre_init(func):
+    func.is_pre_init = True
+    return func
+
+
 def pre_save(func):
     func.is_pre_save = True
     return func
@@ -1868,6 +1955,16 @@ class LazyFunction:
         if obj is None:
             return self
         return self.func()
+
+
+class PreInit:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def execute(self, data: Dict[str, Any]) -> None:
+        self.func(data, *self.args, **self.kwargs)
 
 
 class PreSave:
@@ -1941,12 +2038,19 @@ class ModelFactory:
             if getattr(method, "is_trait", False)
         }
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -1958,13 +2062,15 @@ class ModelFactory:
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
                     model_data[_field] = (
                         value()
                         if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
+                            value,
+                            (FactoryMethod, SubFactory, LazyFunction),
                         )
                         else value
                     )
@@ -1972,12 +2078,26 @@ class ModelFactory:
         # Update model_data with non-trait kwargs and collect PreSave from
         # kwargs.
         for key, value in kwargs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance
         instance = model(**model_data)
@@ -2029,6 +2149,10 @@ class ModelFactory:
         """Save the instance."""
 
 
+class PydanticModelFactory(ModelFactory):
+    """Pydantic ModelFactory."""
+
+
 class DjangoModelFactory(ModelFactory):
     """Django ModelFactory."""
 
@@ -2060,12 +2184,19 @@ class DjangoModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2077,6 +2208,7 @@ class DjangoModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2088,10 +2220,15 @@ class DjangoModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check if this block is really needed now, that
+        # nested_attrs and direct_attrs are already handled separately
+        # later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # from kwargs.
         for key, value in kwargs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
@@ -2112,12 +2249,26 @@ class DjangoModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # and PostSave from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -2223,12 +2374,19 @@ class TortoiseModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2240,6 +2398,7 @@ class TortoiseModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2251,6 +2410,8 @@ class TortoiseModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check is this block is needed now that kwargs are split
+        # into nested_attrs and direct_attrs later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # and PostSave from kwargs.
         for key, value in kwargs.items():
@@ -2275,12 +2436,26 @@ class TortoiseModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance if none found
         instance = model(**model_data)
@@ -2365,12 +2540,19 @@ class SQLAlchemyModelFactory(ModelFactory):
             if instance:
                 return instance
 
-        # Collect PreSave, PostSave methods and prepare model data
+        # Collect PreInit, PreSave, PostSave methods and prepare model data
+        pre_init_methods = {}
         pre_save_methods = {}
         post_save_methods = {}
         model_data = {}
         for _field, value in cls.__dict__.items():
-            if isinstance(value, PreSave):
+            # Do not process any fields that have been otherwise
+            # provided directly using keyword arguments.
+            if _field in kwargs:
+                continue
+            if isinstance(value, PreInit):
+                pre_init_methods[_field] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
@@ -2382,6 +2564,7 @@ class SQLAlchemyModelFactory(ModelFactory):
             ):
                 if (
                     not getattr(value, "is_trait", False)
+                    and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 ):
@@ -2393,6 +2576,8 @@ class SQLAlchemyModelFactory(ModelFactory):
                         else value
                     )
 
+        # TODO: Check if this is really needed now that kwargs are
+        # handled in direct_attrs later on.
         # Update model_data with non-trait kwargs and collect PreSave
         # from kwargs.
         for key, value in kwargs.items():
@@ -2417,12 +2602,26 @@ class SQLAlchemyModelFactory(ModelFactory):
         # Update model_data with non-trait kwargs and collect PreSave
         # from direct_attrs.
         for key, value in direct_attrs.items():
-            if isinstance(value, PreSave):
+            if isinstance(value, PreInit):
+                pre_init_methods[key] = value
+            elif isinstance(value, PreSave):
                 pre_save_methods[key] = value
             elif isinstance(value, PostSave):
                 post_save_methods[key] = value
             elif key not in trait_keys and key not in pre_save_methods:
                 model_data[key] = value
+
+        # Execute pre-init methods
+        for key, pre_init_method in pre_init_methods.items():
+            pre_init_method.execute(model_data)
+
+        # Pre-init hooks
+        pre_init_hooks = [
+            method
+            for method in dir(cls)
+            if getattr(getattr(cls, method), "is_pre_init", False)
+        ]
+        cls._run_hooks(pre_init_hooks, model_data)
 
         # Create a new instance
         instance = model(**model_data)
@@ -2649,6 +2848,11 @@ class TestFaker(unittest.TestCase):
     def tearDown(self):
         FILE_REGISTRY.clean_up()
 
+    @classmethod
+    def is_valid_email(cls, email: str) -> bool:
+        parsed_address = parseaddr(email)
+        return "@" in parsed_address[1]
+
     def test_uuid(self) -> None:
         uuid_value = self.faker.uuid()
         self.assertIsInstance(uuid_value, uuid.UUID)
@@ -2777,18 +2981,80 @@ class TestFaker(unittest.TestCase):
                 self.assertIsInstance(file_name, str)
                 self.assertTrue(file_name.endswith(f".{expected_extension}"))
 
+    def test_tld_with_defaults(self) -> None:
+        for _ in range(20):
+            result = self.faker.tld()
+            self.assertIn(result, TLDS)
+
+    def test_tld_with_custom_tlds(self) -> None:
+        custom_tlds = ("edu", "gov", "mil")
+        for _ in range(20):
+            result = self.faker.tld(custom_tlds)
+            self.assertIn(result, custom_tlds)
+
+    def test_domain_name_with_defaults(self) -> None:
+        result = self.faker.domain_name()
+        parts = result.split(".")
+        self.assertEqual(len(parts), 2)
+        domain, tld = parts
+        self.assertTrue(domain.islower())
+        self.assertIn(tld, TLDS)
+
+    def test_domain_name_custom_domain_names(self) -> None:
+        custom_tlds = ("edu", "gov", "mil")
+        for _ in range(20):
+            result = self.faker.domain_name(custom_tlds)
+            parts = result.split(".")
+            self.assertEqual(len(parts), 2)
+            domain, tld = parts
+            self.assertTrue(domain.islower())
+            self.assertIn(tld, custom_tlds)
+
+    def test_free_email_domain(self):
+        for _ in range(20):
+            result = self.faker.free_email_domain()
+            self.assertIn(result, FREE_EMAIL_DOMAINS)
+
     def test_email(self) -> None:
+        email: str = self.faker.email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
+
+    def test_email_custom_domain_names(self) -> None:
         domains = [
-            (None, "example.com"),
             ("example.com", "example.com"),
             ("gmail.com", "gmail.com"),
         ]
         for domain, expected_domain in domains:
             with self.subTest(domain=domain, expected_domain=expected_domain):
-                kwargs = {"domain": domain}
+                kwargs = {"domain_names": [domain]}
                 email: str = self.faker.email(**kwargs)
                 self.assertIsInstance(email, str)
+                self.assertTrue(self.is_valid_email(email))
                 self.assertTrue(email.endswith(f"@{expected_domain}"))
+
+    def test_company_email(self) -> None:
+        email: str = self.faker.company_email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
+
+    def test_company_email_custom_domain_names(self) -> None:
+        domains = [
+            ("microsoft.com", "microsoft.com"),
+            ("google.com", "google.com"),
+        ]
+        for domain, expected_domain in domains:
+            with self.subTest(domain=domain, expected_domain=expected_domain):
+                kwargs = {"domain_names": [domain]}
+                email: str = self.faker.company_email(**kwargs)
+                self.assertIsInstance(email, str)
+                self.assertTrue(self.is_valid_email(email))
+                self.assertTrue(email.endswith(f"@{expected_domain}"))
+
+    def test_free_email(self) -> None:
+        email: str = self.faker.free_email()
+        self.assertIsInstance(email, str)
+        self.assertTrue(self.is_valid_email(email))
 
     def test_url(self) -> None:
         protocols = ("http", "https")
@@ -3197,6 +3463,18 @@ class TestFaker(unittest.TestCase):
             )
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_random_choice(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        _choice = self.faker.random_choice(_categories)
+        self.assertIn(_choice, _categories)
+
+    def test_random_sample(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        _sample = self.faker.random_sample(_categories, 2)
+        self.assertEqual(len(_sample), 2)
+        for _element in _sample:
+            self.assertIn(_element, _categories)
+
     def test_storage(self) -> None:
         storage = FileSystemStorage()
         with self.assertRaises(Exception):
@@ -3414,6 +3692,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: User
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -3504,11 +3784,14 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
+
+        def set_auto_minutes_to_read(data):
+            data["auto_minutes_to_read"] = data["pages"]
 
         class ArticleFactory(ModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3517,6 +3800,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3549,6 +3834,9 @@ class TestFaker(unittest.TestCase):
             # Testing LazyAttribute
             self.assertIn(_article.headline, _article.content)
 
+            # Testing PreInit
+            self.assertEqual(_article.pages, _article.auto_minutes_to_read)
+
             # Testing Factory
             self.assertIsInstance(_article.id, int)
             self.assertIsInstance(_article.slug, str)
@@ -3556,10 +3844,10 @@ class TestFaker(unittest.TestCase):
             # Testing hooks
             _user = _article.author
             self.assertTrue(
-                hasattr(_user, "pre_save_called") and _user.pre_save_called
+                hasattr(_user, "_pre_save_called") and _user._pre_save_called
             )
             self.assertTrue(
-                hasattr(_user, "post_save_called") and _user.post_save_called
+                hasattr(_user, "_post_save_called") and _user._post_save_called
             )
 
             # Testing get_or_create for Article model
@@ -3619,11 +3907,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class DjangoArticleFactory(DjangoModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3632,6 +3920,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3646,11 +3936,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("DjangoModelFactory"):
             _django_article = DjangoArticleFactory(author__username="admin")
@@ -3678,14 +3968,20 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(_django_article.id, int)
             self.assertIsInstance(_django_article.slug, str)
 
+            # Testing PreInit
+            self.assertEqual(
+                _django_article.pages,
+                _django_article.auto_minutes_to_read,
+            )
+
             # Testing hooks
             self.assertTrue(
-                hasattr(_django_article, "pre_save_called")
-                and _django_article.pre_save_called
+                hasattr(_django_article, "_pre_save_called")
+                and _django_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_django_article, "post_save_called")
-                and _django_article.post_save_called
+                hasattr(_django_article, "_post_save_called")
+                and _django_article._post_save_called
             )
 
             # Testing batch creation
@@ -3803,6 +4099,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: TortoiseUser
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -3857,11 +4155,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class TortoiseArticleFactory(TortoiseModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -3870,6 +4168,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -3884,11 +4184,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("TortoiseModelFactory"):
             _tortoise_article = TortoiseArticleFactory(author__username="admin")
@@ -3916,14 +4216,20 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(_tortoise_article.id, int)
             self.assertIsInstance(_tortoise_article.slug, str)
 
+            # Testing PreInit
+            self.assertEqual(
+                _tortoise_article.pages,
+                _tortoise_article.auto_minutes_to_read,
+            )
+
             # Testing hooks
             self.assertTrue(
-                hasattr(_tortoise_article, "pre_save_called")
-                and _tortoise_article.pre_save_called
+                hasattr(_tortoise_article, "_pre_save_called")
+                and _tortoise_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_tortoise_article, "post_save_called")
-                and _tortoise_article.post_save_called
+                hasattr(_tortoise_article, "_post_save_called")
+                and _tortoise_article._post_save_called
             )
 
             # Testing batch creation
@@ -4006,10 +4312,10 @@ class TestFaker(unittest.TestCase):
 
             # Testing hooks
             # self.assertFalse(
-            #     hasattr(_tortoise_article, "pre_save_called")
+            #     hasattr(_tortoise_article, "_pre_save_called")
             # )
             # self.assertFalse(
-            #     hasattr(_tortoise_article, "post_save_called")
+            #     hasattr(_tortoise_article, "_post_save_called")
             # )
 
             # Testing batch creation
@@ -4091,6 +4397,8 @@ class TestFaker(unittest.TestCase):
             content: str
             headline: str
             category: str
+            pages: int
+            auto_minutes_to_read: int
             author: SQLAlchemyUser
             image: Optional[str] = (
                 None  # Use str to represent the image path or URL
@@ -4143,11 +4451,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         class SQLAlchemyArticleFactory(SQLAlchemyModelFactory):
             id = FACTORY.pyint()  # type: ignore
@@ -4156,6 +4464,8 @@ class TestFaker(unittest.TestCase):
             content = FACTORY.text()  # type: ignore
             headline = LazyAttribute(lambda o: o.content[:25])
             category = LazyFunction(partial(random.choice, categories))
+            pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
+            auto_minutes_to_read = PreInit(set_auto_minutes_to_read)
             image = FACTORY.png_file(storage=storage)  # type: ignore
             pub_date = FACTORY.date()  # type: ignore
             safe_for_work = FACTORY.pybool()  # type: ignore
@@ -4173,11 +4483,11 @@ class TestFaker(unittest.TestCase):
 
             @pre_save
             def _pre_save_method(self, instance):
-                instance.pre_save_called = True
+                instance._pre_save_called = True
 
             @post_save
             def _post_save_method(self, instance):
-                instance.post_save_called = True
+                instance._post_save_called = True
 
         with self.subTest("SQLAlchemyModelFactory"):
             _sqlalchemy_article = SQLAlchemyArticleFactory(
@@ -4207,14 +4517,20 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(_sqlalchemy_article.id, int)
             self.assertIsInstance(_sqlalchemy_article.slug, str)
 
+            # Testing PreInit
+            self.assertEqual(
+                _sqlalchemy_article.pages,
+                _sqlalchemy_article.auto_minutes_to_read,
+            )
+
             # Testing hooks
             self.assertTrue(
-                hasattr(_sqlalchemy_article, "pre_save_called")
-                and _sqlalchemy_article.pre_save_called
+                hasattr(_sqlalchemy_article, "_pre_save_called")
+                and _sqlalchemy_article._pre_save_called
             )
             self.assertTrue(
-                hasattr(_sqlalchemy_article, "post_save_called")
-                and _sqlalchemy_article.post_save_called
+                hasattr(_sqlalchemy_article, "_post_save_called")
+                and _sqlalchemy_article._post_save_called
             )
 
             # Testing batch creation
@@ -4291,8 +4607,8 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(_sqlalchemy_user.username, str)
 
             # Testing hooks
-            self.assertFalse(hasattr(_sqlalchemy_article, "pre_save_called"))
-            self.assertFalse(hasattr(_sqlalchemy_article, "post_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "_pre_save_called"))
+            self.assertFalse(hasattr(_sqlalchemy_article, "_post_save_called"))
 
             # Testing batch creation
             _sqlalchemy_articles = SQLAlchemyArticleFactory.create_batch(5)

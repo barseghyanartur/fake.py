@@ -25,6 +25,7 @@ If you need bytes
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_1.py
         :language: python
+        :lines: 1-3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_bytes_1.py>`
