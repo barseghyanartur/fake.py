@@ -1,13 +1,17 @@
 from pathlib import Path
+from typing import Any, Dict
 
 from fake import (
     FACTORY,
+    FAKER,
     FileSystemStorage,
     PostSave,
+    PreInit,
     PreSave,
     SubFactory,
     TortoiseModelFactory,
     post_save,
+    pre_init,
     pre_save,
     run_async_in_thread,
     trait,
@@ -29,6 +33,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
 
 STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+CATEGORIES = (
+    "art",
+    "technology",
+    "literature",
+)
+TAGS = (
+    "painting",
+    "photography",
+    "ai",
+    "data-engineering",
+    "fiction",
+    "poetry",
+    "manual",
+)
 
 
 class GroupFactory(TortoiseModelFactory):
@@ -55,10 +73,22 @@ def add_to_group(user: User, name: str) -> None:
     run_async_in_thread(_add_to_group())
 
 
+def slugify(text: str) -> str:
+    slug = text.replace(" ", "-").replace("_", "-")
+    slug = "".join(char for char in slug if char.isalnum() or char == "-")
+    return slug.lower()
+
+
+def set_username(data: Dict[str, Any]) -> None:
+    first_name = slugify(data["first_name"])
+    last_name = slugify(data["last_name"])
+    data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
 class UserFactory(TortoiseModelFactory):
     """User factory."""
 
-    username = FACTORY.username()
+    username = PreInit(set_username)
     first_name = FACTORY.first_name()
     last_name = FACTORY.last_name()
     email = FACTORY.email()
@@ -90,20 +120,32 @@ class UserFactory(TortoiseModelFactory):
         instance._post_save_called = True
 
 
+def set_headline(data: Dict[str, Any]) -> None:
+    data["headline"] = data["content"][:25]
+
+
 class ArticleFactory(TortoiseModelFactory):
     """Article factory."""
 
     title = FACTORY.sentence()
     slug = FACTORY.slug()
     content = FACTORY.text()
+    headline = PreInit(set_headline)
+    category = FACTORY.random_choice(elements=CATEGORIES)
+    pages = FACTORY.pyint(min_value=1, max_value=100)  # type: ignore
     image = FACTORY.png_file(storage=STORAGE)
     pub_date = FACTORY.date()
     safe_for_work = FACTORY.pybool()
     minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
     author = SubFactory(UserFactory)
+    tags = FACTORY.random_sample(elements=TAGS, length=3)
 
     class Meta:
         model = Article
+
+    @pre_init
+    def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+        data["auto_minutes_to_read"] = data["pages"]
 
     @pre_save
     def _pre_save_method(self, instance):
