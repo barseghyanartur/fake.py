@@ -80,6 +80,9 @@ pydantic-test:
 sqlalchemy-test:
 	source $(VENV) && cd examples/sqlalchemy/ && python manage.py test
 
+sqlmodel-test:
+	source $(VENV) && cd examples/sqlmodel/ && python manage.py test
+
 tortoise-test:
 	source $(VENV) && cd examples/tortoise/ && python manage.py test
 
@@ -112,6 +115,9 @@ pydantic-shell:
 
 sqlalchemy-shell:
 	source $(VENV) && cd examples/sqlalchemy/ && python manage.py shell
+
+sqlmodel-shell:
+	source $(VENV) && cd examples/sqlmodel/ && python manage.py shell
 
 tortoise-shell:
 	source $(VENV) && cd examples/tortoise/ && python manage.py shell
