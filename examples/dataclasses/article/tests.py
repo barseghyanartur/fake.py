@@ -3,7 +3,7 @@ from datetime import datetime
 
 from fake import FILE_REGISTRY, xor_transform
 
-from article.factories import ArticleFactory, UserFactory
+from article.factories import ArticleFactory, GroupFactory, UserFactory
 from article.models import Article, User
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -58,3 +58,15 @@ class FactoriesTestCase(unittest.TestCase):
             "test1234",
         )
         self.assertEqual(list(user.groups)[0].name, "TestGroup1234")
+
+    def test_group_factory(self):
+        group = GroupFactory()
+        assert group.name
+
+    def test_user_factory(self):
+        user = UserFactory()
+        assert user.id
+
+    def test_article_factory(self):
+        article = ArticleFactory()
+        assert article.id
