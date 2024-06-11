@@ -279,6 +279,39 @@ jobs:
         run: cd examples/sqlalchemy/ && python manage.py test
 
   # *************************************
+  # *********** SQLModel example ********
+  # *************************************
+  test_sqlmodel_example:
+    needs: pre-commit
+    name: test sqlmodel example ${{ matrix.python-version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        os:
+          - ubuntu-22.04
+        python-version:
+          - "3.12"
+    steps:
+      - name: Clean-up
+        run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r examples/sqlmodel/requirements.in
+      - name: Install package
+        run: |
+          pip install -e .[all]
+      - name: Run test suite
+        run: cd examples/sqlmodel/ && python manage.py test
+
+  # *************************************
   # ********* TortoiseORM example *******
   # *************************************
   test_tortoise_example:
