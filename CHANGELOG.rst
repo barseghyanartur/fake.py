@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.7.1
+-----
+2024-06-11
+
+- Test against SQLModel. Also included SQLModel examples.
+- Improve docs.
+
 0.7
 ---
 2024-06-09

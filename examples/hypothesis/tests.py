@@ -5,7 +5,7 @@ from fake import FAKER, FILE_REGISTRY, StringValue
 from hypothesis import Verbosity, given, settings, strategies as st
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = ("TestFakerWithHypothesis",)
 

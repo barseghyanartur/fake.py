@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from fake import FILE_REGISTRY
 
-from article.factories import ArticleFactory, UserFactory
+from article.factories import ArticleFactory, GroupFactory, UserFactory
 from article.models import Article
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = ("FactoriesTestCase",)
 
@@ -97,3 +97,15 @@ class FactoriesTestCase(TestCase):
             )
         )
         self.assertTrue(user.groups.first().name == "TestGroup1234")
+
+    def test_group_factory(self):
+        group = GroupFactory()
+        assert group.name
+
+    def test_user_factory(self):
+        user = UserFactory()
+        assert user.id
+
+    def test_article_factory(self):
+        article = ArticleFactory()
+        assert article.id

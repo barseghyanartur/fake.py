@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.6.7
+VERSION := 0.7.1
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -57,6 +57,7 @@ hypothesis-test \
 lazyfuzzy-test \
 pydantic-test \
 sqlalchemy-test \
+sqlmodel-test \
 tortoise-test
 
 customization-test:
@@ -79,6 +80,9 @@ pydantic-test:
 
 sqlalchemy-test:
 	source $(VENV) && cd examples/sqlalchemy/ && python manage.py test
+
+sqlmodel-test:
+	source $(VENV) && cd examples/sqlmodel/ && python manage.py test
 
 tortoise-test:
 	source $(VENV) && cd examples/tortoise/ && python manage.py test
@@ -112,6 +116,9 @@ pydantic-shell:
 
 sqlalchemy-shell:
 	source $(VENV) && cd examples/sqlalchemy/ && python manage.py shell
+
+sqlmodel-shell:
+	source $(VENV) && cd examples/sqlmodel/ && python manage.py shell
 
 tortoise-shell:
 	source $(VENV) && cd examples/tortoise/ && python manage.py shell
