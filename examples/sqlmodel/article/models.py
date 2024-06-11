@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, JSON, Column
 
 from fake import xor_transform
 
@@ -14,9 +14,26 @@ __all__ = (
 )
 
 
+class UserGroup(SQLModel, table=True):
+    user_id: Optional[int] = Field(
+        default=None,
+        foreign_key="user.id",
+        primary_key=True,
+    )
+    group_id: Optional[int] = Field(
+        default=None,
+        foreign_key="group.id",
+        primary_key=True,
+    )
+
+
 class Group(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(sa_column_kwargs={"unique": True})
+    users: List["User"] = Relationship(
+        back_populates="groups",
+        link_model=UserGroup,
+    )
 
     def __repr__(self):
         return f"<Group(group='{self.name}')>"
@@ -34,10 +51,10 @@ class User(SQLModel, table=True):
     is_superuser: bool = Field(default=False)
     is_staff: bool = Field(default=False)
     is_active: bool = Field(default=True)
-    # groups: List[Group] = Relationship(
-    #     back_populates="users",
-    #     link_model="UserGroup",
-    # )
+    groups: List[Group] = Relationship(
+        back_populates="users",
+        link_model=UserGroup,
+    )
     articles: List["Article"] = Relationship(back_populates="author")
 
     def __repr__(self):
@@ -45,21 +62,6 @@ class User(SQLModel, table=True):
 
     def set_password(self, password: str) -> None:
         self.password = xor_transform(password)
-
-
-# class UserGroup(SQLModel, table=True):
-#     user_id: int = Field(
-#         default=None,
-#         foreign_key="user.id",
-#         primary_key=True,
-#     )
-#     group_id: int = Field(
-#         default=None,
-#         foreign_key="group.id",
-#         primary_key=True,
-#     )
-#     user: User = Relationship(back_populates="groups")
-#     group: Group = Relationship(back_populates="users")
 
 
 class Article(SQLModel, table=True):
@@ -76,9 +78,9 @@ class Article(SQLModel, table=True):
     safe_for_work: bool = Field(default=False)
     minutes_to_read: int = Field(default=5)
     author_id: int = Field(foreign_key="user.id")
-    tags: List = Field(
+    tags: Optional[List[str]] = Field(
         default_factory=list,
-        sa_column_kwargs={"type_": "JSON"},
+        sa_column=Column(JSON),
     )
     author: User = Relationship(back_populates="articles")
 

@@ -71,7 +71,6 @@ def set_password(user: User, password: str) -> None:
 
 
 def add_to_group(user: User, name: str) -> None:
-    return
     session = get_session()
     # Check if the group already exists
     group = session.query(Group).filter_by(name=name).first()

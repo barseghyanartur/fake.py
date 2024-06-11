@@ -21,6 +21,7 @@ def main():
     sys.path.insert(0, os.path.abspath("."))
 
     from config import create_tables  # noqa
+    from article.models import Article, Group, User  # noqa
 
     create_tables()
 
