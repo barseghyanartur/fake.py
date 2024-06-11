@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship, JSON, Column
 
 from fake import xor_transform
+from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "Article",

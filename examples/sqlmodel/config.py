@@ -1,8 +1,8 @@
-from sqlmodel import SQLModel, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlmodel import SQLModel, create_engine
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "DATABASE_URL",

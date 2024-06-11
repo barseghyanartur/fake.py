@@ -6,7 +6,7 @@ from article.factories import ArticleFactory, UserFactory
 from config import SESSION
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023 Artur Barseghyan"
+__copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = ("TestFactories",)
 
