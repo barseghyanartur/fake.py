@@ -57,6 +57,7 @@ hypothesis-test \
 lazyfuzzy-test \
 pydantic-test \
 sqlalchemy-test \
+sqlmodel-test \
 tortoise-test
 
 customization-test:

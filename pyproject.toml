@@ -102,7 +102,7 @@ known_first_party = [
     "fake_band",
 ]
 known_third_party = ["fake"]
-skip = ["wsgi.py", "builddocs/", "examples/django/article/factories.py"]
+skip = ["wsgi.py", "builddocs/"]
 
 [tool.ruff]
 line-length = 80

@@ -12,6 +12,7 @@ fake.py
 .. _TortoiseORM: https://tortoise.github.io/
 .. _Pydantic: https://docs.pydantic.dev/
 .. _SQLAlchemy: https://www.sqlalchemy.org/
+.. _SQLModel: https://sqlmodel.tiangolo.com/
 
 .. Internal references
 
@@ -64,7 +65,7 @@ and `GIF`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
-`Pydantic`_ and `SQLAlchemy`_.
+`Pydantic`_ and `SQLAlchemy`_ (which means it works with `SQLModel`_ too).
 
 Features
 ========
