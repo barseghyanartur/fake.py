@@ -404,7 +404,7 @@ On the other hand, `fake.py`_ factories look quite similar to `factory_boy`_
 factories, although again - drastically simplified and reduced in
 features.
 
-The file generation part of `fake.py`_ are modelled after the `faker-file`_.
+The file generation part of `fake.py`_ is modelled after the `faker-file`_.
 You don't get a large variety of file types supported and you don't have that
 much control over the content of the files generated, but you get
 dependency-free valid files and if that's all you need, you don't need to look
