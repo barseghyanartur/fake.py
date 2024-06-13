@@ -413,6 +413,35 @@ further.
 However, at any point, if you discover that you "need more", go for `Faker`_,
 `factory_boy`_ and `faker-file`_ combination.
 
+Writing documentation
+=====================
+
+Keep the following hierarchy.
+
+.. code-block:: text
+
+    =====
+    title
+    =====
+
+    header
+    ======
+
+    sub-header
+    ----------
+
+    sub-sub-header
+    ~~~~~~~~~~~~~~
+
+    sub-sub-sub-header
+    ^^^^^^^^^^^^^^^^^^
+
+    sub-sub-sub-sub-header
+    ++++++++++++++++++++++
+
+    sub-sub-sub-sub-sub-header
+    **************************
+
 License
 =======
 
