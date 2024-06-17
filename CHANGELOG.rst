@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.7.2
+-----
+2024-06-17
+
+- Add basic ``slugify`` function.
+- Minor fixes in ``free_email`` and ``company_email`` providers.
+
 0.7.1
 -----
 2024-06-11

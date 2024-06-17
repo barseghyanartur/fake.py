@@ -87,6 +87,7 @@ __all__ = (
     "pre_save",
     "provider",
     "run_async_in_thread",
+    "slugify",
     "trait",
     "xor_transform",
 )
@@ -249,6 +250,14 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
     b"<Override PartName='/word/styles.xml' ContentType='application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml'/>"  # noqa
     b"</Types>"
 )
+
+
+SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
+
+
+def slugify(value: str) -> str:
+    """Slugify."""
+    return SLUGIFY_RE.sub("", value).lower()
 
 
 class MetaData:
@@ -1159,11 +1168,7 @@ class Faker:
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
         domain = random.choice(domain_names) if domain_names else None
-        return (
-            f"{self.first_name().lower()}"
-            f"{self.last_name().lower()}"
-            f"@{domain or self.domain_name()}"
-        )
+        return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
     @provider
     def free_email(
@@ -1171,11 +1176,7 @@ class Faker:
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
         domain = random.choice(domain_names) if domain_names else None
-        return (
-            f"{self.first_name().lower()}"
-            f"{self.last_name().lower()}"
-            f"@{domain or self.free_email_domain()}"
-        )
+        return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
     @provider
     def url(

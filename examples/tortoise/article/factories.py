@@ -14,6 +14,7 @@ from fake import (
     pre_init,
     pre_save,
     run_async_in_thread,
+    slugify,
     trait,
 )
 
@@ -71,12 +72,6 @@ def add_to_group(user: User, name: str) -> None:
         await user.save()
 
     run_async_in_thread(_add_to_group())
-
-
-def slugify(text: str) -> str:
-    slug = text.replace(" ", "-").replace("_", "-")
-    slug = "".join(char for char in slug if char.isalnum() or char == "-")
-    return slug.lower()
 
 
 def set_username(data: Dict[str, Any]) -> None:

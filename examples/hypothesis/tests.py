@@ -1,7 +1,8 @@
+import string
 import unittest
 from decimal import Decimal
 
-from fake import FAKER, FILE_REGISTRY, StringValue
+from fake import FAKER, FILE_REGISTRY, StringValue, slugify
 from hypothesis import Verbosity, given, settings, strategies as st
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
@@ -22,6 +23,21 @@ class TestFakerWithHypothesis(unittest.TestCase):
 
     def tearDown(self) -> None:
         FILE_REGISTRY.clean_up()
+
+    @given(st.text(min_size=5))
+    def test_slugify(self, value):
+        result = slugify(f"{value}a1")
+
+        # Check that the result is lowercased
+        self.assertEqual(result, result.lower())
+
+        # Check that the result does not contain any punctuation or whitespace
+        for char in string.punctuation + string.whitespace:
+            self.assertNotIn(char, result)
+
+        # Check that the result is an alpha-numeric string (since all
+        # punctuations and whitespaces are removed)
+        self.assertTrue(result.isalnum())
 
     @given(nb=st.integers(min_value=1, max_value=10))
     def test_words(self, nb):
