@@ -13,6 +13,7 @@ from fake import (
     post_save,
     pre_init,
     pre_save,
+    slugify,
     trait,
 )
 
@@ -84,12 +85,6 @@ def add_to_group(user: User, name: str) -> None:
     if group not in user.groups:
         user.groups.append(group)
         session.commit()  # Commit the changes
-
-
-def slugify(text: str) -> str:
-    slug = text.replace(" ", "-").replace("_", "-")
-    slug = "".join(char for char in slug if char.isalnum() or char == "-")
-    return slug.lower()
 
 
 def set_username(data: Dict[str, Any]) -> None:
