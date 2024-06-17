@@ -13,6 +13,7 @@ from fake import (
     post_save,
     pre_init,
     pre_save,
+    slugify,
     trait,
 )
 
@@ -65,12 +66,6 @@ def set_password(user: User, password: str) -> None:
 def add_to_group(user: User, name: str) -> None:
     group = GroupFactory(name=name)
     user.groups.add(group)
-
-
-def slugify(text: str) -> str:
-    slug = text.replace(" ", "-").replace("_", "-")
-    slug = "".join(char for char in slug if char.isalnum() or char == "-")
-    return slug.lower()
 
 
 def set_username(data: Dict[str, Any]) -> None:
