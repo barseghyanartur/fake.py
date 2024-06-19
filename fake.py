@@ -1411,6 +1411,22 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
+    @provider(tags=("Document",))
+    def text_pdf(
+        self,
+        nb_pages: int = 1,
+        generator: Type[TextPdfGenerator] = TextPdfGenerator,
+        metadata: Optional[MetaData] = None,
+        **kwargs,
+    ) -> bytes:
+        """Create a PDF document of a given size."""
+        return self.pdf(
+            nb_pages=nb_pages,
+            generator=generator,
+            metadata=metadata,
+            **kwargs,
+        )
+
     @provider(tags=("Image",))
     def png(
         self,
@@ -1677,6 +1693,32 @@ class Faker:
         }
         FILE_REGISTRY.add(file)
         return file
+
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
+    def text_pdf_file(
+        self,
+        nb_pages: int = 1,
+        generator: Type[TextPdfGenerator] = TextPdfGenerator,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        **kwargs,
+    ) -> StringValue:
+        return self.pdf_file(
+            nb_pages=nb_pages,
+            generator=generator,
+            metadata=metadata,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+            **kwargs,
+        )
 
     def _image_file(
         self,
