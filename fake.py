@@ -901,32 +901,58 @@ class DocxGenerator:
         return docx_bytes.getvalue()
 
 
+class ProviderRegistryItem(str):
+    __slots__ = ("tags",)
+
+    tags: Optional[Tuple[str, ...]]
+
+    def __new__(cls, value, *args, **kwargs):
+        obj = str.__new__(cls, value)
+        obj.tags = tuple()
+        return obj
+
+
 # Global registry for provider methods
 UID_REGISTRY: Dict[str, "Faker"] = {}
 ALIAS_REGISTRY: Dict[str, "Faker"] = {}
-PROVIDER_REGISTRY: Dict[str, Set] = defaultdict(set)
+PROVIDER_REGISTRY: Dict[str, Set[ProviderRegistryItem]] = defaultdict(set)
 
 
 class Provider:
-    def __init__(self, func):
+    def __init__(
+        self,
+        func: Callable,
+        tags: Optional[Tuple[str, ...]] = None,
+    ) -> None:
         self.func = func
         self.is_provider = True
         self.registered_name = None
+        self.tags = tags
 
     def __set_name__(self, owner, name):
         module = owner.__module__
         class_name = owner.__name__
         class_qualname = f"{module}.{class_name}"
         self.registered_name = f"{module}.{class_name}.{name}"
-        PROVIDER_REGISTRY[class_qualname].add(self.func.__name__)
+        func_name = ProviderRegistryItem(self.func.__name__)
+        func_name.tags = self.tags
+        PROVIDER_REGISTRY[class_qualname].add(func_name)
 
     def __get__(self, instance, owner):
         # Return a method bound to the instance or the unbound function
         return self.func.__get__(instance, owner)
 
 
-def provider(func):
-    return Provider(func)
+def provider(*args: Any, tags: Optional[Tuple[str, ...]] = None) -> Callable:
+    # Decorator is used without arguments
+    if args and callable(args[0]):
+        return Provider(args[0])
+
+    # Decorator is used with arguments
+    def wrapper(func: Callable) -> Provider:
+        return Provider(func, tags=tags)
+
+    return wrapper
 
 
 class Faker:
@@ -1048,85 +1074,85 @@ class Faker:
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
         return "".join([translation_map.get(c, c) for c in text])
 
-    @provider
+    @provider(tags=("Unique",))
     def uuid(self) -> UUID:
         return uuid.uuid4()
 
-    @provider
+    @provider(tags=("Unique",))
     def uuids(self, nb: int = 5) -> List[UUID]:
         return [uuid.uuid4() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Person",))
     def first_name(self) -> str:
         return random.choice(self._first_names)
 
-    @provider
+    @provider(tags=("Person",))
     def first_names(self, nb: int = 5) -> List[str]:
         return [self.first_name() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Person",))
     def last_name(self) -> str:
         return random.choice(self._last_names)
 
-    @provider
+    @provider(tags=("Person",))
     def last_names(self, nb: int = 5) -> List[str]:
         return [self.last_name() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Person",))
     def name(self) -> str:
         return f"{self.first_name()} {self.last_name()}"
 
-    @provider
+    @provider(tags=("Person",))
     def names(self, nb: int = 5) -> List[str]:
         return [self.name() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Person",))
     def username(self) -> str:
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
-    @provider
+    @provider(tags=("Person",))
     def usernames(self, nb: int = 5) -> List[str]:
         return [self.username() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Text",))
     def slug(self) -> str:
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
-    @provider
+    @provider(tags=("Text",))
     def slugs(self, nb: int = 5) -> List[str]:
         return [self.slug() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Text",))
     def word(self) -> str:
         return random.choice(self._words).capitalize()
 
-    @provider
+    @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
         return [word.capitalize() for word in random.choices(self._words, k=nb)]
 
-    @provider
+    @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5) -> str:
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}."
         )
 
-    @provider
+    @provider(tags=("Text",))
     def sentences(self, nb: int = 3) -> List[str]:
         return [self.sentence() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Text",))
     def paragraph(self, nb_sentences: int = 5) -> str:
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
-    @provider
+    @provider(tags=("Text",))
     def paragraphs(self, nb: int = 3) -> List[str]:
         return [self.paragraph() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Text",))
     def text(self, nb_chars: int = 200) -> str:
         current_text: str = ""
         while len(current_text) < nb_chars:
@@ -1134,35 +1160,35 @@ class Faker:
             current_text += f" {sentence}" if current_text else sentence
         return current_text[:nb_chars]
 
-    @provider
+    @provider(tags=("Text",))
     def texts(self, nb: int = 3) -> List[str]:
         return [self.text() for _ in range(nb)]
 
-    @provider
+    @provider(tags=("Filename",))
     def file_name(self, extension: str = "txt") -> str:
         with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
             return temp_file.name
 
-    @provider
+    @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
         return random.choice(tlds or TLDS)
 
-    @provider
+    @provider(tags=("Internet",))
     def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
         domain = self.word().lower()
         tld = self.tld(tlds)
         return f"{domain}.{tld}"
 
-    @provider
+    @provider(tags=("Internet",))
     def free_email_domain(self) -> str:
         return random.choice(FREE_EMAIL_DOMAINS)
 
-    @provider
+    @provider(tags=("Internet",))
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
         domain = random.choice(domain_names) if domain_names else None
         return f"{self.word().lower()}@{domain or self.domain_name()}"
 
-    @provider
+    @provider(tags=("Internet",))
     def company_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -1170,7 +1196,7 @@ class Faker:
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
-    @provider
+    @provider(tags=("Internet",))
     def free_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -1178,7 +1204,7 @@ class Faker:
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
-    @provider
+    @provider(tags=("Internet",))
     def url(
         self,
         protocols: Optional[Tuple[str, ...]] = None,
@@ -1194,7 +1220,7 @@ class Faker:
             f"{suffix}"
         )
 
-    @provider
+    @provider(tags=("Internet",))
     def image_url(
         self,
         width: int = 800,
@@ -1206,11 +1232,11 @@ class Faker:
             service_url = random.choice(IMAGE_SERVICES)
         return service_url.format(width=width, height=height)
 
-    @provider
+    @provider(tags=("Python",))
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
         return random.randint(min_value, max_value)
 
-    @provider
+    @provider(tags=("Python",))
     def pybool(self) -> bool:
         return random.choice(
             (
@@ -1219,11 +1245,11 @@ class Faker:
             )
         )
 
-    @provider
+    @provider(tags=("Python",))
     def pystr(self, nb_chars: int = 20) -> str:
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
-    @provider
+    @provider(tags=("Python",))
     def pyfloat(
         self,
         min_value: float = 0.0,
@@ -1231,7 +1257,7 @@ class Faker:
     ) -> float:
         return random.uniform(min_value, max_value)
 
-    @provider
+    @provider(tags=("Python",))
     def pydecimal(
         self,
         left_digits: int = 5,
@@ -1278,7 +1304,7 @@ class Faker:
 
         return number
 
-    @provider
+    @provider(tags=("Internet",))
     def ipv4(self) -> str:
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
@@ -1317,7 +1343,7 @@ class Faker:
         # Otherwise it's minutes
         return datetime.now(tzinfo) + timedelta(minutes=value)
 
-    @provider
+    @provider(tags=("Date/Time",))
     def date(
         self,
         start_date: str = "-7d",
@@ -1343,7 +1369,7 @@ class Faker:
         random_date = start_datetime + timedelta(days=random_days)
         return random_date.date()
 
-    @provider
+    @provider(tags=("Date/Time",))
     def date_time(
         self,
         start_date: str = "-7d",
@@ -1371,7 +1397,7 @@ class Faker:
         random_date_time = start_datetime + timedelta(seconds=random_seconds)
         return random_date_time
 
-    @provider
+    @provider(tags=("Document",))
     def pdf(
         self,
         nb_pages: int = 1,
@@ -1385,7 +1411,7 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
-    @provider
+    @provider(tags=("Image",))
     def png(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1441,7 +1467,7 @@ class Faker:
 
         return png_data
 
-    @provider
+    @provider(tags=("Image",))
     def svg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1458,7 +1484,7 @@ class Faker:
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
 
-    @provider
+    @provider(tags=("Image",))
     def bmp(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1519,7 +1545,7 @@ class Faker:
             + image_data  # Important colors
         )
 
-    @provider
+    @provider(tags=("Image",))
     def gif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1590,7 +1616,7 @@ class Faker:
             + footer
         )
 
-    @provider
+    @provider(tags=("Image",))
     def image(
         self,
         image_format: Literal["png", "svg", "bmp", "gif"] = "png",
@@ -1602,7 +1628,7 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
-    @provider
+    @provider(tags=("Document",))
     def docx(
         self,
         nb_pages: Optional[int] = 1,
@@ -1612,7 +1638,12 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
     def pdf_file(
         self,
         nb_pages: int = 1,
@@ -1670,7 +1701,12 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
     def png_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1688,7 +1724,12 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
     def svg_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1706,7 +1747,12 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
     def bmp_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1724,7 +1770,12 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
     def gif_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -1742,7 +1793,12 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
     def docx_file(
         self,
         nb_pages: int = 1,
@@ -1772,7 +1828,12 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider
+    @provider(
+        tags=(
+            "Text",
+            "File",
+        )
+    )
     def txt_file(
         self,
         nb_chars: Optional[int] = 200,
@@ -1802,7 +1863,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider
+    @provider(tags=("File",))
     def generic_file(
         self,
         content: Union[bytes, str],
@@ -1833,13 +1894,13 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider
+    @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
         return random.choice(elements)
 
     random_element = random_choice  # noqa
 
-    @provider
+    @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
         return random.sample(elements, length)
 
@@ -4688,3 +4749,6 @@ class TestFaker(unittest.TestCase):
 
         # Clean up by removing the handler
         LOGGER.removeHandler(handler)
+
+    def test_slugify(self):
+        pass
