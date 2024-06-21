@@ -48,7 +48,7 @@ from typing import (
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
