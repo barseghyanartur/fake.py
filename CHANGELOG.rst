@@ -16,6 +16,19 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.7.3
+-----
+2024-06-21
+
+.. note::
+
+    Release dedicated to my dear son Tigran, who turned 12 today.
+
+- Add ``text_pdf`` and ``text_pdf_file`` providers, which are shortcuts for
+  ``pdf`` and ``pdf_file`` with ``generator`` set to ``TextPdfGenerator``.
+- Allow to optionally tag providers.
+- Tag all implemented providers.
+
 0.7.2
 -----
 2024-06-17

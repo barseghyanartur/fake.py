@@ -3465,6 +3465,14 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(pdf)
             self.assertIsInstance(pdf, bytes)
 
+        with self.subTest("text_pdf shortcut"):
+            metadata = MetaData()
+            pdf = self.faker.text_pdf(
+                metadata=metadata,
+            )
+            self.assertTrue(pdf)
+            self.assertIsInstance(pdf, bytes)
+
     def test_graphic_pdf(self) -> None:
         pdf = self.faker.pdf(generator=GraphicPdfGenerator)
         self.assertTrue(pdf)
@@ -3521,6 +3529,10 @@ class TestFaker(unittest.TestCase):
 
     def test_pdf_file(self) -> None:
         file = self.faker.pdf_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_text_pdf_file(self) -> None:
+        file = self.faker.text_pdf_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_png_file(self) -> None:
