@@ -2,7 +2,6 @@
 https://github.com/barseghyanartur/fake.py/
 """
 
-import argparse
 import asyncio
 import contextlib
 import io
@@ -16,6 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, Namespace
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
@@ -1903,7 +1903,7 @@ class Faker:
         )
         if not metadata:
             metadata = MetaData()
-        data = self.docx(texts=texts, metadata=metadata)
+        data = self.docx(nb_pages=nb_pages, texts=texts, metadata=metadata)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {
@@ -2994,7 +2994,7 @@ PROVIDER_LIST = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
 PROVIDER_TAGS = [(provider, provider.tags) for provider in PROVIDER_LIST]
 
 
-def get_provider_args(func: Callable):
+def get_provider_args(func: Callable) -> Dict[str, Any]:
     """Retrieve the argument list and types for a provider function by
     inspecting its signature.
     """
@@ -3002,7 +3002,7 @@ def get_provider_args(func: Callable):
     return {param.name: param.annotation for param in sig.parameters.values()}
 
 
-def get_provider_defaults(func: Callable):
+def get_provider_defaults(func: Callable) -> Dict[str, Any]:
     """Retrieve the argument list and defaults for a provider function by
     inspecting its signature.
     """
@@ -3010,7 +3010,37 @@ def get_provider_defaults(func: Callable):
     return {param.name: param.default for param in sig.parameters.values()}
 
 
-def organize_providers():
+def is_optional_type(type_hint) -> bool:
+    """Check if the type hint is an Optional."""
+    origin = get_origin(type_hint)
+    args = get_args(type_hint)
+    return origin is Optional or (origin is Union and type(None) in args)
+
+
+def get_argparse_type(param_type):
+    """Get the corresponding argparse type for a given parameter type."""
+    origin = get_origin(param_type)
+    args = get_args(param_type)
+    if origin is Union:
+        if type(None) in args:
+            non_none_types = [arg for arg in args if arg is not type(None)]
+            if len(non_none_types) == 1:
+                return get_argparse_type(non_none_types[0])
+            return str  # Default to string if multiple types are present
+        return str  # Default to string if it's a non-optional Union
+    elif origin in [list, tuple, set]:
+        return lambda x: [get_argparse_type(args[0])(i) for i in x.split(",")]
+    elif param_type is int:
+        return int
+    elif param_type is float:
+        return float
+    elif param_type is bool:
+        return lambda x: x.lower() in ("true", "1", "yes")
+    else:
+        return str
+
+
+def organize_providers() -> Dict[str, Any]:
     """Organize providers by category for easier navigation."""
     categories = {}
     for _provider, tags in PROVIDER_TAGS:
@@ -3026,14 +3056,14 @@ def organize_providers():
     return dict(sorted(categories.items()))
 
 
-def format_type_hint(type_hint):
+def format_type_hint(type_hint) -> str:
     """Format the type hint for display."""
     origin = get_origin(type_hint)
     _args = get_args(type_hint)
     _type = ", ".join(
         [format_type_hint(arg) for arg in _args if arg is not type(None)]
     )
-    if origin is Optional:
+    if is_optional_type(type_hint):
         return f"Optional[{_type}]"
     elif origin is Tuple:
         formatted_args = []
@@ -3058,10 +3088,10 @@ def format_type_hint(type_hint):
         return f"{type_hint.__module__}.{type_hint.__name__}"
 
 
-def setup_parser():
-    _parser = argparse.ArgumentParser(
+def setup_parser() -> ArgumentParser:
+    _parser = ArgumentParser(
         description="CLI for fake.py",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=ArgumentDefaultsHelpFormatter,
     )
     subparsers = _parser.add_subparsers(
         dest="command", help="Available commands"
@@ -3080,10 +3110,12 @@ def setup_parser():
         for param_name, param_type in provider_args.items():
             formatted_type = format_type_hint(param_type)
             default_value = provider_defaults.get(param_name, None)
-            if formatted_type.startswith("Optional") or default_value:
+            argparse_type = get_argparse_type(param_type)
+            if is_optional_type(param_type) or default_value:
                 subparser.add_argument(
                     f"--{param_name}",
                     help=f"{param_name} (type: {formatted_type})",
+                    type=argparse_type,
                     default=default_value,
                 )
             else:
@@ -3093,15 +3125,16 @@ def setup_parser():
                         f"{param_name} (type: {formatted_type}, "
                         f"default value: {default_value})"
                     ),
+                    type=argparse_type,
                 )
 
     return _parser
 
 
-def execute_command(args):
+def execute_command(parser: ArgumentParser, args: Namespace) -> None:
     command = args.command
     if not command:
-        print("Please specify a command. Use --help for more information.")
+        parser.print_help()
         return
 
     provider_func = getattr(FAKER, command)
@@ -3118,10 +3151,10 @@ def execute_command(args):
     print(result)
 
 
-def main():
-    parser = setup_parser()
-    args = parser.parse_args()
-    execute_command(args)
+def main() -> None:
+    _parser = setup_parser()
+    _args = _parser.parse_args()
+    execute_command(_parser, _args)
 
 
 if __name__ == "__main__":
