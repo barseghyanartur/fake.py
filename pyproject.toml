@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.7.3"
+version = "0.7.4"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -61,6 +61,17 @@ docs = [
     "sphinx-no-pragma",
 ]
 
+[project.scripts]
+fake-py = "fake:main"
+
+[tool.setuptools]
+py-modules = ["fake"]
+
+# Build system information below.
+[build-system]
+requires = ["setuptools>=41.0", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 line-length = 80
 target-version = ['py38', 'py39', 'py310', 'py311']
@@ -75,12 +86,6 @@ extend-exclude = '''
   | migrations
 )/
 '''
-
-# Build system information below.
-# NOTE: You don't need this in your own Black configuration.
-[build-system]
-requires = ["setuptools>=41.0", "setuptools-scm", "wheel"]
-build-backend = "setuptools.build_meta"
 
 [tool.isort]
 profile = "black"

@@ -2,6 +2,7 @@
 https://github.com/barseghyanartur/fake.py/
 """
 
+import argparse
 import asyncio
 import contextlib
 import io
@@ -22,6 +23,7 @@ from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from email.utils import parseaddr
 from functools import partial
+from inspect import signature
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -48,7 +50,7 @@ from typing import (
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.7.3"
+__version__ = "0.7.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -1076,84 +1078,103 @@ class Faker:
 
     @provider(tags=("Unique",))
     def uuid(self) -> UUID:
+        """Generate a UUID."""
         return uuid.uuid4()
 
     @provider(tags=("Unique",))
     def uuids(self, nb: int = 5) -> List[UUID]:
+        """Generate a list of UUIDs."""
         return [uuid.uuid4() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def first_name(self) -> str:
+        """Generate a first name."""
         return random.choice(self._first_names)
 
     @provider(tags=("Person",))
     def first_names(self, nb: int = 5) -> List[str]:
+        """Generate a list of first names."""
         return [self.first_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def last_name(self) -> str:
+        """Generate a last name."""
         return random.choice(self._last_names)
 
     @provider(tags=("Person",))
     def last_names(self, nb: int = 5) -> List[str]:
+        """Generate a list of last names."""
         return [self.last_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def name(self) -> str:
+        """Generate a name."""
         return f"{self.first_name()} {self.last_name()}"
 
     @provider(tags=("Person",))
     def names(self, nb: int = 5) -> List[str]:
+        """Generate a list of names."""
         return [self.name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def username(self) -> str:
+        """Generate a username."""
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
     @provider(tags=("Person",))
     def usernames(self, nb: int = 5) -> List[str]:
+        """Generate a list of usernames."""
         return [self.username() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def slug(self) -> str:
+        """Generate a slug."""
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
     @provider(tags=("Text",))
     def slugs(self, nb: int = 5) -> List[str]:
+        """Generate a list of slugs."""
         return [self.slug() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def word(self) -> str:
+        """Generate a word."""
         return random.choice(self._words).capitalize()
 
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
+        """Generate a list of words."""
         return [word.capitalize() for word in random.choices(self._words, k=nb)]
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5) -> str:
+        """Generate a sentence."""
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}."
         )
 
     @provider(tags=("Text",))
     def sentences(self, nb: int = 3) -> List[str]:
+        """Generate a list of sentences."""
         return [self.sentence() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def paragraph(self, nb_sentences: int = 5) -> str:
+        """Generate a paragraph."""
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
     @provider(tags=("Text",))
     def paragraphs(self, nb: int = 3) -> List[str]:
+        """Generate a list of paragraphs."""
         return [self.paragraph() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def text(self, nb_chars: int = 200) -> str:
+        """Generate a text."""
         current_text: str = ""
         while len(current_text) < nb_chars:
             sentence: str = self.sentence()
@@ -1162,29 +1183,35 @@ class Faker:
 
     @provider(tags=("Text",))
     def texts(self, nb: int = 3) -> List[str]:
+        """Generate a list of texts."""
         return [self.text() for _ in range(nb)]
 
     @provider(tags=("Filename",))
     def file_name(self, extension: str = "txt") -> str:
+        """Generate a random filename."""
         with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
             return temp_file.name
 
     @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        """Generate a random TLD."""
         return random.choice(tlds or TLDS)
 
     @provider(tags=("Internet",))
     def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
+        """Generate a random domain name."""
         domain = self.word().lower()
         tld = self.tld(tlds)
         return f"{domain}.{tld}"
 
     @provider(tags=("Internet",))
     def free_email_domain(self) -> str:
+        """Generate a random free email domain."""
         return random.choice(FREE_EMAIL_DOMAINS)
 
     @provider(tags=("Internet",))
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
+        """Generate a random email."""
         domain = random.choice(domain_names) if domain_names else None
         return f"{self.word().lower()}@{domain or self.domain_name()}"
 
@@ -1193,6 +1220,7 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
+        """Generate a random company email."""
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
@@ -1201,6 +1229,7 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
+        """Generate a random free email."""
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
@@ -1211,6 +1240,7 @@ class Faker:
         tlds: Optional[Tuple[str, ...]] = None,
         suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
+        """Generate a random URL."""
         protocol = random.choice(protocols or URL_PROTOCOLS)
         suffix = random.choice(suffixes or URL_SUFFIXES)
         return (
@@ -1227,17 +1257,19 @@ class Faker:
         height: int = 600,
         service_url: Optional[str] = None,
     ) -> str:
-        """Image URL."""
+        """Generate a random image URL."""
         if service_url is None:
             service_url = random.choice(IMAGE_SERVICES)
         return service_url.format(width=width, height=height)
 
     @provider(tags=("Python",))
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
+        """Generate a random integer."""
         return random.randint(min_value, max_value)
 
     @provider(tags=("Python",))
     def pybool(self) -> bool:
+        """Generate a random boolean."""
         return random.choice(
             (
                 True,
@@ -1247,6 +1279,7 @@ class Faker:
 
     @provider(tags=("Python",))
     def pystr(self, nb_chars: int = 20) -> str:
+        """Generate a random string."""
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
     @provider(tags=("Python",))
@@ -1255,6 +1288,7 @@ class Faker:
         min_value: float = 0.0,
         max_value: float = 10.0,
     ) -> float:
+        """Generate a random float number."""
         return random.uniform(min_value, max_value)
 
     @provider(tags=("Python",))
@@ -1306,6 +1340,7 @@ class Faker:
 
     @provider(tags=("Internet",))
     def ipv4(self) -> str:
+        """Generate a random IP v4."""
         return ".".join(str(random.randint(0, 255)) for _ in range(4))
 
     def _parse_date_string(
@@ -1489,7 +1524,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a SVG image of a specified color.
+        """Create an SVG image of a specified color.
 
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
@@ -1639,6 +1674,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
+        """Create an image of a specified format and color."""
         if image_format not in {"png", "svg", "bmp", "gif"}:
             raise ValueError()
         image_func = getattr(self, image_format)
@@ -1651,6 +1687,7 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
     ) -> bytes:
+        """Create an DOCX document."""
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -1672,6 +1709,7 @@ class Faker:
         prefix: Optional[str] = None,
         **kwargs,
     ) -> StringValue:
+        """Create a PDF file."""
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -1710,6 +1748,7 @@ class Faker:
         prefix: Optional[str] = None,
         **kwargs,
     ) -> StringValue:
+        """Create a text file."""
         return self.pdf_file(
             nb_pages=nb_pages,
             generator=generator,
@@ -1757,6 +1796,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create a PNG image of a specified size and color."""
         return self._image_file(
             extension="png",
             size=size,
@@ -1780,6 +1820,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create an SVG image of a specified size and color."""
         return self._image_file(
             extension="svg",
             size=size,
@@ -2939,6 +2980,147 @@ class PydanticDataFiller(BaseDataFiller):
 
 
 fill_pydantic_model = PydanticDataFiller.fill
+
+# ************************************************
+# ********************* CLI **********************
+# ************************************************
+
+PROVIDER_LIST = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
+PROVIDER_TAGS = [(provider, provider.tags) for provider in PROVIDER_LIST]
+
+
+def get_provider_args(func: Callable):
+    """Retrieve the argument list and types for a provider function by
+    inspecting its signature.
+    """
+    sig = signature(func)
+    return {param.name: param.annotation for param in sig.parameters.values()}
+
+
+def get_provider_defaults(func: Callable):
+    """Retrieve the argument list and defaults for a provider function by
+    inspecting its signature.
+    """
+    sig = signature(func)
+    return {param.name: param.default for param in sig.parameters.values()}
+
+
+def organize_providers():
+    """Organize providers by category for easier navigation."""
+    categories = {}
+    for _provider, tags in PROVIDER_TAGS:
+        for tag in tags:
+            if tag not in categories:
+                categories[tag] = []
+            categories[tag].append(_provider)
+    # Sort the providers within each category
+    for category in categories:
+        categories[category] = sorted(categories[category])
+
+    # Return categories sorted by the category names
+    return dict(sorted(categories.items()))
+
+
+def format_type_hint(type_hint):
+    """Format the type hint for display."""
+    origin = get_origin(type_hint)
+    _args = get_args(type_hint)
+    _type = ", ".join(
+        [format_type_hint(arg) for arg in _args if arg is not type(None)]
+    )
+    if origin is Optional:
+        return f"Optional[{_type}]"
+    elif origin is Tuple:
+        formatted_args = []
+        for arg in _args:
+            if arg is Ellipsis:
+                formatted_args.append("...")
+            else:
+                formatted_args.append(format_type_hint(arg))
+        return f"Tuple[{', '.join(formatted_args)}]"
+    elif _args:
+        return (
+            f"{origin.__name__}"
+            f"[{', '.join([format_type_hint(arg) for arg in _args])}]"
+        )
+    elif isinstance(type_hint, type) and type_hint.__module__ == "builtins":
+        return type_hint.__name__
+    elif type_hint is Ellipsis:
+        return "..."
+    elif isinstance(type_hint, str):
+        return type_hint
+    else:
+        return f"{type_hint.__module__}.{type_hint.__name__}"
+
+
+def setup_parser():
+    _parser = argparse.ArgumentParser(
+        description="CLI for fake.py",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    subparsers = _parser.add_subparsers(
+        dest="command", help="Available commands"
+    )
+
+    for provider_name in PROVIDER_LIST:
+        provider_func = getattr(FAKER, provider_name)
+        doc_string = (
+            provider_func.__doc__.split("\n")[0]
+            if provider_func.__doc__
+            else None
+        )
+        subparser = subparsers.add_parser(provider_name, help=doc_string)
+        provider_args = get_provider_args(provider_func)
+        provider_defaults = get_provider_defaults(provider_func)
+        for param_name, param_type in provider_args.items():
+            formatted_type = format_type_hint(param_type)
+            default_value = provider_defaults.get(param_name, None)
+            if formatted_type.startswith("Optional") or default_value:
+                subparser.add_argument(
+                    f"--{param_name}",
+                    help=f"{param_name} (type: {formatted_type})",
+                    default=default_value,
+                )
+            else:
+                subparser.add_argument(
+                    param_name,
+                    help=(
+                        f"{param_name} (type: {formatted_type}, "
+                        f"default value: {default_value})"
+                    ),
+                )
+
+    return _parser
+
+
+def execute_command(args):
+    command = args.command
+    if not command:
+        print("Please specify a command. Use --help for more information.")
+        return
+
+    provider_func = getattr(FAKER, command)
+    provider_params = signature(provider_func).parameters
+
+    kwargs = {}
+    for param_name in provider_params:
+        if hasattr(args, param_name):
+            param_value = getattr(args, param_name)
+            if param_value is not None:
+                kwargs[param_name] = param_value
+
+    result = provider_func(**kwargs)
+    print(result)
+
+
+def main():
+    parser = setup_parser()
+    args = parser.parse_args()
+    execute_command(args)
+
+
+if __name__ == "__main__":
+    main()
 
 # ************************************************
 # ******************** Tests *********************
