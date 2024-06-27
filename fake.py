@@ -1468,7 +1468,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a PNG image of a specified color.
+        """Create a PNG image of a specified size and color.
 
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
@@ -1524,7 +1524,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an SVG image of a specified color.
+        """Create an SVG image of a specified size and color.
 
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
@@ -1541,7 +1541,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a BMP image of a specified color.
+        """Create a BMP image of a specified size and color.
 
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
@@ -1602,7 +1602,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a GIF image of a specified color.
+        """Create a GIF image of a specified size and color.
 
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
@@ -1674,7 +1674,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an image of a specified format and color."""
+        """Create an image of a specified format, size and color."""
         if image_format not in {"png", "svg", "bmp", "gif"}:
             raise ValueError()
         image_func = getattr(self, image_format)
@@ -1687,7 +1687,7 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
     ) -> bytes:
-        """Create an DOCX document."""
+        """Create a DOCX document."""
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -1748,7 +1748,7 @@ class Faker:
         prefix: Optional[str] = None,
         **kwargs,
     ) -> StringValue:
-        """Create a text file."""
+        """Create a text PDF file."""
         return self.pdf_file(
             nb_pages=nb_pages,
             generator=generator,
@@ -1796,7 +1796,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a PNG image of a specified size and color."""
+        """Create a PNG image file of a specified size and color."""
         return self._image_file(
             extension="png",
             size=size,
@@ -1820,7 +1820,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create an SVG image of a specified size and color."""
+        """Create an SVG image file of a specified size and color."""
         return self._image_file(
             extension="svg",
             size=size,
@@ -1844,6 +1844,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create a BMP image file of a specified size and color."""
         return self._image_file(
             extension="bmp",
             size=size,
@@ -1867,6 +1868,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create a GIF image file of a specified size and color."""
         return self._image_file(
             extension="gif",
             size=size,
@@ -1891,6 +1893,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create a DOCX document file."""
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -1925,6 +1928,7 @@ class Faker:
         prefix: Optional[str] = None,
         text: Optional[str] = None,
     ) -> StringValue:
+        """Create a text document file."""
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -1955,6 +1959,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
+        """Create a generic file."""
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
