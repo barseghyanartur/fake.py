@@ -25,8 +25,9 @@ fake.py
 .. _Creating PDF: https://fakepy.readthedocs.io/en/latest/creating_pdf.html
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
 .. _Creating images: https://fakepy.readthedocs.io/en/latest/creating_images.html
-.. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
+.. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
+.. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
 
 Minimalistic, standalone alternative fake data generator with no dependencies.
 
@@ -75,6 +76,7 @@ Features
   `BMP`, `GIF`) and file creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
+- CLI for generating data.
 
 Prerequisites
 =============
@@ -107,8 +109,9 @@ Documentation
 - For tips on ``PDF`` creation see `Creating PDF`_.
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
 - For tips on images creation see `Creating images`_.
-- For guidelines on contributing check the `Contributor guidelines`_.
 - For various implementation examples, see the `Examples`_.
+- For CLI documentation, see the `CLI`_.
+- For guidelines on contributing check the `Contributor guidelines`_.
 
 Usage
 =====

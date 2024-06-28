@@ -3164,9 +3164,6 @@ def main() -> None:
     cli.execute_command()
 
 
-if __name__ == "__main__":
-    main()
-
 # ************************************************
 # ******************** Tests *********************
 # ************************************************
@@ -3186,6 +3183,27 @@ class TestCLI(unittest.TestCase):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             main()
             self.assertTrue(fake_out.getvalue().strip().isdigit())
+
+    @patch(
+        "sys.argv",
+        [
+            "fake-py",
+            "generic_file",
+            "--content",
+            "MyContent",
+            "--extension",
+            "txt",
+            "--basename",
+            "my_file",
+        ],
+    )
+    def test_generic_file_provider(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertEqual(
+                fake_out.getvalue().strip(),
+                "tmp/my_file.txt",
+            )
 
     @patch("sys.argv", ["fake-py", "date"])
     def test_date_provider(self):
