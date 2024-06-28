@@ -3117,7 +3117,7 @@ class CLI:
                 formatted_type = format_type_hint(param_type)
                 default_value = provider_defaults.get(param_name, None)
                 argparse_type = get_argparse_type(param_type)
-                if is_optional_type(param_type) or default_value:
+                if is_optional_type(param_type) or default_value is not None:
                     subparser.add_argument(
                         f"--{param_name}",
                         help=f"{param_name} (type: {formatted_type})",
