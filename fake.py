@@ -3191,13 +3191,19 @@ class TestCLI(unittest.TestCase):
     def test_date_provider(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             main()
-            self.assertRegex(fake_out.getvalue().strip(), r"\d{4}-\d{2}-\d{2}")
+            self.assertRegex(
+                fake_out.getvalue().strip(),
+                r"\d{4}-\d{2}-\d{2}",
+            )
 
     @patch("sys.argv", ["fake-py", "date", "--start_date=-2d"])
     def test_date_provider_with_args(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             main()
-            self.assertRegex(fake_out.getvalue().strip(), r"\d{4}-\d{2}-\d{2}")
+            self.assertRegex(
+                fake_out.getvalue().strip(),
+                r"\d{4}-\d{2}-\d{2}",
+            )
 
     @patch("sys.argv", ["fake-py", "docx_file", "--nb_pages=1"])
     def test_docx_file_provider(self):
@@ -3209,7 +3215,10 @@ class TestCLI(unittest.TestCase):
     def test_no_command(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             main()
-            self.assertIn("usage: fake-py", fake_out.getvalue().strip())
+            self.assertIn(
+                "usage: fake-py",
+                fake_out.getvalue().strip(),
+            )
 
 
 class TestFaker(unittest.TestCase):
