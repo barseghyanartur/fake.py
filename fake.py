@@ -47,6 +47,7 @@ from typing import (
     get_origin,
     get_type_hints,
 )
+from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
@@ -3169,6 +3170,46 @@ if __name__ == "__main__":
 # ************************************************
 # ******************** Tests *********************
 # ************************************************
+
+
+class TestCLI(unittest.TestCase):
+    def setUp(self):
+        self.provider_list = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
+
+    @patch("sys.argv", ["fake-py"])
+    def test_provider_list(self):
+        cli = CLI()
+        self.assertEqual(cli.provider_list, self.provider_list)
+
+    @patch("sys.argv", ["fake-py", "pyint"])
+    def test_pyint_provider(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertTrue(fake_out.getvalue().strip().isdigit())
+
+    @patch("sys.argv", ["fake-py", "date"])
+    def test_date_provider(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertRegex(fake_out.getvalue().strip(), r"\d{4}-\d{2}-\d{2}")
+
+    @patch("sys.argv", ["fake-py", "date", "--start_date=-2d"])
+    def test_date_provider_with_args(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertRegex(fake_out.getvalue().strip(), r"\d{4}-\d{2}-\d{2}")
+
+    @patch("sys.argv", ["fake-py", "docx_file", "--nb_pages=1"])
+    def test_docx_file_provider(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertTrue(fake_out.getvalue().strip().endswith(".docx"))
+
+    @patch("sys.argv", ["fake-py"])
+    def test_no_command(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            main()
+            self.assertIn("usage: fake-py", fake_out.getvalue().strip())
 
 
 class TestFaker(unittest.TestCase):
