@@ -3090,7 +3090,9 @@ class CLI:
     """CLI."""
 
     def __init__(self):
-        self.provider_list = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
+        self.provider_list = sorted(
+            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
+        )
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -3164,6 +3166,9 @@ def main() -> None:
     cli.execute_command()
 
 
+if __name__ == "__main__":
+    main()
+
 # ************************************************
 # ******************** Tests *********************
 # ************************************************
@@ -3171,7 +3176,9 @@ def main() -> None:
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
-        self.provider_list = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
+        self.provider_list = sorted(
+            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
+        )
 
     @patch("sys.argv", ["fake-py"])
     def test_provider_list(self):
