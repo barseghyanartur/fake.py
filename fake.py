@@ -15,7 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, Namespace
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
@@ -2990,9 +2990,6 @@ fill_pydantic_model = PydanticDataFiller.fill
 # ********************* CLI **********************
 # ************************************************
 
-PROVIDER_LIST = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
-PROVIDER_TAGS = [(provider, provider.tags) for provider in PROVIDER_LIST]
-
 
 def get_provider_args(func: Callable) -> Dict[str, Any]:
     """Retrieve the argument list and types for a provider function by
@@ -3017,7 +3014,7 @@ def is_optional_type(type_hint) -> bool:
     return origin is Optional or (origin is Union and type(None) in args)
 
 
-def get_argparse_type(param_type):
+def get_argparse_type(param_type) -> Any:
     """Get the corresponding argparse type for a given parameter type."""
     origin = get_origin(param_type)
     args = get_args(param_type)
@@ -3040,10 +3037,10 @@ def get_argparse_type(param_type):
         return str
 
 
-def organize_providers() -> Dict[str, Any]:
+def organize_providers(provider_tags) -> Dict[str, Any]:
     """Organize providers by category for easier navigation."""
     categories = {}
-    for _provider, tags in PROVIDER_TAGS:
+    for _provider, tags in provider_tags:
         for tag in tags:
             if tag not in categories:
                 categories[tag] = []
@@ -3088,73 +3085,80 @@ def format_type_hint(type_hint) -> str:
         return f"{type_hint.__module__}.{type_hint.__name__}"
 
 
-def setup_parser() -> ArgumentParser:
-    _parser = ArgumentParser(
-        description="CLI for fake.py",
-        formatter_class=ArgumentDefaultsHelpFormatter,
-    )
-    subparsers = _parser.add_subparsers(
-        dest="command", help="Available commands"
-    )
+class CLI:
+    def __init__(self):
+        self.provider_list = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
+        self.provider_tags = [
+            (_provider, _provider.tags) for _provider in self.provider_list
+        ]
+        self.parser = self.setup_parser()
+        self.args = self.parser.parse_args()
 
-    for provider_name in PROVIDER_LIST:
-        provider_func = getattr(FAKER, provider_name)
-        doc_string = (
-            provider_func.__doc__.split("\n")[0]
-            if provider_func.__doc__
-            else None
+    def setup_parser(self) -> ArgumentParser:
+        _parser = ArgumentParser(
+            description="CLI for fake.py",
+            formatter_class=ArgumentDefaultsHelpFormatter,
         )
-        subparser = subparsers.add_parser(provider_name, help=doc_string)
-        provider_args = get_provider_args(provider_func)
-        provider_defaults = get_provider_defaults(provider_func)
-        for param_name, param_type in provider_args.items():
-            formatted_type = format_type_hint(param_type)
-            default_value = provider_defaults.get(param_name, None)
-            argparse_type = get_argparse_type(param_type)
-            if is_optional_type(param_type) or default_value:
-                subparser.add_argument(
-                    f"--{param_name}",
-                    help=f"{param_name} (type: {formatted_type})",
-                    type=argparse_type,
-                    default=default_value,
-                )
-            else:
-                subparser.add_argument(
-                    param_name,
-                    help=(
-                        f"{param_name} (type: {formatted_type}, "
-                        f"default value: {default_value})"
-                    ),
-                    type=argparse_type,
-                )
+        subparsers = _parser.add_subparsers(
+            dest="command", help="Available commands"
+        )
 
-    return _parser
+        for provider_name in self.provider_list:
+            provider_func = getattr(FAKER, provider_name)
+            doc_string = (
+                provider_func.__doc__.split("\n")[0]
+                if provider_func.__doc__
+                else None
+            )
+            subparser = subparsers.add_parser(provider_name, help=doc_string)
+            provider_args = get_provider_args(provider_func)
+            provider_defaults = get_provider_defaults(provider_func)
+            for param_name, param_type in provider_args.items():
+                formatted_type = format_type_hint(param_type)
+                default_value = provider_defaults.get(param_name, None)
+                argparse_type = get_argparse_type(param_type)
+                if is_optional_type(param_type) or default_value:
+                    subparser.add_argument(
+                        f"--{param_name}",
+                        help=f"{param_name} (type: {formatted_type})",
+                        type=argparse_type,
+                        default=default_value,
+                    )
+                else:
+                    subparser.add_argument(
+                        param_name,
+                        help=(
+                            f"{param_name} (type: {formatted_type}, "
+                            f"default value: {default_value})"
+                        ),
+                        type=argparse_type,
+                    )
 
+        return _parser
 
-def execute_command(parser: ArgumentParser, args: Namespace) -> None:
-    command = args.command
-    if not command:
-        parser.print_help()
-        return
+    def execute_command(self) -> None:
+        command = self.args.command
+        if not command:
+            self.parser.print_help()
+            return
 
-    provider_func = getattr(FAKER, command)
-    provider_params = signature(provider_func).parameters
+        provider_func = getattr(FAKER, command)
+        provider_params = signature(provider_func).parameters
 
-    kwargs = {}
-    for param_name in provider_params:
-        if hasattr(args, param_name):
-            param_value = getattr(args, param_name)
-            if param_value is not None:
-                kwargs[param_name] = param_value
+        kwargs = {}
+        for param_name in provider_params:
+            if hasattr(self.args, param_name):
+                param_value = getattr(self.args, param_name)
+                if param_value is not None:
+                    kwargs[param_name] = param_value
 
-    result = provider_func(**kwargs)
-    print(result)
+        result = provider_func(**kwargs)
+        print(result)
 
 
 def main() -> None:
-    _parser = setup_parser()
-    _args = _parser.parse_args()
-    execute_command(_parser, _args)
+    cli = CLI()
+    cli.execute_command()
 
 
 if __name__ == "__main__":
