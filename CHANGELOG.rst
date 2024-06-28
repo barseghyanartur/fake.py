@@ -18,9 +18,9 @@ are used for versioning (schema follows below):
 
 0.7.4
 -----
-2024-06-27
+2024-06-28
 
-- Minor fixes.
+- Add CLI.
 
 0.7.3
 -----
