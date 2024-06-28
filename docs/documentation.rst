@@ -15,6 +15,7 @@ Contents:
    creating_docx
    factories
    customization
+   cli
    security
    contributor_guidelines
    code_of_conduct
