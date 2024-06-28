@@ -3086,6 +3086,8 @@ def format_type_hint(type_hint) -> str:
 
 
 class CLI:
+    """CLI."""
+
     def __init__(self):
         self.provider_list = sorted(list(PROVIDER_REGISTRY["fake.Faker"]))
         self.provider_tags = [
