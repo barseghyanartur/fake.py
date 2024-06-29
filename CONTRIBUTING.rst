@@ -2,7 +2,7 @@ Contributor guidelines
 ======================
 
 .. _documentation: https://fakepy.readthedocs.io/#writing-documentation
-.. _testing: https://faker-file.readthedocs.io/#testing
+.. _testing: https://fakepy.readthedocs.io/#testing
 .. _pre-commit: https://pre-commit.com/#installation
 .. _black: https://black.readthedocs.io/
 .. _isort: https://pycqa.github.io/isort/
