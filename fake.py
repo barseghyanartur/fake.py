@@ -15,7 +15,7 @@ import uuid
 import zipfile
 import zlib
 from abc import abstractmethod
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
@@ -3097,10 +3097,13 @@ def format_type_hint(type_hint) -> str:
 class CLI:
     """CLI."""
 
-    def __init__(self):
-        self.provider_list = sorted(
-            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
-        )
+    def __init__(self, faker: Optional[Faker] = None) -> None:
+        if faker:
+            self.faker = faker
+        else:
+            self.faker = FAKER
+        faker_id = f"{self.faker.__module__}.{self.faker.__class__.__name__}"
+        self.provider_list = sorted(list(PROVIDER_REGISTRY[faker_id]))
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -3117,7 +3120,7 @@ class CLI:
         )
 
         for provider_name in self.provider_list:
-            provider_func = getattr(FAKER, provider_name)
+            provider_func = getattr(self.faker, provider_name)
             doc_string = (
                 provider_func.__doc__.split("\n")[0]
                 if provider_func.__doc__
@@ -3155,7 +3158,7 @@ class CLI:
             self.parser.print_help()
             return
 
-        provider_func = getattr(FAKER, command)
+        provider_func = getattr(self.faker, command)
         provider_params = signature(provider_func).parameters
 
         kwargs = {}

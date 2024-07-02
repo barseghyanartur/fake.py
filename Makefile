@@ -93,6 +93,18 @@ shell:
 customization-shell:
 	source $(VENV) && cd examples/customization/ && python manage.py shell
 
+customization-address-cli:
+	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customization/ && python address_cli.py $(filter-out $@,$(MAKECMDGOALS))
+
+customization-band-cli:
+	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customization/ && python band_cli.py $(filter-out $@,$(MAKECMDGOALS))
+
+customization-custom-data-cli:
+	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customization/ && python custom_data_cli.py $(filter-out $@,$(MAKECMDGOALS))
+
 dataclasses-shell:
 	source $(VENV) && cd examples/dataclasses/ && python manage.py shell
 
