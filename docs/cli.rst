@@ -370,3 +370,36 @@ username
 .. code-block:: text
 
     better_if_great_ldffdumuptmqtzssjbgv
+
+----
+
+Customisation
+-------------
+By default, only standard (built-in) providers are available through CLI.
+
+However, you can easily expose your providers via CLI too. See the
+implementation below as an example.
+
+*Filename: data.py*
+
+.. literalinclude:: _static/examples/cli/data.py
+    :language: python
+    :lines: 173-175, 222-229, 275-281, 290-
+
+*Filename: fake_address.py*
+
+.. literalinclude:: _static/examples/cli/fake_address.py
+    :language: python
+    :lines: 1-6, 15-
+
+*Filename: address_cli.py*
+
+.. literalinclude:: _static/examples/cli/address_cli.py
+    :language: python
+    :lines: 1-
+
+After that you can use it as follows:
+
+.. code-block:: sh
+
+    python address_cli.py --help
