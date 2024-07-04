@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.7.4
+VERSION := 0.7.5
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -147,6 +147,7 @@ clean:
 	find . -type f -name "builddocs.zip" -exec rm -f {} \;
 	find . -type f -name "*.py,cover" -exec rm -f {} \;
 	find . -type f -name "*.orig" -exec rm -f {} \;
+	find . -type f -name "*.db" -exec rm -f {} \;
 	find . -type d -name "__pycache__" -exec rm -rf {} \; -prune
 	rm -rf build/
 	rm -rf dist/
@@ -159,6 +160,7 @@ clean:
 	rm -rf .mypy_cache/
 	rm -rf .ruff_cache/
 	rm -rf dist/
+	rm -rf fake.py.egg-info/
 
 compile-requirements-pip-tools:
 	source $(VENV) && python -m piptools compile --all-extras -o docs/requirements.txt pyproject.toml

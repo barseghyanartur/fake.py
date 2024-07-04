@@ -51,7 +51,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -162,6 +162,8 @@ PDF_TEXT_TPL_CONTENT_OBJECT = """{obj_num} 0 obj
 stream
 {content}
 endstream
+6 0 obj
+<</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
 endobj
 """
 
@@ -591,12 +593,9 @@ class TextPdfGenerator:
         # Construction
         pdf_bytes = io.BytesIO()
 
-        pdf_bytes.write(b"%PDF-1.0\n")
+        pdf_bytes.write(b"%PDF-1.4\n")
         pdf_bytes.write(b"1 0 obj\n<</Type /Catalog/Pages 3 0 R>>\nendobj\n")
-        pdf_bytes.write(
-            b"2 0 obj\n<</Font <</F1 <</Type /Font/Subtype /Type1/BaseFont "
-            b"/Helvetica>>>>\nendobj\n"
-        )
+        pdf_bytes.write(b"2 0 obj\n<</Font <</F1 6 0 R>>>>\nendobj\n")
         pdf_bytes.write(b"3 0 obj\n<</Type /Pages/Kids [")
 
         page_objs = []
@@ -5192,5 +5191,35 @@ class TestFaker(unittest.TestCase):
         # Clean up by removing the handler
         LOGGER.removeHandler(handler)
 
-    def test_slugify(self):
-        pass
+
+class TestSlugify(unittest.TestCase):
+    def test_slugify_simple(self):
+        """Test slugify with a simple alphanumeric string."""
+        self.assertEqual(slugify("HelloWorld"), "helloworld")
+
+    def test_slugify_spaces(self):
+        """Test slugify with spaces."""
+        self.assertEqual(slugify("Hello World"), "helloworld")
+
+    def test_slugify_special_characters(self):
+        """Test slugify with special characters."""
+        self.assertEqual(
+            slugify("Hello!@#$%^&*()_+World"),
+            "helloworld",
+        )
+
+    def test_slugify_numbers(self):
+        """Test slugify with numbers in the string."""
+        self.assertEqual(slugify("H3llo W0rld123"), "h3llow0rld123")
+
+    def test_slugify_empty_string(self):
+        """Test slugify with an empty string."""
+        self.assertEqual(slugify(""), "")
+
+    def test_slugify_non_english_characters(self):
+        """Test slugify with non-English characters."""
+        self.assertEqual(slugify("Ողջույն, աշխարհ։"), "")
+
+    def test_slugify_mixed_characters(self):
+        """Test slugify with a mix of alphanumeric and special characters."""
+        self.assertEqual(slugify("1234!@#$abcXYZ"), "1234abcxyz")
