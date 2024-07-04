@@ -5191,5 +5191,35 @@ class TestFaker(unittest.TestCase):
         # Clean up by removing the handler
         LOGGER.removeHandler(handler)
 
-    def test_slugify(self):
-        pass
+
+class TestSlugify(unittest.TestCase):
+    def test_slugify_simple(self):
+        """Test slugify with a simple alphanumeric string."""
+        self.assertEqual(slugify("HelloWorld"), "helloworld")
+
+    def test_slugify_spaces(self):
+        """Test slugify with spaces."""
+        self.assertEqual(slugify("Hello World"), "helloworld")
+
+    def test_slugify_special_characters(self):
+        """Test slugify with special characters."""
+        self.assertEqual(
+            slugify("Hello!@#$%^&*()_+World"),
+            "helloworld",
+        )
+
+    def test_slugify_numbers(self):
+        """Test slugify with numbers in the string."""
+        self.assertEqual(slugify("H3llo W0rld123"), "h3llow0rld123")
+
+    def test_slugify_empty_string(self):
+        """Test slugify with an empty string."""
+        self.assertEqual(slugify(""), "")
+
+    def test_slugify_non_english_characters(self):
+        """Test slugify with non-English characters."""
+        self.assertEqual(slugify("Ողջույն, աշխարհ։"), "")
+
+    def test_slugify_mixed_characters(self):
+        """Test slugify with a mix of alphanumeric and special characters."""
+        self.assertEqual(slugify("1234!@#$abcXYZ"), "1234abcxyz")

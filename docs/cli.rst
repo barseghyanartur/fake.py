@@ -371,6 +371,8 @@ username
 
     better_if_great_ldffdumuptmqtzssjbgv
 
+----
+
 Customisation
 -------------
 By default, only standard (built-in) providers are available through CLI.
