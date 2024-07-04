@@ -51,7 +51,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -162,6 +162,8 @@ PDF_TEXT_TPL_CONTENT_OBJECT = """{obj_num} 0 obj
 stream
 {content}
 endstream
+6 0 obj
+<</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
 endobj
 """
 
@@ -591,12 +593,9 @@ class TextPdfGenerator:
         # Construction
         pdf_bytes = io.BytesIO()
 
-        pdf_bytes.write(b"%PDF-1.0\n")
+        pdf_bytes.write(b"%PDF-1.4\n")
         pdf_bytes.write(b"1 0 obj\n<</Type /Catalog/Pages 3 0 R>>\nendobj\n")
-        pdf_bytes.write(
-            b"2 0 obj\n<</Font <</F1 <</Type /Font/Subtype /Type1/BaseFont "
-            b"/Helvetica>>>>\nendobj\n"
-        )
+        pdf_bytes.write(b"2 0 obj\n<</Font <</F1 6 0 R>>>>\nendobj\n")
         pdf_bytes.write(b"3 0 obj\n<</Type /Pages/Kids [")
 
         page_objs = []
