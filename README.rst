@@ -76,7 +76,7 @@ Features
   `BMP`, `GIF`) and file creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
-- CLI for generating data from command line.
+- `CLI`_ for generating data from command line.
 
 Prerequisites
 =============
