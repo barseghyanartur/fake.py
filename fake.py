@@ -10,6 +10,7 @@ import os
 import random
 import re
 import string
+import subprocess
 import unittest
 import uuid
 import zipfile
@@ -3182,6 +3183,18 @@ if __name__ == "__main__":
 # ************************************************
 # ******************** Tests *********************
 # ************************************************
+
+
+class TestScript(unittest.TestCase):
+    def test_main(self):
+        # Call the script directly and check that it executes without errors
+        result = subprocess.run(
+            ["python", "fake.py"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0)
+        result.stdout.startswith("usage:")
 
 
 class TestOrganizeProviders(unittest.TestCase):
