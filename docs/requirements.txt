@@ -248,5 +248,5 @@ wcwidth==0.2.13
     # via prompt-toolkit
 wheel==0.43.0
     # via pip-tools
-zipp==3.18.2
+zipp==3.19.1
     # via importlib-metadata
