@@ -16,8 +16,8 @@ Factories
   a working example (below) of how set a user password in Django.
 - ``PostSave`` is like the ``post_save`` decorator of the ``ModelFactory``,
   but you can pass arguments to it and have a lot of flexibility. See a
-  working example (below) of how to assign a user to a Group after
-  user creation.
+  working example (below) of how to assign a User to a Group after
+  User creation.
 - ``LazyAttribute`` expects a callable, will take the instance as a first
   argument, runs it with extra arguments specified and sets the value as
   an attribute name.
@@ -95,8 +95,8 @@ Breakdown:
   for setting it, use of ``PreSave`` is the best option here. It's important
   to mention that functions passed to the ``PreSave``, do hot have to return
   anything.
-- ``group`` is a non-required many-to-many relationship. We need a user
-  instance to be created before we can add user to groups. That's why
+- ``group`` is a non-required many-to-many relationship. We need a User
+  instance to be created before we can add User to a Group. That's why
   ``PostSave`` is best option here. It's important to mention that functions
   passed to the ``PostSave``, do hot have to return anything.
 
