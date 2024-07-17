@@ -359,3 +359,58 @@ factories.
     :download:`here <_static/examples/factories/sqlalchemy/article/factories.py>`
 
 *Used just like in previous example.*
+
+----
+
+SQLModel example
+----------------
+Configuration
+~~~~~~~~~~~~~
+
+*Filename: config.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/sqlmodel/config.py
+        :language: python
+        :lines: 1-2, 12-
+
+    *See the full example*
+    :download:`here <_static/examples/factories/sqlmodel/config.py>`
+
+----
+
+Models
+~~~~~~
+Example SQLModel models closely resemble the earlier shown Django models.
+
+*Filename: article/models.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/sqlmodel/article/models.py
+        :language: python
+        :lines: 1-5, 15-
+
+    *See the full example*
+    :download:`here <_static/examples/factories/sqlmodel/article/models.py>`
+
+----
+
+Factories
+~~~~~~~~~
+Example SQLModel factories are identical to the earlier shown SQLAlchemy
+factories.
+
+*Filename: article/factories.py*
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/factories/sqlmodel/article/factories.py
+        :language: python
+        :lines: 1-21, 31-
+
+    *See the full example*
+    :download:`here <_static/examples/factories/sqlmodel/article/factories.py>`
+
+*Used just like in previous example.*
