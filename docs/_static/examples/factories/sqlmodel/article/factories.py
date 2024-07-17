@@ -1,0 +1,1 @@
+../../../../../../examples/sqlmodel/article/factories.py
