@@ -13,12 +13,14 @@ check the `faker-file`_ package, which can produce complex images.
 
 Supported image formats
 -----------------------
-Currently, 4 image formats are supported:
+Currently, 6 image formats are supported:
 
 - ``PNG``.
 - ``SVG``.
 - ``BMP``.
 - ``GIF``.
+- ``TIF``.
+- ``PPM``.
 
 Generating images as bytes
 --------------------------
@@ -79,4 +81,5 @@ With ``size`` and ``color`` tweaks:
 
 ----
 
-All other formats (``SVG``, ``BMP`` and ``GIF``) work in exact same way.
+All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF`` and ``PPM``) work in
+exact same way.
