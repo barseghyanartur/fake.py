@@ -61,7 +61,7 @@ random data types for testing.
 It offers a simplified, dependency-free alternative for creating random
 texts, (person) names, URLs, dates, file names, IPs, primitive Python data
 types (such as `uuid`, `str`, `int`, `float`, `bool`) and byte content
-for multiple file formats including `PDF`, `DOCX`, `PNG`, `SVG`, `BMP`, `GIF`
+for multiple file formats including `PDF`, `DOCX`, `PNG`, `SVG`, `BMP`, `GIF`,
 `TIF` and `PPM`.
 
 The package also supports file creation on the filesystem and includes
