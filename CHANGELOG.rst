@@ -16,6 +16,18 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.8
+---
+2024-07-24
+
+- The ``extension`` argument is renamed to ``image_format`` argument for
+  ``png_file``, ``svg_file``, ``bmp_file`` and ``gif_file`` providers.
+  The ``extension`` argument serves now solely a purpose of providing
+  the actual file extension and it's optional (``None`` by default). If
+  not given, the ``image_format`` value is used for file extension instead.
+- Minor fixes in generation of image files.
+- Added TIF support (``tif`` and ``tif_file`` providers).
+
 0.7.5
 -----
 2024-07-04

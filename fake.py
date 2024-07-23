@@ -52,7 +52,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.7.5"
+__version__ = "0.8"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -1677,14 +1677,125 @@ class Faker:
         )
 
     @provider(tags=("Image",))
+    def tif(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+    ) -> bytes:
+        """Create a TIF image of a specified size and color.
+
+        :param size: Tuple of width and height of the image in pixels.
+        :param color: Color of the image in RGB format (tuple of three
+            integers).
+        :return: Byte content of the GIF image.
+        :rtype: bytes
+        """
+        width, height = size
+        r, g, b = color
+        # TIFF Header
+        # Byte order indication ('II' for little endian)
+        # Version number (42)
+        # Offset to the first IFD (8 bytes from the beginning)
+        tiff_header = b"II\x2A\x00\x08\x00\x00\x00"
+
+        # IFD setup
+        num_entries = 12
+        ifd_offset = 8
+        next_ifd = 0  # No next IFD
+
+        # Image data starting just after IFD
+        # (8 bytes for header + 2 + 12*num_entries + 4 for next IFD)
+        data_offset = ifd_offset + 2 + 12 * num_entries + 4
+
+        # Entries in IFD
+        entries = [
+            (256, 4, 1, width),  # Image width
+            (257, 4, 1, height),  # Image height
+            (258, 3, 3, data_offset + width * height * 3),  # Bits per sample
+            (259, 3, 1, 1),  # Compression (1 = no compression)
+            (262, 3, 1, 2),  # Photometric interpretation (2 = RGB)
+            (273, 4, 1, data_offset),  # Offset to image data
+            (277, 3, 1, 3),  # Samples per pixel
+            (278, 4, 1, height),  # Rows per strip
+            (279, 4, 1, width * height * 3),
+            # Strip byte counts (image data size)
+            (282, 5, 1, data_offset + width * height * 3 + 6),
+            # XResolution placeholder offset
+            (283, 5, 1, data_offset + width * height * 3 + 14),
+            # YResolution placeholder offset
+            (284, 3, 1, 1),  # Planar configuration (1 = chunky)
+        ]
+
+        # Write IFD
+        ifd = bytearray()
+        ifd += int.to_bytes(num_entries, 2, "little")
+        for entry in entries:
+            tag, type_, count, value = entry
+            ifd += int.to_bytes(tag, 2, "little")
+            ifd += int.to_bytes(type_, 2, "little")
+            ifd += int.to_bytes(count, 4, "little")
+            ifd += int.to_bytes(value, 4, "little")
+        ifd += int.to_bytes(next_ifd, 4, "little")
+
+        # Image data
+        image_data = bytes([r, g, b] * width * height)
+
+        # Bits per sample values (8 bits per channel)
+        bits_per_sample = bytes([8, 0, 8, 0, 8, 0])
+
+        # Resolution (72 dpi, stored as a rational number 72/1)
+        resolution = (72, 1)
+        res_bytes = int.to_bytes(resolution[0], 4, "little")
+        res_bytes += int.to_bytes(resolution[1], 4, "little")
+        res_bytes += res_bytes  # For both X and Y resolutions
+
+        # Complete TIFF file
+        return tiff_header + ifd + image_data + bits_per_sample + res_bytes
+
+    @provider(tags=("Image",))
+    def ppm(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+    ) -> bytes:
+        """Create a PPM image of a specified size and color.
+
+        :param size: Tuple of width and height of the image in pixels.
+        :param color: Color of the image in RGB format, tuple of three
+            integers: (0-255, 0-255, 0-255).
+        :return: Byte content of the GIF image.
+        :rtype: bytes
+        """
+        width, height = size
+
+        # PPM Header
+        ppm_header = f"P6\n{width} {height}\n255\n".encode()
+
+        # Image data
+        image_data = bytearray()
+        for _ in range(height):
+            for _ in range(width):
+                image_data.extend(color)
+
+        # Complete PPM file
+        return ppm_header + bytes(image_data)
+
+    @provider(tags=("Image",))
     def image(
         self,
-        image_format: Literal["png", "svg", "bmp", "gif"] = "png",
+        image_format: Literal[
+            "png",
+            "svg",
+            "bmp",
+            "gif",
+            "tif",
+            "ppm",
+        ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
         """Create an image of a specified format, size and color."""
-        if image_format not in {"png", "svg", "bmp", "gif"}:
+        if image_format not in {"png", "svg", "bmp", "gif", "tif", "ppm"}:
             raise ValueError()
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
@@ -1770,21 +1881,31 @@ class Faker:
 
     def _image_file(
         self,
-        extension: str,
+        image_format: Literal[
+            "png",
+            "svg",
+            "bmp",
+            "gif",
+            "tif",
+            "ppm",
+        ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
+        extension: str = None,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
         if storage is None:
             storage = FileSystemStorage()
+        if extension is None:
+            extension = image_format
         filename = storage.generate_filename(
             extension=extension,
             prefix=prefix,
             basename=basename,
         )
-        data = self.png(size=size, color=color)
+        data = self.image(image_format=image_format, size=size, color=color)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {"storage": storage, "filename": filename}
@@ -1804,15 +1925,17 @@ class Faker:
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
+        extension: Optional[str] = None,
     ) -> StringValue:
         """Create a PNG image file of a specified size and color."""
         return self._image_file(
-            extension="png",
+            image_format="png",
             size=size,
             color=color,
             storage=storage,
             basename=basename,
             prefix=prefix,
+            extension=extension,
         )
 
     @provider(
@@ -1828,15 +1951,17 @@ class Faker:
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
+        extension: Optional[str] = None,
     ) -> StringValue:
         """Create an SVG image file of a specified size and color."""
         return self._image_file(
-            extension="svg",
+            image_format="svg",
             size=size,
             color=color,
             storage=storage,
             basename=basename,
             prefix=prefix,
+            extension=extension,
         )
 
     @provider(
@@ -1852,15 +1977,17 @@ class Faker:
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
+        extension: Optional[str] = None,
     ) -> StringValue:
         """Create a BMP image file of a specified size and color."""
         return self._image_file(
-            extension="bmp",
+            image_format="bmp",
             size=size,
             color=color,
             storage=storage,
             basename=basename,
             prefix=prefix,
+            extension=extension,
         )
 
     @provider(
@@ -1876,12 +2003,66 @@ class Faker:
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
+        extension: Optional[str] = None,
     ) -> StringValue:
         """Create a GIF image file of a specified size and color."""
         return self._image_file(
-            extension="gif",
+            image_format="gif",
             size=size,
             color=color,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+            extension=extension,
+        )
+
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
+    def tif_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        extension: Optional[str] = None,
+    ) -> StringValue:
+        """Create a TIF image file of a specified size and color."""
+        return self._image_file(
+            image_format="tif",
+            size=size,
+            color=color,
+            extension=extension,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
+    def ppm_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (0, 0, 255),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        extension: Optional[str] = None,
+    ) -> StringValue:
+        """Create a PPM image file of a specified size and color."""
+        return self._image_file(
+            image_format="ppm",
+            size=size,
+            color=color,
+            extension=extension,
             storage=storage,
             basename=basename,
             prefix=prefix,
@@ -3898,8 +4079,18 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(gif)
         self.assertIsInstance(gif, bytes)
 
+    def test_tif(self) -> None:
+        tif = self.faker.tif()
+        self.assertTrue(tif)
+        self.assertIsInstance(tif, bytes)
+
+    def test_ppm(self) -> None:
+        ppm = self.faker.ppm()
+        self.assertTrue(ppm)
+        self.assertIsInstance(ppm, bytes)
+
     def test_image(self):
-        for image_format in {"png", "svg", "bmp", "gif"}:
+        for image_format in {"png", "svg", "bmp", "gif", "tif", "ppm"}:
             with self.subTest(image_format=image_format):
                 image = self.faker.image(
                     image_format=image_format,
@@ -3949,6 +4140,14 @@ class TestFaker(unittest.TestCase):
 
     def test_gif_file(self) -> None:
         file = self.faker.gif_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_tif_file(self) -> None:
+        file = self.faker.tif_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_ppm_file(self) -> None:
+        file = self.faker.ppm_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_docx_file(self) -> None:
