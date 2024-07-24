@@ -61,8 +61,8 @@ random data types for testing.
 It offers a simplified, dependency-free alternative for creating random
 texts, (person) names, URLs, dates, file names, IPs, primitive Python data
 types (such as `uuid`, `str`, `int`, `float`, `bool`) and byte content
-for multiple file formats including `PDF`, `DOCX`, `PNG`, `SVG`, `BMP`, `GIF`,
-`TIF` and `PPM`.
+for multiple file formats including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`,
+`GIF`, `TIF` and `PPM`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
@@ -72,8 +72,8 @@ Features
 ========
 - Generation of random texts, (person) names, emails, URLs, dates, IPs, and
   primitive Python data types.
-- Support for various file formats (`PDF`, `DOCX`, `TXT`, `PNG`, `SVG`,
-  `BMP`, `GIF`, `PPM`, `TIF`) and file creation on the filesystem.
+- Support for various file formats (`PDF`, `DOCX`, `ODT`, `TXT`, `PNG`, `SVG`,
+  `BMP`, `GIF`, `TIF`, `PPM`) and file creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
 - `CLI`_ for generating data from command line.

@@ -52,7 +52,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.8"
+__version__ = "0.8.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -75,6 +75,7 @@ __all__ = (
     "LazyFunction",
     "MetaData",
     "ModelFactory",
+    "OdtGenerator",
     "PROVIDER_REGISTRY",
     "PostSave",
     "PreInit",
@@ -856,7 +857,9 @@ class DocxGenerator:
         from pathlib import Path
         from fake import FAKER
 
-        Path("/tmp/example.docx").write_bytes(FAKER.docx(nb_pages=100))
+        Path("/tmp/example.docx").write_bytes(
+            DocxGenerator(FAKER).create(nb_pages=100)
+        )
     """
 
     def __init__(self, faker: "Faker") -> None:
@@ -910,6 +913,112 @@ class DocxGenerator:
                 docx.writestr(path, content)
 
         return docx_bytes.getvalue()
+
+
+class OdtGenerator:
+    """OdtGenerator - generates an ODT file with text.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from pathlib import Path
+        from fake import FAKER
+
+        Path("/tmp/example.odt").write_bytes(
+            OdtGenerator(FAKER).create(nb_pages=100)
+        )
+    """
+
+    def __init__(self, faker: "Faker") -> None:
+        self.faker = faker
+
+    def _create_page(self, text: str) -> str:
+        return (
+            f'<text:p text:style-name="P1">{text}</text:p>'
+            f'<text:p style:name="P1" style:family="paragraph" '
+            f'style:parent-style-name="Standard">'
+            f"<text:line-break/></text:p>"
+        )
+
+    def create(
+        self,
+        nb_pages: Optional[int] = None,
+        texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
+    ) -> bytes:
+        if not nb_pages and not texts:
+            raise ValueError("Either `nb_pages` or `texts` must be provided.")
+        if texts:
+            nb_pages = len(texts)
+        else:
+            texts = self.faker.sentences(nb=nb_pages)
+
+        if metadata:
+            metadata.add_content(texts)  # type: ignore
+
+        # Prepare the XML content with page breaks
+        content_xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+    <office:document-content
+     xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+     xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+     xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+     xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+     xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0">
+      <office:body>
+        <office:text>
+    {"".join(self._create_page(text) for text in texts)}
+        </office:text>
+      </office:body>
+    </office:document-content>"""
+
+        # Prepare the XML for styles (including style for page break)
+        styles_xml = """<?xml version="1.0" encoding="UTF-8"?>
+    <office:document-styles
+     xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+     xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+     xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+     xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0">
+      <office:styles>
+        <style:style style:name="P1" style:family="paragraph">
+          <style:paragraph-properties fo:break-before="page"/>
+        </style:style>
+      </office:styles>
+    </office:document-styles>"""
+
+        # Create the ODT file (ZIP archive)
+        odt_bytes = io.BytesIO()
+        with zipfile.ZipFile(odt_bytes, "w") as odt:
+            # Add the mimetype file (needs to be the first file in the
+            # archive and uncompressed)
+            odt.writestr(
+                "mimetype",
+                "application/vnd.oasis.opendocument.text",
+                zipfile.ZIP_STORED,
+            )
+            # Add the content and styles files
+            odt.writestr("content.xml", content_xml.encode("utf-8"))
+            odt.writestr("styles.xml", styles_xml.encode("utf-8"))
+            # Add the manifest file
+            odt.writestr(
+                "META-INF/manifest.xml",
+                """<?xml version="1.0" encoding="UTF-8"?>
+    <manifest:manifest
+      xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">
+      <manifest:file-entry
+        manifest:media-type="application/vnd.oasis.opendocument.text"
+        manifest:full-path="/"/>
+      <manifest:file-entry
+        manifest:media-type="text/xml"
+        manifest:full-path="content.xml"/>
+      <manifest:file-entry
+        manifest:media-type="text/xml" manifest:full-path="styles.xml"/>
+    </manifest:manifest>""".encode(
+                    "utf-8"
+                ),
+            )
+
+        return odt_bytes.getvalue()
 
 
 class ProviderRegistryItem(str):
@@ -1687,7 +1796,7 @@ class Faker:
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format (tuple of three
             integers).
-        :return: Byte content of the GIF image.
+        :return: Byte content of the TIF image.
         :rtype: bytes
         """
         width, height = size
@@ -1763,7 +1872,7 @@ class Faker:
         :param size: Tuple of width and height of the image in pixels.
         :param color: Color of the image in RGB format, tuple of three
             integers: (0-255, 0-255, 0-255).
-        :return: Byte content of the GIF image.
+        :return: Byte content of the PPM image.
         :rtype: bytes
         """
         width, height = size
@@ -1810,6 +1919,17 @@ class Faker:
         """Create a DOCX document."""
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
+
+    @provider(tags=("Document",))
+    def odt(
+        self,
+        nb_pages: Optional[int] = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
+    ) -> bytes:
+        """Create a ODT document."""
+        _odt = OdtGenerator(faker=self)
+        return _odt.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
     @provider(
         tags=(
@@ -2094,6 +2214,42 @@ class Faker:
         if not metadata:
             metadata = MetaData()
         data = self.docx(nb_pages=nb_pages, texts=texts, metadata=metadata)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
+    def odt_file(
+        self,
+        nb_pages: int = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        """Create a ODT document file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="odt",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.odt(nb_pages=nb_pages, texts=texts, metadata=metadata)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {
@@ -4118,6 +4274,22 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(docx)
             self.assertIsInstance(docx, bytes)
 
+    def test_odt(self) -> None:
+        with self.subTest("All params None, should fail"):
+            with self.assertRaises(ValueError):
+                self.faker.odt(nb_pages=None, texts=None),  # noqa
+
+        with self.subTest("Without params"):
+            odt = self.faker.odt()
+            self.assertTrue(odt)
+            self.assertIsInstance(odt, bytes)
+
+        with self.subTest("With `texts` provided"):
+            texts = self.faker.sentences()
+            odt = self.faker.odt(texts=texts)
+            self.assertTrue(odt)
+            self.assertIsInstance(odt, bytes)
+
     def test_pdf_file(self) -> None:
         file = self.faker.pdf_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
@@ -4152,6 +4324,10 @@ class TestFaker(unittest.TestCase):
 
     def test_docx_file(self) -> None:
         file = self.faker.docx_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_odt_file(self) -> None:
+        file = self.faker.odt_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_txt_file(self) -> None:
