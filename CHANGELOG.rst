@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.8.1
+-----
+2024-07-24
+
+- Added `ODT` file support through ``odt`` and ``odt_file`` providers.
+
 0.8
 ---
 2024-07-24
@@ -26,13 +32,13 @@ are used for versioning (schema follows below):
   the actual file extension and it's optional (``None`` by default). If
   not given, the ``image_format`` value is used for file extension instead.
 - Minor fixes in generation of image files.
-- Added TIF support (``tif`` and ``tif_file`` providers).
+- Added `TIF` support through ``tif`` and ``tif_file`` providers.
 
 0.7.5
 -----
 2024-07-04
 
-- Improve text PDF generation according to 1.4 (most common) spec instead
+- Improve text `PDF` generation according to 1.4 (most common) spec instead
   of 1.0.
 
 0.7.4
@@ -65,7 +71,7 @@ are used for versioning (schema follows below):
 -----
 2024-06-11
 
-- Test against SQLModel. Also included SQLModel examples.
+- Test against `SQLModel`. Also included SQLModel examples.
 - Improve docs.
 
 0.7
@@ -182,9 +188,9 @@ are used for versioning (schema follows below):
 -----
 2023-12-04
 
-- Improve Tortoise ORM factory.
+- Improve `Tortoise ORM` factory.
 - Add traits.
-- Improve docmentation.
+- Improve documentation.
 
 0.3
 ---
@@ -223,7 +229,7 @@ are used for versioning (schema follows below):
 -----
 2023-11-26
 
-- Adding ``DOCX`` support.
+- Adding `DOCX` support.
 - Fixes in documentation.
 
 0.1
