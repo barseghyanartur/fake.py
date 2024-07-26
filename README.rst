@@ -24,6 +24,7 @@ fake.py
 .. _Customization: https://fakepy.readthedocs.io/en/latest/customization.html
 .. _Creating PDF: https://fakepy.readthedocs.io/en/latest/creating_pdf.html
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
+.. _Creating ODT: https://fakepy.readthedocs.io/en/latest/creating_odt.html
 .. _Creating images: https://fakepy.readthedocs.io/en/latest/creating_images.html
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
@@ -108,6 +109,7 @@ Documentation
 - For customization tips see the `Customization`_.
 - For tips on ``PDF`` creation see `Creating PDF`_.
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
+- For tips on ``ODT`` creation see `Creating ODT`_.
 - For tips on images creation see `Creating images`_.
 - For various implementation examples, see the `Examples`_.
 - For CLI documentation, see the `CLI`_.
@@ -140,16 +142,16 @@ Random texts
 
     from fake import FAKER
 
-    FAKER.slug()  # str
-    FAKER.slugs()  # list[str]
-    FAKER.word()  # str
-    FAKER.words()  # list[str]
-    FAKER.sentence()  # str
-    FAKER.sentences()  # list[str]
     FAKER.paragraph()  # str
     FAKER.paragraphs()  # list[str]
+    FAKER.sentence()  # str
+    FAKER.sentences()  # list[str]
+    FAKER.slug()  # str
+    FAKER.slugs()  # list[str]
     FAKER.text()  # str
     FAKER.texts()  # list[str]
+    FAKER.word()  # str
+    FAKER.words()  # list[str]
 
 Internet
 ~~~~~~~~
@@ -158,10 +160,15 @@ Internet
 
     from fake import FAKER
 
+    FAKER.company_email()  # str
+    FAKER.domain_name()  # str
     FAKER.email()  # str
-    FAKER.url()  # str
+    FAKER.free_email()  # str
+    FAKER.free_email_domain()  # str
     FAKER.image_url()  # str
     FAKER.ipv4()  # str
+    FAKER.tld()  # str
+    FAKER.url()  # str
 
 Filenames
 ~~~~~~~~~
@@ -170,6 +177,7 @@ Filenames
 
     from fake import FAKER
 
+    FAKER.file_extension()  # str
     FAKER.file_name()  # str
 
 Primitive data types
@@ -179,10 +187,10 @@ Primitive data types
 
     from fake import FAKER
 
-    FAKER.pyint()  # int
     FAKER.pybool()  # bool
-    FAKER.pystr()  # str
     FAKER.pyfloat()  # flot
+    FAKER.pyint()  # int
+    FAKER.pystr()  # str
     FAKER.uuid()  # uuid.UUID
 
 Dates
@@ -204,12 +212,15 @@ As bytes
 
     from fake import FAKER
 
-    FAKER.pdf()  # bytes
-    FAKER.docx()  # bytes
-    FAKER.png()  # bytes
-    FAKER.svg()  # bytes
     FAKER.bmp()  # bytes
+    FAKER.docx()  # bytes
     FAKER.gif()  # bytes
+    FAKER.odt()  # bytes
+    FAKER.pdf()  # bytes
+    FAKER.png()  # bytes
+    FAKER.ppm()  # bytes
+    FAKER.svg()  # bytes
+    FAKER.tif()  # bytes
 
 As files on the file system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,12 +229,15 @@ As files on the file system
 
     from fake import FAKER
 
-    FAKER.pdf_file()  # str
-    FAKER.docx_file()  # str
-    FAKER.png_file()  # str
-    FAKER.svg_file()  # str
     FAKER.bmp_file()  # str
+    FAKER.docx_file()  # str
     FAKER.gif_file()  # str
+    FAKER.odt_file()  # str
+    FAKER.pdf_file()  # str
+    FAKER.png_file()  # str
+    FAKER.ppm_file()  # str
+    FAKER.svg_file()  # str
+    FAKER.tif_file()  # str
     FAKER.txt_file()  # str
 
 Factories/dynamic fixtures
