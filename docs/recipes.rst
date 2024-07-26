@@ -346,6 +346,23 @@ Example with arguments (returns a filename with "png" extension):
 
 ----
 
+file_extension
+~~~~~~~~~~~~~~
+
+Returns a random file extension.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_extension
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.file_extension()
+
+----
+
 tld
 ~~~~~
 
