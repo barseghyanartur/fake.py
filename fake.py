@@ -53,7 +53,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -153,6 +153,7 @@ URL_SUFFIXES = (
 
 FILE_TYPES = mimetypes.types_map
 FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]
+MIME_TYPES = list(FILE_TYPES.values())
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -1318,6 +1319,11 @@ class Faker:
     def file_extension(self) -> str:
         """Generate a random extension."""
         return random.choice(FILE_EXTENSIONS)
+
+    @provider(tags=("Filename",))
+    def mime_type(self) -> str:
+        """Generate a random mime type."""
+        return random.choice(MIME_TYPES)
 
     @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
@@ -3839,6 +3845,15 @@ class TestFaker(unittest.TestCase):
         with self.subTest("Extension validity"):
             _ext = self.faker.file_extension()
             self.assertIn(_ext, FILE_EXTENSIONS)
+
+    def test_mime_type(self) -> None:
+        with self.subTest("Return type"):
+            _mime_type = self.faker.mime_type()
+            self.assertIsInstance(_mime_type, str)
+
+        with self.subTest("Mime type validity"):
+            _mime_type = self.faker.mime_type()
+            self.assertIn(_mime_type, MIME_TYPES)
 
     def test_tld_with_defaults(self) -> None:
         for _ in range(20):
