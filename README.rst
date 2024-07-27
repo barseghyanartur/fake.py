@@ -179,6 +179,7 @@ Filenames
 
     FAKER.file_extension()  # str
     FAKER.file_name()  # str
+    FAKER.mime_type()  # str
 
 Primitive data types
 ~~~~~~~~~~~~~~~~~~~~
