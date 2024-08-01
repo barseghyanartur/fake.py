@@ -2399,22 +2399,40 @@ class Faker:
         bank_length: int = 8,
         account_length: int = 10,
     ) -> str:
-        """Generate a random valid IBAN number."""
+        """Generate a random valid IBAN number.
+
+        Validate: https://www.ibancalculator.com/iban_validieren.html
+        """
         if not country_code:
             country_code = random.choice(COUNTRY_CODES)
 
+        # Generate the bank number and account number
         bank_number = "".join(
             str(random.randint(0, 9)) for _ in range(bank_length)
         )
         account_number = "".join(
             str(random.randint(0, 9)) for _ in range(account_length)
         )
+
+        # Basic Bank Account Number (BBAN)
+        bban = bank_number + account_number
+
+        # Convert country code and calculate checksum
         country_number = "".join(
             str(ord(c) - 55) for c in country_code
         )  # Convert letters to numbers
-        bban = bank_number + account_number
-        checksum = 98 - (int(bban + country_number + "00") % 97)
-        return f"{country_code}{checksum:02d}{bban}"
+        # Temporary IBAN for checksum calculation
+        temporary_iban = bban + country_number + "00"
+
+        # Calculate the checksum using modulo 97
+        checksum = 98 - (int(temporary_iban) % 97)
+        # Format checksum to be two digits
+        checksum_str = f"{checksum:02d}"
+
+        # Construct the actual IBAN
+        iban = f"{country_code}{checksum_str}{bban}"
+
+        return iban
 
     def _calculate_isbn10_checksum(self, digits: str) -> str:
         """Calculate the checksum for ISBN-10
@@ -2428,7 +2446,10 @@ class Faker:
 
     @provider(tags=("Books",))
     def isbn10(self):
-        """Generate a random valid ISBN-10."""
+        """Generate a random valid ISBN-10.
+
+        Validate: https://isbn-checker.netlify.app/
+        """
         # Randomly generate the first 9 digits as a string
         digits = "".join(str(random.randint(0, 9)) for _ in range(9))
         # Calculate the checksum digit
@@ -2448,7 +2469,10 @@ class Faker:
 
     @provider(tags=("Book",))
     def isbn13(self) -> str:
-        """Generate a random valid ISBN-13 number, starting with 978 or 979."""
+        """Generate a random valid ISBN-13 number, starting with 978 or 979.
+
+        Validate: https://isbn-checker.netlify.app/
+        """
         prefix = random.choice(["978", "979"])
         digits = [str(random.randint(0, 9)) for _ in range(9)]
         full_digits = list(prefix) + digits
