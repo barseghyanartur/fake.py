@@ -2441,7 +2441,7 @@ class Faker:
         checksum = "X" if remainder == 1 else str((11 - remainder) % 11)
         return checksum
 
-    @provider(tags=("Books",))
+    @provider(tags=("Book",))
     def isbn10(self):
         """Generate a random valid ISBN-10."""
         # Randomly generate the first 9 digits as a string
