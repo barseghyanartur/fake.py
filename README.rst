@@ -61,9 +61,9 @@ random data types for testing.
 
 It offers a simplified, dependency-free alternative for creating random
 texts, (person) names, URLs, dates, file names, IPs, primitive Python data
-types (such as `uuid`, `str`, `int`, `float`, `bool`) and byte content
-for multiple file formats including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`,
-`GIF`, `TIF` and `PPM`.
+types (such as `uuid`, `str`, `int`, `float`, `bool`), country code and
+locales, IBANs and ISBNs, as well as byte content for multiple file formats
+including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF` and `PPM`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
@@ -203,6 +203,35 @@ Dates
 
     FAKER.date()  # datetime.date
     FAKER.date_time()  # datetime.datetime
+
+Geographic data
+~~~~~~~~~~~~~~~
+.. code-block:: python
+    :name: test_geographic_data
+
+    from fake import FAKER
+
+    FAKER.country_code()  # str
+    FAKER.locale()  # str
+
+Books
+~~~~~
+.. code-block:: python
+    :name: test_books
+
+    from fake import FAKER
+
+    FAKER.isbn10()  # str
+    FAKER.isbn13()  # str
+
+Banking
+~~~~~~~
+.. code-block:: python
+    :name: test_banking
+
+    from fake import FAKER
+
+    FAKER.iban()  # str
 
 Generate files
 --------------

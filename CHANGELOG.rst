@@ -16,6 +16,15 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.8.4
+-----
+2024-08-01
+
+- Added ISBN support through ``isbn10`` and ``isbn13`` providers.
+- Added country code support through ``country_code`` provider.
+- Added locale support through ``locale`` provider.
+- Added IBAN support through ``iban`` provider.
+
 0.8.3
 -----
 2024-07-27
