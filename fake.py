@@ -4500,6 +4500,55 @@ class TestFaker(unittest.TestCase):
         for _element in _sample:
             self.assertIn(_element, _categories)
 
+    def test_country_code(self):
+        country_code = self.faker.country_code()
+        self.assertTrue(len(country_code) == 2)
+        self.assertTrue(country_code.isupper())
+
+    def test_locale(self):
+        _locale = self.faker.locale()
+        self.assertIn("_", _locale)
+        parts = _locale.split("_")
+        self.assertTrue(len(parts), 2)
+
+    def test_iban(self):
+        iban = self.faker.iban()
+        self.assertEqual(len(iban), 22)
+        self.assertTrue(iban[:2].isalpha())
+        self.assertTrue(iban[2:4].isdigit())
+        self.assertTrue(iban[4:].isdigit())
+
+    def test_isbn10(self):
+        isbn10 = self.faker.isbn10()
+        self.assertTrue(isbn10.count("-"), 3)
+        parts = isbn10.split("-")
+        self.assertEqual(len(parts), 4)
+        self.assertTrue(all(part.isdigit() for part in parts[:-1]))
+        self.assertTrue(parts[-1].isdigit() or parts[-1] == "X")
+
+    def test_isbn13(self):
+        isbn13 = self.faker.isbn13()
+        self.assertTrue(isbn13.count("-"), 4)
+        parts = isbn13.split("-")
+        self.assertEqual(len(parts), 5)
+        self.assertTrue(parts[0] in ["978", "979"])
+        self.assertTrue(all(part.isdigit() for part in parts[1:]))
+
+    def test_isbn13_checksum(self):
+        # Generate an ISBN-13 excluding the checksum
+        prefix = random.choice(["978", "979"])
+        digits = [str(random.randint(0, 9)) for _ in range(9)]
+        full_digits = list(prefix) + digits
+        # Get the checksum using the _isbn13_checksum method
+        calculated_checksum = self.faker._isbn13_checksum(full_digits)
+        # Append the checksum and form the full ISBN-13
+        isbn = "".join(full_digits) + calculated_checksum
+        # Re-calculate to verify correctness
+        self.assertEqual(
+            calculated_checksum,
+            self.faker._isbn13_checksum(list(isbn[:-1])),
+        )
+
     def test_storage(self) -> None:
         storage = FileSystemStorage()
         with self.assertRaises(Exception):
