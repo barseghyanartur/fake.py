@@ -5,6 +5,7 @@ https://github.com/barseghyanartur/fake.py/
 import asyncio
 import contextlib
 import io
+import locale
 import logging
 import mimetypes
 import os
@@ -53,7 +54,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.8.3"
+__version__ = "0.8.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -154,6 +155,34 @@ URL_SUFFIXES = (
 FILE_TYPES = mimetypes.types_map
 FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]
 MIME_TYPES = list(FILE_TYPES.values())
+
+# Fetch all available locales from the system
+AVAILABLE_LOCALES = locale.locale_alias
+
+# Filter and clean the list to show more standardized locale names
+LOCALES = {
+    __value.split(".")[0]
+    for __key, __value in AVAILABLE_LOCALES.items()
+    if "_" in __value
+}
+
+
+def get_country_codes():
+    # Extract country codes from the locale keys
+    country_codes = set()
+    for __key in LOCALES:
+        __parts = __key.split("_")
+        if len(__parts) > 1:
+            # Get the first two characters of the second part, typically the
+            # country code
+            __country_code = __parts[1][:2]
+            # Add to set to ensure uniqueness
+            country_codes.add(__country_code.upper())
+    return list(country_codes)
+
+
+COUNTRY_CODES = get_country_codes()
+LOCALES = list(LOCALES)
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -2354,6 +2383,78 @@ class Faker:
         return random.sample(elements, length)
 
     random_elements = random_sample  # noqa
+
+    @provider(tags=("Geographic",))
+    def country_code(self) -> str:
+        return random.choice(COUNTRY_CODES)
+
+    @provider(tags=("Geographic",))
+    def locale(self) -> str:
+        return random.choice(LOCALES)
+
+    @provider(tags=("Banking",))
+    def iban(
+        self,
+        country_code: str = None,
+        bank_length: int = 8,
+        account_length: int = 10,
+    ) -> str:
+        """Generate a random valid IBAN number."""
+        if not country_code:
+            country_code = random.choice(COUNTRY_CODES)
+
+        bank_number = "".join(
+            str(random.randint(0, 9)) for _ in range(bank_length)
+        )
+        account_number = "".join(
+            str(random.randint(0, 9)) for _ in range(account_length)
+        )
+        country_number = "".join(
+            str(ord(c) - 55) for c in country_code
+        )  # Convert letters to numbers
+        bban = bank_number + account_number
+        checksum = 98 - (int(bban + country_number + "00") % 97)
+        return f"{country_code}{checksum:02d}{bban}"
+
+    def _calculate_isbn10_checksum(self, digits: str) -> str:
+        """Calculate the checksum for ISBN-10
+        using the correct modulo 11 calculation.
+        """
+        weights = range(10, 1, -1)  # Weights from 10 to 2
+        total = sum(w * int(d) for w, d in zip(weights, digits))
+        remainder = total % 11
+        checksum = "X" if remainder == 1 else str((11 - remainder) % 11)
+        return checksum
+
+    @provider(tags=("Books",))
+    def isbn10(self):
+        """Generate a random valid ISBN-10."""
+        # Randomly generate the first 9 digits as a string
+        digits = "".join(str(random.randint(0, 9)) for _ in range(9))
+        # Calculate the checksum digit
+        checksum = self._calculate_isbn10_checksum(digits)
+        # Form the full ISBN-10 number
+        isbn10 = digits + checksum
+        # Example format: 'XXX-XXX-XXX-X', commonly used in ISBN
+        return f"{isbn10[:3]}-{isbn10[3:6]}-{isbn10[6:9]}-{isbn10[9]}"
+
+    def _isbn13_checksum(self, digits: List[str]) -> str:
+        """Calculate the ISBN-13 checksum digit."""
+        total = sum(
+            (3 if i % 2 else 1) * int(digit) for i, digit in enumerate(digits)
+        )
+        checksum = (10 - (total % 10)) % 10
+        return str(checksum)
+
+    @provider(tags=("Book",))
+    def isbn13(self) -> str:
+        """Generate a random valid ISBN-13 number, starting with 978 or 979."""
+        prefix = random.choice(["978", "979"])
+        digits = [str(random.randint(0, 9)) for _ in range(9)]
+        full_digits = list(prefix) + digits
+        checksum = self._isbn13_checksum(full_digits)
+        isbn = "".join(full_digits) + checksum
+        return f"{isbn[0:3]}-{isbn[3:4]}-{isbn[4:7]}-{isbn[7:12]}-{isbn[12]}"
 
 
 FAKER = Faker(alias="default")
