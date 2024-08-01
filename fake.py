@@ -2399,10 +2399,7 @@ class Faker:
         bank_length: int = 8,
         account_length: int = 10,
     ) -> str:
-        """Generate a random valid IBAN number.
-
-        Validate: https://www.ibancalculator.com/iban_validieren.html
-        """
+        """Generate a random valid IBAN number."""
         if not country_code:
             country_code = random.choice(COUNTRY_CODES)
 
@@ -2446,10 +2443,7 @@ class Faker:
 
     @provider(tags=("Books",))
     def isbn10(self):
-        """Generate a random valid ISBN-10.
-
-        Validate: https://isbn-checker.netlify.app/
-        """
+        """Generate a random valid ISBN-10."""
         # Randomly generate the first 9 digits as a string
         digits = "".join(str(random.randint(0, 9)) for _ in range(9))
         # Calculate the checksum digit
@@ -2469,10 +2463,7 @@ class Faker:
 
     @provider(tags=("Book",))
     def isbn13(self) -> str:
-        """Generate a random valid ISBN-13 number, starting with 978 or 979.
-
-        Validate: https://isbn-checker.netlify.app/
-        """
+        """Generate a random valid ISBN-13, starting with 978 or 979."""
         prefix = random.choice(["978", "979"])
         digits = [str(random.randint(0, 9)) for _ in range(9)]
         full_digits = list(prefix) + digits

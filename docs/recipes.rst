@@ -1,5 +1,8 @@
 Recipes
 =======
+.. _isbn-checker: https://isbn-checker.netlify.app/
+.. _iban-calculator: https://www.ibancalculator.com/iban_validieren.html
+
 Imports and initialization
 --------------------------
 
@@ -1380,3 +1383,73 @@ Picks a given number of random element from the sequence given.
         from fake import FAKER
 
         FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
+
+country_code
+~~~~~~~~~~~~
+Generate a random country code.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_country_code
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.country_code()
+
+locale
+~~~~~~
+Generate a random locale.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_locale
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.locale()
+
+isbn10
+~~~~~~
+Generate a random ISBN10. Can be validated using `isbn-checker`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_isbn10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.isbn10()
+
+isbn13
+~~~~~~
+Generate a random ISBN13. Can be validated using `isbn-checker`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_isbn13
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.isbn13()
+
+iban
+~~~~
+Generate a random IBAN. Can be validated using `iban-calculator`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_iban
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.iban()
