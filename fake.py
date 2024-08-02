@@ -17,6 +17,7 @@ import unittest
 import uuid
 import zipfile
 import zlib
+import zoneinfo
 from abc import abstractmethod
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from collections import defaultdict
@@ -183,6 +184,33 @@ def get_country_codes():
 
 COUNTRY_CODES = get_country_codes()
 LOCALES = list(LOCALES)
+
+UNWANTED_COUNTIES = re.compile(r"^([A-Z0-9-+]+$|GB.*|localtime|Universal)")
+
+
+def get_counties() -> Tuple[List[str], List[str]]:
+    cities = set()
+    countries = set()
+
+    for tz in zoneinfo.available_timezones():
+        parts = tz.split("/")
+
+        # Ignore single-part entries that match our exclusion pattern
+        if len(parts) == 1:
+            if not UNWANTED_COUNTIES.match(parts[0]):
+                country = parts[0].replace("_", "")
+                countries.add(country)
+        # Extract cities for Asia and Europe
+        elif parts[0] in ["Asia", "Europe"]:
+            if len(parts) > 1:  # Check to ensure there is a second part
+                city = parts[1].replace("_", "")
+                cities.add(city)
+
+    return list(cities), list(countries)
+
+
+CITIES, COUNTRIES = get_counties()
+
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -2385,8 +2413,18 @@ class Faker:
     random_elements = random_sample  # noqa
 
     @provider(tags=("Geographic",))
+    def city(self) -> str:
+        """Get a random city."""
+        return random.choice(CITIES)
+
+    @provider(tags=("Geographic",))
+    def country(self) -> str:
+        """Get a random country."""
+        return random.choice(COUNTRIES)
+
+    @provider(tags=("Geographic",))
     def country_code(self) -> str:
-        """Generate a random country code."""
+        """Get a random country code."""
         return random.choice(COUNTRY_CODES)
 
     @provider(tags=("Geographic",))
