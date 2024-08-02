@@ -17,6 +17,7 @@ import unittest
 import uuid
 import zipfile
 import zlib
+import zoneinfo
 from abc import abstractmethod
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from collections import defaultdict
@@ -183,6 +184,39 @@ def get_country_codes():
 
 COUNTRY_CODES = get_country_codes()
 LOCALES = list(LOCALES)
+
+UNWANTED_GEO_PATTERN = re.compile(r"^([A-Z0-9-+]+$|GB.*|localtime|Universal)")
+
+
+def get_geo_locations() -> Tuple[List[str], List[str], List[str]]:
+    cities = set()
+    countries = set()
+    geo_locations = set()
+
+    for tz in zoneinfo.available_timezones():
+        parts = tz.split("/")
+        _parts = []
+        for part in parts:
+            if not UNWANTED_GEO_PATTERN.match(part):
+                _parts.append(part.replace("_", " "))
+        geo_locations.add("/".join(_parts))
+
+        # Ignore single-part entries that match our exclusion pattern
+        if len(parts) == 1:
+            if not UNWANTED_GEO_PATTERN.match(parts[0]):
+                country = parts[0].replace("_", "")
+                countries.add(country)
+        # Extract cities for Asia and Europe
+        elif parts[0] in ["Asia", "Europe"]:
+            if len(parts) > 1:  # Check to ensure there is a second part
+                city = parts[1].replace("_", " ")
+                cities.add(city)
+
+    return list(cities), list(countries), list(geo_locations)
+
+
+CITIES, COUNTRIES, GEO_LOCATIONS = get_geo_locations()
+
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -2385,14 +2419,50 @@ class Faker:
     random_elements = random_sample  # noqa
 
     @provider(tags=("Geographic",))
+    def city(self) -> str:
+        """Get a random city."""
+        return random.choice(CITIES)
+
+    @provider(tags=("Geographic",))
+    def country(self) -> str:
+        """Get a random country."""
+        return random.choice(COUNTRIES)
+
+    @provider(tags=("Geographic",))
+    def geo_location(self) -> str:
+        """Get a random geo-location."""
+        return random.choice(GEO_LOCATIONS)
+
+    @provider(tags=("Geographic",))
     def country_code(self) -> str:
-        """Generate a random country code."""
+        """Get a random country code."""
         return random.choice(COUNTRY_CODES)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
-        """Generate a random locale."""
+        """Get a random locale."""
         return random.choice(LOCALES)
+
+    @provider(tags=("Geographic",))
+    def latitude(self) -> float:
+        """Generate a random latitude."""
+        return random.uniform(-90, 90)
+
+    lat = latitude  # noqa
+
+    @provider(tags=("Geographic",))
+    def longitude(self) -> float:
+        """Generate a random longitude."""
+        return random.uniform(-180, 180)
+
+    lng = lon = longitude  # noqa
+
+    @provider(tags=("Geographic",))
+    def latitude_longitude(self) -> Tuple[float, float]:
+        """Generate a random (latitude, longitude) pair."""
+        return random.uniform(-90, 90), random.uniform(-180, 180)
+
+    latlng = latlon = latitude_longitude  # noqa
 
     @provider(tags=("Banking",))
     def iban(
@@ -3580,7 +3650,7 @@ class CLI:
 
     def setup_parser(self) -> ArgumentParser:
         _parser = ArgumentParser(
-            description="CLI for fake.py",
+            description=f"CLI for fake.py (version {__version__})",
             formatter_class=ArgumentDefaultsHelpFormatter,
         )
         subparsers = _parser.add_subparsers(
@@ -4515,6 +4585,18 @@ class TestFaker(unittest.TestCase):
         for _element in _sample:
             self.assertIn(_element, _categories)
 
+    def test_city(self):
+        city = self.faker.city()
+        self.assertIn(city, CITIES)
+
+    def test_country(self):
+        country = self.faker.country()
+        self.assertIn(country, COUNTRIES)
+
+    def test_geo_location(self):
+        geo_location = self.faker.geo_location()
+        self.assertIn(geo_location, GEO_LOCATIONS)
+
     def test_country_code(self):
         country_code = self.faker.country_code()
         self.assertTrue(len(country_code) == 2)
@@ -4525,6 +4607,25 @@ class TestFaker(unittest.TestCase):
         self.assertIn("_", _locale)
         parts = _locale.split("_")
         self.assertTrue(len(parts), 2)
+
+    def test_latitude(self):
+        """Test that the latitude function returns a valid latitude."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lat = self.faker.latitude()
+            self.assertTrue(-90 <= lat <= 90)
+
+    def test_longitude(self):
+        """Test that the longitude function returns a valid longitude."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lon = self.faker.longitude()
+            self.assertTrue(-180 <= lon <= 180)
+
+    def test_latitude_longitude(self):
+        """Test that the latlng returns a valid (latitude, longitude) pair."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lat, lon = self.faker.latitude_longitude()
+            self.assertTrue(-90 <= lat <= 90)
+            self.assertTrue(-180 <= lon <= 180)
 
     def test_iban(self):
         iban = self.faker.iban()
