@@ -2443,6 +2443,27 @@ class Faker:
         """Get a random locale."""
         return random.choice(LOCALES)
 
+    @provider(tags=("Geographic",))
+    def latitude(self) -> float:
+        """Generate a random latitude."""
+        return random.uniform(-90, 90)
+
+    lat = latitude  # noqa
+
+    @provider(tags=("Geographic",))
+    def longitude(self) -> float:
+        """Generate a random longitude."""
+        return random.uniform(-180, 180)
+
+    lng = lon = longitude  # noqa
+
+    @provider(tags=("Geographic",))
+    def latitude_longitude(self) -> Tuple[float, float]:
+        """Generate a random (latitude, longitude) pair."""
+        return random.uniform(-90, 90), random.uniform(-180, 180)
+
+    latlng = latlon = latitude_longitude  # noqa
+
     @provider(tags=("Banking",))
     def iban(
         self,
@@ -4586,6 +4607,25 @@ class TestFaker(unittest.TestCase):
         self.assertIn("_", _locale)
         parts = _locale.split("_")
         self.assertTrue(len(parts), 2)
+
+    def test_latitude(self):
+        """Test that the latitude function returns a valid latitude."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lat = self.faker.latitude()
+            self.assertTrue(-90 <= lat <= 90)
+
+    def test_longitude(self):
+        """Test that the longitude function returns a valid longitude."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lon = self.faker.longitude()
+            self.assertTrue(-180 <= lon <= 180)
+
+    def test_latitude_longitude(self):
+        """Test that the latlng returns a valid (latitude, longitude) pair."""
+        for _ in range(50):  # Run multiple times to test randomness
+            lat, lon = self.faker.latitude_longitude()
+            self.assertTrue(-90 <= lat <= 90)
+            self.assertTrue(-180 <= lon <= 180)
 
     def test_iban(self):
         iban = self.faker.iban()

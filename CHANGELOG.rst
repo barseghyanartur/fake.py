@@ -16,6 +16,17 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9
+---
+2024-08-03
+
+- Drop support for EOL Python 3.7 and almost EOL 3.8.
+- Add country support through ``country`` provider.
+- Add city support through ``city`` provider.
+- Add geo-location support through ``geo_location`` provider.
+- Add latitude/longitude support through ``latitude``, ``longitude`` and
+  ``latitude_longitude`` providers.
+
 0.8.4
 -----
 2024-08-01
