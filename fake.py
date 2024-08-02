@@ -2386,16 +2386,18 @@ class Faker:
 
     @provider(tags=("Geographic",))
     def country_code(self) -> str:
+        """Generate a random country code."""
         return random.choice(COUNTRY_CODES)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
+        """Generate a random locale."""
         return random.choice(LOCALES)
 
     @provider(tags=("Banking",))
     def iban(
         self,
-        country_code: str = None,
+        country_code: Optional[str] = None,
         bank_length: int = 8,
         account_length: int = 10,
     ) -> str:
@@ -2432,16 +2434,14 @@ class Faker:
         return iban
 
     def _calculate_isbn10_checksum(self, digits: str) -> str:
-        """Calculate the checksum for ISBN-10
-        using the correct modulo 11 calculation.
-        """
+        """Calculate ISBN-10 checksum using correct modulo 11 calculation."""
         weights = range(10, 1, -1)  # Weights from 10 to 2
         total = sum(w * int(d) for w, d in zip(weights, digits))
         remainder = total % 11
         checksum = "X" if remainder == 1 else str((11 - remainder) % 11)
         return checksum
 
-    @provider(tags=("Books",))
+    @provider(tags=("Book",))
     def isbn10(self):
         """Generate a random valid ISBN-10."""
         # Randomly generate the first 9 digits as a string
