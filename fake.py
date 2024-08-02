@@ -185,31 +185,37 @@ def get_country_codes():
 COUNTRY_CODES = get_country_codes()
 LOCALES = list(LOCALES)
 
-UNWANTED_COUNTIES = re.compile(r"^([A-Z0-9-+]+$|GB.*|localtime|Universal)")
+UNWANTED_GEO_PATTERN = re.compile(r"^([A-Z0-9-+]+$|GB.*|localtime|Universal)")
 
 
-def get_counties() -> Tuple[List[str], List[str]]:
+def get_geo_locations() -> Tuple[List[str], List[str], List[str]]:
     cities = set()
     countries = set()
+    geo_locations = set()
 
     for tz in zoneinfo.available_timezones():
         parts = tz.split("/")
+        _parts = []
+        for part in parts:
+            if not UNWANTED_GEO_PATTERN.match(part):
+                _parts.append(part.replace("_", " "))
+        geo_locations.add("/".join(_parts))
 
         # Ignore single-part entries that match our exclusion pattern
         if len(parts) == 1:
-            if not UNWANTED_COUNTIES.match(parts[0]):
+            if not UNWANTED_GEO_PATTERN.match(parts[0]):
                 country = parts[0].replace("_", "")
                 countries.add(country)
         # Extract cities for Asia and Europe
         elif parts[0] in ["Asia", "Europe"]:
             if len(parts) > 1:  # Check to ensure there is a second part
-                city = parts[1].replace("_", "")
+                city = parts[1].replace("_", " ")
                 cities.add(city)
 
-    return list(cities), list(countries)
+    return list(cities), list(countries), list(geo_locations)
 
 
-CITIES, COUNTRIES = get_counties()
+CITIES, COUNTRIES, GEO_LOCATIONS = get_geo_locations()
 
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
@@ -2423,13 +2429,18 @@ class Faker:
         return random.choice(COUNTRIES)
 
     @provider(tags=("Geographic",))
+    def geo_location(self) -> str:
+        """Get a random geo-location."""
+        return random.choice(GEO_LOCATIONS)
+
+    @provider(tags=("Geographic",))
     def country_code(self) -> str:
         """Get a random country code."""
         return random.choice(COUNTRY_CODES)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
-        """Generate a random locale."""
+        """Get a random locale."""
         return random.choice(LOCALES)
 
     @provider(tags=("Banking",))
@@ -4552,6 +4563,18 @@ class TestFaker(unittest.TestCase):
         self.assertEqual(len(_sample), 2)
         for _element in _sample:
             self.assertIn(_element, _categories)
+
+    def test_city(self):
+        city = self.faker.city()
+        self.assertIn(city, CITIES)
+
+    def test_country(self):
+        country = self.faker.country()
+        self.assertIn(country, COUNTRIES)
+
+    def test_geo_location(self):
+        geo_location = self.faker.geo_location()
+        self.assertIn(geo_location, GEO_LOCATIONS)
 
     def test_country_code(self):
         country_code = self.faker.country_code()
