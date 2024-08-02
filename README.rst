@@ -212,8 +212,14 @@ Geographic data
 
     from fake import FAKER
 
+    FAKER.city()  # str
+    FAKER.country()  # str
+    FAKER.geo_location()  # str
     FAKER.country_code()  # str
     FAKER.locale()  # str
+    FAKER.latitude()  # float
+    FAKER.longitude()  # float
+    FAKER.latitude_longitude()  # tuple[float, float]
 
 Books
 ~~~~~
