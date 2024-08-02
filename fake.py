@@ -3629,7 +3629,7 @@ class CLI:
 
     def setup_parser(self) -> ArgumentParser:
         _parser = ArgumentParser(
-            description="CLI for fake.py",
+            description=f"CLI for fake.py (version {__version__})",
             formatter_class=ArgumentDefaultsHelpFormatter,
         )
         subparsers = _parser.add_subparsers(
