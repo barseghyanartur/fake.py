@@ -1384,9 +1384,51 @@ Picks a given number of random element from the sequence given.
 
         FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
 
+city
+~~~~
+Get a random city.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_city
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.city()
+
+country
+~~~~~~~
+Get a random country.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_country
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.country()
+
+geo_location
+~~~~~~~~~~~~
+Get a random geo-location.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_geo_location
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.geo_location()
+
 country_code
 ~~~~~~~~~~~~
-Generate a random country code.
+Get a random country code.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -1411,6 +1453,48 @@ Generate a random locale.
         from fake import FAKER
 
         FAKER.locale()
+
+latitude
+~~~~~~~~
+Generate a random latitude.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_latitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.latitude()
+
+longitude
+~~~~~~~~~
+Generate a random longitude.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_longitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.longitude()
+
+latitude_longitude
+~~~~~~~~~~~~~~~~~~
+Generate a random (latitude, longitude) pair.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_latitude_longitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.latitude_longitude()
 
 isbn10
 ~~~~~~
