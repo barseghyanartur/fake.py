@@ -55,7 +55,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9"
+__version__ = "0.9.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -157,65 +157,9 @@ FILE_TYPES = mimetypes.types_map
 FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]
 MIME_TYPES = list(FILE_TYPES.values())
 
-# Fetch all available locales from the system
-AVAILABLE_LOCALES = locale.locale_alias
-
-# Filter and clean the list to show more standardized locale names
-LOCALES = {
-    __value.split(".")[0]
-    for __key, __value in AVAILABLE_LOCALES.items()
-    if "_" in __value
-}
-
-
-def get_country_codes():
-    # Extract country codes from the locale keys
-    country_codes = set()
-    for __key in LOCALES:
-        __parts = __key.split("_")
-        if len(__parts) > 1:
-            # Get the first two characters of the second part, typically the
-            # country code
-            __country_code = __parts[1][:2]
-            # Add to set to ensure uniqueness
-            country_codes.add(__country_code.upper())
-    return list(country_codes)
-
-
-COUNTRY_CODES = get_country_codes()
-LOCALES = list(LOCALES)
-
-UNWANTED_GEO_PATTERN = re.compile(r"^([A-Z0-9-+]+$|GB.*|localtime|Universal)")
-
-
-def get_geo_locations() -> Tuple[List[str], List[str], List[str]]:
-    cities = set()
-    countries = set()
-    geo_locations = set()
-
-    for tz in zoneinfo.available_timezones():
-        parts = tz.split("/")
-        _parts = []
-        for part in parts:
-            if not UNWANTED_GEO_PATTERN.match(part):
-                _parts.append(part.replace("_", " "))
-        geo_locations.add("/".join(_parts))
-
-        # Ignore single-part entries that match our exclusion pattern
-        if len(parts) == 1:
-            if not UNWANTED_GEO_PATTERN.match(parts[0]):
-                country = parts[0].replace("_", "")
-                countries.add(country)
-        # Extract cities for Asia and Europe
-        elif parts[0] in ["Asia", "Europe"]:
-            if len(parts) > 1:  # Check to ensure there is a second part
-                city = parts[1].replace("_", " ")
-                cities.add(city)
-
-    return list(cities), list(countries), list(geo_locations)
-
-
-CITIES, COUNTRIES, GEO_LOCATIONS = get_geo_locations()
+UNWANTED_GEO_PATTERN = re.compile(
+    r"^([A-Z0-9-+]+$|GB.*|localtime|Universal|Etc|Factory)"
+)
 
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
@@ -1213,6 +1157,11 @@ class Faker:
         self._words: List[str] = []
         self._first_names: List[str] = []
         self._last_names: List[str] = []
+        self._cities: List[str] = []
+        self._countries: List[str] = []
+        self._geo_locations: List[str] = []
+        self._country_codes: List[str] = []
+        self._locales: List[str] = []
 
         self.uid = f"{self.__class__.__module__}.{self.__class__.__name__}"
         if alias and alias in ALIAS_REGISTRY:
@@ -1228,8 +1177,13 @@ class Faker:
         if self.alias not in ALIAS_REGISTRY:
             ALIAS_REGISTRY[self.alias] = self
 
+        self.load_data()
+
+    def load_data(self):
         self.load_words()
         self.load_names()
+        self.load_geo_locations()
+        self.load_locales_and_country_codes()
 
     @staticmethod
     def get_by_uid(uid: str) -> Union["Faker", None]:
@@ -1257,6 +1211,65 @@ class Faker:
         authorship_data = AuthorshipData()
         self._first_names = list(authorship_data.first_names)
         self._last_names = list(authorship_data.last_names)
+
+    def load_geo_locations(self) -> None:
+        cities = set()
+        countries = set()
+        geo_locations = set()
+        add_city = cities.add
+        add_country = countries.add
+        add_geo_location = geo_locations.add
+
+        for tz in zoneinfo.available_timezones():
+            parts = tz.split("/")
+            _parts = []
+            for part in parts:
+                if part:
+                    if not UNWANTED_GEO_PATTERN.match(part):
+                        _parts.append(part.replace("_", " "))
+            if _parts:
+                add_geo_location("/".join(_parts))
+
+            # Ignore single-part entries that match our exclusion pattern
+            if len(parts) == 1:
+                if not UNWANTED_GEO_PATTERN.match(parts[0]):
+                    country = parts[0].replace("_", "")
+                    add_country(country)
+            # Extract cities for Asia and Europe
+            elif parts[0] in ["Asia", "Europe"]:
+                if len(parts) > 1:  # Check to ensure there is a second part
+                    city = parts[1].replace("_", " ")
+                    add_city(city)
+
+        self._cities = list(cities)
+        self._countries = list(countries)
+        self._geo_locations = list(geo_locations)
+
+    def load_locales_and_country_codes(self) -> None:
+        # Fetch all available locales from the system
+        _available_locales = locale.locale_alias
+
+        # Filter and clean the list to show more standardized locale names
+        _locales = {
+            __value.split(".")[0]
+            for __key, __value in _available_locales.items()
+            if "_" in __value
+        }
+
+        # Extract country codes from the locale keys
+        _country_codes = set()
+        add_country_code = _country_codes.add
+        for __key in _locales:
+            __parts = __key.split("_")
+            if len(__parts) > 1:
+                # Get the first two characters of the second part,
+                # typically the country code
+                __country_code = __parts[1][:2]
+                # Add to set to ensure uniqueness
+                add_country_code(__country_code.upper())
+
+        self._country_codes = list(_country_codes)
+        self._locales = list(_locales)
 
     @staticmethod
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
@@ -2421,27 +2434,27 @@ class Faker:
     @provider(tags=("Geographic",))
     def city(self) -> str:
         """Get a random city."""
-        return random.choice(CITIES)
+        return random.choice(self._cities)
 
     @provider(tags=("Geographic",))
     def country(self) -> str:
         """Get a random country."""
-        return random.choice(COUNTRIES)
+        return random.choice(self._countries)
 
     @provider(tags=("Geographic",))
     def geo_location(self) -> str:
         """Get a random geo-location."""
-        return random.choice(GEO_LOCATIONS)
+        return random.choice(self._geo_locations)
 
     @provider(tags=("Geographic",))
     def country_code(self) -> str:
         """Get a random country code."""
-        return random.choice(COUNTRY_CODES)
+        return random.choice(self._country_codes)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
         """Get a random locale."""
-        return random.choice(LOCALES)
+        return random.choice(self._locales)
 
     @provider(tags=("Geographic",))
     def latitude(self) -> float:
@@ -2473,7 +2486,7 @@ class Faker:
     ) -> str:
         """Generate a random valid IBAN number."""
         if not country_code:
-            country_code = random.choice(COUNTRY_CODES)
+            country_code = random.choice(self._country_codes)
 
         # Generate the bank number and account number
         bank_number = "".join(
@@ -4587,23 +4600,25 @@ class TestFaker(unittest.TestCase):
 
     def test_city(self):
         city = self.faker.city()
-        self.assertIn(city, CITIES)
+        self.assertIn(city, self.faker._cities)
 
     def test_country(self):
         country = self.faker.country()
-        self.assertIn(country, COUNTRIES)
+        self.assertIn(country, self.faker._countries)
 
     def test_geo_location(self):
         geo_location = self.faker.geo_location()
-        self.assertIn(geo_location, GEO_LOCATIONS)
+        self.assertIn(geo_location, self.faker._geo_locations)
 
     def test_country_code(self):
         country_code = self.faker.country_code()
+        self.assertIn(country_code, self.faker._country_codes)
         self.assertTrue(len(country_code) == 2)
         self.assertTrue(country_code.isupper())
 
     def test_locale(self):
         _locale = self.faker.locale()
+        self.assertIn(_locale, self.faker._locales)
         self.assertIn("_", _locale)
         parts = _locale.split("_")
         self.assertTrue(len(parts), 2)

@@ -2,9 +2,12 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.9"
+version = "0.9.1"
 dependencies = []
 authors = [
+    {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
+]
+maintainers = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
 ]
 license = {text = "MIT"}
@@ -25,11 +28,11 @@ classifiers = [
 keywords = ["fake data", "test data"]
 
 [project.urls]
-"Homepage" = "https://github.com/barseghyanartur/fake.py/"
-"Bug Tracker" = "https://github.com/barseghyanartur/fake.py/issues"
-"Documentation" = "https://fakepy.readthedocs.io/"
-"Source Code" = "https://github.com/barseghyanartur/fake.py/"
-"Changelog" = "https://fakepy.readthedocs.io/en/latest/changelog.html"
+Homepage = "https://github.com/barseghyanartur/fake.py/"
+Issues = "https://github.com/barseghyanartur/fake.py/issues"
+Documentation = "https://fakepy.readthedocs.io/"
+Repository = "https://github.com/barseghyanartur/fake.py/"
+Changelog = "https://fakepy.readthedocs.io/en/latest/changelog.html"
 
 [project.optional-dependencies]
 all = ["fake.py[dev,test,docs]"]
