@@ -55,7 +55,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -2419,18 +2419,6 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(tags=("Choice",))
-    def random_choice(self, elements: ElementType[T]) -> T:
-        return random.choice(elements)
-
-    random_element = random_choice  # noqa
-
-    @provider(tags=("Choice",))
-    def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
-        return random.sample(elements, length)
-
-    random_elements = random_sample  # noqa
-
     @provider(tags=("Geographic",))
     def city(self) -> str:
         """Get a random city."""
@@ -2553,6 +2541,37 @@ class Faker:
         checksum = self._isbn13_checksum(full_digits)
         isbn = "".join(full_digits) + checksum
         return f"{isbn[0:3]}-{isbn[3:4]}-{isbn[4:7]}-{isbn[7:12]}-{isbn[12]}"
+
+    @provider(tags=("Choice",))
+    def random_choice(self, elements: ElementType[T]) -> T:
+        return random.choice(elements)
+
+    random_element = random_choice  # noqa
+
+    @provider(tags=("Choice",))
+    def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
+        return random.sample(elements, length)
+
+    random_elements = random_sample  # noqa
+
+    @provider(tags=("Text",))
+    def randomise_string(
+        self,
+        value: str,
+        letters: str = string.ascii_uppercase,
+        digits: str = string.digits,
+    ) -> str:
+        result = ""
+        for char in value:
+            if char == "?":
+                result += random.choice(letters)
+            elif char == "#":
+                result += random.choice(digits)
+            else:
+                result += char
+        return result
+
+    randomize_string = bothify = randomise_string  # noqa
 
 
 FAKER = Faker(alias="default")
@@ -4679,6 +4698,44 @@ class TestFaker(unittest.TestCase):
             calculated_checksum,
             self.faker._isbn13_checksum(list(isbn[:-1])),
         )
+
+    def test_randomise_string(self):
+        # Test pattern with both letters and digits placeholders
+        pattern = "??##-####-??"
+        expected_length = len(pattern)
+        result = self.faker.randomise_string(pattern)
+
+        self.assertEqual(len(result), expected_length)
+        self.assertTrue(
+            all(char in string.ascii_uppercase for char in result[:2])
+        )
+        self.assertTrue(all(char in string.digits for char in result[2:4]))
+        self.assertEqual(
+            result[4],
+            "-",
+        )
+        self.assertTrue(all(char in string.digits for char in result[5:9]))
+        self.assertEqual(result[9], "-")
+        self.assertTrue(
+            all(char in string.ascii_uppercase for char in result[10:])
+        )
+
+        # Test pattern with only letters placeholders
+        pattern = "???"
+        result = self.faker.randomise_string(pattern)
+        self.assertEqual(len(result), len(pattern))
+        self.assertTrue(all(char in string.ascii_uppercase for char in result))
+
+        # Test pattern with only digits placeholders
+        pattern = "###"
+        result = self.faker.randomise_string(pattern)
+        self.assertEqual(len(result), len(pattern))
+        self.assertTrue(all(char in string.digits for char in result))
+
+        # Test pattern with no placeholders
+        pattern = "ABC-123"
+        result = self.faker.randomise_string(pattern)
+        self.assertEqual(result, pattern)
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()

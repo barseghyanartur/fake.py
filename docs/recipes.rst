@@ -1354,6 +1354,184 @@ Example with arguments.
             nb_chars=10_000,  # 10_000 characters long
         )
 
+----
+
+city
+~~~~
+Get a random city.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_city
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.city()
+
+----
+
+country
+~~~~~~~
+Get a random country.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_country
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.country()
+
+----
+
+geo_location
+~~~~~~~~~~~~
+Get a random geo-location.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_geo_location
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.geo_location()
+
+----
+
+country_code
+~~~~~~~~~~~~
+Get a random country code.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_country_code
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.country_code()
+
+----
+
+locale
+~~~~~~
+Generate a random locale.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_locale
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.locale()
+
+----
+
+latitude
+~~~~~~~~
+Generate a random latitude.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_latitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.latitude()
+
+----
+
+longitude
+~~~~~~~~~
+Generate a random longitude.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_longitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.longitude()
+
+----
+
+latitude_longitude
+~~~~~~~~~~~~~~~~~~
+Generate a random (latitude, longitude) pair.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_latitude_longitude
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.latitude_longitude()
+
+----
+
+isbn10
+~~~~~~
+Generate a random ISBN10. Can be validated using `isbn-checker`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_isbn10
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.isbn10()
+
+----
+
+isbn13
+~~~~~~
+Generate a random ISBN13. Can be validated using `isbn-checker`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_isbn13
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.isbn13()
+
+----
+
+iban
+~~~~
+Generate a random IBAN. Can be validated using `iban-calculator`_.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_iban
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.iban()
+
+----
+
 random_choice
 ~~~~~~~~~~~~~
 
@@ -1368,6 +1546,8 @@ Picks a random element from the sequence given.
         from fake import FAKER
 
         FAKER.random_choice(("Art", "Photography", "Generative AI"))
+
+----
 
 random_sample
 ~~~~~~~~~~~~~
@@ -1384,156 +1564,48 @@ Picks a given number of random element from the sequence given.
 
         FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
 
-city
-~~~~
-Get a random city.
+----
+
+randomise_string
+~~~~~~~~~~~~~~~~
+
+Replaces placeholders in a given string with random letters and digits.
+
+- Placeholders ``?`` are replaced by random uppercase letters.
+- Placeholders ``#`` are replaced by random digits.
 
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
-        :name: test_city
+        :name: test_randomise_string
         :emphasize-lines: 3
 
         from fake import FAKER
 
-        FAKER.city()
+        FAKER.randomise_string("???? ##")
 
-country
-~~~~~~~
-Get a random country.
+----
+
+Optional arguments:
+
+- ``letters`` (type: ``str``, default value: ``string.ascii_uppercase``).
+- ``digits`` (type: ``str``, default value: ``string.digits``).
+
+Example with arguments.
 
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
-        :name: test_country
-        :emphasize-lines: 3
+        :name: test_randomise_string_custom_args
+        :emphasize-lines: 1, 3-
 
+        import string
         from fake import FAKER
 
-        FAKER.country()
+        FAKER.randomise_string(
+            "???? ##",
+            letters=string.ascii_letters,  # Use both upper- and lower-case
+            digits="123456789",  # Exclude 0
+        )
 
-geo_location
-~~~~~~~~~~~~
-Get a random geo-location.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_geo_location
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.geo_location()
-
-country_code
-~~~~~~~~~~~~
-Get a random country code.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_country_code
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.country_code()
-
-locale
-~~~~~~
-Generate a random locale.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_locale
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.locale()
-
-latitude
-~~~~~~~~
-Generate a random latitude.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_latitude
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.latitude()
-
-longitude
-~~~~~~~~~
-Generate a random longitude.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_longitude
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.longitude()
-
-latitude_longitude
-~~~~~~~~~~~~~~~~~~
-Generate a random (latitude, longitude) pair.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_latitude_longitude
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.latitude_longitude()
-
-isbn10
-~~~~~~
-Generate a random ISBN10. Can be validated using `isbn-checker`_.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_isbn10
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.isbn10()
-
-isbn13
-~~~~~~
-Generate a random ISBN13. Can be validated using `isbn-checker`_.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_isbn13
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.isbn13()
-
-iban
-~~~~
-Generate a random IBAN. Can be validated using `iban-calculator`_.
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_iban
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.iban()
+----
