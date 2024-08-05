@@ -16,6 +16,15 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.2
+-----
+2024-08-05
+
+- Implement ``randomise_string`` provider, that replaces placeholders in a
+  given string with random letters and digits. Placeholders ``?`` are replaced
+  by random uppercase letters, and placeholders ``#`` are replaced by random
+  digits.
+
 0.9.1
 -----
 2024-08-04
