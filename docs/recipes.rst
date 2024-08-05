@@ -1552,7 +1552,7 @@ Picks a random element from the sequence given.
 random_sample
 ~~~~~~~~~~~~~
 
-Picks a given number of random element from the sequence given.
+Picks a given number of random elements from the sequence given.
 
 .. container:: jsphinx-toggle-emphasis
 
