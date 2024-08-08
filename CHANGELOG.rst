@@ -18,7 +18,7 @@ are used for versioning (schema follows below):
 
 0.9.3
 -----
-2024-08-??
+2024-08-09
 
 - Prepare for namespaced packages. ``fakepy`` is now an additional registered
   namespace, next to ``fake``. All integration packages can make use of

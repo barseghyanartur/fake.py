@@ -1608,4 +1608,8 @@ Example with arguments.
             digits="123456789",  # Exclude 0
         )
 
-----
+Sample output:
+
+.. code-block:: text
+
+    1234 Aa
