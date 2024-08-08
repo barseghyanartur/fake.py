@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.9.2"
+version = "0.9.3"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -67,6 +67,10 @@ fake-py = "fake:main"
 
 [tool.setuptools]
 py-modules = ["fake"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fakepy"]
 
 # Build system information below.
 [build-system]
