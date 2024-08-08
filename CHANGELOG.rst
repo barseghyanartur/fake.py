@@ -16,6 +16,29 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.3
+-----
+2024-08-??
+
+- Prepare for namespaced packages. ``fakepy`` is now an additional registered
+  namespace, next to ``fake``. All integration packages can make use of
+  the ``fakepy`` namespace. For instance:
+
+  .. code-block:: python
+
+      from fakepy import FAKER
+      from fakepy.pathy_storage.aws_s3 import AWSS3Storage
+
+      STORAGE = AWSS3Storage(
+          bucket_name="bucket_name",
+          root_path="tmp",  # Optional
+          rel_path="sub-tmp",  # Optional
+      )
+
+      txt_file = FAKER.txt_file(storage=STORAGE)
+
+      STORAGE.exists(txt_file)
+
 0.9.2
 -----
 2024-08-05
