@@ -13,6 +13,8 @@ fake.py
 .. _Pydantic: https://docs.pydantic.dev/
 .. _SQLAlchemy: https://www.sqlalchemy.org/
 .. _SQLModel: https://sqlmodel.tiangolo.com/
+.. _Pathy: https://github.com/justindujardin/pathy
+.. _django-storages: https://django-storages.readthedocs.io
 
 .. Internal references
 
@@ -29,6 +31,13 @@ fake.py
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
+
+.. Related projects
+
+.. _fake-py-pathy-storage: https://github.com/barseghyanartur/fake-py-pathy-storage
+.. _fake-py-django-storage: https://github.com/barseghyanartur/fake-py-django-storage
+.. _fake-py-qt: https://github.com/barseghyanartur/fake-py-qt
+.. _fake-py-wasm: https://github.com/barseghyanartur/fake-py-wasm
 
 Minimalistic, standalone alternative fake data generator with no dependencies.
 
@@ -466,6 +475,16 @@ further.
 
 However, at any point, if you discover that you "need more", go for `Faker`_,
 `factory_boy`_ and `faker-file`_ combination.
+
+Related projects
+================
+- `fake-py-pathy-storage`_: `Pathy`_ backed cloud storages for `fake.py`_.
+  Supports `AWS S3`, `Google Cloud Storage` and `Azure Cloud Storage`.
+- `fake-py-django-storage`_: `Django`_ and `django-storages`_ backed storages
+  for `fake.py`_. Among others, supports `AWS S3`, `Google Cloud Storage` and
+  `Azure Cloud Storage`.
+- `fake-py-qt`_: Graphical user interface to `fake.py`_.
+- `fake-py-wasm`_: `fake.py`_ on WASM (web assembly).
 
 Writing documentation
 =====================
