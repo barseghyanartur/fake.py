@@ -73,7 +73,8 @@ texts, (person) names, URLs, dates, file names, IPs, primitive Python data
 types (such as `uuid`, `str`, `int`, `float`, `bool`), GEO data such as city,
 country, geo-location, country code, latitude, longitude and locales,
 IBANs and ISBNs, as well as byte content for multiple file formats
-including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF` and `PPM`.
+including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`
+and `WAV`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
@@ -84,7 +85,7 @@ Features
 - Generation of random texts, (person) names, emails, URLs, dates, IPs, and
   primitive Python data types.
 - Support for various file formats (`PDF`, `DOCX`, `ODT`, `TXT`, `PNG`, `SVG`,
-  `BMP`, `GIF`, `TIF`, `PPM`) and file creation on the filesystem.
+  `BMP`, `GIF`, `TIF`, `PPM`, `WAV`) and file creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
 - `CLI`_ for generating data from command line.
@@ -267,6 +268,7 @@ As bytes
     FAKER.ppm()  # bytes
     FAKER.svg()  # bytes
     FAKER.tif()  # bytes
+    FAKER.wav()  # bytes
 
 As files on the file system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -284,6 +286,7 @@ As files on the file system
     FAKER.ppm_file()  # str
     FAKER.svg_file()  # str
     FAKER.tif_file()  # str
+    FAKER.wav_file()  # str
     FAKER.txt_file()  # str
 
 Factories/dynamic fixtures

@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.4
+-----
+2024-08-18
+
+- Add `WAV` audio file support through ``wav`` and ``wav_file`` providers.
+
 0.9.3
 -----
 2024-08-09
