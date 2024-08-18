@@ -2,11 +2,13 @@
 https://github.com/barseghyanartur/fake.py/
 """
 
+import array
 import asyncio
 import contextlib
 import io
 import locale
 import logging
+import math
 import mimetypes
 import os
 import random
@@ -15,6 +17,7 @@ import string
 import subprocess
 import unittest
 import uuid
+import wave
 import zipfile
 import zlib
 import zoneinfo
@@ -55,7 +58,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9.3"
+__version__ = "0.9.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -2000,6 +2003,53 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
+    @provider(tags=("Audio",))
+    def wav(
+        self,
+        frequency: int = 440,
+        duration: int = 1,
+        volume: Union[float, int] = 0.5,
+        sample_rate: int = 44100,
+    ) -> bytes:
+        """Create a WAV audio.
+
+        :param frequency: The frequency of the tone in Hz.
+        :param duration: Duration of the tone in seconds.
+        :param volume: Volume of the tone, scale between 0.0 and 1.0.
+        :param sample_rate: Sampling rate in Hz.
+        :return: Byte content of the WAV audio.
+        :rtype: bytes
+        """
+        num_samples = int(sample_rate * duration)
+        samples_per_cycle = int(sample_rate / frequency)
+        cycle = array.array(
+            "h"
+        )  # 'h' is the typecode for signed short integers
+
+        # Precompute one cycle of the sine wave
+        for i in range(samples_per_cycle):
+            sample = (
+                volume * 32767 * math.sin(2 * math.pi * i / samples_per_cycle)
+            )
+            cycle.append(int(sample))
+
+        # Generate full data by repeating the cycle
+        data = (cycle * (1 + num_samples // samples_per_cycle))[:num_samples]
+
+        # Prepare WAV file structure in a BytesIO stream
+        buffer = io.BytesIO()
+        with wave.open(buffer, "w") as _wav_file:
+            _wav_file.setnchannels(1)  # Mono
+            _wav_file.setsampwidth(2)  # 2 bytes per sample (16-bit)
+            _wav_file.setframerate(sample_rate)
+            _wav_file.writeframes(data.tobytes())
+
+        # Get the bytes
+        wav_bytes = buffer.getvalue()
+        buffer.close()
+
+        return wav_bytes
+
     @provider(tags=("Document",))
     def docx(
         self,
@@ -2278,6 +2328,45 @@ class Faker:
             basename=basename,
             prefix=prefix,
         )
+
+    @provider(
+        tags=(
+            "Audio",
+            "File",
+        )
+    )
+    def wav_file(
+        self,
+        frequency: int = 440,
+        duration: int = 1,
+        volume: Union[float, int] = 0.5,
+        sample_rate: int = 44100,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        """Create a WAV audio file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="wav",
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.wav(
+            frequency=frequency,
+            duration=duration,
+            volume=volume,
+            sample_rate=sample_rate,
+        )
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+        }
+        FILE_REGISTRY.add(file)
+        return file
 
     @provider(
         tags=(
@@ -4509,6 +4598,11 @@ class TestFaker(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.faker.image(image_format=image_format)
 
+    def test_wav(self) -> None:
+        wav = self.faker.wav()
+        self.assertTrue(wav)
+        self.assertIsInstance(wav, bytes)
+
     def test_docx(self) -> None:
         with self.subTest("All params None, should fail"):
             with self.assertRaises(ValueError):
@@ -4571,6 +4665,10 @@ class TestFaker(unittest.TestCase):
 
     def test_ppm_file(self) -> None:
         file = self.faker.ppm_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_wav_file(self) -> None:
+        file = self.faker.wav_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
     def test_docx_file(self) -> None:
