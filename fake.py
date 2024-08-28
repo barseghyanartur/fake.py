@@ -31,6 +31,7 @@ from decimal import Decimal
 from email.utils import parseaddr
 from functools import partial
 from inspect import signature
+from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
 from threading import Lock
@@ -314,6 +315,43 @@ class StringValue(str):
         return obj
 
 
+class BytesValue(bytes):
+    data: Dict[str, Any]
+
+    def __new__(cls, value, *args, **kwargs):
+        obj = bytes.__new__(cls, value)
+        obj.data = {}
+        return obj
+
+
+def returns_list(func: Callable) -> bool:
+    """Checks if callable returns a list of Union[BytesValue, StringValue].
+
+    Returns True if it's a List. Returns False otherwise.
+    """
+    try:
+        return_type = get_type_hints(func).get("return", None)
+    except Exception:
+        return False
+
+    if not return_type:
+        return False
+
+    return_origin = getattr(return_type, "__origin__", None)
+    if return_origin is list or return_origin is List:
+        # If it's a list, check the type of its elements
+        element_type = getattr(return_type, "__args__", [None])[0]
+        element_origin = getattr(element_type, "__origin__", None)
+        if element_origin is Union:
+            if set(getattr(element_type, "__args__", [])) == {
+                BytesValue,
+                StringValue,
+            }:
+                return True
+
+    return False
+
+
 class FileRegistry:
     """Stores list `StringValue` instances.
 
@@ -547,6 +585,47 @@ class FileSystemStorage(BaseStorage):
             file_path.unlink()
         else:
             (self.root_path / file_path).unlink()
+
+
+def create_inner_txt_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    text: Optional[str] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner TXT file."""
+    if not text:
+        text = FAKER.text()
+
+    return FAKER.txt_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        text=text,
+        **kwargs,
+    )
+
+
+def create_inner_docx_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    texts: Optional[List[str]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner DOCX file."""
+    return FAKER.docx_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        texts=texts,
+        metadata=metadata,
+        **kwargs,
+    )
 
 
 class TextPdfGenerator:
@@ -2072,6 +2151,90 @@ class Faker:
         _odt = OdtGenerator(faker=self)
         return _odt.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
+    @provider(tags=("Archive",))
+    def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
+        data: Dict[str, Any] = {
+            "inner": {},
+            "files": [],
+        }
+        fs_storage = FileSystemStorage()
+
+        # Specific
+        if options:
+            """
+            A complex case. Could be initialized as follows:
+
+            .. code-block:: python
+
+                zip_file = FAKER.zip_file(
+                    prefix="zzz_archive_",
+                    options={
+                        "count": 5,
+                        "create_inner_file_func": create_inner_txt_file,
+                        "create_inner_file_args": {
+                            "prefix": "zzz_file_",
+                        },
+                        "directory": "zzz",
+                    },
+                )
+            """
+            _count = options.get("count", 5)
+            _create_inner_file_func = options.get(
+                "create_inner_file_func", create_inner_txt_file
+            )
+            _create_inner_file_args = options.get("create_inner_file_args", {})
+            _dir_path = Path("")
+            _directory = options.get("directory", "")
+
+        else:
+            # Defaults
+            _count = 5
+            _create_inner_file_func = create_inner_txt_file
+            _create_inner_file_args = {}
+            _dir_path = Path("")
+            _directory = ""
+
+        _zip_content = BytesIO()
+        with zipfile.ZipFile(_zip_content, "w") as __fake_file:
+            _kwargs = {}
+            _kwargs.update(_create_inner_file_args)
+
+            # If _create_inner_file_func returns a list of values
+            if returns_list(_create_inner_file_func):
+                _files = _create_inner_file_func(
+                    storage=fs_storage,
+                    **_kwargs,
+                )
+                for __file in _files:
+                    data["inner"][str(__file)] = __file
+                    __file_abs_path = fs_storage.abspath(__file)
+                    __fake_file.write(
+                        __file_abs_path,
+                        arcname=Path(_directory) / Path(__file).name,
+                    )
+                    os.remove(__file_abs_path)  # Clean up temporary files
+                    data["files"].append(Path(_directory) / Path(__file).name)
+
+            # If _create_inner_file_func returns a single value
+            else:
+                for __i in range(_count):
+                    __file = _create_inner_file_func(
+                        storage=fs_storage,
+                        **_kwargs,
+                    )
+                    data["inner"][str(__file)] = __file
+                    __file_abs_path = fs_storage.abspath(__file)
+                    __fake_file.write(
+                        __file_abs_path,
+                        arcname=Path(_directory) / Path(__file).name,
+                    )
+                    os.remove(__file_abs_path)  # Clean up temporary files
+                    data["files"].append(Path(_directory) / Path(__file).name)
+
+        raw_content = BytesValue(_zip_content.getvalue())
+        raw_content.data = data
+        return raw_content
+
     @provider(
         tags=(
             "Document",
@@ -2430,6 +2593,42 @@ class Faker:
         if not metadata:
             metadata = MetaData()
         data = self.odt(nb_pages=nb_pages, texts=texts, metadata=metadata)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Archive",
+            "File",
+        )
+    )
+    def zip_file(
+        self,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ) -> StringValue:
+        """Create a ODT document file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="zip",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.zip(metadata=metadata, options=options)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {
