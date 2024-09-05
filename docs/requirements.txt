@@ -27,7 +27,7 @@ click==8.1.7
     #   pydoclint
 coverage==7.6.0
     # via pytest-cov
-cryptography==42.0.8
+cryptography==43.0.1
     # via secretstorage
 decorator==5.1.1
     # via ipython
