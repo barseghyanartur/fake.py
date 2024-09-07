@@ -587,47 +587,6 @@ class FileSystemStorage(BaseStorage):
             (self.root_path / file_path).unlink()
 
 
-def create_inner_txt_file(
-    storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
-    text: Optional[str] = None,
-    **kwargs,
-) -> Union[BytesValue, StringValue]:
-    """Create inner TXT file."""
-    if not text:
-        text = FAKER.text()
-
-    return FAKER.txt_file(
-        storage=storage,
-        basename=basename,
-        prefix=prefix,
-        text=text,
-        **kwargs,
-    )
-
-
-def create_inner_docx_file(
-    storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
-    nb_pages: Optional[int] = 1,
-    texts: Optional[List[str]] = None,
-    metadata: Optional[MetaData] = None,
-    **kwargs,
-) -> Union[BytesValue, StringValue]:
-    """Create inner DOCX file."""
-    return FAKER.docx_file(
-        storage=storage,
-        basename=basename,
-        prefix=prefix,
-        nb_pages=nb_pages,
-        texts=texts,
-        metadata=metadata,
-        **kwargs,
-    )
-
-
 class TextPdfGenerator:
     """Text PDF generatr.
 
@@ -2167,7 +2126,7 @@ class Faker:
 
             .. code-block:: python
 
-                zip_file = FAKER.zip_file(
+                zip_file = FAKER.zip(
                     prefix="zzz_archive_",
                     options={
                         "count": 5,
@@ -2864,6 +2823,228 @@ class Faker:
 
 
 FAKER = Faker(alias="default")
+
+
+def create_inner_pdf_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    generator: Union[
+        Type[TextPdfGenerator], Type[GraphicPdfGenerator]
+    ] = GraphicPdfGenerator,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner PDF file."""
+    return FAKER.pdf_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        generator=generator,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_text_pdf_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    generator: Type[TextPdfGenerator] = TextPdfGenerator,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner text PDF file."""
+    return FAKER.text_pdf_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        generator=generator,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_png_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner PNG file."""
+    return FAKER.png_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_svg_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner SVG file."""
+    return FAKER.svg_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_bmp_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner BMP file."""
+    return FAKER.bmp_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_gif_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner GIF file."""
+    return FAKER.gif_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_tif_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner TIF file."""
+    return FAKER.tif_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_ppm_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (0, 0, 255),
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner PPM file."""
+    return FAKER.ppm_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_wav_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    frequency: int = 440,
+    duration: int = 1,
+    volume: Union[float, int] = 0.5,
+    sample_rate: int = 44100,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner WAV file."""
+    return FAKER.wav_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        frequency=frequency,
+        duration=duration,
+        volume=volume,
+        sample_rate=sample_rate,
+        **kwargs,
+    )
+
+
+def create_inner_docx_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    texts: Optional[List[str]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner DOCX file."""
+    return FAKER.docx_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        texts=texts,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_txt_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    text: Optional[str] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner TXT file."""
+    if not text:
+        text = FAKER.text()
+
+    return FAKER.txt_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        text=text,
+        **kwargs,
+    )
 
 
 class FactoryMethod:
