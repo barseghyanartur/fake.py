@@ -3027,6 +3027,46 @@ def create_inner_docx_file(
     )
 
 
+def create_inner_odt_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    texts: Optional[List[str]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner ODT file."""
+    return FAKER.odt_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        texts=texts,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_zip_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    options: Optional[Dict[str, Any]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> Union[BytesValue, StringValue]:
+    """Create inner ZIP file."""
+    return FAKER.zip_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        options=options,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
 def create_inner_txt_file(
     storage: Optional[BaseStorage] = None,
     basename: Optional[str] = None,
