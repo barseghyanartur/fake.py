@@ -2153,6 +2153,7 @@ class Faker:
 
     @provider(tags=("Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
+        """Create a ZIP archive."""
         data: Dict[str, Any] = {
             "inner": {},
             "files": [],
@@ -2618,7 +2619,7 @@ class Faker:
         options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> StringValue:
-        """Create a ODT document file."""
+        """Create a ZIP archive file."""
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -3949,7 +3950,10 @@ def format_type_hint(type_hint) -> str:
     elif isinstance(type_hint, str):
         return type_hint
     else:
-        return f"{type_hint.__module__}.{type_hint.__name__}"
+        try:
+            return f"{type_hint.__module__}.{type_hint.__name__}"
+        except Exception:
+            return str(type_hint)
 
 
 class CLI:
