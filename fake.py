@@ -15,6 +15,7 @@ import random
 import re
 import string
 import subprocess
+import tarfile
 import unittest
 import uuid
 import wave
@@ -165,6 +166,7 @@ UNWANTED_GEO_PATTERN = re.compile(
     r"^([A-Z0-9-+]+$|GB.*|localtime|Universal|Etc|Factory)"
 )
 
+TAR_COMPRESSION_OPTIONS = {"gz", "bz2", "xz"}
 
 PDF_TEXT_TPL_PAGE_OBJECT = """{page_num} 0 obj
 <</Type /Page
@@ -2126,6 +2128,8 @@ class Faker:
 
             .. code-block:: python
 
+                from fake import create_inner_txt_file, FAKER
+
                 zip_file = FAKER.zip(
                     prefix="zzz_archive_",
                     options={
@@ -2192,6 +2196,113 @@ class Faker:
                     data["files"].append(Path(_directory) / Path(__file).name)
 
         raw_content = BytesValue(_zip_content.getvalue())
+        raw_content.data = data
+        return raw_content
+
+    @provider(tags=("Archive",))
+    def tar(
+        self,
+        options: Optional[Dict[str, Any]] = None,
+        # Once Python 3.7 is deprecated, add the following annotation:
+        #     Optional[Literal["gz", "bz2", "xz"]] = None
+        compression: Optional[str] = None,
+        **kwargs,
+    ) -> BytesValue:
+        """Generate a TAR file with random text.
+
+        :param options: Options (non-structured) for complex types, such as
+            ZIP.
+        :param compression: Desired compression. Can be None or `gz`, `bz2`
+            or `xz`.
+        :param **kwargs: Additional keyword arguments to pass to the function.
+        :rtype: BytesValue
+        :return: Relative path (from root directory) of the generated file
+            or raw content of the file.
+        """
+        data: Dict[str, Any] = {
+            "inner": {},
+            "files": [],
+        }
+        fs_storage = FileSystemStorage()
+
+        # Specific
+        if options:
+            """
+            A complex case. Could be initialized as follows:
+
+            .. code-block:: python
+
+                from fake import create_inner_txt_file, FAKER
+
+                tar_file = FAKER.tar(
+                    prefix="ttt_archive_",
+                    options={
+                        "count": 5,
+                        "create_inner_file_func": create_inner_txt_file,
+                        "create_inner_file_args": {
+                            "prefix": "ttt_file_",
+                        },
+                        "directory": "ttt",
+                    },
+                )
+            """
+            _count = options.get("count", 5)
+            _create_inner_file_func = options.get(
+                "create_inner_file_func", create_inner_txt_file
+            )
+            _create_inner_file_args = options.get("create_inner_file_args", {})
+            _dir_path = Path("")
+            _directory = options.get("directory", "")
+
+        else:
+            # Defaults
+            _count = 5
+            _create_inner_file_func = create_inner_txt_file
+            _create_inner_file_args = {}
+            _dir_path = Path("")
+            _directory = ""
+
+        _tar_content = BytesIO()
+        _mode = "w"
+        if compression and compression in TAR_COMPRESSION_OPTIONS:
+            _mode += f":{compression}"
+        with tarfile.open(fileobj=_tar_content, mode=_mode) as __fake_file:
+            _kwargs = {}
+            _kwargs.update(_create_inner_file_args)
+
+            # If _create_inner_file_func returns a list of values
+            if returns_list(_create_inner_file_func):
+                _files = _create_inner_file_func(
+                    storage=fs_storage,
+                    **_kwargs,
+                )
+                for __file in _files:
+                    data["inner"][str(__file)] = __file
+                    __file_abs_path = fs_storage.abspath(__file)
+                    __fake_file.add(
+                        __file_abs_path,
+                        arcname=Path(_directory) / Path(__file).name,
+                    )
+                    os.remove(__file_abs_path)  # Clean up temporary files
+                    data["files"].append(Path(_directory) / Path(__file).name)
+
+            # If _create_inner_file_func returns a single value
+            else:
+                for __i in range(_count):
+                    __file = _create_inner_file_func(
+                        storage=fs_storage,
+                        **_kwargs,
+                    )
+                    data["inner"][str(__file)] = __file
+                    __file_abs_path = fs_storage.abspath(__file)
+                    __fake_file.add(
+                        __file_abs_path,
+                        arcname=Path(_directory) / Path(__file).name,
+                    )
+                    os.remove(__file_abs_path)  # Clean up temporary files
+                    data["files"].append(Path(_directory) / Path(__file).name)
+
+        raw_content = BytesValue(_tar_content.getvalue())
         raw_content.data = data
         return raw_content
 
@@ -2589,6 +2700,47 @@ class Faker:
         if not metadata:
             metadata = MetaData()
         data = self.zip(metadata=metadata, options=options)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Archive",
+            "File",
+        )
+    )
+    def tar_file(
+        self,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+        compression: Optional[str] = None,
+        **kwargs,
+    ) -> StringValue:
+        """Create a TAR archive file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="tar",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.tar(
+            metadata=metadata,
+            options=options,
+            compression=compression,
+        )
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {
@@ -3055,13 +3207,34 @@ def create_inner_zip_file(
     options: Optional[Dict[str, Any]] = None,
     metadata: Optional[MetaData] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner ZIP file."""
     return FAKER.zip_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
         options=options,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_tar_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    options: Optional[Dict[str, Any]] = None,
+    compression: Optional[str] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> StringValue:
+    """Create inner TAR file."""
+    return FAKER.tar_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        options=options,
+        compression=compression,
         metadata=metadata,
         **kwargs,
     )
