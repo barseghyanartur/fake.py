@@ -2835,7 +2835,7 @@ def create_inner_pdf_file(
     ] = GraphicPdfGenerator,
     metadata: Optional[MetaData] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner PDF file."""
     return FAKER.pdf_file(
         storage=storage,
@@ -2856,7 +2856,7 @@ def create_inner_text_pdf_file(
     generator: Type[TextPdfGenerator] = TextPdfGenerator,
     metadata: Optional[MetaData] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner text PDF file."""
     return FAKER.text_pdf_file(
         storage=storage,
@@ -2876,7 +2876,7 @@ def create_inner_png_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner PNG file."""
     return FAKER.png_file(
         storage=storage,
@@ -2895,7 +2895,7 @@ def create_inner_svg_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner SVG file."""
     return FAKER.svg_file(
         storage=storage,
@@ -2914,7 +2914,7 @@ def create_inner_bmp_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner BMP file."""
     return FAKER.bmp_file(
         storage=storage,
@@ -2933,7 +2933,7 @@ def create_inner_gif_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner GIF file."""
     return FAKER.gif_file(
         storage=storage,
@@ -2952,7 +2952,7 @@ def create_inner_tif_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner TIF file."""
     return FAKER.tif_file(
         storage=storage,
@@ -2971,7 +2971,7 @@ def create_inner_ppm_file(
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner PPM file."""
     return FAKER.ppm_file(
         storage=storage,
@@ -2992,7 +2992,7 @@ def create_inner_wav_file(
     volume: Union[float, int] = 0.5,
     sample_rate: int = 44100,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner WAV file."""
     return FAKER.wav_file(
         storage=storage,
@@ -3014,7 +3014,7 @@ def create_inner_docx_file(
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner DOCX file."""
     return FAKER.docx_file(
         storage=storage,
@@ -3035,7 +3035,7 @@ def create_inner_odt_file(
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner ODT file."""
     return FAKER.odt_file(
         storage=storage,
@@ -3073,7 +3073,7 @@ def create_inner_txt_file(
     prefix: Optional[str] = None,
     text: Optional[str] = None,
     **kwargs,
-) -> Union[BytesValue, StringValue]:
+) -> StringValue:
     """Create inner TXT file."""
     if not text:
         text = FAKER.text()
@@ -3085,6 +3085,137 @@ def create_inner_txt_file(
         text=text,
         **kwargs,
     )
+
+
+def fuzzy_choice_create_inner_file(
+    func_choices: List[Tuple[Callable[..., List[StringValue]], Dict[str, Any]]],
+    **kwargs,
+) -> StringValue:
+    """Create inner file from given list of function choices.
+
+    :param func_choices: List of functions to choose from.
+    :param **kwargs: Additional keyword arguments to pass to the function.
+    :rtype: StringValue
+    :return: StringValue instance.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from fake import (
+            FAKER,
+            FileSystemStorage,
+            create_inner_docx_file,
+            create_inner_png_file,
+            create_inner_txt_file,
+            fuzzy_choice_create_inner_file,
+        )
+
+        STORAGE = FileSystemStorage()
+
+        kwargs = {"storage": STORAGE}
+        file = fuzzy_choice_create_inner_file(
+            [
+                (create_inner_docx_file, kwargs),
+                (create_inner_png_file, kwargs),
+                (create_inner_txt_file, kwargs),
+            ]
+        )
+
+    You could use it in archives to make a variety of different file types
+    within the archive.
+
+    .. code-block:: python
+
+        from fake import (
+            FAKER,
+            FileSystemStorage,
+            create_inner_docx_file,
+            create_inner_png_file,
+            create_inner_txt_file,
+            fuzzy_choice_create_inner_file,
+        )
+
+        STORAGE = FileSystemStorage()
+
+        kwargs = {"storage": STORAGE}
+        file = FAKER.zip_file(
+            prefix="zzz_archive_",
+            options={
+                "count": 50,
+                "create_inner_file_func": fuzzy_choice_create_inner_file,
+                "create_inner_file_args": {
+                    "func_choices": [
+                        (create_inner_docx_file, kwargs),
+                        (create_inner_png_file, kwargs),
+                        (create_inner_txt_file, kwargs),
+                    ],
+                },
+                "directory": "zzz",
+            }
+        )
+    """
+    _func, _kwargs = random.choice(func_choices)
+    return _func(**_kwargs)
+
+
+def list_create_inner_file(
+    func_list: List[Tuple[Callable[..., List[StringValue]], Dict[str, Any]]],
+    **kwargs,
+) -> List[StringValue]:
+    """Generates multiple files based on the provided list of functions
+    and arguments.
+
+    :param func_list: List of tuples, each containing a function to generate a
+        file and its arguments.
+    :param **kwargs: Additional keyword arguments to pass to the functions.
+    :rtype: List[StringValue]
+    :return: List of generated file names.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from fake import (
+            FAKER,
+            FileSystemStorage,
+            create_inner_docx_file,
+            create_inner_txt_file,
+            list_create_inner_file,
+        )
+        STORAGE = FileSystemStorage()
+
+        kwargs = {"storage": STORAGE, "generator": FAKER}
+        file = FAKER.zip_file(
+            basename="alice-looking-through-the-glass",
+            options={
+                "create_inner_file_func": list_create_inner_file,
+                "create_inner_file_args": {
+                    "func_list": [
+                        (create_inner_docx_file, {"basename": "doc"}),
+                        (create_inner_txt_file, {"basename": "doc_metadata"}),
+                        (create_inner_txt_file, {"basename": "doc_isbn"}),
+                    ],
+                },
+            }
+        )
+
+    Note, that while all other inner functions return
+    back `Union[BytesValue, StringValue]` value, `list_create_inner_file`
+    returns back a `List[Union[BytesValue, StringValue]]` value.
+
+    Notably, all inner functions were designed to support archives (such as
+    ZIP, TAR and EML, but the list may grow in the future). If the inner
+    function passed in the `create_inner_file_func` argument returns a List
+    of `Union[BytesValue, StringValue]` values, the `option` argument is being
+    ignored and generated files are simply limited to what has been passed
+    in the `func_list` list of tuples.
+    """
+    created_files = []
+    for func, kwargs in func_list:
+        file = func(**kwargs)
+        created_files.append(file)
+    return created_files
 
 
 class FactoryMethod:
