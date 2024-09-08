@@ -3088,7 +3088,7 @@ def create_inner_txt_file(
 
 
 def fuzzy_choice_create_inner_file(
-    func_choices: List[Tuple[Callable[..., List[StringValue]], Dict[str, Any]]],
+    func_choices: List[Tuple[Callable[..., StringValue], Dict[str, Any]]],
     **kwargs,
 ) -> StringValue:
     """Create inner file from given list of function choices.
@@ -3160,7 +3160,7 @@ def fuzzy_choice_create_inner_file(
 
 
 def list_create_inner_file(
-    func_list: List[Tuple[Callable[..., List[StringValue]], Dict[str, Any]]],
+    func_list: List[Tuple[Callable[..., StringValue], Dict[str, Any]]],
     **kwargs,
 ) -> List[StringValue]:
     """Generates multiple files based on the provided list of functions
