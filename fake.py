@@ -29,6 +29,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from email.message import EmailMessage
+from email.policy import default
 from email.utils import parseaddr
 from functools import partial
 from inspect import signature
@@ -2308,6 +2310,135 @@ class Faker:
 
     @provider(
         tags=(
+            "Archive",
+            "Email",
+        )
+    )
+    def eml(
+        self,
+        options: Optional[Dict[str, Any]] = None,
+        content: Optional[str] = None,
+        subject: Optional[str] = None,
+        **kwargs,
+    ) -> BytesValue:
+        """Generate an EML file with random text.
+
+        :param options: Options (non-structured) for complex types, such as
+            ZIP.
+        :param content: Email body text.
+        :param subject: Email subject.
+        :param **kwargs: Additional keyword arguments to pass to the function.
+        :rtype: BytesValue
+        :return: Relative path (from root directory) of the generated file
+            or raw content of the file.
+        """
+        fs_storage = FileSystemStorage()
+
+        if not content:
+            content = self.text()
+        if not subject:
+            subject = self.sentence()
+        data: Dict[str, Any] = {
+            "content": f"{subject}\n {content}",
+            "inner": {},
+        }
+
+        msg = EmailMessage()
+        msg["To"] = self.email()
+        msg["From"] = self.email()
+        msg["Subject"] = subject
+        msg.set_content(content)
+        data.update(
+            {
+                "to": msg["To"],
+                "from": msg["From"],
+                "subject": msg["Subject"],
+                "body": content,
+            }
+        )
+
+        # Specific
+        if options:
+            """
+            A complex case. Could be initialized as follows:
+
+            .. code-block:: python
+
+                from fake import create_inner_docx_file, FAKER
+
+                eml_file = FAKER.eml_file(
+                    prefix="zzz_email_",
+                    options={
+                        "count": 5,
+                        "create_inner_file_func": create_inner_docx_file,
+                        "create_inner_file_args": {
+                            "prefix": "zzz_file_",
+                        },
+                    }
+                )
+            """
+            _count = options.get("count", 5)
+            _create_inner_file_func = options.get(
+                "create_inner_file_func", create_inner_txt_file
+            )
+            _create_inner_file_args = options.get("create_inner_file_args", {})
+
+        else:
+            # Defaults
+            _count = 0
+            _create_inner_file_func = create_inner_txt_file
+            _create_inner_file_args = {}
+
+        _kwargs = {}
+        _kwargs.update(_create_inner_file_args)
+
+        # If _create_inner_file_func returns a list of values
+        if returns_list(_create_inner_file_func):
+            _files = _create_inner_file_func(
+                storage=fs_storage,
+                **_kwargs,
+            )
+            for __file in _files:
+                data["inner"][str(__file)] = __file
+                __file_abs_path = fs_storage.abspath(__file)
+                _content_type = "application/octet-stream"
+                _maintype, _subtype = _content_type.split("/", 1)
+                with open(__file_abs_path, "rb") as _fp:
+                    _file_data = _fp.read()
+                    msg.add_attachment(
+                        _file_data,
+                        maintype=_maintype,
+                        subtype=_subtype,
+                        filename=os.path.basename(__file),
+                    )
+                os.remove(__file_abs_path)  # Clean up temporary files
+        # If _create_inner_file_func returns a single value
+        else:
+            for __i in range(_count):
+                __file = _create_inner_file_func(
+                    storage=fs_storage,
+                    **_kwargs,
+                )
+                data["inner"][str(__file)] = __file
+                __file_abs_path = fs_storage.abspath(__file)
+                _content_type = "application/octet-stream"
+                _maintype, _subtype = _content_type.split("/", 1)
+                with open(__file_abs_path, "rb") as _fp:
+                    _file_data = _fp.read()
+                    msg.add_attachment(
+                        _file_data,
+                        maintype=_maintype,
+                        subtype=_subtype,
+                        filename=os.path.basename(__file),
+                    )
+                os.remove(__file_abs_path)  # Clean up temporary files
+
+        raw_content = BytesValue(msg.as_bytes(policy=default))
+        raw_content.data = data
+        return raw_content
+
+    @provider(
+        tags=(
             "Document",
             "File",
         )
@@ -2740,6 +2871,50 @@ class Faker:
             metadata=metadata,
             options=options,
             compression=compression,
+        )
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Archive",
+            "Email",
+            "File",
+        )
+    )
+    def eml_file(
+        self,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+        content: Optional[str] = None,
+        subject: Optional[str] = None,
+        **kwargs,
+    ) -> StringValue:
+        """Create an EML file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="eml",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.eml(
+            metadata=metadata,
+            options=options,
+            content=content,
+            subject=subject,
         )
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
