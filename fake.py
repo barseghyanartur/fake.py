@@ -3200,16 +3200,15 @@ def list_create_inner_file(
             }
         )
 
-    Note, that while all other inner functions return
-    back `Union[BytesValue, StringValue]` value, `list_create_inner_file`
-    returns back a `List[Union[BytesValue, StringValue]]` value.
+    Note, that while all other inner functions return back `StringValue`
+    value, `list_create_inner_file` returns back a `List[StringValue]` value.
 
     Notably, all inner functions were designed to support archives (such as
     ZIP, TAR and EML, but the list may grow in the future). If the inner
     function passed in the `create_inner_file_func` argument returns a List
-    of `Union[BytesValue, StringValue]` values, the `option` argument is being
-    ignored and generated files are simply limited to what has been passed
-    in the `func_list` list of tuples.
+    of `StringValue` values, the `option` argument is being ignored and
+    generated files are simply limited to what has been passed in
+    the `func_list` list of tuples.
     """
     created_files = []
     for func, kwargs in func_list:
