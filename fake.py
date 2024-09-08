@@ -313,7 +313,12 @@ class StringValue(str):
 
     data: Dict[str, Any]
 
-    def __new__(cls, value, *args, **kwargs):
+    def __new__(
+        cls: Type["StringValue"],
+        value: str,
+        *args,
+        **kwargs,
+    ) -> "StringValue":
         obj = str.__new__(cls, value)
         obj.data = {}
         return obj
@@ -322,7 +327,12 @@ class StringValue(str):
 class BytesValue(bytes):
     data: Dict[str, Any]
 
-    def __new__(cls, value, *args, **kwargs):
+    def __new__(
+        cls: Type["BytesValue"],
+        value: bytes,
+        *args,
+        **kwargs,
+    ) -> "BytesValue":
         obj = bytes.__new__(cls, value)
         obj.data = {}
         return obj
@@ -1258,9 +1268,9 @@ class Faker:
         self._last_names = list(authorship_data.last_names)
 
     def load_geo_locations(self) -> None:
-        cities = set()
-        countries = set()
-        geo_locations = set()
+        cities: Set[str] = set()
+        countries: Set[str] = set()
+        geo_locations: Set[str] = set()
         add_city = cities.add
         add_country = countries.add
         add_geo_location = geo_locations.add
@@ -1302,7 +1312,7 @@ class Faker:
         }
 
         # Extract country codes from the locale keys
-        _country_codes = set()
+        _country_codes: Set[str] = set()
         add_country_code = _country_codes.add
         for __key in _locales:
             __parts = __key.split("_")
@@ -2517,7 +2527,7 @@ class Faker:
         ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
-        extension: str = None,
+        extension: Optional[str] = None,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
