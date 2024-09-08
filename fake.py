@@ -2127,10 +2127,10 @@ class Faker:
     @provider(tags=("Binary",))
     def bin(
         self,
-        size: int = 16,
+        length: int = 16,
     ) -> bytes:
         """Create random bytes."""
-        return os.urandom(size)
+        return os.urandom(length)
 
     @provider(tags=("Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
@@ -2831,10 +2831,10 @@ class Faker:
     )
     def bin_file(
         self,
+        length: int = 16,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
-        size: int = 16,
         **kwargs,
     ) -> StringValue:
         """Create a BIN file."""
@@ -2845,7 +2845,7 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
-        data = self.bin()
+        data = self.bin(length=length)
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
         file.data = {
