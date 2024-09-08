@@ -2124,6 +2124,14 @@ class Faker:
         _odt = OdtGenerator(faker=self)
         return _odt.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
+    @provider(tags=("Binary",))
+    def bin(
+        self,
+        size: int = 16,
+    ) -> bytes:
+        """Create random bytes."""
+        return os.urandom(size)
+
     @provider(tags=("Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
         """Create a ZIP archive."""
@@ -2811,6 +2819,38 @@ class Faker:
             "storage": storage,
             "filename": filename,
             "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Binary",
+            "File",
+        )
+    )
+    def bin_file(
+        self,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        size: int = 16,
+        **kwargs,
+    ) -> StringValue:
+        """Create a BIN file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="bin",
+            prefix=prefix,
+            basename=basename,
+        )
+        data = self.bin()
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
         }
         FILE_REGISTRY.add(file)
         return file
