@@ -58,7 +58,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -397,6 +397,18 @@ class BaseStorage:
         self.args = args
         self.kwargs = kwargs
 
+    def generate_basename(
+        self: "BaseStorage",
+        prefix: str = "tmp",
+        length: int = 8,
+    ) -> str:
+        """Generate a random alphanumeric sequence."""
+        if not prefix:
+            prefix = "tmp"
+        # Use lowercase letters, digits and underscore
+        characters = string.ascii_lowercase + string.digits + "_"
+        return prefix + "".join(random.choices(characters, k=length))
+
     @abstractmethod
     def generate_filename(
         self: "BaseStorage",
@@ -490,16 +502,21 @@ class FileSystemStorage(BaseStorage):
         if not extension:
             raise Exception("Extension shall be given!")
 
-        if basename:
-            return str(dir_path / f"{basename}.{extension}")
-        else:
-            temp_file = NamedTemporaryFile(
-                prefix=prefix,
-                dir=str(dir_path),
-                suffix=f".{extension}",
-                delete=False,
-            )
-            return temp_file.name
+        if not basename:
+            basename = self.generate_basename(prefix)
+
+        return str(dir_path / f"{basename}.{extension}")
+
+        # if basename:
+        #     return str(dir_path / f"{basename}.{extension}")
+        # else:
+        #     temp_file = NamedTemporaryFile(
+        #         prefix=prefix,
+        #         dir=str(dir_path),
+        #         suffix=f".{extension}",
+        #         delete=False,
+        #     )
+        #     return temp_file.name
 
     def write_text(
         self: "FileSystemStorage",

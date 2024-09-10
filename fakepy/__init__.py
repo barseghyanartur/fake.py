@@ -1,1 +1,1 @@
-from fake import *  # noqa
+# from fake import *  # noqa

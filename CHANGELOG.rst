@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.5
+-----
+2024-09-11
+
+- Minor optimisations.
+
 0.9.4
 -----
 2024-08-18
@@ -32,7 +38,7 @@ are used for versioning (schema follows below):
 
   .. code-block:: python
 
-      from fakepy import FAKER
+      from fake import FAKER
       from fakepy.pathy_storage.aws_s3 import AWSS3Storage
 
       STORAGE = AWSS3Storage(
