@@ -16,6 +16,15 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.6
+-----
+2024-09-15
+
+- Add `ZIP` file support through ``zip`` and ``zip_file`` providers.
+- Add `TAR` file support through ``tar`` and ``tar_file`` providers.
+- Add `EML` file support through ``eml`` and ``eml_file`` providers.
+- Add inner file functions for creating archive files with unlimited depth.
+
 0.9.5
 -----
 2024-09-11
