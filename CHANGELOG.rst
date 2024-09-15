@@ -18,7 +18,7 @@ are used for versioning (schema follows below):
 
 0.9.6
 -----
-2024-09-15
+2024-09-16
 
 - Add `ZIP` file support through ``zip`` and ``zip_file`` providers.
 - Add `TAR` file support through ``tar`` and ``tar_file`` providers.
