@@ -1059,6 +1059,167 @@ pass the ``metadata`` argument.
 
 ----
 
+odt
+~~~
+
+Generates a content (``bytes``) of a ODT document.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_odt
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.odt()
+
+Arguments:
+
+- ``nb_pages`` (type: ``int``, default value: ``1``) is an optional argument.
+- ``texts`` (type: ``list[str]``, default value: ``None``) is an optional
+  argument.
+
+.. note::
+
+    Either ``nb_pages`` or ``texts`` shall be provided. ``nb_pages`` is by
+    default set to ``1``, but if ``texts`` is given, the value of ``nb_pages``
+    is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content (``bytes``) of a ODT document of 100 pages with random
+texts:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_odt_nb_pages_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.odt(nb_pages=100)
+
+If you want to get insights of the content used to generate the ODT (texts),
+pass the ``metadata`` argument.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_odt_nb_pages_100_metadata
+        :emphasize-lines: 2-
+
+        from fake import FAKER
+        from fake import MetaData
+
+        metadata = MetaData()
+        FAKER.odt(nb_pages=100, metadata=metadata)
+
+        print(metadata.content)  # Inspect ``metadata``
+
+----
+
+bin
+~~~
+
+Generates a content (``bytes``) of a BIN document.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_bin
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.bin()
+
+Arguments:
+
+- ``length`` (type: ``int``, default value: ``16``) is a required argument.
+
+Examples with arguments.
+
+Generate a content (``bytes``) of a BIN document of length 100:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_bin_length_100
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.bin(length=100)
+
+----
+
+zip
+~~~
+
+Generates a content (``bytes``) of a ZIP document.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_zip
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.zip()
+
+Arguments:
+
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
+
+----
+
+eml
+~~~
+
+Generates a content (``bytes``) of a EML document.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_eml
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.eml()
+
+Arguments:
+
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
+- ``content`` (type: ``str``, default value: ``None``) is an optional argument.
+- ``subject`` (type: ``str``, default value: ``None``) is an optional argument.
+
+----
+
+tar
+~~~
+
+Generates a content (``bytes``) of a TAR document.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_tar
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.tar()
+
+Arguments:
+
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
+
+----
+
 pdf_file
 ~~~~~~~~
 
