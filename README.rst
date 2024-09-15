@@ -74,7 +74,7 @@ types (such as `uuid`, `str`, `int`, `float`, `bool`), GEO data such as city,
 country, geo-location, country code, latitude, longitude and locales,
 IBANs and ISBNs, as well as byte content for multiple file formats
 including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`
-and `WAV`.
+`WAV`, `ZIP`, `TAR` and `EML`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
@@ -85,7 +85,8 @@ Features
 - Generation of random texts, (person) names, emails, URLs, dates, IPs, and
   primitive Python data types.
 - Support for various file formats (`PDF`, `DOCX`, `ODT`, `TXT`, `PNG`, `SVG`,
-  `BMP`, `GIF`, `TIF`, `PPM`, `WAV`) and file creation on the filesystem.
+  `BMP`, `GIF`, `TIF`, `PPM`, `WAV`, `ZIP`, `TAR`, `EML`) and file creation
+  on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
 - `CLI`_ for generating data from command line.
