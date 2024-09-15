@@ -339,7 +339,7 @@ class BytesValue(bytes):
 
 
 def returns_list(func: Callable) -> bool:
-    """Checks if callable returns a list of Union[BytesValue, StringValue].
+    """Checks if callable returns a list of `StringValue`.
 
     Returns True if it's a List. Returns False otherwise.
     """
@@ -355,6 +355,8 @@ def returns_list(func: Callable) -> bool:
     if return_origin is list or return_origin is List:
         # If it's a list, check the type of its elements
         element_type = getattr(return_type, "__args__", [None])[0]
+        if element_type in {StringValue, BytesValue}:
+            return True
         element_origin = getattr(element_type, "__origin__", None)
         if element_origin is Union:
             if set(getattr(element_type, "__args__", [])) == {
@@ -2151,7 +2153,26 @@ class Faker:
 
     @provider(tags=("Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
-        """Create a ZIP archive."""
+        """Create a ZIP archive.
+
+        Usage example. A complex case.
+
+        .. code-block:: python
+
+            from fake import create_inner_txt_file, FAKER
+
+            zip_file = FAKER.zip(
+                prefix="zzz_archive_",
+                options={
+                    "count": 5,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "prefix": "zzz_file_",
+                    },
+                    "directory": "zzz",
+                },
+            )
+        """
         data: Dict[str, Any] = {
             "inner": {},
             "files": [],
@@ -2160,25 +2181,7 @@ class Faker:
 
         # Specific
         if options:
-            """
-            A complex case. Could be initialized as follows:
-
-            .. code-block:: python
-
-                from fake import create_inner_txt_file, FAKER
-
-                zip_file = FAKER.zip(
-                    prefix="zzz_archive_",
-                    options={
-                        "count": 5,
-                        "create_inner_file_func": create_inner_txt_file,
-                        "create_inner_file_args": {
-                            "prefix": "zzz_file_",
-                        },
-                        "directory": "zzz",
-                    },
-                )
-            """
+            # Complex case
             _count = options.get("count", 5)
             _create_inner_file_func = options.get(
                 "create_inner_file_func", create_inner_txt_file
@@ -2255,6 +2258,24 @@ class Faker:
         :rtype: BytesValue
         :return: Relative path (from root directory) of the generated file
             or raw content of the file.
+
+        Usage example. Complex case.
+
+        .. code-block:: python
+
+            from fake import create_inner_txt_file, FAKER
+
+            tar_file = FAKER.tar(
+                prefix="ttt_archive_",
+                options={
+                    "count": 5,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "prefix": "ttt_file_",
+                    },
+                    "directory": "ttt",
+                },
+            )
         """
         data: Dict[str, Any] = {
             "inner": {},
@@ -2264,25 +2285,7 @@ class Faker:
 
         # Specific
         if options:
-            """
-            A complex case. Could be initialized as follows:
-
-            .. code-block:: python
-
-                from fake import create_inner_txt_file, FAKER
-
-                tar_file = FAKER.tar(
-                    prefix="ttt_archive_",
-                    options={
-                        "count": 5,
-                        "create_inner_file_func": create_inner_txt_file,
-                        "create_inner_file_args": {
-                            "prefix": "ttt_file_",
-                        },
-                        "directory": "ttt",
-                    },
-                )
-            """
+            # Complex case
             _count = options.get("count", 5)
             _create_inner_file_func = options.get(
                 "create_inner_file_func", create_inner_txt_file
@@ -2367,7 +2370,7 @@ class Faker:
         :return: Relative path (from root directory) of the generated file
             or raw content of the file.
 
-        Usage example. A complex case. Could be initialized as follows:
+        Usage example. A complex case.
 
         .. code-block:: python
 
@@ -5790,13 +5793,108 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
 
+    def test_create_inner_zip_file_with_options(self):
+        value = create_inner_zip_file(
+            prefix="zzz_archive_",
+            options={
+                "count": 5,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {
+                    "prefix": "zzz_file_",
+                },
+                "directory": "zzz",
+            },
+        )
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_zip_file_with_options_list_create(self):
+        value = create_inner_zip_file(
+            basename="alice-looking-through-the-glass",
+            options={
+                "create_inner_file_func": list_create_inner_file,
+                "create_inner_file_args": {
+                    "func_list": [
+                        (create_inner_txt_file, {}),
+                        (create_inner_txt_file, {}),
+                        (create_inner_docx_file, {}),
+                    ]
+                },
+            },
+        )
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
     def test_create_inner_tar_file(self):
         value = create_inner_tar_file()
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
 
+    def test_create_inner_tar_file_with_options(self):
+        value = create_inner_tar_file(
+            prefix="ttt_archive_",
+            options={
+                "count": 5,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {
+                    "prefix": "ttt_file_",
+                },
+                "directory": "ttt",
+            },
+        )
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_tar_file_with_options_list_create(self):
+        value = create_inner_tar_file(
+            basename="alice-looking-through-the-glass",
+            options={
+                "create_inner_file_func": list_create_inner_file,
+                "create_inner_file_args": {
+                    "func_list": [
+                        (create_inner_txt_file, {}),
+                        (create_inner_txt_file, {}),
+                        (create_inner_docx_file, {}),
+                    ]
+                },
+            },
+        )
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
     def test_create_inner_eml_file(self):
         value = create_inner_eml_file()
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_eml_file_with_options(self):
+        value = create_inner_eml_file(
+            prefix="eee_email_",
+            options={
+                "count": 5,
+                "create_inner_file_func": create_inner_docx_file,
+                "create_inner_file_args": {
+                    "prefix": "eee_file_",
+                },
+            },
+        )
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_eml_file_with_options_list_create(self):
+        value = create_inner_eml_file(
+            basename="alice-looking-through-the-glass",
+            options={
+                "create_inner_file_func": list_create_inner_file,
+                "create_inner_file_args": {
+                    "func_list": [
+                        (create_inner_txt_file, {}),
+                        (create_inner_txt_file, {}),
+                        (create_inner_docx_file, {}),
+                    ]
+                },
+            },
+        )
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
 
