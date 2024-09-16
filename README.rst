@@ -73,7 +73,7 @@ texts, (person) names, URLs, dates, file names, IPs, primitive Python data
 types (such as `uuid`, `str`, `int`, `float`, `bool`), GEO data such as city,
 country, geo-location, country code, latitude, longitude and locales,
 IBANs and ISBNs, as well as byte content for multiple file formats
-including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`
+including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`,
 `WAV`, `ZIP`, `TAR` and `EML`.
 
 The package also supports file creation on the filesystem and includes
