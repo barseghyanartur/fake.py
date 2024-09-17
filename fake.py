@@ -44,6 +44,7 @@ from typing import (
     Callable,
     Coroutine,
     Dict,
+    Iterable,
     List,
     Literal,
     Optional,
@@ -62,7 +63,7 @@ from unittest.mock import patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9.6"
+__version__ = "0.9.7"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -560,17 +561,6 @@ class FileSystemStorage(BaseStorage):
             basename = self.generate_basename(prefix)
 
         return str(dir_path / f"{basename}.{extension}")
-
-        # if basename:
-        #     return str(dir_path / f"{basename}.{extension}")
-        # else:
-        #     temp_file = NamedTemporaryFile(
-        #         prefix=prefix,
-        #         dir=str(dir_path),
-        #         suffix=f".{extension}",
-        #         delete=False,
-        #     )
-        #     return temp_file.name
 
     def write_text(
         self: "FileSystemStorage",
@@ -2153,7 +2143,7 @@ class Faker:
 
     @provider(tags=("Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
-        """Create a ZIP archive.
+        """Create a ZIP archive file as bytes.
 
         Usage example. A complex case.
 
@@ -2182,7 +2172,7 @@ class Faker:
         # Specific
         if options:
             # Complex case
-            _count = options.get("count", 5)
+            _count = options.get("count", 1)
             _create_inner_file_func = options.get(
                 "create_inner_file_func", create_inner_txt_file
             )
@@ -2192,7 +2182,7 @@ class Faker:
 
         else:
             # Defaults
-            _count = 5
+            _count = 1
             _create_inner_file_func = create_inner_txt_file
             _create_inner_file_args = {}
             _dir_path = Path("")
@@ -2243,12 +2233,10 @@ class Faker:
     def tar(
         self,
         options: Optional[Dict[str, Any]] = None,
-        # Once Python 3.7 is deprecated, add the following annotation:
-        #     Optional[Literal["gz", "bz2", "xz"]] = None
-        compression: Optional[str] = None,
+        compression: Optional[Literal["gz", "bz2", "xz"]] = None,
         **kwargs,
     ) -> BytesValue:
-        """Generate a TAR file with random text.
+        """Generate a TAR archive file as bytes.
 
         :param options: Options (non-structured) for complex types, such as
             ZIP.
@@ -2286,7 +2274,7 @@ class Faker:
         # Specific
         if options:
             # Complex case
-            _count = options.get("count", 5)
+            _count = options.get("count", 1)
             _create_inner_file_func = options.get(
                 "create_inner_file_func", create_inner_txt_file
             )
@@ -2296,7 +2284,7 @@ class Faker:
 
         else:
             # Defaults
-            _count = 5
+            _count = 1
             _create_inner_file_func = create_inner_txt_file
             _create_inner_file_args = {}
             _dir_path = Path("")
@@ -2359,7 +2347,7 @@ class Faker:
         subject: Optional[str] = None,
         **kwargs,
     ) -> BytesValue:
-        """Generate an EML file with random text.
+        """Generate an EML file bytes.
 
         :param options: Options (non-structured) for complex types, such as
             ZIP.
@@ -2923,7 +2911,7 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
-        compression: Optional[str] = None,
+        compression: Optional[Literal["gz", "bz2", "xz"]] = None,
         **kwargs,
     ) -> StringValue:
         """Create a TAR archive file."""
@@ -3468,7 +3456,7 @@ def create_inner_tar_file(
     basename: Optional[str] = None,
     prefix: Optional[str] = None,
     options: Optional[Dict[str, Any]] = None,
-    compression: Optional[str] = None,
+    compression: Optional[Literal["gz", "bz2", "xz"]] = None,
     metadata: Optional[MetaData] = None,
     **kwargs,
 ) -> StringValue:
@@ -4698,7 +4686,7 @@ def get_argparse_type(param_type) -> Any:
 
 def organize_providers(provider_tags) -> Dict[str, Any]:
     """Organize providers by category for easier navigation."""
-    categories = {}
+    categories: Dict[str, Any] = {}
     for _provider, tags in provider_tags:
         for tag in tags:
             if tag not in categories:
@@ -4860,9 +4848,9 @@ class TestOrganizeProviders(unittest.TestCase):
         ]
 
     def test_organize_providers_empty(self):
-        provider_tags = []
+        provider_tags: List[Tuple[str, Iterable[str]]] = []
         result = organize_providers(provider_tags)
-        expected = {}
+        expected: Dict[str, Any] = {}
         self.assertEqual(result, expected)
 
     def test_organize_providers_single_tag(self):
