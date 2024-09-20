@@ -96,6 +96,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -128,6 +131,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -160,6 +166,13 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
+        django-version: [
+          "5.0",
+          "4.2"
+        ]
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -171,6 +184,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install django==${{ matrix.django-version }}
           pip install -r examples/django/requirements.in
       - name: Install package
         run: |
@@ -193,6 +207,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -226,6 +243,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -259,6 +279,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -292,6 +315,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -325,6 +351,9 @@ jobs:
           - ubuntu-22.04
         python-version:
           - "3.12"
+          - "3.11"
+          - "3.10"
+          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
