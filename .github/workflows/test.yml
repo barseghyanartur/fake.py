@@ -156,7 +156,7 @@ jobs:
   # *************************************
   test_django_example:
     needs: pre-commit
-    name: test django example ${{ matrix.python-version }} - ${{ matrix.os }}
+    name: test django example ${{ matrix.django-version }} - ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
