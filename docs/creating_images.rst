@@ -15,12 +15,12 @@ Supported image formats
 -----------------------
 Currently, 6 image formats are supported:
 
-- ``PNG``.
-- ``SVG``.
-- ``BMP``.
-- ``GIF``.
-- ``TIF``.
-- ``PPM``.
+- ``PNG``
+- ``SVG``
+- ``BMP``
+- ``GIF``
+- ``TIF``
+- ``PPM``
 
 Generating images as bytes
 --------------------------

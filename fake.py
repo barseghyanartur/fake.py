@@ -2152,7 +2152,6 @@ class Faker:
             from fake import create_inner_txt_file, FAKER
 
             zip_file = FAKER.zip(
-                prefix="zzz_archive_",
                 options={
                     "count": 5,
                     "create_inner_file_func": create_inner_txt_file,
@@ -2877,7 +2876,34 @@ class Faker:
         options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> StringValue:
-        """Create a ZIP archive file."""
+        """Create a ZIP archive file.
+
+        Usage example. A simple case.
+
+        .. code-block:: python
+
+            from fake import FAKER
+
+            zip_archive = FAKER.zip()
+
+        Usage example. A complex case.
+
+        .. code-block:: python
+
+            from fake import create_inner_txt_file, FAKER
+
+            zip_file = FAKER.zip(
+                prefix="zzz_archive_",
+                options={
+                    "count": 5,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "prefix": "zzz_file_",
+                    },
+                    "directory": "zzz",
+                },
+            )
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -3611,9 +3637,7 @@ def list_create_inner_file(
             create_inner_txt_file,
             list_create_inner_file,
         )
-        STORAGE = FileSystemStorage()
 
-        kwargs = {"storage": STORAGE, "generator": FAKER}
         file = FAKER.zip_file(
             basename="alice-looking-through-the-glass",
             options={
