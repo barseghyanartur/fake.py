@@ -14,6 +14,7 @@ Contents:
    creating_pdf
    creating_docx
    creating_odt
+   creating_archives
    factories
    customization
    cli
