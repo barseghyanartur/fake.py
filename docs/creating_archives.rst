@@ -25,7 +25,6 @@ Currently, 3 formats are supported:
 
 ZIP
 ---
-
 Creating a simple ZIP archive as bytes is as simple as follows:
 
 .. code-block:: python
@@ -37,8 +36,8 @@ Creating a simple ZIP archive as bytes is as simple as follows:
 
 The generated ZIP archive will consist of a single ``TXT`` with little text.
 
-All customisation options are passed through the ``options`` argument, which
-is a (nested) dictionary with the following keys:
+All customisation options are passed through the ``options`` optional argument,
+which is a (nested) dictionary with the following keys:
 
 - ``count`` (``int``):
 - ``create_inner_file_func`` (``callable``):
@@ -67,15 +66,16 @@ This will create a ``ZIP`` archive with 5 ``TXT`` files.
 To customise the type of files in the archive, use
 the ``create_inner_file_func`` key of the ``options`` argument:
 
-.. container:: jsphinx-toggle-emphasis
+.. code-block:: python
+    :name: test_zip_archive_3_docx_file
 
-    .. code-block:: python
-        :name: test_zip_archive_3_docx_file
-        :emphasize-lines: 3
+    from fake import FAKER, create_inner_docx_file
 
-        from fake import FAKER, create_inner_docx_file
-
-        FAKER.zip(options={"create_inner_file_func": create_inner_docx_file})
+    FAKER.zip(
+        options={
+            "create_inner_file_func": create_inner_docx_file,
+        }
+    )
 
 This will create a ``ZIP`` archive with a single ``DOCX`` file.
 
@@ -84,19 +84,22 @@ This will create a ``ZIP`` archive with a single ``DOCX`` file.
 All arguments of the ``create_inner_file_func`` are passed in
 the ``create_inner_file_args`` argument:
 
-.. code-block:: python
-    :name: test_zip_archive_1_docx_file_with_given_texts
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import FAKER, create_inner_docx_file
+    .. code-block:: python
+        :name: test_zip_archive_1_docx_file_with_given_texts
+        :emphasize-lines: 3-
 
-    FAKER.zip(
-        options={
-            "create_inner_file_func": create_inner_docx_file,
-            "create_inner_file_args": {
-                 "texts": ["There", "are", "no", "limits"],
+        from fake import FAKER, create_inner_docx_file
+
+        FAKER.zip(
+            options={
+                "create_inner_file_func": create_inner_docx_file,
+                "create_inner_file_args": {
+                     "texts": ["There", "are", "no", "limits"],
+                }
             }
-        }
-    )
+        )
 
 This will create a ``ZIP`` archive with single ``DOCX`` file of 4 pages, where
 each of the given words ("There", "are", "no", "limits") would occupy a single
@@ -109,7 +112,11 @@ There's no depth in terms of nesting:
 .. code-block:: python
     :name: test_zip_archive_nested_zip
 
-    from fake import FAKER, create_inner_zip_file, create_inner_docx_file
+    from fake import (
+        FAKER,
+        create_inner_zip_file,
+        create_inner_docx_file,
+    )
 
     FAKER.zip(
         options={
@@ -149,15 +156,24 @@ If you need consistent structure of mixed file types, see this:
             "create_inner_file_func": list_create_inner_file,
             "create_inner_file_args": {
                 "func_list": [
-                    (create_inner_docx_file, {"basename": "doc"}),
-                    (create_inner_txt_file, {"basename": "doc_metadata"}),
-                    (create_inner_txt_file, {"basename": "doc_isbn"}),
+                    (
+                        create_inner_docx_file,
+                        {"basename": "doc"},
+                    ),
+                    (
+                        create_inner_txt_file,
+                        {"basename": "doc_metadata"},
+                    ),
+                    (
+                        create_inner_txt_file,
+                        {"basename": "doc_isbn"},
+                    ),
                 ],
             },
         }
     )
 
-This will create a nested ``ZIP`` archive with 1 ``DOCX`` file
+This will create a ``ZIP`` archive with 1 ``DOCX`` file
 named `doc.docx` and 2 ``TXT`` files named `doc_metadata.txt`
 and `doc_isbn.txt`.
 
@@ -169,6 +185,20 @@ If you need a file on a disk, instead of bytes, use ``FAKER.zip_file`` instead.
 
    .. code-block:: python
         :name: test_zip_archive_file
+        :emphasize-lines: 3-
+
+        from fake import FAKER
+
+        FAKER.zip_file()
+
+----
+
+All customisation options of ``zip`` are also applicable to ``zip_file``.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_zip_archive_file_structured_using_list_create
         :emphasize-lines: 8-
 
         from fake import (
@@ -183,9 +213,18 @@ If you need a file on a disk, instead of bytes, use ``FAKER.zip_file`` instead.
                 "create_inner_file_func": list_create_inner_file,
                 "create_inner_file_args": {
                     "func_list": [
-                        (create_inner_docx_file, {"basename": "doc"}),
-                        (create_inner_txt_file, {"basename": "doc_metadata"}),
-                        (create_inner_txt_file, {"basename": "doc_isbn"}),
+                        (
+                            create_inner_docx_file,
+                            {"basename": "doc"},
+                        ),
+                        (
+                            create_inner_txt_file,
+                            {"basename": "doc_metadata"},
+                        ),
+                        (
+                            create_inner_txt_file,
+                            {"basename": "doc_isbn"},
+                        ),
                     ],
                 },
             }
@@ -197,3 +236,65 @@ TAR
 ---
 Works very similar to `ZIP`_. Use ``FAKER.tar`` and ``FAKER.tar_file`` instead
 of ``FAKER.zip`` and ``FAKER.zip_file``.
+
+EML
+---
+Works very similar to `ZIP`_. Use ``FAKER.eml`` and ``FAKER.eml_file`` instead
+of ``FAKER.zip`` and ``FAKER.zip_file``.
+
+- ``options``: (Optional) options. Similar to ``ZIP`` options.
+- ``content``: (Optional) content of the email file.
+- ``subject``: (Optional) subject of the email file.
+
+Creating a simple EML archive as bytes is as simple as follows:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_simple_eml_archive
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.eml()
+
+----
+
+This will create a ``EML`` archive with 1 ``DOCX`` file
+named `doc.docx` and 2 ``TXT`` files named `doc_metadata.txt`
+and `doc_isbn.txt`.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_eml_archive_structured_using_list_create
+        :emphasize-lines: 8-
+
+        from fake import (
+            FAKER,
+            create_inner_docx_file,
+            create_inner_txt_file,
+            list_create_inner_file,
+        )
+
+        FAKER.eml(
+            options={
+                "create_inner_file_func": list_create_inner_file,
+                "create_inner_file_args": {
+                    "func_list": [
+                        (
+                            create_inner_docx_file,
+                            {"basename": "doc"},
+                        ),
+                        (
+                            create_inner_txt_file,
+                            {"basename": "doc_metadata"},
+                        ),
+                        (
+                            create_inner_txt_file,
+                            {"basename": "doc_isbn"},
+                        ),
+                    ],
+                },
+            }
+        )
