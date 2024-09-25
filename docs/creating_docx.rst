@@ -92,3 +92,19 @@ With ``nb_pages`` tweak:
 
     *See the full example*
     :download:`here <_static/examples/creating_docx/docx_file_3.py>`
+
+----
+
+Using text templates:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_text_templates
+        :emphasize-lines: 3
+
+        from fake import FAKER, StringTemplate
+
+        template = "Hello {name},\nDate {date(start_date='-7d')},\n{name()}\n"
+        string_template = StringTemplate(FAKER, template)
+        FAKER.docx_file(texts=[str(string_template)])
