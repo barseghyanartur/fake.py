@@ -61,7 +61,7 @@ from typing import (
     get_origin,
     get_type_hints,
 )
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from uuid import UUID
 
 __title__ = "fake.py"
@@ -7425,3 +7425,214 @@ class TestSlugify(unittest.TestCase):
     def test_slugify_mixed_characters(self):
         """Test slugify with a mix of alphanumeric and special characters."""
         self.assertEqual(slugify("1234!@#$abcXYZ"), "1234abcxyz")
+
+
+class TestStringTemplate(unittest.TestCase):
+    def setUp(self):
+        # Create a mock faker object with some methods
+        self.mock_faker = MagicMock()
+        self.faker = FAKER
+        self.mock_faker.name.return_value = "John Doe"
+        self.mock_faker.sentence.return_value = "This is a test sentence."
+        self.mock_faker.date.return_value = "2023-01-01"
+        self.mock_faker.custom_method.return_value = "Custom Value"
+
+    def test_simple_placeholder_replacement(self):
+        template = "Hello, {name()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Hello, John Doe!"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_called_once()
+
+    def test_placeholder_with_arguments(self):
+        template = "Sentence: {sentence(nb_words=5)}"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Sentence: This is a test sentence."
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.sentence.assert_called_once_with(nb_words=5)
+
+    def test_multiple_placeholders(self):
+        template = (
+            "Name: {name()}\n"
+            "Sentence: {sentence(nb_words=10)}\n"
+            "Date: {date(start_date='-7d')}\n"
+            "Custom: {custom_method(param='value')}"
+        )
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = (
+            "Name: John Doe\n"
+            "Sentence: This is a test sentence.\n"
+            "Date: 2023-01-01\n"
+            "Custom: Custom Value"
+        )
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_called_once()
+        self.mock_faker.sentence.assert_called_once_with(nb_words=10)
+        self.mock_faker.date.assert_called_once_with(start_date="-7d")
+        self.mock_faker.custom_method.assert_called_once_with(param="value")
+
+    def test_wrapping_functionality(self):
+        template = "This is a long sentence that needs to be wrapped."
+        string_template = StringTemplate(
+            self.mock_faker, template, wrap_chars_after=10
+        )
+        expected = "This is a\nlong\nsentence\nthat needs\nto be\nwrapped."
+        result = string_template.render()
+        self.assertEqual(result, expected)
+
+    def test_no_wrapping_when_not_specified(self):
+        template = "This is a long sentence that does not need to be wrapped."
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "This is a long sentence that does not need to be wrapped."
+        result = string_template.render()
+        self.assertEqual(result, expected)
+
+    def test_missing_method_raises_attribute_error(self):
+        template = "Hello, {nonexistent_method()}!"
+        string_template = StringTemplate(self.faker, template)
+        with self.assertRaises(AttributeError) as context:
+            string_template.render()
+        self.assertIn(
+            "Method 'nonexistent_method' not found", str(context.exception)
+        )
+
+    def test_argument_parsing_error_raises_value_error(self):
+        template = "Date: {date(start_date='-7d' missing_comma)}"
+        string_template = StringTemplate(self.mock_faker, template)
+        with self.assertRaises(ValueError) as context:
+            string_template.render()
+        self.assertIn(
+            "Error parsing arguments for 'date'", str(context.exception)
+        )
+        self.mock_faker.date.assert_not_called()
+
+    def test_method_call_error_raises_value_error(self):
+        # Configure the mock to raise an exception when called
+        self.mock_faker.name.side_effect = Exception("Method error")
+        template = "Hello, {name()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        with self.assertRaises(ValueError) as context:
+            string_template.render()
+        self.assertIn("Error calling method 'name'", str(context.exception))
+        self.mock_faker.name.assert_called_once()
+
+    def test_no_placeholders(self):
+        template = "This string has no placeholders."
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "This string has no placeholders."
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        # No faker methods should be called
+        self.mock_faker.assert_not_called()
+
+    def test_str_method(self):
+        template = "Hello, {name()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Hello, John Doe!"
+        result = str(string_template)
+        self.assertEqual(result, expected)
+
+    def test_repr_method(self):
+        template = "Hello, {name()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Hello, John Doe!"
+        result = repr(string_template)
+        self.assertEqual(result, expected)
+
+    def test_complex_argument_parsing(self):
+        # Test with multiple arguments and different types
+        template = "Custom: {custom_method(param1='value1', param2=123)}"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Custom: Custom Value"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.custom_method.assert_called_once_with(
+            param1="value1", param2=123
+        )
+
+    def test_nested_placeholders(self):
+        # Although nested placeholders are not supported, ensure they are
+        # handled gracefully.
+        template = "Nested: {{name()}}"
+        string_template = StringTemplate(self.mock_faker, template)
+        # The regex should match {name()}, so {{name()}} becomes {John Doe}
+        expected = "Nested: {John Doe}"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_called_once()
+
+    def test_escape_braces(self):
+        # Test that escaped braces are handled correctly
+        template = "Escaped braces: \{name()\}"
+        string_template = StringTemplate(self.faker, template)
+        expected = "Escaped braces: \{name()\}"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_not_called()
+
+    def test_placeholder_with_no_parentheses(self):
+        # Test that placeholders without parentheses are handled (assuming
+        # they require parentheses).
+        template = "Hello, {name}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        # The regex expects parentheses, so {name} should remain unchanged
+        expected = "Hello, John Doe!"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_called()
+
+    def test_placeholder_with_empty_arguments(self):
+        # Test placeholders with empty parentheses
+        template = "Hello, {name()} and {sentence()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Hello, John Doe and This is a test sentence.!"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.name.assert_called_once()
+        self.mock_faker.sentence.assert_called_once()
+
+    def test_placeholder_with_spaces_in_arguments(self):
+        # Test placeholders where arguments contain spaces
+        template = (
+            "Date: {date(start_date = '2020-01-01', end_date = '2020-12-31')}"
+        )
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Date: 2023-01-01"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.date.assert_called_once_with(
+            start_date="2020-01-01", end_date="2020-12-31"
+        )
+
+    def test_placeholder_with_numeric_method_name(self):
+        # Assuming method names are purely alphabetic, but testing with
+        # numeric characters.
+        template = "Numeric method: {method123()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        self.mock_faker.method123.return_value = "Numeric Method"
+        expected = "Numeric method: Numeric Method!"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.method123.assert_called_once()
+
+    def test_placeholder_with_underscores_in_method_name(self):
+        # Test method names with underscores
+        template = "Underscore method: {custom_method()}!"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Underscore method: Custom Value!"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.custom_method.assert_called_once()
+
+    def test_placeholder_with_boolean_arguments(self):
+        # Test placeholders with boolean arguments
+        self.mock_faker.boolean_method.return_value = "Boolean Result"
+        template = "Boolean: {boolean_method(flag=True)}"
+        string_template = StringTemplate(self.mock_faker, template)
+        expected = "Boolean: Boolean Result"
+        result = string_template.render()
+        self.assertEqual(result, expected)
+        self.mock_faker.boolean_method.assert_called_once_with(flag=True)
