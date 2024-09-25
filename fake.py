@@ -95,6 +95,7 @@ __all__ = (
     "PreSave",
     "PydanticModelFactory",
     "SQLAlchemyModelFactory",
+    "StringTemplate",
     "StringValue",
     "SubFactory",
     "TextPdfGenerator",
@@ -115,6 +116,7 @@ __all__ = (
     "run_async_in_thread",
     "slugify",
     "trait",
+    "wrap_text",
     "xor_transform",
 )
 
