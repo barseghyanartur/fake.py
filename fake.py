@@ -7437,7 +7437,7 @@ class TestStringTemplate(unittest.TestCase):
         self.mock_faker.name.return_value = "John Doe"
         self.mock_faker.sentence.return_value = "This is a test sentence."
         self.mock_faker.date.return_value = "2023-01-01"
-        self.mock_faker.custom_method.return_value = "Custom Value"
+        self.mock_faker.custom_method.return_value = "Custom value"
 
     def test_simple_placeholder_replacement(self):
         template = "Hello, {name()}!"
@@ -7467,7 +7467,7 @@ class TestStringTemplate(unittest.TestCase):
             "Name: John Doe\n"
             "Sentence: This is a test sentence.\n"
             "Date: 2023-01-01\n"
-            "Custom: Custom Value"
+            "Custom: Custom value"
         )
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7614,8 +7614,8 @@ class TestStringTemplate(unittest.TestCase):
         # numeric characters.
         template = "Numeric method: {method123()}!"
         string_template = StringTemplate(self.mock_faker, template)
-        self.mock_faker.method123.return_value = "Numeric Method"
-        expected = "Numeric method: Numeric Method!"
+        self.mock_faker.method123.return_value = "Numeric method"
+        expected = "Numeric method: Numeric method!"
         result = string_template.render()
         self.assertEqual(result, expected)
         self.mock_faker.method123.assert_called_once()
@@ -7624,17 +7624,17 @@ class TestStringTemplate(unittest.TestCase):
         # Test method names with underscores
         template = "Underscore method: {custom_method()}!"
         string_template = StringTemplate(self.mock_faker, template)
-        expected = "Underscore method: Custom Value!"
+        expected = "Underscore method: Custom value!"
         result = string_template.render()
         self.assertEqual(result, expected)
         self.mock_faker.custom_method.assert_called_once()
 
     def test_placeholder_with_boolean_arguments(self):
         # Test placeholders with boolean arguments
-        self.mock_faker.boolean_method.return_value = "Boolean Result"
+        self.mock_faker.boolean_method.return_value = "Boolean result"
         template = "Boolean: {boolean_method(flag=True)}"
         string_template = StringTemplate(self.mock_faker, template)
-        expected = "Boolean: Boolean Result"
+        expected = "Boolean: Boolean result"
         result = string_template.render()
         self.assertEqual(result, expected)
         self.mock_faker.boolean_method.assert_called_once_with(flag=True)
