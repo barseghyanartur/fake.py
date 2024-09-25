@@ -7568,9 +7568,9 @@ class TestStringTemplate(unittest.TestCase):
 
     def test_escape_braces(self):
         # Test that escaped braces are handled correctly
-        template = "Escaped braces: \{name()\}"
+        template = "Escaped braces: \\{name()\\}"
         string_template = StringTemplate(self.faker, template)
-        expected = "Escaped braces: \{name()\}"
+        expected = "Escaped braces: \\{name()\\}"
         result = string_template.render()
         self.assertEqual(result, expected)
         self.mock_faker.name.assert_not_called()
