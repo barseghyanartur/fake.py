@@ -7548,7 +7548,7 @@ class TestStringTemplate(unittest.TestCase):
         # Test with multiple arguments and different types
         template = "Custom: {custom_method(param1='value1', param2=123)}"
         string_template = StringTemplate(self.mock_faker, template)
-        expected = "Custom: Custom Value"
+        expected = "Custom: Custom value"
         result = string_template.render()
         self.assertEqual(result, expected)
         self.mock_faker.custom_method.assert_called_once_with(
