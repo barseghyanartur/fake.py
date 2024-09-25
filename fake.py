@@ -3,6 +3,7 @@ https://github.com/barseghyanartur/fake.py/
 """
 
 import array
+import ast
 import asyncio
 import contextlib
 import io
@@ -37,6 +38,7 @@ from inspect import signature
 from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile, gettempdir
+from textwrap import wrap
 from threading import Lock
 from typing import (
     Any,
@@ -367,6 +369,137 @@ def returns_list(func: Callable) -> bool:
                 return True
 
     return False
+
+
+def wrap_text(text: str, wrap_chars_after: int) -> str:
+    return "\n".join(
+        wrap(
+            text=text,
+            width=wrap_chars_after,
+            replace_whitespace=False,
+            # drop_whitespace=False,
+        )
+    )
+
+
+class StringTemplate:
+    """StringTemplate.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from fake import FAKER, StringTemplate
+
+        template = (
+            "Hey {name()},\n"
+            "{sentence(nb_words=25)}\n"
+            "Today is {date(start_date='-7d')},\n"
+            "Best regards,\n"
+            "{name()}"
+        )
+        string_template = StringTemplate(FAKER, template)
+        formatted_message = string_template.render()
+
+        print(formatted_message)
+
+    Integration with providers:
+
+    .. code-block:: python
+
+        from fake import FAKER, StringTemplate
+
+        template = (
+            "Hey {name()},\n"
+            "{sentence(nb_words=25)}\n"
+            "Today is {date(start_date='-7d')},\n"
+            "Best regards,\n"
+            "{name()}"
+        )
+        string_template = StringTemplate(FAKER, template)
+
+        FAKER.docx_file(texts=[str(string_template)])
+        FAKER.eml_file(content=str(string_template))
+        FAKER.txt_file(text=str(string_template))
+        FAKER.text_pdf_file(texts=[str(string_template) for _ in range(10)])
+    """
+
+    # Regular expression to match placeholders with optional arguments
+    placeholder_pattern = re.compile(r"\{(\w+)(?:\((.*?)\))?}")
+
+    def __init__(
+        self,
+        faker: "Faker",
+        template: str,
+        wrap_chars_after: Optional[int] = None,
+    ) -> None:
+        self.faker = faker
+        self.template = template
+        self.wrap_chars_after = wrap_chars_after
+
+    def render(self) -> str:
+        """Substitute all placeholders in the template with corresponding
+        method calls on the object.
+
+        :rtype: str
+        :return: The formatted string with all placeholders replaced.
+        """
+        content = self.placeholder_pattern.sub(self.replacer, self.template)
+        if self.wrap_chars_after:
+            content = wrap_text(content, self.wrap_chars_after)
+        return content
+
+    def replacer(self, match: re.Match) -> str:
+        """Replacement method to process each regex match.
+
+        :param match: The regex match object.
+        :raises ValueError: If there is an error parsing arguments or
+            calling the method.
+        :raises AttributeError: If the method does not exist on the object.
+        :return: The replacement string.
+        :rtype: str
+        """
+        method_name = match.group(1)
+        args_str = match.group(2)
+
+        # Parse arguments if any
+        args = []
+        kwargs = {}
+        if args_str:
+            try:
+                # Safely parse the arguments using ast.literal_eval
+                # We wrap the arguments in a dummy function to parse them
+                # Example: f('morning', format='%A, %B %d, %Y')
+                parsed_args = ast.parse(f"f({args_str})", mode="eval").body
+                for arg in parsed_args.args:
+                    args.append(ast.literal_eval(arg))
+                for kw in parsed_args.keywords:
+                    kwargs[kw.arg] = ast.literal_eval(kw.value)
+            except Exception as err:
+                raise ValueError(
+                    f"Error parsing arguments for '{method_name}': {err}"
+                ) from err
+
+        # Get the method from the object
+        method = getattr(self.faker, method_name, None)
+        if callable(method):
+            try:
+                return str(method(*args, **kwargs))
+            except Exception as err:
+                raise ValueError(
+                    f"Error calling method '{method_name}': {err}"
+                ) from err
+        else:
+            raise AttributeError(
+                f"Method '{method_name}' not found in the "
+                f"object '{self.faker.__class__.__name__}'."
+            )
+
+    def __str__(self) -> str:
+        return self.render()
+
+    def __repr__(self) -> str:
+        return self.render()
 
 
 class FileRegistry:
