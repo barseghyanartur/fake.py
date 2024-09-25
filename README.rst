@@ -264,14 +264,17 @@ As bytes
 
     FAKER.bmp()  # bytes
     FAKER.docx()  # bytes
+    FAKER.eml()  # bytes
     FAKER.gif()  # bytes
     FAKER.odt()  # bytes
     FAKER.pdf()  # bytes
     FAKER.png()  # bytes
     FAKER.ppm()  # bytes
     FAKER.svg()  # bytes
+    FAKER.tar()  # bytes
     FAKER.tif()  # bytes
     FAKER.wav()  # bytes
+    FAKER.zip()  # bytes
 
 As files on the file system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -282,15 +285,18 @@ As files on the file system
 
     FAKER.bmp_file()  # str
     FAKER.docx_file()  # str
+    FAKER.eml_file()  # str
     FAKER.gif_file()  # str
     FAKER.odt_file()  # str
     FAKER.pdf_file()  # str
     FAKER.png_file()  # str
     FAKER.ppm_file()  # str
     FAKER.svg_file()  # str
+    FAKER.tar_file()  # str
     FAKER.tif_file()  # str
-    FAKER.wav_file()  # str
     FAKER.txt_file()  # str
+    FAKER.wav_file()  # str
+    FAKER.zip_file()  # str
 
 Factories/dynamic fixtures
 --------------------------
