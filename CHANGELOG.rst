@@ -16,11 +16,18 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.9.9
+-----
+2024-09-27
+
+- Improve string templates.
+- Minor documentation improvements.
+
 0.9.8
 -----
 2024-09-26
 
-- Implement basic templating.
+- Implement string templates.
 - Minor documentation improvements.
 
 0.9.7

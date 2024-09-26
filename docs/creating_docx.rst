@@ -101,10 +101,31 @@ Using text templates:
 
     .. code-block:: python
         :name: test_text_templates
-        :emphasize-lines: 3
+        :emphasize-lines: 1-
 
         from fake import FAKER, StringTemplate
 
-        template = "Hello {name},\nDate {date(start_date='-7d')},\n{name()}\n"
-        string_template = StringTemplate(FAKER, template)
-        FAKER.docx_file(texts=[str(string_template)])
+        template = """
+        {date(start_date='-7d')}
+        {name}
+        {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+        {randomise_string(value='#### ??', digits='123456789')} {city}
+
+        Dear friend,
+
+        {text(nb_chars=1000, allow_overflow=True)}
+
+        Sincerely yours,
+
+        {name}
+        {email}
+        {domain_name}
+        """
+        # DOCX file of 1 page
+        docx_file = FAKER.docx_file(
+            texts=[StringTemplate(FAKER, template)],
+        )
+        # ODT file of 10 pages
+        odt_file = FAKER.odt_file(
+            texts=[StringTemplate(FAKER, template) for _ in range(10)],
+        )
