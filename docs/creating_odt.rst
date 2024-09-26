@@ -99,7 +99,6 @@ Using text templates:
 
 .. code-block:: python
     :name: test_text_templates
-    :emphasize-lines: 1-
 
     from fake import FAKER, StringTemplate
 
