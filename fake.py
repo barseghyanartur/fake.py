@@ -510,6 +510,7 @@ class StringTemplate(str, StringTemplateMixin):
             texts=[StringTemplate(FAKER, template) for _ in range(10)]
         )
     """
+
     def __new__(
         cls,
         faker: "Faker",
@@ -1669,7 +1670,7 @@ class Faker:
             current_text += f" {sentence}" if current_text else sentence
         if allow_overflow:
             return current_text
-        return current_text[:(nb_chars-len(suffix))] + suffix
+        return current_text[: (nb_chars - len(suffix))] + suffix
 
     @provider(tags=("Text",))
     def texts(self, nb: int = 3) -> List[str]:
@@ -7940,9 +7941,11 @@ class TestStringTemplate(unittest.TestCase):
         templates = [
             StringTemplate(self.mock_faker, "Hello, {name()}!"),
             StringTemplate(self.mock_faker, "Welcome, {name()}!"),
-            StringTemplate(self.mock_faker, "Goodbye, {name()}!")
+            StringTemplate(self.mock_faker, "Goodbye, {name()}!"),
         ]
-        expected = "Hello, John Doe!\n---\nWelcome, John Doe!\n---\nGoodbye, John Doe!"
+        expected = (
+            "Hello, John Doe!\n---\nWelcome, John Doe!\n---\nGoodbye, John Doe!"
+        )
         joined_string = "\n---\n".join(templates)
         self.assertEqual(joined_string, expected)
         self.mock_faker.name.assert_called_with()
@@ -7953,7 +7956,7 @@ class TestStringTemplate(unittest.TestCase):
         template = "User {name()} has email {email()}." * 1000
         self.mock_faker.email.return_value = "john.doe@example.com"
         string_template = StringTemplate(self.mock_faker, template)
-        expected = ("User John Doe has email john.doe@example.com." * 1000)
+        expected = "User John Doe has email john.doe@example.com." * 1000
         self.assertEqual(string_template, expected)
         self.assertEqual(self.mock_faker.name.call_count, 1000)
         self.assertEqual(self.mock_faker.email.call_count, 1000)
