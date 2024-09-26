@@ -65,7 +65,7 @@ from unittest.mock import patch, MagicMock
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.9.9"
+__version__ = "0.10"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -7830,7 +7830,9 @@ class TestStringTemplate(unittest.TestCase):
     def test_wrapping_functionality(self):
         template = "This is a long sentence that needs to be wrapped."
         string_template = StringTemplate(
-            template, wrap_chars_after=10, faker=self.mock_faker,
+            template,
+            wrap_chars_after=10,
+            faker=self.mock_faker,
         )
         expected = "This is a\nlong\nsentence\nthat needs\nto be\nwrapped."
         self.assertEqual(string_template, expected)
