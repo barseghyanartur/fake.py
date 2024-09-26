@@ -120,9 +120,9 @@ Using text templates:
     """
     # DOCX file of 1 page
     docx_file_1 = FAKER.docx_file(
-        texts=[StringTemplate(FAKER, template)],
+        texts=[StringTemplate(template)],
     )
     # DOCX file of 10 pages
     docx_file_10 = FAKER.odt_file(
-        texts=[StringTemplate(FAKER, template) for _ in range(10)],
+        texts=[StringTemplate(template) for _ in range(10)],
     )
