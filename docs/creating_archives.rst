@@ -298,3 +298,31 @@ and `doc_isbn.txt`.
                 },
             }
         )
+
+----
+
+Using text templates:
+
+.. code-block:: python
+    :name: test_text_templates
+
+    from fake import FAKER, StringTemplate
+
+    template = """
+    {date(start_date='-7d')}
+    {name}
+    {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+    {randomise_string(value='#### ??', digits='123456789')} {city}
+
+    Dear friend,
+
+    {text(nb_chars=1000, allow_overflow=True)}
+
+    Sincerely yours,
+
+    {name}
+    {email}
+    {domain_name}
+    """
+    # EML file
+    eml_file = FAKER.eml_file(content=StringTemplate(FAKER, template))
