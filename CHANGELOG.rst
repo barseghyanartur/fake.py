@@ -16,6 +16,16 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.10
+----
+2024-09-27
+
+- For both ``StringTemplate`` and ``LazyStringTemplate`` the ``faker``
+  argument had become optional and positionally moved from first to the last
+  place.
+- Improve string templates.
+- Minor documentation improvements.
+
 0.9.9
 -----
 2024-09-27

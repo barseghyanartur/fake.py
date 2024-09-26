@@ -325,4 +325,4 @@ Using text templates:
     {domain_name}
     """
     # EML file
-    eml_file = FAKER.eml_file(content=StringTemplate(FAKER, template))
+    eml_file = FAKER.eml_file(content=StringTemplate(template))

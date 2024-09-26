@@ -120,9 +120,9 @@ Using text templates:
     """
     # ODT file of 1 page
     odt_file_1 = FAKER.odt_file(
-        texts=[StringTemplate(FAKER, template)],
+        texts=[StringTemplate(template)],
     )
     # ODT file of 10 pages
     odt_file_10 = FAKER.odt_file(
-        texts=[StringTemplate(FAKER, template) for _ in range(10)],
+        texts=[StringTemplate(template) for _ in range(10)],
     )
