@@ -1229,13 +1229,54 @@ class OdtGenerator:
     def __init__(self, faker: "Faker") -> None:
         self.faker = faker
 
-    def _create_page(self, text: str) -> str:
+    def _escape_xml(self, text: str) -> str:
+        """Escapes XML special characters in the given text.
+
+        :param text: The text to escape.
+        :return: Escaped text.
+        :rtype: str
+        """
         return (
-            f'<text:p text:style-name="P1">{text}</text:p>'
-            f'<text:p style:name="P1" style:family="paragraph" '
-            f'style:parent-style-name="Standard">'
-            f"<text:line-break/></text:p>"
+            text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&apos;")
         )
+
+    def _create_page(self, text: str) -> str:
+        """Creates a paragraph with line breaks based on '\n' in the text.
+
+        :param text: The text content with '\n' indicating where line breaks
+            should be.
+        :return: A string representing the XML of the paragraph with line
+            breaks.
+        :rtype: str
+        """
+        # Split the text by '\n' to determine where to insert line breaks
+        lines = text.split("\n")
+
+        # Initialize the paragraph XML with the desired style
+        paragraph_xml = '<text:p text:style-name="P1">'
+
+        # Iterate over each line and insert <text:line-break/> where needed
+        for i, line in enumerate(lines):
+            # Escape XML special characters in the line
+            escaped_line = self._escape_xml(line)
+            paragraph_xml += escaped_line
+            if i < len(lines) - 1:
+                paragraph_xml += "<text:line-break/>"
+
+        # Close the paragraph tag
+        paragraph_xml += "</text:p>"
+
+        return paragraph_xml
+        # return (
+        #     f'<text:p text:style-name="P1">{text}</text:p>'
+        #     f'<text:p style:name="P1" style:family="paragraph" '
+        #     f'style:parent-style-name="Standard">'
+        #     f"<text:line-break/></text:p>"
+        # )
 
     def create(
         self,

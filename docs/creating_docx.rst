@@ -97,35 +97,32 @@ With ``nb_pages`` tweak:
 
 Using text templates:
 
-.. container:: jsphinx-toggle-emphasis
+.. code-block:: python
+    :name: test_text_templates
 
-    .. code-block:: python
-        :name: test_text_templates
-        :emphasize-lines: 1-
+    from fake import FAKER, StringTemplate
 
-        from fake import FAKER, StringTemplate
+    template = """
+    {date(start_date='-7d')}
+    {name}
+    {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+    {randomise_string(value='#### ??', digits='123456789')} {city}
 
-        template = """
-        {date(start_date='-7d')}
-        {name}
-        {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
-        {randomise_string(value='#### ??', digits='123456789')} {city}
+    Dear friend,
 
-        Dear friend,
+    {text(nb_chars=1000, allow_overflow=True)}
 
-        {text(nb_chars=1000, allow_overflow=True)}
+    Sincerely yours,
 
-        Sincerely yours,
-
-        {name}
-        {email}
-        {domain_name}
-        """
-        # DOCX file of 1 page
-        docx_file = FAKER.docx_file(
-            texts=[StringTemplate(FAKER, template)],
-        )
-        # ODT file of 10 pages
-        odt_file = FAKER.odt_file(
-            texts=[StringTemplate(FAKER, template) for _ in range(10)],
-        )
+    {name}
+    {email}
+    {domain_name}
+    """
+    # DOCX file of 1 page
+    docx_file_1 = FAKER.docx_file(
+        texts=[StringTemplate(FAKER, template)],
+    )
+    # DOCX file of 10 pages
+    docx_file_10 = FAKER.odt_file(
+        texts=[StringTemplate(FAKER, template) for _ in range(10)],
+    )
