@@ -387,9 +387,9 @@ def wrap_text(text: str, wrap_chars_after: int) -> str:
 
 class StringTemplateMixin:
 
-    faker: "Faker"
     template: str
     wrap_chars_after: Optional[int]
+    faker: Optional["Faker"]
 
     # Regular expression to match placeholders with optional arguments
     placeholder_pattern = re.compile(r"\{(\w+)(?:\((.*?)\))?}")
@@ -483,7 +483,7 @@ class StringTemplate(str, StringTemplateMixin):
             "Best regards,\n"
             "{name}"
         )
-        string_template = StringTemplate(FAKER, template)
+        string_template = StringTemplate(template)
         print(string_template)
 
     Integration with providers:
@@ -499,27 +499,27 @@ class StringTemplate(str, StringTemplateMixin):
             "Best regards,\n"
             "{name}"
         )
-        string_template = StringTemplate(FAKER, template)
+        string_template = StringTemplate(template)
 
         FAKER.docx_file(
-            texts=[StringTemplate(FAKER, template) for _ in range(10)]
+            texts=[StringTemplate(template) for _ in range(10)]
         )
         FAKER.eml_file(content=string_template)
         FAKER.txt_file(text=string_template)
         FAKER.text_pdf_file(
-            texts=[StringTemplate(FAKER, template) for _ in range(10)]
+            texts=[StringTemplate(template) for _ in range(10)]
         )
     """
 
     def __new__(
         cls,
-        faker: "Faker",
         template: str,
         wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
     ) -> "StringTemplate":
         # Create a temporary instance to use render
         instance = super().__new__(cls, "")
-        instance.faker = faker
+        instance.faker = faker or FAKER
         instance.template = template
         instance.wrap_chars_after = wrap_chars_after
         # Render the content
@@ -544,7 +544,7 @@ class LazyStringTemplate(StringTemplateMixin):
             "Best regards,\n"
             "{name}"
         )
-        string_template = LazyStringTemplate(FAKER, template)
+        string_template = LazyStringTemplate(template)
         print(string_template.render())
 
     Integration with providers:
@@ -560,7 +560,7 @@ class LazyStringTemplate(StringTemplateMixin):
             "Best regards,\n"
             "{name}"
         )
-        string_template = LazyStringTemplate(FAKER, template)
+        string_template = LazyStringTemplate(template)
 
         FAKER.docx_file(texts=[str(string_template)])
         FAKER.eml_file(content=str(string_template))
@@ -570,11 +570,11 @@ class LazyStringTemplate(StringTemplateMixin):
 
     def __init__(
         self,
-        faker: "Faker",
         template: str,
         wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
     ) -> None:
-        self.faker = faker
+        self.faker = faker or FAKER
         self.template = template
         self.wrap_chars_after = wrap_chars_after
 
@@ -7575,7 +7575,7 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_simple_placeholder_replacement(self):
         template = "Hello, {name()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7583,7 +7583,7 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_placeholder_with_arguments(self):
         template = "Sentence: {sentence(nb_words=5)}"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Sentence: This is a test sentence."
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7596,7 +7596,7 @@ class TestLazyStringTemplate(unittest.TestCase):
             "Date: {date(start_date='-7d')}\n"
             "Custom: {custom_method(param='value')}"
         )
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = (
             "Name: John Doe\n"
             "Sentence: This is a test sentence.\n"
@@ -7613,7 +7613,7 @@ class TestLazyStringTemplate(unittest.TestCase):
     def test_wrapping_functionality(self):
         template = "This is a long sentence that needs to be wrapped."
         string_template = LazyStringTemplate(
-            self.mock_faker, template, wrap_chars_after=10
+            template, wrap_chars_after=10, faker=self.mock_faker
         )
         expected = "This is a\nlong\nsentence\nthat needs\nto be\nwrapped."
         result = string_template.render()
@@ -7621,14 +7621,14 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_no_wrapping_when_not_specified(self):
         template = "This is a long sentence that does not need to be wrapped."
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "This is a long sentence that does not need to be wrapped."
         result = string_template.render()
         self.assertEqual(result, expected)
 
     def test_missing_method_raises_attribute_error(self):
         template = "Hello, {nonexistent_method()}!"
-        string_template = LazyStringTemplate(self.faker, template)
+        string_template = LazyStringTemplate(template, faker=self.faker)
         with self.assertRaises(AttributeError) as context:
             string_template.render()
         self.assertIn(
@@ -7637,7 +7637,7 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_argument_parsing_error_raises_value_error(self):
         template = "Date: {date(start_date='-7d' missing_comma)}"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         with self.assertRaises(ValueError) as context:
             string_template.render()
         self.assertIn(
@@ -7649,7 +7649,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         # Configure the mock to raise an exception when called
         self.mock_faker.name.side_effect = Exception("Method error")
         template = "Hello, {name()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         with self.assertRaises(ValueError) as context:
             string_template.render()
         self.assertIn("Error calling method 'name'", str(context.exception))
@@ -7657,7 +7657,7 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_no_placeholders(self):
         template = "This string has no placeholders."
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "This string has no placeholders."
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7666,14 +7666,14 @@ class TestLazyStringTemplate(unittest.TestCase):
 
     def test_str_method(self):
         template = "Hello, {name()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         result = str(string_template)
         self.assertEqual(result, expected)
 
     def test_repr_method(self):
         template = "Hello, {name()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         result = repr(string_template)
         self.assertEqual(result, expected)
@@ -7681,7 +7681,7 @@ class TestLazyStringTemplate(unittest.TestCase):
     def test_complex_argument_parsing(self):
         # Test with multiple arguments and different types
         template = "Custom: {custom_method(param1='value1', param2=123)}"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Custom: Custom value"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7693,7 +7693,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         # Although nested placeholders are not supported, ensure they are
         # handled gracefully.
         template = "Nested: {{name()}}"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         # The regex should match {name()}, so {{name()}} becomes {John Doe}
         expected = "Nested: {John Doe}"
         result = string_template.render()
@@ -7703,7 +7703,7 @@ class TestLazyStringTemplate(unittest.TestCase):
     def test_escape_braces(self):
         # Test that escaped braces are handled correctly
         template = "Escaped braces: \\{name()\\}"
-        string_template = LazyStringTemplate(self.faker, template)
+        string_template = LazyStringTemplate(template, faker=self.faker)
         expected = "Escaped braces: \\{name()\\}"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7713,7 +7713,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         # Test that placeholders without parentheses are handled (assuming
         # they require parentheses).
         template = "Hello, {name}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         # The regex expects parentheses, so {name} should remain unchanged
         expected = "Hello, John Doe!"
         result = string_template.render()
@@ -7723,7 +7723,7 @@ class TestLazyStringTemplate(unittest.TestCase):
     def test_placeholder_with_empty_arguments(self):
         # Test placeholders with empty parentheses
         template = "Hello, {name()} and {sentence()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe and This is a test sentence.!"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7735,7 +7735,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         template = (
             "Date: {date(start_date = '2020-01-01', end_date = '2020-12-31')}"
         )
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Date: 2023-01-01"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7747,7 +7747,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         # Assuming method names are purely alphabetic, but testing with
         # numeric characters.
         template = "Numeric method: {method123()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         self.mock_faker.method123.return_value = "Numeric method"
         expected = "Numeric method: Numeric method!"
         result = string_template.render()
@@ -7757,7 +7757,7 @@ class TestLazyStringTemplate(unittest.TestCase):
     def test_placeholder_with_underscores_in_method_name(self):
         # Test method names with underscores
         template = "Underscore method: {custom_method()}!"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Underscore method: Custom value!"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7767,7 +7767,7 @@ class TestLazyStringTemplate(unittest.TestCase):
         # Test placeholders with boolean arguments
         self.mock_faker.boolean_method.return_value = "Boolean result"
         template = "Boolean: {boolean_method(flag=True)}"
-        string_template = LazyStringTemplate(self.mock_faker, template)
+        string_template = LazyStringTemplate(template, faker=self.mock_faker)
         expected = "Boolean: Boolean result"
         result = string_template.render()
         self.assertEqual(result, expected)
@@ -7788,21 +7788,21 @@ class TestStringTemplate(unittest.TestCase):
 
     def test_instance_is_str(self):
         template = "Hello, {name()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         self.assertIsInstance(string_template, str)
         self.assertIsInstance(string_template, StringTemplate)
         self.assertEqual(string_template, "Hello, John Doe!")
 
     def test_simple_placeholder_replacement(self):
         template = "Hello, {name()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         self.assertEqual(string_template, expected)
         self.mock_faker.name.assert_called_once()
 
     def test_placeholder_with_arguments(self):
         template = "Sentence: {sentence(nb_words=5)}"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Sentence: This is a test sentence."
         self.assertEqual(string_template, expected)
         self.mock_faker.sentence.assert_called_once_with(nb_words=5)
@@ -7814,7 +7814,7 @@ class TestStringTemplate(unittest.TestCase):
             "Date: {date(start_date='-7d')}\n"
             "Custom: {custom_method(param='value')}"
         )
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = (
             "Name: John Doe\n"
             "Sentence: This is a test sentence.\n"
@@ -7830,14 +7830,14 @@ class TestStringTemplate(unittest.TestCase):
     def test_wrapping_functionality(self):
         template = "This is a long sentence that needs to be wrapped."
         string_template = StringTemplate(
-            self.mock_faker, template, wrap_chars_after=10
+            template, wrap_chars_after=10, faker=self.mock_faker,
         )
         expected = "This is a\nlong\nsentence\nthat needs\nto be\nwrapped."
         self.assertEqual(string_template, expected)
 
     def test_no_wrapping_when_not_specified(self):
         template = "This is a long sentence that does not need to be wrapped."
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "This is a long sentence that does not need to be wrapped."
         self.assertEqual(string_template, expected)
         # No faker methods should be called
@@ -7846,7 +7846,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_missing_method_raises_attribute_error(self):
         template = "Hello, {nonexistent_method()}!"
         with self.assertRaises(AttributeError) as context:
-            StringTemplate(self.faker, template)
+            StringTemplate(template, faker=self.faker)
         self.assertIn(
             "Method 'nonexistent_method' not found",
             str(context.exception),
@@ -7855,7 +7855,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_argument_parsing_error_raises_value_error(self):
         template = "Date: {date(start_date='-7d' missing_comma)}"
         with self.assertRaises(ValueError) as context:
-            StringTemplate(self.mock_faker, template)
+            StringTemplate(template, faker=self.mock_faker)
         self.assertIn(
             "Error parsing arguments for 'date'",
             str(context.exception),
@@ -7867,13 +7867,13 @@ class TestStringTemplate(unittest.TestCase):
         self.mock_faker.name.side_effect = Exception("Method error")
         template = "Hello, {name()}!"
         with self.assertRaises(ValueError) as context:
-            StringTemplate(self.mock_faker, template)
+            StringTemplate(template, faker=self.mock_faker)
         self.assertIn("Error calling method 'name'", str(context.exception))
         self.mock_faker.name.assert_called_once()
 
     def test_no_placeholders(self):
         template = "This string has no placeholders."
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "This string has no placeholders."
         self.assertEqual(string_template, expected)
         # No faker methods should be called
@@ -7881,14 +7881,14 @@ class TestStringTemplate(unittest.TestCase):
 
     def test_str_method(self):
         template = "Hello, {name()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         result = str(string_template)
         self.assertEqual(result, expected)
 
     def test_repr_method(self):
         template = "Hello, {name()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "'Hello, John Doe!'"
         result = repr(string_template)
         self.assertEqual(result, expected)
@@ -7896,7 +7896,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_complex_argument_parsing(self):
         # Test with multiple arguments and different types
         template = "Custom: {custom_method(param1='value1', param2=123)}"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Custom: Custom value"
         self.assertEqual(string_template, expected)
         self.mock_faker.custom_method.assert_called_once_with(
@@ -7907,7 +7907,7 @@ class TestStringTemplate(unittest.TestCase):
         # Although nested placeholders are not supported, ensure they are
         # handled gracefully.
         template = "Nested: {{name()}}"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         # The regex should match {name()}, so {{name()}} becomes {John Doe}
         expected = "Nested: {John Doe}"
         self.assertEqual(string_template, expected)
@@ -7916,7 +7916,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_escape_braces(self):
         # Test that escaped braces are handled correctly
         template = "Escaped braces: \\{name()\\}"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Escaped braces: \\{name()\\}"
         self.assertEqual(string_template, expected)
         self.mock_faker.name.assert_not_called()
@@ -7925,7 +7925,7 @@ class TestStringTemplate(unittest.TestCase):
         # Test that placeholders without parentheses are handled (assuming
         # they require parentheses).
         template = "Hello, {name}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         # The regex expects parentheses, so {name} should remain unchanged
         expected = "Hello, John Doe!"
         self.assertEqual(string_template, expected)
@@ -7934,7 +7934,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_placeholder_with_empty_arguments(self):
         # Test placeholders with empty parentheses
         template = "Hello, {name()} and {sentence()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe and This is a test sentence.!"
         self.assertEqual(string_template, expected)
         self.mock_faker.name.assert_called_once()
@@ -7945,7 +7945,7 @@ class TestStringTemplate(unittest.TestCase):
         template = (
             "Date: {date(start_date = '2020-01-01', end_date = '2020-12-31')}"
         )
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Date: 2023-01-01"
         self.assertEqual(string_template, expected)
         self.mock_faker.date.assert_called_once_with(
@@ -7956,7 +7956,7 @@ class TestStringTemplate(unittest.TestCase):
         # Assuming method names are purely alphabetic, but testing with
         # numeric characters.
         template = "Numeric method: {method123()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Numeric method: Numeric method!"
         self.assertEqual(string_template, expected)
         self.mock_faker.method123.assert_called_once()
@@ -7964,7 +7964,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_placeholder_with_underscores_in_method_name(self):
         # Test method names with underscores
         template = "Underscore method: {custom_method()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Underscore method: Custom value!"
         self.assertEqual(string_template, expected)
         self.mock_faker.custom_method.assert_called_once()
@@ -7972,7 +7972,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_placeholder_with_boolean_arguments(self):
         # Test placeholders with boolean arguments
         template = "Boolean: {boolean_method(flag=True)}"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Boolean: Boolean result"
         self.assertEqual(string_template, expected)
         self.mock_faker.boolean_method.assert_called_once_with(flag=True)
@@ -7980,9 +7980,9 @@ class TestStringTemplate(unittest.TestCase):
     def test_join_with_string_template(self):
         # Test that StringTemplate can be used directly with join
         templates = [
-            StringTemplate(self.mock_faker, "Hello, {name()}!"),
-            StringTemplate(self.mock_faker, "Welcome, {name()}!"),
-            StringTemplate(self.mock_faker, "Goodbye, {name()}!"),
+            StringTemplate("Hello, {name()}!", faker=self.mock_faker),
+            StringTemplate("Welcome, {name()}!", faker=self.mock_faker),
+            StringTemplate("Goodbye, {name()}!", faker=self.mock_faker),
         ]
         expected = (
             "Hello, John Doe!\n---\nWelcome, John Doe!\n---\nGoodbye, John Doe!"
@@ -7996,7 +7996,7 @@ class TestStringTemplate(unittest.TestCase):
         # Test performance and correctness with a large number of placeholders
         template = "User {name()} has email {email()}." * 1000
         self.mock_faker.email.return_value = "john.doe@example.com"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "User John Doe has email john.doe@example.com." * 1000
         self.assertEqual(string_template, expected)
         self.assertEqual(self.mock_faker.name.call_count, 1000)
@@ -8012,7 +8012,7 @@ class TestStringTemplate(unittest.TestCase):
     def test_join_with_single_template(self):
         # Test joining a single template
         template = "Hello, {name()}!"
-        string_template = StringTemplate(self.mock_faker, template)
+        string_template = StringTemplate(template, faker=self.mock_faker)
         expected = "Hello, John Doe!"
         joined_string = "\n---\n".join([string_template])
         self.assertEqual(joined_string, expected)
