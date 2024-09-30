@@ -123,6 +123,6 @@ Using text templates:
         texts=[StringTemplate(template)],
     )
     # DOCX file of 10 pages
-    docx_file_10 = FAKER.odt_file(
+    docx_file_10 = FAKER.docx_file(
         texts=[StringTemplate(template) for _ in range(10)],
     )
