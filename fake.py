@@ -3932,8 +3932,8 @@ def list_create_inner_file(
     the `func_list` list of tuples.
     """
     created_files = []
-    for func, kwargs in func_list:
-        file = func(**kwargs)
+    for func, func_kwargs in func_list:
+        file = func(**func_kwargs)
         created_files.append(file)
     return created_files
 
