@@ -1825,7 +1825,7 @@ class Faker:
         """Generate a random string."""
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
-    @provider(tags=("Python",))
+    @provider(tags=("Text",))
     def password(
         self,
         length: int = 10,
