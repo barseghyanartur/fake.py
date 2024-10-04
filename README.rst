@@ -156,6 +156,7 @@ Random texts
 
     from fake import FAKER
 
+    FAKER.password()  # str
     FAKER.paragraph()  # str
     FAKER.paragraphs()  # list[str]
     FAKER.sentence()  # str

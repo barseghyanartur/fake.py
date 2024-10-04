@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.10.1
+------
+2024-10-05
+
+- Added ``password`` provider.
+
 0.10
 ----
 2024-09-27

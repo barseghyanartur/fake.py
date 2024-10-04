@@ -14,6 +14,7 @@ import mimetypes
 import os
 import random
 import re
+import secrets
 import string
 import subprocess
 import tarfile
@@ -65,7 +66,7 @@ from unittest.mock import patch, MagicMock
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.10"
+__version__ = "0.10.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -1823,6 +1824,42 @@ class Faker:
     def pystr(self, nb_chars: int = 20) -> str:
         """Generate a random string."""
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
+
+    @provider(tags=("Text",))
+    def password(
+        self,
+        length: int = 10,
+        min_lower: int = 1,
+        min_upper: int = 1,
+        min_digits: int = 3,
+        min_special: int = 0,
+    ):
+        if length < min_lower + min_upper + min_digits + min_special:
+            raise ValueError("Length is too short for the given constraints.")
+
+        rng = secrets.SystemRandom()
+
+        password_chars = (
+            [rng.choice(string.ascii_lowercase) for _ in range(min_lower)]
+            + [rng.choice(string.ascii_uppercase) for _ in range(min_upper)]
+            + [rng.choice(string.digits) for _ in range(min_digits)]
+            + [rng.choice(string.punctuation) for _ in range(min_special)]
+        )
+
+        remaining_length = length - (
+            min_lower + min_upper + min_digits + min_special
+        )
+        if remaining_length > 0:
+            all_chars = (
+                string.ascii_letters + string.digits + string.punctuation
+            )
+            password_chars += [
+                rng.choice(all_chars) for _ in range(remaining_length)
+            ]
+
+        rng.shuffle(password_chars)
+
+        return "".join(password_chars)
 
     @provider(tags=("Python",))
     def pyfloat(
@@ -5614,6 +5651,67 @@ class TestFaker(unittest.TestCase):
 
                 # Check if all characters are from the valid set
                 self.assertTrue(all(c in valid_characters for c in val))
+
+    def test_password(self):
+        """Test password."""
+        with self.subTest("That has the correct length."):
+            lengths = [10, 12, 15, 20]
+            for length in lengths:
+                with self.subTest(length=length):
+                    pwd = self.faker.password(length=length, min_digits=3)
+                    self.assertEqual(
+                        len(pwd),
+                        length,
+                        f"Password length should be {length}",
+                    )
+        with self.subTest("Test contains at least 1 lowercase letter."):
+            pwd = self.faker.password()
+            self.assertTrue(
+                any(c.islower() for c in pwd),
+                "Password must contain at least 1 lowercase letter.",
+            )
+        with self.subTest("Test contains at least 1 uppercase letter."):
+            pwd = self.faker.password()
+            self.assertTrue(
+                any(c.isupper() for c in pwd),
+                "Password must contain at least 1 uppercase letter.",
+            )
+        with self.subTest("Test contains at least the min number of digits."):
+            min_digits = 3
+            pwd = self.faker.password(min_digits=min_digits)
+            digit_count = sum(c.isdigit() for c in pwd)
+            self.assertGreaterEqual(
+                digit_count,
+                min_digits,
+                f"Password must contain at least {min_digits} digits.",
+            )
+        with self.subTest("Test generator with custom constraints."):
+            length = 15
+            min_digits = 5
+            pwd = self.faker.password(length=length, min_digits=min_digits)
+            self.assertEqual(len(pwd), length, "Password length mismatch.")
+            self.assertTrue(
+                any(c.islower() for c in pwd),
+                "Password must contain at least 1 lowercase letter.",
+            )
+            self.assertTrue(
+                any(c.isupper() for c in pwd),
+                "Password must contain at least 1 uppercase letter.",
+            )
+            digit_count = sum(c.isdigit() for c in pwd)
+            self.assertGreaterEqual(
+                digit_count,
+                min_digits,
+                f"Password must contain at least {min_digits} digits.",
+            )
+        with self.subTest("Test raises ValueError when length too short."):
+            with self.assertRaises(ValueError):
+                self.faker.password(
+                    length=4, min_digits=3
+                )  # 2 required characters + 3 digits > 4
+        with self.subTest("Test multiple generated passwords are unique."):
+            passwords = set(self.faker.password() for _ in range(25))
+            self.assertEqual(len(passwords), 25, "Passwords should be unique.")
 
     def test_pyfloat(self) -> None:
         ranges = [
