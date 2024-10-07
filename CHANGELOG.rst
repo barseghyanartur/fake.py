@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.10.2
+------
+2024-10-07
+
+- Test against Python 3.13 and 3.14.
+- Upgrade GitHub Actions.
+
 0.10.1
 ------
 2024-10-05
