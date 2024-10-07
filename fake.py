@@ -1807,7 +1807,13 @@ class Faker:
 
     @provider(tags=("Python",))
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
-        """Generate a random integer."""
+        """Generate a random integer.
+
+        :param min_value: Min value of the generated integer. Default is 0.
+        :param max_value: Max value of the generated integer. Default is 9999.
+        :rtype: int
+        :return: Random integer within the range [min_value, max_value].
+        """
         return random.randint(min_value, max_value)
 
     @provider(tags=("Python",))
@@ -1822,7 +1828,12 @@ class Faker:
 
     @provider(tags=("Python",))
     def pystr(self, nb_chars: int = 20) -> str:
-        """Generate a random string."""
+        """Generate a random string.
+
+        :param nb_chars: Number of characters to generate.
+        :rtype: str
+        :return: Random string.
+        """
         return "".join(random.choices(string.ascii_letters, k=nb_chars))
 
     @provider(tags=("Text",))
@@ -1833,7 +1844,18 @@ class Faker:
         min_upper: int = 1,
         min_digits: int = 3,
         min_special: int = 0,
-    ):
+    ) -> str:
+        """Generate a random password.
+
+        :param length: Total length of the password. Default is 10.
+        :param min_lower: Minimum number of lowercase letters. Default is 1.
+        :param min_upper: Minimum number of uppercase letters. Default is 1.
+        :param min_digits: Minimum number of digits. Default is 3.
+        :param min_special: Minimum number of special characters. Default is 0.
+        :rtype: str
+        :return: Random password string.
+        :raises: ValueError
+        """
         if length < min_lower + min_upper + min_digits + min_special:
             raise ValueError("Length is too short for the given constraints.")
 
@@ -1883,7 +1905,7 @@ class Faker:
         :param right_digits: Number of digits to the right of the decimal point.
         :param positive: If True, the number will be positive, otherwise it
             can be negative.
-        :return: A randomly generated Decimal number.
+        :return: Random Decimal number.
         :rtype: Decimal
         :raises: ValueError
         """
