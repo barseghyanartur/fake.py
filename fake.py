@@ -477,13 +477,13 @@ class StringTemplate(str, StringTemplateMixin):
 
         from fake import FAKER, StringTemplate
 
-        template = (
-            "{date(start_date='-7d')},\n"
-            "Dear {name},\n"
-            "{sentence(nb_words=25)}\n"
-            "Best regards,\n"
-            "{name}"
-        )
+        template = '''
+            {date(start_date='-7d')},
+            Dear {name},
+            {sentence(nb_words=25)}
+            Best regards,
+            {name}
+        '''
         string_template = StringTemplate(template)
         print(string_template)
 
@@ -493,13 +493,13 @@ class StringTemplate(str, StringTemplateMixin):
 
         from fake import FAKER, StringTemplate
 
-        template = (
-            "{date(start_date='-7d')},\n"
-            "Dear {name},\n"
-            "{sentence(nb_words=25)}\n"
-            "Best regards,\n"
-            "{name}"
-        )
+        template = '''
+            {date(start_date='-7d')},
+            Dear {name},
+            {sentence(nb_words=25)}
+            Best regards,
+            {name}
+        '''
         string_template = StringTemplate(template)
 
         FAKER.docx_file(
@@ -538,13 +538,13 @@ class LazyStringTemplate(StringTemplateMixin):
 
         from fake import FAKER, LazyStringTemplate
 
-        template = (
-            "{date(start_date='-7d')},\n"
-            "Dear {name},\n"
-            "{sentence(nb_words=25)}\n"
-            "Best regards,\n"
-            "{name}"
-        )
+        template = '''
+            {date(start_date='-7d')},
+            Dear {name},
+            {sentence(nb_words=25)}
+            Best regards,
+            {name}
+        '''
         string_template = LazyStringTemplate(template)
         print(string_template.render())
 
@@ -554,13 +554,13 @@ class LazyStringTemplate(StringTemplateMixin):
 
         from fake import FAKER, LazyStringTemplate
 
-        template = (
-            "{date(start_date='-7d')},\n"
-            "Dear {name},\n"
-            "{sentence(nb_words=25)}\n"
-            "Best regards,\n"
-            "{name}"
-        )
+        template = '''
+            {date(start_date='-7d')},
+            Dear {name},
+            {sentence(nb_words=25)}
+            Best regards,
+            {name}
+        '''
         string_template = LazyStringTemplate(template)
 
         FAKER.docx_file(texts=[str(string_template)])
@@ -4825,7 +4825,6 @@ class SQLAlchemyModelFactory(ModelFactory):
 # ************************************************
 
 
-# TODO: Remove once Python 3.8 support is dropped
 class ClassProperty(property):
     """ClassProperty."""
 
@@ -6636,8 +6635,6 @@ class TestFaker(unittest.TestCase):
             def set_password(self, password: str) -> None:
                 self.password = xor_transform(password)
 
-            # TODO: Remove once Python 3.8 support is dropped
-            #  and replace with @classmethod @property combo.
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
@@ -6667,8 +6664,6 @@ class TestFaker(unittest.TestCase):
                 """Mimicking Django's Mode save method."""
                 self.save_called = True  # noqa
 
-            # TODO: Remove once Python 3.8 support is dropped
-            #  and replace with @classmethod @property combo.
             @classproperty
             def objects(cls):
                 """Mimicking Django's Manager behaviour."""
