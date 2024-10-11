@@ -153,3 +153,5 @@ With ``nb_pages`` tweak:
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_file_2.py>`
+
+----

@@ -1774,3 +1774,5 @@ Sample output:
 .. code-block:: text
 
     1234 Aa
+
+----

@@ -83,3 +83,5 @@ With ``size`` and ``color`` tweaks:
 
 All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF`` and ``PPM``) work in
 exact same way.
+
+----

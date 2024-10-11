@@ -326,3 +326,5 @@ Using text templates:
     """
     # EML file
     eml_file = FAKER.eml_file(content=StringTemplate(template))
+
+----
