@@ -126,3 +126,5 @@ Using text templates:
     docx_file_10 = FAKER.docx_file(
         texts=[StringTemplate(template) for _ in range(10)],
     )
+
+----

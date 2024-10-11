@@ -126,3 +126,5 @@ Using text templates:
     odt_file_10 = FAKER.odt_file(
         texts=[StringTemplate(template) for _ in range(10)],
     )
+
+----
