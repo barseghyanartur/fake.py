@@ -414,3 +414,5 @@ factories.
     :download:`here <_static/examples/factories/sqlmodel/article/factories.py>`
 
 *Used just like in previous example.*
+
+----
