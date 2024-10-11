@@ -215,7 +215,6 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 *Filename: factories.py*
 
 .. code-block:: python
-    :name: test_customization_factories
 
     from fake import ModelFactory, SubFactory, post_save, pre_save
 
