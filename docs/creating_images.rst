@@ -21,6 +21,7 @@ Currently, 6 image formats are supported:
 - ``GIF``
 - ``TIF``
 - ``PPM``
+- ``JPG``
 
 Generating images as bytes
 --------------------------
@@ -81,7 +82,7 @@ With ``size`` and ``color`` tweaks:
 
 ----
 
-All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF`` and ``PPM``) work in
-exact same way.
+All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF``, ``PPM`` and ``JPG``)
+work in exact same way.
 
 ----
