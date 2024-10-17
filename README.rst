@@ -267,6 +267,7 @@ As bytes
     FAKER.docx()  # bytes
     FAKER.eml()  # bytes
     FAKER.gif()  # bytes
+    FAKER.jpg()  # bytes
     FAKER.odt()  # bytes
     FAKER.pdf()  # bytes
     FAKER.png()  # bytes
@@ -288,6 +289,7 @@ As files on the file system
     FAKER.docx_file()  # str
     FAKER.eml_file()  # str
     FAKER.gif_file()  # str
+    FAKER.jpg_file()  # str
     FAKER.odt_file()  # str
     FAKER.pdf_file()  # str
     FAKER.png_file()  # str

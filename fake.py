@@ -67,7 +67,7 @@ from unittest.mock import patch, MagicMock
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.10.3"
+__version__ = "0.10.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -316,9 +316,9 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
 
-def slugify(value: str) -> str:
+def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
-    return SLUGIFY_RE.sub("", value).lower()
+    return SLUGIFY_RE.sub(separator, value).lower()
 
 
 class MetaData:
