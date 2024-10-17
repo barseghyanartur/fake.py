@@ -1,8 +1,9 @@
 # Update version ONLY here
-VERSION := 0.10.3
+VERSION := 0.11.4
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
+UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
 build_docs:
@@ -175,11 +176,16 @@ compile-requirements-upgrade:
 	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
 
 update-version:
-	#sed -i 's/"version": "[0-9.]\+"/"version": "$(VERSION)"/' package.json
-	sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml
-	sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py
-#	find src/ -type f -name '*.css' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
-#	find src/ -type f -name '*.js' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
+	#sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml
+	#sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py
+	@echo "Updating version in pyproject.toml and fake.py"
+	@if [ "$(UNAME_S)" = "Darwin" ]; then \
+		gsed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml; \
+		gsed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py; \
+	else \
+		sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml; \
+		sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py; \
+	fi
 
 build:
 	source $(VENV) && python -m build .
