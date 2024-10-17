@@ -16,6 +16,7 @@ import random
 import re
 import secrets
 import string
+import struct
 import subprocess
 import tarfile
 import unittest
@@ -66,7 +67,7 @@ from unittest.mock import patch, MagicMock
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.10.2"
+__version__ = "0.10.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -102,13 +103,31 @@ __all__ = (
     "SubFactory",
     "TextPdfGenerator",
     "TortoiseModelFactory",
+    "create_inner_bmp_file",
+    "create_inner_docx_file",
+    "create_inner_eml_file",
+    "create_inner_gif_file",
+    "create_inner_jpg_file",
+    "create_inner_odt_file",
+    "create_inner_pdf_file",
+    "create_inner_png_file",
+    "create_inner_ppm_file",
+    "create_inner_svg_file",
+    "create_inner_tar_file",
+    "create_inner_text_pdf_file",
+    "create_inner_tif_file",
+    "create_inner_txt_file",
+    "create_inner_wav_file",
+    "create_inner_zip_file",
     "fill_dataclass",
     "fill_pydantic_model",
     "format_type_hint",
+    "fuzzy_choice_create_inner_file",
     "get_argparse_type",
     "get_provider_args",
     "get_provider_defaults",
     "is_optional_type",
+    "list_create_inner_file",
     "main",
     "organize_providers",
     "post_save",
@@ -297,9 +316,9 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
 
-def slugify(value: str) -> str:
+def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
-    return SLUGIFY_RE.sub("", value).lower()
+    return SLUGIFY_RE.sub(separator, value).lower()
 
 
 class MetaData:
@@ -1359,6 +1378,258 @@ class OdtGenerator:
         return odt_bytes.getvalue()
 
 
+class JpgGenerator:
+    GRAY_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4\x00\x14"
+        b"\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x08\x01\x01\x00\x00?\x00?\xff\xd9"
+    )
+    GRAY_1_PX_JPG_BYTEARRAY = bytearray(GRAY_1_PX_JPG)
+
+    RED_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
+        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
+        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
+        b"\x00?\x00\x90\x02\x8f\xff\xd9"
+    )
+    RED_1_PX_JPG_BYTEARRAY = bytearray(RED_1_PX_JPG)
+
+    YELLOW_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
+        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
+        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
+        b"\x00?\x00\xb0\x13/\xff\xd9"
+    )
+    YELLOW_1_PX_JPG_BYTEARRAY = bytearray(YELLOW_1_PX_JPG)
+
+    BLUE_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
+        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
+        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
+        b"\x00?\x00\x80\x14\x0f\xff\xd9"
+    )
+    BLUE_1_PX_JPG_BYTEARRAY = bytearray(BLUE_1_PX_JPG)
+
+    GREEN_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
+        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x01\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01"
+        b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02"
+        b"\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?"
+        b"\x00\xa0\x00?\xff\xd9"
+    )
+    GREEN_1_PX_JPG_BYTEARRAY = bytearray(GREEN_1_PX_JPG)
+
+    BLACK_1_PX_JPG = (
+        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
+        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
+        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x03\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01"
+        b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        b"\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?"
+        b"\x00\x98\x00\xff\xd9"
+    )
+    BLACK_1_PX_JPG_BYTEARRAY = bytearray(BLACK_1_PX_JPG)
+
+    COLORS = {
+        (0, 255, 0): GREEN_1_PX_JPG_BYTEARRAY,
+        (255, 255, 0): YELLOW_1_PX_JPG_BYTEARRAY,
+        (255, 0, 0): RED_1_PX_JPG_BYTEARRAY,
+        (0, 0, 255): BLUE_1_PX_JPG_BYTEARRAY,
+        (0, 0, 0): BLACK_1_PX_JPG_BYTEARRAY,
+        (128, 128, 128): GRAY_1_PX_JPG_BYTEARRAY,
+    }
+
+    @classmethod
+    def euclidean_distance(cls, color1, color2):
+        return math.sqrt(sum((a - b) ** 2 for a, b in zip(color1, color2)))
+
+    @classmethod
+    def detect_closest_color(cls, color: Tuple[int, int, int]) -> bytearray:
+        closest = None
+        min_distance = float("inf")
+
+        for ref_color, color_name in cls.COLORS.items():
+            distance = cls.euclidean_distance(color, ref_color)
+            if distance < min_distance:
+                min_distance = distance
+                closest = color_name
+
+        return closest
+
+    @classmethod
+    def find_marker(cls, jpeg_bytes, marker) -> int:
+        """Helper function to find a marker."""
+        marker_bytes = marker
+        index = jpeg_bytes.find(marker_bytes)
+        if index == -1:
+            raise ValueError(f"Marker {marker} not found.")
+        return index
+
+    @classmethod
+    def generate(
+        cls,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+    ) -> bytes:
+        """Create a JPG image of a specified size and color.
+
+        :param size: Tuple of width and height of the image in pixels.
+        :param color: Color of the image in RGB format (tuple of three
+            integers).
+        :return: Byte content of the JPG image.
+        :rtype: bytes
+        """
+        original = cls.detect_closest_color(color)
+        width, height = size
+        jpeg = original.copy()
+
+        # Step 1: Update the SOF0 marker with new dimensions
+        SOF0 = b"\xFF\xC0"
+        sof0_index = cls.find_marker(jpeg, SOF0)
+
+        # SOF0 structure:
+        # [Marker]
+        # [Length]
+        # [Precision]
+        # [Height]
+        # [Width]
+        # [Components]
+        # [Component Spec...]
+        # Length is 2 bytes, Precision is 1 byte, Height and Width are 2 bytes
+        # each.
+        # Components: 1 byte ID, 1 byte Sampling factors, 1 byte Quantization
+        # table number.
+
+        # Extract current height and width (for 1x1 image)
+        # Height is at sof0_index + 5 and sof0_index + 6
+        # Width is at sof0_index + 7 and sof0_index + 8
+        # We need to modify these to new_height and new_width
+
+        # Pack new height and width as big-endian unsigned shorts
+        new_height_bytes = struct.pack(">H", height)
+        new_width_bytes = struct.pack(">H", width)
+
+        # Replace height and width in the JPEG bytes
+        jpeg[sof0_index + 5] = new_height_bytes[0]
+        jpeg[sof0_index + 6] = new_height_bytes[1]
+        jpeg[sof0_index + 7] = new_width_bytes[0]
+        jpeg[sof0_index + 8] = new_width_bytes[1]
+
+        # Step 2: Locate the Start of Scan (SOS) marker
+        SOS = b"\xFF\xDA"
+        sos_index = cls.find_marker(jpeg, SOS)
+
+        # SOS structure:
+        # [Marker]
+        # [Length]
+        # [Components]
+        # [Component Spec...]
+        # [Start & End of Spectral Selection]
+        # [Successive Approximation]
+
+        # Extract the length of the SOS segment to find where image data starts
+        sos_length = struct.unpack(">H", jpeg[sos_index + 2 : sos_index + 4])[0]
+        image_data_start = sos_index + 2 + sos_length
+
+        # Locate the End of Image (EOI) marker
+        EOI = b"\xFF\xD9"
+        eoi_index = jpeg.find(EOI, image_data_start)
+        if eoi_index == -1:
+            eoi_index = 0
+            # raise ValueError("EOI marker not found.")
+
+        # Step 3: Extract the original image data (between SOS and EOI)
+        original_image_data = jpeg[image_data_start:eoi_index]
+
+        # Step 4: Determine the number of 8x8 blocks needed
+        blocks_per_row = (width + 7) // 8  # Ceiling division
+        blocks_per_col = (height + 7) // 8
+        total_blocks = blocks_per_row * blocks_per_col
+
+        # Step 5: Replicate the image data for each block
+        # For a constant gray image, each block's data is identical
+        replicated_image_data = original_image_data * total_blocks
+
+        # Optional: If the image size isn't a multiple of 8, padding might be
+        # necessary.
+        # However, JPEG decoders typically ignore the extra padding, so we can
+        # proceed.
+
+        # Step 6: Assemble the new JPEG bytes
+        new_jpeg = (
+            jpeg[:image_data_start] + replicated_image_data + jpeg[eoi_index:]
+        )
+
+        return bytes(new_jpeg)
+
+
 class ProviderRegistryItem(str):
     __slots__ = ("tags",)
 
@@ -2373,6 +2644,22 @@ class Faker:
         return ppm_header + bytes(image_data)
 
     @provider(tags=("Image",))
+    def jpg(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+    ) -> bytes:
+        """Create a JPG image of a specified size and color.
+
+        :param size: Tuple of width and height of the image in pixels.
+        :param color: Color of the image in RGB format, tuple of three
+            integers: (0-255, 0-255, 0-255).
+        :return: Byte content of the JPG image.
+        :rtype: bytes
+        """
+        return JpgGenerator.generate(size=size, color=color)
+
+    @provider(tags=("Image",))
     def image(
         self,
         image_format: Literal[
@@ -2382,12 +2669,21 @@ class Faker:
             "gif",
             "tif",
             "ppm",
+            "jpg",
         ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
         """Create an image of a specified format, size and color."""
-        if image_format not in {"png", "svg", "bmp", "gif", "tif", "ppm"}:
+        if image_format not in {
+            "png",
+            "svg",
+            "bmp",
+            "gif",
+            "tif",
+            "ppm",
+            "jpg",
+        }:
             raise ValueError()
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
@@ -2866,6 +3162,7 @@ class Faker:
             "gif",
             "tif",
             "ppm",
+            "jpg",
         ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
@@ -3038,6 +3335,32 @@ class Faker:
         """Create a PPM image file of a specified size and color."""
         return self._image_file(
             image_format="ppm",
+            size=size,
+            color=color,
+            extension=extension,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    @provider(
+        tags=(
+            "Image",
+            "File",
+        )
+    )
+    def jpg_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+        extension: Optional[str] = None,
+    ) -> StringValue:
+        """Create a JPG image file of a specified size and color."""
+        return self._image_file(
+            image_format="jpg",
             size=size,
             color=color,
             extension=extension,
@@ -3712,6 +4035,25 @@ def create_inner_ppm_file(
 ) -> StringValue:
     """Create inner PPM file."""
     return FAKER.ppm_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+
+
+def create_inner_jpg_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (128, 128, 128),
+    **kwargs,
+) -> StringValue:
+    """Create inner JPG file."""
+    return FAKER.jpg_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5979,8 +6321,13 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(ppm)
         self.assertIsInstance(ppm, bytes)
 
+    def test_jpg(self) -> None:
+        jpg = self.faker.jpg()
+        self.assertTrue(jpg)
+        self.assertIsInstance(jpg, bytes)
+
     def test_image(self):
-        for image_format in {"png", "svg", "bmp", "gif", "tif", "ppm"}:
+        for image_format in {"png", "svg", "bmp", "gif", "tif", "ppm", "jpg"}:
             with self.subTest(image_format=image_format):
                 image = self.faker.image(
                     image_format=image_format,
@@ -6081,6 +6428,10 @@ class TestFaker(unittest.TestCase):
         file = self.faker.ppm_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_jpg_file(self) -> None:
+        file = self.faker.jpg_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+
     def test_wav_file(self) -> None:
         file = self.faker.wav_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
@@ -6170,6 +6521,11 @@ class TestFaker(unittest.TestCase):
 
     def test_create_inner_ppm_file(self):
         value = create_inner_ppm_file()
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_jpg_file(self):
+        value = create_inner_jpg_file()
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
 

@@ -21,6 +21,7 @@ Currently, 6 image formats are supported:
 - ``GIF``
 - ``TIF``
 - ``PPM``
+- ``JPG``
 
 Generating images as bytes
 --------------------------
@@ -81,7 +82,52 @@ With ``size`` and ``color`` tweaks:
 
 ----
 
-All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF`` and ``PPM``) work in
-exact same way.
+All other formats (``SVG``, ``BMP``, ``GIF``, ``TIF``, ``PPM`` and ``JPG``)
+work in exact same way.
+
+The only format that slightly deviates from others is ``JPG``. Produced
+``JPG`` images are still rectangles, but unlike all others, instead of being
+filled with a single solid colour, they are filled with a mixture of colours,
+around a picked base colour. Also, colours on the ``JPG`` image are not
+precise, but a closest match to the colour given.
+
+The following code will generate a 10x10 px square filled with solid yellow
+colour.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_jpg_file_10x10_yellow
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.jpg_file(size=(10, 10), color=(182, 232, 90))
+
+While the following code, will generate a 640x480 px square filled with yellow
+and other colours.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_jpg_file_640x480_yellow_mix
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.jpg_file(size=(640, 480), color=(18, 52, 185))
+
+The only colour that always stays solid is the default colour - gray
+``(128, 128, 128)``.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_jpg_file_300x200_solid_gray
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.jpg_file(size=(720, 540))
 
 ----

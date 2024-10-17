@@ -16,6 +16,19 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.10.4
+------
+2024-10-17
+
+- Add a ``separator`` argument to the ``slugify`` function.
+- Minor documentation improvements.
+
+0.10.3
+------
+2024-10-16
+
+- Add `JPG` file support through ``jpg`` and ``jpg_file`` providers.
+
 0.10.2
 ------
 2024-10-07
