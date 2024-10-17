@@ -47,3 +47,4 @@ examples/sqlalchemy/media/
 examples/sqlmodel/media/
 examples/hypothesis/.hypothesis/
 .mypy_cache/
+benchmark.py
