@@ -316,9 +316,9 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
 
-def slugify(value: str) -> str:
+def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
-    return SLUGIFY_RE.sub("", value).lower()
+    return SLUGIFY_RE.sub(separator, value).lower()
 
 
 class MetaData:
