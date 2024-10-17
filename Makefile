@@ -1,8 +1,9 @@
 # Update version ONLY here
-VERSION := 0.10.3
+VERSION := 0.11.4
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
+UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
 build_docs:
@@ -175,46 +176,16 @@ compile-requirements-upgrade:
 	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
 
 update-version:
-	#sed -i 's/"version": "[0-9.]\+"/"version": "$(VERSION)"/' package.json
-	sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml
-	sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py
-#	find src/ -type f -name '*.css' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
-#	find src/ -type f -name '*.js' -exec sed -i 's/@version [0-9.]\+/@version $(VERSION)/' {} \;
-
-update-security:
-	@echo "Updating SECURITY.rst with VERSION=$(VERSION)"
-	# Extract major and minor version (e.g., 0.10 from 0.10.2) \
-	MAJOR_MINOR=$(echo $(VERSION) | cut -d. -f1,2);
-	# Extract major and minor numbers \
-	MAJOR=$(echo $$MAJOR_MINOR | cut -d. -f1);
-	MINOR=$(echo $$MAJOR_MINOR | cut -d. -f2);
-	# Calculate previous minor version (e.g., 0.9 from 0.10) \
-	PREV_MINOR=$$(expr $$MINOR - 1);
-	PREV_MAJOR_MINOR=$$MAJOR.$$PREV_MINOR;
-	# Define fixed column widths \
-	VERSION_COL_WIDTH=15;
-	SUPPORTED_COL_WIDTH=16;
-	# Function to pad strings to fixed width \
-	pad() { printf "%%-%ds" "$$VERSION_COL_WIDTH" "$$1"; }; \
-	# Pad version strings \
-	VER1=`pad "$(MAJOR_MINOR).x"`; \
-	VER2=`pad "$$PREV_MAJOR_MINOR.x"`; \
-	VER3=`pad "< $$PREV_MAJOR_MINOR"`; \
-	# Generate the new Supported Versions table \
-	NEW_TABLE=".. code-block:: text\n\n\
-    ┌─────────────────┬────────────────┐\n\
-    │ Version         │ Supported      │\n\
-    ├─────────────────┼────────────────┤\n\
-    │ $$VER1 │ Yes            │\n\
-    ├─────────────────┼────────────────┤\n\
-    │ $$VER2 │ Yes            │\n\
-    ├─────────────────┼────────────────┤\n\
-    │ $$VER3 │ No             │\n\
-    └─────────────────┴────────────────┘"; \
-	\
-	# Replace the existing Supported Versions table in SECURITY.rst \
-	echo $(NEW_TABLE); \
-	sed -i '' '/^.. code-block:: text$/,/^$/c\'"$$NEW_TABLE" SECURITY.rst
+	#sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml
+	#sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py
+	@echo "Updating version in pyproject.toml and fake.py"
+	@if [ "$(UNAME_S)" = "Darwin" ]; then \
+		gsed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml; \
+		gsed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py; \
+	else \
+		sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml; \
+		sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py; \
+	fi
 
 build:
 	source $(VENV) && python -m build .
