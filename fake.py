@@ -1172,7 +1172,6 @@ class DocxGenerator:
         self.faker = faker
 
     def _create_page(self, text: str, is_last_page: bool) -> str:
-        # page_content = f"<w:p><w:r><w:t>{text}</w:t></w:r></w:p>"
         # Split the text into lines by \n
         lines = text.split("\n")
 
@@ -1291,12 +1290,6 @@ class OdtGenerator:
         paragraph_xml += "</text:p>"
 
         return paragraph_xml
-        # return (
-        #     f'<text:p text:style-name="P1">{text}</text:p>'
-        #     f'<text:p style:name="P1" style:family="paragraph" '
-        #     f'style:parent-style-name="Standard">'
-        #     f"<text:line-break/></text:p>"
-        # )
 
     def create(
         self,
