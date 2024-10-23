@@ -39,6 +39,7 @@ fake.py
 .. _fake-py-django-storage: https://github.com/barseghyanartur/fake-py-django-storage
 .. _fake-py-qt: https://github.com/barseghyanartur/fake-py-qt
 .. _fake-py-wasm: https://github.com/barseghyanartur/fake-py-wasm
+.. _fake-py-benchmarks: https://github.com/barseghyanartur/fake-py-benchmarks
 
 Minimalistic, standalone alternative fake data generator with no dependencies.
 
@@ -490,6 +491,10 @@ further.
 
 However, at any point, if you discover that you "need more", go for `Faker`_,
 `factory_boy`_ and `faker-file`_ combination.
+
+Benchmarks
+==========
+See `fake-py-benchmarks`_ for the details.
 
 Related projects
 ================
