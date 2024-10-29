@@ -52,6 +52,25 @@ See the example below for ``texts`` tweak:
 
 ----
 
+For full clarity, see another example below for ``texts`` tweak:
+
+.. container:: jsphinx-download
+
+    .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2b.py
+        :language: python
+        :lines: 3-
+
+    *See the full example*
+    :download:`here <_static/examples/creating_pdf/text_pdf_bytes_2b.py>`
+
+The produced PDF will consist of 3 pages:
+
+- Content of the first would be: ``Page 1 content``
+- Content of the second page would be: ``Page 1 content``
+- Content of the third page would be: ``Page 3 content``
+
+----
+
 See the example below for ``nb_pages`` tweak:
 
 .. container:: jsphinx-download

@@ -16,6 +16,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.10.5
+------
+*Unreleased*
+
+- Add benchmarks section to the main README.
+- Improve docs. Add a dedicated section on files creation.
+- Minor clean-up.
+
 0.10.4
 ------
 2024-10-17
