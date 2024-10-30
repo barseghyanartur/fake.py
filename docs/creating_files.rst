@@ -24,7 +24,6 @@ This section covers basic concepts of file generation within `fake.py`_.
 It's possible to generate either bytes or files on the file system.
 
 - When generating bytes, the returned value is ``BytesValue``.
-
 - When generating files on the file system, the returned value
   is ``StringValue``.
 
@@ -40,7 +39,7 @@ For generated files, it will always have the following:
 
 ----
 
-See the example below for a graphic PDF generation:
+See the example below for a **graphic** PDF generation:
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -52,20 +51,20 @@ See the example below for a graphic PDF generation:
 
         pdf_file = FAKER.pdf_file()
 
-        print(pdf_file)
+        print(pdf_file)  # Relative path
         # tmp/tmpnvwoa2ap.pdf
 
-        print(pdf_file.data["filename"])
+        print(pdf_file.data["filename"])  # Absolute path
         # /tmp/tmp/tmpnvwoa2ap.pdf
 
-        print(pdf_file.data)
+        print(pdf_file.data)  # Meta-data
         # {'storage': <fake.FileSystemStorage at 0x7f72221fd750>,
         #  'filename': '/tmp/tmp/tmpragc8wyr.pdf',
         #  'content': None}
 
 ----
 
-See the example below for a text PDF generation:
+See the example below for a **text** PDF generation:
 
 .. container:: jsphinx-toggle-emphasis
 

@@ -173,12 +173,15 @@ jobs:
           - "3.10"
           - "3.9"
         django-version: [
+          "5.1",
           "5.0",
           "4.2"
         ]
         exclude:
           - python-version: "3.9"
             django-version: "5.0"  # Exclude Python 3.9 with Django 5.0
+          - python-version: "3.9"
+            django-version: "5.1"  # Exclude Python 3.9 with Django 5.1
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
