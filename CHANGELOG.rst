@@ -23,6 +23,7 @@ are used for versioning (schema follows below):
 - Add benchmarks section to the main README.
 - Improve docs. Add a dedicated section on files creation.
 - Minor clean-up.
+- Test against Django 5.1.
 
 0.10.4
 ------
