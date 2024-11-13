@@ -37,7 +37,7 @@ doc8:
 
 # Run ruff on the codebase
 ruff:
-	source $(VENV) && ruff check . --fix
+	source $(VENV) && ruff check .
 
 # Serve the built docs on port 5001
 serve_docs:
