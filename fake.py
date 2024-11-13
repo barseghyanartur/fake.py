@@ -63,7 +63,7 @@ from typing import (
     get_origin,
     get_type_hints,
 )
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
@@ -2020,7 +2020,10 @@ class Faker:
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
         """Generate a random email."""
         domain = random.choice(domain_names) if domain_names else None
-        return f"{'.'.join(_w.lower() for _w in self.words(3))}@{domain or self.domain_name()}"
+        return (
+                f"{'.'.join(_w.lower() for _w in self.words(3))}"
+                f"@{domain or self.domain_name()}"
+        )
 
     @provider(tags=("Internet",))
     def company_email(

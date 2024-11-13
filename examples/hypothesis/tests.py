@@ -3,7 +3,8 @@ import unittest
 from decimal import Decimal
 
 from fake import FAKER, FILE_REGISTRY, StringValue, slugify
-from hypothesis import Verbosity, given, settings, strategies as st
+from hypothesis import Verbosity, given, settings
+from hypothesis import strategies as st
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
