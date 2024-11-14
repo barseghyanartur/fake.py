@@ -21,16 +21,19 @@ build_docs_epub:
 build_docs_pdf:
 	$(MAKE) -C docs/ latexpdf
 
+auto_build_docs:
+	source $(VENV) && sphinx-autobuild docs docs/_build/html
+
 pre-commit:
 	pre-commit run --all-files
 
-# Format code using Black
-black:
-	source $(VENV) && black .
-
-# Sort imports using isort
-isort:
-	source $(VENV) && isort . --overwrite-in-place
+## Format code using Black
+#black:
+#	source $(VENV) && black .
+#
+## Sort imports using isort
+#isort:
+#	source $(VENV) && isort . --overwrite-in-place
 
 doc8:
 	source $(VENV) && doc8
