@@ -121,7 +121,7 @@ build-backend = "setuptools.build_meta"
 line-length = 80
 
 # Enable Pyflakes `E` and `F` codes by default.
-lint.select = ["E", "F", "I"]
+lint.select = ["E", "F", "I", "Q"]
 lint.ignore = []
 # Enable autofix for formatting and import sorting
 fix = true
