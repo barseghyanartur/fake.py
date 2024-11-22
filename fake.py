@@ -187,7 +187,7 @@ URL_SUFFIXES = (
 )
 
 FILE_TYPES = mimetypes.types_map
-FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]
+FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]  # noqa: SIM118
 MIME_TYPES = list(FILE_TYPES.values())
 
 UNWANTED_GEO_PATTERN = re.compile(
@@ -386,11 +386,13 @@ def returns_list(func: Callable) -> bool:
         if element_type in {StringValue, BytesValue}:
             return True
         element_origin = getattr(element_type, "__origin__", None)
-        if element_origin is Union:
-            if set(getattr(element_type, "__args__", [])) == {
+        if (
+            element_origin is Union
+            and set(getattr(element_type, "__args__", [])) == {
                 BytesValue,
                 StringValue,
-            }:
+            }
+        ):
                 return True
 
     return False
@@ -1816,9 +1818,8 @@ class Faker:
             parts = tz.split("/")
             _parts = []
             for part in parts:
-                if part:
-                    if not UNWANTED_GEO_PATTERN.match(part):
-                        _parts.append(part.replace("_", " "))
+                if part and not UNWANTED_GEO_PATTERN.match(part):
+                    _parts.append(part.replace("_", " "))
             if _parts:
                 add_geo_location("/".join(_parts))
 

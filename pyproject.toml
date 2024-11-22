@@ -97,7 +97,7 @@ lint.select = [
     "N",  # Naming: Variable naming convention
     "PERF",  # Perflint: Performance linting
     "Q",
-#    "SIM",  # Simplify: Helps simplify your code
+    "SIM",  # Simplify: Helps simplify your code
     "TD",  # TO DO: Format TO DO comments
 ]
 lint.ignore = [
