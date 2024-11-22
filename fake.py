@@ -67,7 +67,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.10.4"
+__version__ = "0.10.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -187,7 +187,7 @@ URL_SUFFIXES = (
 )
 
 FILE_TYPES = mimetypes.types_map
-FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]
+FILE_EXTENSIONS = [__v[1:] for __v in FILE_TYPES.keys()]  # noqa: SIM118
 MIME_TYPES = list(FILE_TYPES.values())
 
 UNWANTED_GEO_PATTERN = re.compile(
@@ -315,6 +315,8 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
 
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
+TEMP_DIR = gettempdir()
+
 
 def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
@@ -384,11 +386,13 @@ def returns_list(func: Callable) -> bool:
         if element_type in {StringValue, BytesValue}:
             return True
         element_origin = getattr(element_type, "__origin__", None)
-        if element_origin is Union:
-            if set(getattr(element_type, "__args__", [])) == {
+        if (
+            element_origin is Union
+            and set(getattr(element_type, "__args__", [])) == {
                 BytesValue,
                 StringValue,
-            }:
+            }
+        ):
                 return True
 
     return False
@@ -449,7 +453,7 @@ class StringTemplateMixin:
                 # Example: f('morning', format='%A, %B %d, %Y')
                 parsed_args = ast.parse(f"f({args_str})", mode="eval").body
                 for arg in parsed_args.args:
-                    args.append(ast.literal_eval(arg))
+                    args.append(ast.literal_eval(arg))  # noqa: PERF401
                 for kw in parsed_args.keywords:
                     kwargs[kw.arg] = ast.literal_eval(kw.value)
             except Exception as err:
@@ -758,7 +762,7 @@ class FileSystemStorage(BaseStorage):
 
     def __init__(
         self: "FileSystemStorage",
-        root_path: Optional[Union[str, Path]] = gettempdir(),
+        root_path: Optional[Union[str, Path]] = TEMP_DIR,
         rel_path: Optional[str] = "tmp",
         *args,
         **kwargs,
@@ -785,7 +789,7 @@ class FileSystemStorage(BaseStorage):
         dir_path.mkdir(parents=True, exist_ok=True)
 
         if not extension:
-            raise Exception("Extension shall be given!")
+            raise ValueError("Extension shall be given!")
 
         if not basename:
             basename = self.generate_basename(prefix)
@@ -932,7 +936,7 @@ class TextPdfGenerator:
             b"0000000010 00000 n \n0000000057 00000 n \n0000000103 00000 n \n"
         )
         offset = 149
-        for i in range(self.nb_pages):
+        for _ in range(self.nb_pages):
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
             offset += 78
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
@@ -1088,7 +1092,7 @@ class AuthorshipData:
     def _extract_authorship_info_from_stdlib(self) -> None:
         stdlib_path = os.path.dirname(os.__file__)
 
-        for root, dirs, files in os.walk(stdlib_path):
+        for root, _, files in os.walk(stdlib_path):
             for file in files:
                 if file.endswith(".py"):
                     file_path = os.path.join(root, file)
@@ -1544,8 +1548,8 @@ class JpgGenerator:
         jpeg = original.copy()
 
         # Step 1: Update the SOF0 marker with new dimensions
-        SOF0 = b"\xFF\xC0"
-        sof0_index = cls.find_marker(jpeg, SOF0)
+        sof0 = b"\xFF\xC0"
+        sof0_index = cls.find_marker(jpeg, sof0)
 
         # SOF0 structure:
         # [Marker]
@@ -1576,8 +1580,8 @@ class JpgGenerator:
         jpeg[sof0_index + 8] = new_width_bytes[1]
 
         # Step 2: Locate the Start of Scan (SOS) marker
-        SOS = b"\xFF\xDA"
-        sos_index = cls.find_marker(jpeg, SOS)
+        sos = b"\xFF\xDA"
+        sos_index = cls.find_marker(jpeg, sos)
 
         # SOS structure:
         # [Marker]
@@ -1592,8 +1596,8 @@ class JpgGenerator:
         image_data_start = sos_index + 2 + sos_length
 
         # Locate the End of Image (EOI) marker
-        EOI = b"\xFF\xD9"
-        eoi_index = jpeg.find(EOI, image_data_start)
+        eoi = b"\xFF\xD9"
+        eoi_index = jpeg.find(eoi, image_data_start)
         if eoi_index == -1:
             eoi_index = 0
             # raise ValueError("EOI marker not found.")
@@ -1630,7 +1634,7 @@ class ProviderRegistryItem(str):
 
     def __new__(cls, value, *args, **kwargs):
         obj = str.__new__(cls, value)
-        obj.tags = tuple()
+        obj.tags = ()
         return obj
 
 
@@ -1777,11 +1781,11 @@ class Faker:
 
     @staticmethod
     def get_by_uid(uid: str) -> Union["Faker", None]:
-        return UID_REGISTRY.get(uid, None)
+        return UID_REGISTRY.get(uid)
 
     @staticmethod
     def get_by_alias(alias: str) -> Union["Faker", None]:
-        return ALIAS_REGISTRY.get(alias, None)
+        return ALIAS_REGISTRY.get(alias)
 
     def load_words(self) -> None:
         with contextlib.redirect_stdout(io.StringIO()):
@@ -1812,11 +1816,11 @@ class Faker:
 
         for tz in zoneinfo.available_timezones():
             parts = tz.split("/")
-            _parts = []
-            for part in parts:
-                if part:
-                    if not UNWANTED_GEO_PATTERN.match(part):
-                        _parts.append(part.replace("_", " "))
+            _parts = [
+                part.replace("_", " ")
+                for part in parts
+                if part and not UNWANTED_GEO_PATTERN.match(part)
+            ]
             if _parts:
                 add_geo_location("/".join(_parts))
 
@@ -1826,10 +1830,12 @@ class Faker:
                     country = parts[0].replace("_", "")
                     add_country(country)
             # Extract cities for Asia and Europe
-            elif parts[0] in ["Asia", "Europe"]:
-                if len(parts) > 1:  # Check to ensure there is a second part
-                    city = parts[1].replace("_", " ")
-                    add_city(city)
+            elif (
+                parts[0] in ["Asia", "Europe"]
+                and len(parts) > 1  # Check to ensure there is a second part
+            ):
+                city = parts[1].replace("_", " ")
+                add_city(city)
 
         self._cities = list(cities)
         self._countries = list(countries)
@@ -4541,26 +4547,23 @@ class ModelFactory:
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value,
-                            (FactoryMethod, SubFactory, LazyFunction),
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value,
+                        (FactoryMethod, SubFactory, LazyFunction),
                     )
+                    else value
+                )
 
         # Update model_data with non-trait kwargs and collect PreSave from
         # kwargs.
@@ -4575,7 +4578,7 @@ class ModelFactory:
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -4687,25 +4690,22 @@ class DjangoModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check if this block is really needed now, that
         # nested_attrs and direct_attrs are already handled separately
@@ -4746,7 +4746,7 @@ class DjangoModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -4877,25 +4877,22 @@ class TortoiseModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check is this block is needed now that kwargs are split
         # into nested_attrs and direct_attrs later on.
@@ -4933,7 +4930,7 @@ class TortoiseModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -4954,17 +4951,21 @@ class TortoiseModelFactory(ModelFactory):
         cls._apply_lazy_attributes(instance, model_data)
 
         # Handle nested attributes
-        for attr, value in nested_attrs.items():
-            field_name, nested_attr = attr.split("__", 1)
-            if isinstance(getattr(cls, field_name, None), SubFactory):
+        for _attr, _value in nested_attrs.items():
+            _field_name, _nested_attr = _attr.split("__", 1)
+            if isinstance(getattr(cls, _field_name, None), SubFactory):
 
-                async def async_related_instance():
-                    return getattr(cls, field_name).factory_class.create(
-                        **{nested_attr: value}
+                async def async_related_instance(
+                    field_name_=_field_name,
+                    nested_attr_=_nested_attr,
+                    value_=_value,
+                ):
+                    return getattr(cls, field_name_).factory_class.create(
+                        **{nested_attr_: value_}
                     )
 
                 related_instance = run_async_in_thread(async_related_instance())
-                setattr(instance, field_name, related_instance)
+                setattr(instance, _field_name, related_instance)
 
         # Execute PreSave methods
         for __pre_save_method in pre_save_methods.values():
@@ -5043,25 +5044,22 @@ class SQLAlchemyModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check if this is really needed now that kwargs are
         # handled in direct_attrs later on.
@@ -5099,7 +5097,7 @@ class SQLAlchemyModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -5245,8 +5243,8 @@ class DataclassDataFiller(BaseDataFiller):
             if not provider_func:
                 if is_dataclass(_field.type):
                     # Recursive call for nested dataclass
-                    def provider_func():
-                        return cls.fill(_field.type)
+                    def provider_func(field_=_field):
+                        return cls.fill(field_.type)
 
                 else:
                     provider_func = cls.get_provider_for_type(_field.type)
@@ -5433,7 +5431,7 @@ class CLI:
         else:
             self.faker = FAKER
         faker_id = f"{self.faker.__module__}.{self.faker.__class__.__name__}"
-        self.provider_list = sorted(list(PROVIDER_REGISTRY[faker_id]))
+        self.provider_list = sorted(PROVIDER_REGISTRY[faker_id])
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -5529,9 +5527,7 @@ class TestScript(unittest.TestCase):
 
 class TestOrganizeProviders(unittest.TestCase):
     def setUp(self):
-        self.provider_list = sorted(
-            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
-        )
+        self.provider_list = sorted(PROVIDER_REGISTRY[f"{__name__}.Faker"])
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -5605,9 +5601,7 @@ class TestOrganizeProviders(unittest.TestCase):
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
-        self.provider_list = sorted(
-            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
-        )
+        self.provider_list = sorted(PROVIDER_REGISTRY[f"{__name__}.Faker"])
 
     @patch("sys.argv", ["fake-py"])
     def test_provider_list(self):
@@ -6063,13 +6057,15 @@ class TestFaker(unittest.TestCase):
                 min_digits,
                 f"Password must contain at least {min_digits} digits.",
             )
-        with self.subTest("Test raises ValueError when length too short."):
-            with self.assertRaises(ValueError):
-                self.faker.password(
-                    length=4, min_digits=3
-                )  # 2 required characters + 3 digits > 4
+        with (
+            self.subTest("Test raises ValueError when length too short."),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.password(
+                length=4, min_digits=3
+            )  # 2 required characters + 3 digits > 4
         with self.subTest("Test multiple generated passwords are unique."):
-            passwords = set(self.faker.password() for _ in range(25))
+            passwords = {self.faker.password() for _ in range(25)}
             self.assertEqual(len(passwords), 25, "Passwords should be unique.")
 
     def test_pyfloat(self) -> None:
@@ -6147,13 +6143,17 @@ class TestFaker(unittest.TestCase):
                 )
                 self.assertTrue(-1 < decimal_number_neg <= 0)
 
-        with self.subTest("Fail on `left_digits` < 0"):
-            with self.assertRaises(ValueError):
-                self.faker.pydecimal(left_digits=-1)
+        with (
+            self.subTest("Fail on `left_digits` < 0"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pydecimal(left_digits=-1)
 
-        with self.subTest("Fail on `right_digits` < 0"):
-            with self.assertRaises(ValueError):
-                self.faker.pydecimal(right_digits=-1)
+        with (
+            self.subTest("Fail on `right_digits` < 0"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pydecimal(right_digits=-1)
 
     def test_ipv4(self) -> None:
         # Test a large number of IPs to ensure randomness and correctness
@@ -6246,13 +6246,15 @@ class TestFaker(unittest.TestCase):
         )
 
     def test_text_pdf(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.pdf(
-                    nb_pages=None,
-                    texts=None,
-                    generator=TextPdfGenerator,
-                )
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pdf(
+                nb_pages=None,
+                texts=None,
+                generator=TextPdfGenerator,
+            )
 
         with self.subTest("Without params"):
             pdf = self.faker.pdf(generator=TextPdfGenerator)
@@ -6331,9 +6333,11 @@ class TestFaker(unittest.TestCase):
                 self.assertTrue(image)
                 self.assertIsInstance(image, bytes)
         for image_format in {"bin"}:
-            with self.subTest(image_format=image_format):
-                with self.assertRaises(ValueError):
-                    self.faker.image(image_format=image_format)
+            with (
+                self.subTest(image_format=image_format),
+                self.assertRaises(ValueError),
+            ):
+                self.faker.image(image_format=image_format)
 
     def test_wav(self) -> None:
         wav = self.faker.wav()
@@ -6341,9 +6345,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(wav, bytes)
 
     def test_docx(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.docx(nb_pages=None, texts=None),  # noqa
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.docx(nb_pages=None, texts=None),  # noqa
 
         with self.subTest("Without params"):
             docx = self.faker.docx()
@@ -6357,9 +6363,11 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(docx, bytes)
 
     def test_odt(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.odt(nb_pages=None, texts=None),  # noqa
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.odt(nb_pages=None, texts=None),  # noqa
 
         with self.subTest("Without params"):
             odt = self.faker.odt()
@@ -6789,7 +6797,7 @@ class TestFaker(unittest.TestCase):
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             storage.generate_filename(extension=None)  # type: ignore
 
     def test_storage_integration(self) -> None:
@@ -6988,7 +6996,7 @@ class TestFaker(unittest.TestCase):
                 self.password = xor_transform(password)
 
             @classproperty
-            def objects(cls):
+            def objects(cls):  # noqa: N805
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
                     instance=fill_dataclass(cls),  # type: ignore
@@ -7017,15 +7025,17 @@ class TestFaker(unittest.TestCase):
                 self.save_called = True  # noqa
 
             @classproperty
-            def objects(cls):
+            def objects(cls):  # noqa: N805
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
                     instance=fill_dataclass(cls),  # type: ignore
                 )
 
-        with self.subTest("fill_pydantic_model on dataclass"):
-            with self.assertRaises(ValueError):
-                _article = fill_pydantic_model(Article)
+        with (
+            self.subTest("fill_pydantic_model on dataclass"),
+            self.assertRaises(ValueError),
+        ):
+            _article = fill_pydantic_model(Article)
 
         with self.subTest("fill_pydantic_model"):
             _obj = fill_pydantic_model(MockPydanticModel)
