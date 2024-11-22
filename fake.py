@@ -785,7 +785,7 @@ class FileSystemStorage(BaseStorage):
         dir_path.mkdir(parents=True, exist_ok=True)
 
         if not extension:
-            raise Exception("Extension shall be given!")
+            raise ValueError("Extension shall be given!")
 
         if not basename:
             basename = self.generate_basename(prefix)
@@ -6785,7 +6785,7 @@ class TestFaker(unittest.TestCase):
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             storage.generate_filename(extension=None)  # type: ignore
 
     def test_storage_integration(self) -> None:

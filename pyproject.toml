@@ -86,7 +86,7 @@ line-length = 80
 # Enable Pyflakes `E` and `F` codes by default.
 lint.select = [
 #    "ANN",  # Annotations: missing (return) types
-#    "B",  # Bugbear: common bug patterns or design problems
+    "B",  # Bugbear: common bug patterns or design problems
     "C4",  # Complexity: McCabe complexity checker
     "E",  # Pycodesyle: Style guide enforcement
     "F",  # Pyflakes: Source files errors
