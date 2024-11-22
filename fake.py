@@ -1816,10 +1816,11 @@ class Faker:
 
         for tz in zoneinfo.available_timezones():
             parts = tz.split("/")
-            _parts = []
-            for part in parts:
-                if part and not UNWANTED_GEO_PATTERN.match(part):
-                    _parts.append(part.replace("_", " "))
+            _parts = [
+                part.replace("_", " ")
+                for part in parts
+                if part and not UNWANTED_GEO_PATTERN.match(part)
+            ]
             if _parts:
                 add_geo_location("/".join(_parts))
 
@@ -1829,10 +1830,12 @@ class Faker:
                     country = parts[0].replace("_", "")
                     add_country(country)
             # Extract cities for Asia and Europe
-            elif parts[0] in ["Asia", "Europe"]:
-                if len(parts) > 1:  # Check to ensure there is a second part
-                    city = parts[1].replace("_", " ")
-                    add_city(city)
+            elif (
+                parts[0] in ["Asia", "Europe"]
+                and len(parts) > 1  # Check to ensure there is a second part
+            ):
+                city = parts[1].replace("_", " ")
+                add_city(city)
 
         self._cities = list(cities)
         self._countries = list(countries)
@@ -4544,26 +4547,23 @@ class ModelFactory:
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value,
-                            (FactoryMethod, SubFactory, LazyFunction),
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value,
+                        (FactoryMethod, SubFactory, LazyFunction),
                     )
+                    else value
+                )
 
         # Update model_data with non-trait kwargs and collect PreSave from
         # kwargs.
@@ -4690,25 +4690,22 @@ class DjangoModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check if this block is really needed now, that
         # nested_attrs and direct_attrs are already handled separately
@@ -4880,25 +4877,22 @@ class TortoiseModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check is this block is needed now that kwargs are split
         # into nested_attrs and direct_attrs later on.
@@ -5050,25 +5044,22 @@ class SQLAlchemyModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif not _field.startswith(
-                (
-                    "_",
-                    "Meta",
-                )
-            ):
-                if (
+            elif (
+                not _field.startswith(("_", "Meta",))
+                and (
                     not getattr(value, "is_trait", False)
                     and not getattr(value, "is_pre_init", False)
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
-                ):
-                    model_data[_field] = (
-                        value()
-                        if isinstance(
-                            value, (FactoryMethod, SubFactory, LazyFunction)
-                        )
-                        else value
+                )
+            ):
+                model_data[_field] = (
+                    value()
+                    if isinstance(
+                        value, (FactoryMethod, SubFactory, LazyFunction)
                     )
+                    else value
+                )
 
         # TODO: Check if this is really needed now that kwargs are
         # handled in direct_attrs later on.
