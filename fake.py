@@ -4956,17 +4956,21 @@ class TortoiseModelFactory(ModelFactory):
         cls._apply_lazy_attributes(instance, model_data)
 
         # Handle nested attributes
-        for attr, value in nested_attrs.items():
-            field_name, nested_attr = attr.split("__", 1)
-            if isinstance(getattr(cls, field_name, None), SubFactory):
+        for _attr, _value in nested_attrs.items():
+            _field_name, _nested_attr = _attr.split("__", 1)
+            if isinstance(getattr(cls, _field_name, None), SubFactory):
 
-                async def async_related_instance():
-                    return getattr(cls, field_name).factory_class.create(
-                        **{nested_attr: value}
+                async def async_related_instance(
+                    field_name_=_field_name,
+                    nested_attr_=_nested_attr,
+                    value_=_value,
+                ):
+                    return getattr(cls, field_name_).factory_class.create(
+                        **{nested_attr_: value_}
                     )
 
                 related_instance = run_async_in_thread(async_related_instance())
-                setattr(instance, field_name, related_instance)
+                setattr(instance, _field_name, related_instance)
 
         # Execute PreSave methods
         for __pre_save_method in pre_save_methods.values():
@@ -5247,8 +5251,8 @@ class DataclassDataFiller(BaseDataFiller):
             if not provider_func:
                 if is_dataclass(_field.type):
                     # Recursive call for nested dataclass
-                    def provider_func():
-                        return cls.fill(_field.type)
+                    def provider_func(field_=_field):
+                        return cls.fill(field_.type)
 
                 else:
                     provider_func = cls.get_provider_for_type(_field.type)
