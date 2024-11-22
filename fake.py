@@ -1777,11 +1777,11 @@ class Faker:
 
     @staticmethod
     def get_by_uid(uid: str) -> Union["Faker", None]:
-        return UID_REGISTRY.get(uid, None)
+        return UID_REGISTRY.get(uid)
 
     @staticmethod
     def get_by_alias(alias: str) -> Union["Faker", None]:
-        return ALIAS_REGISTRY.get(alias, None)
+        return ALIAS_REGISTRY.get(alias)
 
     def load_words(self) -> None:
         with contextlib.redirect_stdout(io.StringIO()):

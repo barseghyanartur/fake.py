@@ -97,12 +97,15 @@ lint.select = [
     "N",  # Naming: Variable naming convention
     "PERF",  # Perflint: Performance linting
     "Q",
-    "SIM",  # Simplify: Helps simplify your code
+#    "SIM",  # Simplify: Helps simplify your code
+    "TD",  # TO DO: Format TO DO comments
 ]
 lint.ignore = [
     "G004",  # Allow use of f-string in logging
     "ISC003",  # Allow explicitly concatenated strings
 #    "N805",  # Allow first argument of a method be named other than `self`
+    "TD002",  # Allow to do without author
+    "TD003",  # Allow to do without URL
 ]
 # Enable autofix for formatting and import sorting
 fix = true
