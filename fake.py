@@ -6246,13 +6246,15 @@ class TestFaker(unittest.TestCase):
         )
 
     def test_text_pdf(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.pdf(
-                    nb_pages=None,
-                    texts=None,
-                    generator=TextPdfGenerator,
-                )
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pdf(
+                nb_pages=None,
+                texts=None,
+                generator=TextPdfGenerator,
+            )
 
         with self.subTest("Without params"):
             pdf = self.faker.pdf(generator=TextPdfGenerator)
@@ -6331,9 +6333,11 @@ class TestFaker(unittest.TestCase):
                 self.assertTrue(image)
                 self.assertIsInstance(image, bytes)
         for image_format in {"bin"}:
-            with self.subTest(image_format=image_format):
-                with self.assertRaises(ValueError):
-                    self.faker.image(image_format=image_format)
+            with (
+                self.subTest(image_format=image_format),
+                self.assertRaises(ValueError),
+            ):
+                self.faker.image(image_format=image_format)
 
     def test_wav(self) -> None:
         wav = self.faker.wav()
@@ -6341,9 +6345,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(wav, bytes)
 
     def test_docx(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.docx(nb_pages=None, texts=None),  # noqa
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.docx(nb_pages=None, texts=None),  # noqa
 
         with self.subTest("Without params"):
             docx = self.faker.docx()
@@ -6357,9 +6363,11 @@ class TestFaker(unittest.TestCase):
             self.assertIsInstance(docx, bytes)
 
     def test_odt(self) -> None:
-        with self.subTest("All params None, should fail"):
-            with self.assertRaises(ValueError):
-                self.faker.odt(nb_pages=None, texts=None),  # noqa
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.odt(nb_pages=None, texts=None),  # noqa
 
         with self.subTest("Without params"):
             odt = self.faker.odt()
@@ -7023,9 +7031,11 @@ class TestFaker(unittest.TestCase):
                     instance=fill_dataclass(cls),  # type: ignore
                 )
 
-        with self.subTest("fill_pydantic_model on dataclass"):
-            with self.assertRaises(ValueError):
-                _article = fill_pydantic_model(Article)
+        with (
+            self.subTest("fill_pydantic_model on dataclass"),
+            self.assertRaises(ValueError),
+        ):
+            _article = fill_pydantic_model(Article)
 
         with self.subTest("fill_pydantic_model"):
             _obj = fill_pydantic_model(MockPydanticModel)
