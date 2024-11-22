@@ -315,6 +315,8 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
 
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
+TEMP_DIR = gettempdir()
+
 
 def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
@@ -758,7 +760,7 @@ class FileSystemStorage(BaseStorage):
 
     def __init__(
         self: "FileSystemStorage",
-        root_path: Optional[Union[str, Path]] = gettempdir(),
+        root_path: Optional[Union[str, Path]] = TEMP_DIR,
         rel_path: Optional[str] = "tmp",
         *args,
         **kwargs,
@@ -932,7 +934,7 @@ class TextPdfGenerator:
             b"0000000010 00000 n \n0000000057 00000 n \n0000000103 00000 n \n"
         )
         offset = 149
-        for i in range(self.nb_pages):
+        for _ in range(self.nb_pages):
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
             offset += 78
             pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
@@ -1088,7 +1090,7 @@ class AuthorshipData:
     def _extract_authorship_info_from_stdlib(self) -> None:
         stdlib_path = os.path.dirname(os.__file__)
 
-        for root, dirs, files in os.walk(stdlib_path):
+        for root, _, files in os.walk(stdlib_path):
             for file in files:
                 if file.endswith(".py"):
                     file_path = os.path.join(root, file)
@@ -4575,7 +4577,7 @@ class ModelFactory:
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -4746,7 +4748,7 @@ class DjangoModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -4933,7 +4935,7 @@ class TortoiseModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
@@ -5099,7 +5101,7 @@ class SQLAlchemyModelFactory(ModelFactory):
                 model_data[key] = value
 
         # Execute pre-init methods
-        for key, pre_init_method in pre_init_methods.items():
+        for pre_init_method in pre_init_methods.values():
             pre_init_method.execute(model_data)
 
         # Pre-init hooks
