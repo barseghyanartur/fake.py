@@ -24,6 +24,7 @@ are used for versioning (schema follows below):
 - Improve docs. Add a dedicated section on files creation.
 - Minor clean-up.
 - Test against Django 5.1.
+- Clean-up.
 
 0.10.4
 ------
