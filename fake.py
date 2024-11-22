@@ -6057,11 +6057,13 @@ class TestFaker(unittest.TestCase):
                 min_digits,
                 f"Password must contain at least {min_digits} digits.",
             )
-        with self.subTest("Test raises ValueError when length too short."):
-            with self.assertRaises(ValueError):
-                self.faker.password(
-                    length=4, min_digits=3
-                )  # 2 required characters + 3 digits > 4
+        with (
+            self.subTest("Test raises ValueError when length too short."),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.password(
+                length=4, min_digits=3
+            )  # 2 required characters + 3 digits > 4
         with self.subTest("Test multiple generated passwords are unique."):
             passwords = {self.faker.password() for _ in range(25)}
             self.assertEqual(len(passwords), 25, "Passwords should be unique.")
@@ -6141,13 +6143,17 @@ class TestFaker(unittest.TestCase):
                 )
                 self.assertTrue(-1 < decimal_number_neg <= 0)
 
-        with self.subTest("Fail on `left_digits` < 0"):
-            with self.assertRaises(ValueError):
-                self.faker.pydecimal(left_digits=-1)
+        with (
+            self.subTest("Fail on `left_digits` < 0"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pydecimal(left_digits=-1)
 
-        with self.subTest("Fail on `right_digits` < 0"):
-            with self.assertRaises(ValueError):
-                self.faker.pydecimal(right_digits=-1)
+        with (
+            self.subTest("Fail on `right_digits` < 0"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.pydecimal(right_digits=-1)
 
     def test_ipv4(self) -> None:
         # Test a large number of IPs to ensure randomness and correctness
