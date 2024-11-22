@@ -449,7 +449,7 @@ class StringTemplateMixin:
                 # Example: f('morning', format='%A, %B %d, %Y')
                 parsed_args = ast.parse(f"f({args_str})", mode="eval").body
                 for arg in parsed_args.args:
-                    args.append(ast.literal_eval(arg))
+                    args.append(ast.literal_eval(arg))  # noqa: PERF401
                 for kw in parsed_args.keywords:
                     kwargs[kw.arg] = ast.literal_eval(kw.value)
             except Exception as err:
@@ -6984,7 +6984,7 @@ class TestFaker(unittest.TestCase):
                 self.password = xor_transform(password)
 
             @classproperty
-            def objects(cls):
+            def objects(cls):  # noqa: N805
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
                     instance=fill_dataclass(cls),  # type: ignore
@@ -7013,7 +7013,7 @@ class TestFaker(unittest.TestCase):
                 self.save_called = True  # noqa
 
             @classproperty
-            def objects(cls):
+            def objects(cls):  # noqa: N805
                 """Mimicking Django's Manager behaviour."""
                 return DjangoManager(
                     instance=fill_dataclass(cls),  # type: ignore

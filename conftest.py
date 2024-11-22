@@ -20,7 +20,7 @@ __all__ = (
 def pytest_collection_modifyitems(session, config, items):
     """Modify test items during collection."""
     for item in items:
-        try:
+        try:  # noqa
             from pytest_rst import RSTTestItem
 
             if isinstance(item, RSTTestItem):

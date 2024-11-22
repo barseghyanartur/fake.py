@@ -97,11 +97,12 @@ lint.select = [
     "N",  # Naming: Variable naming convention
     "PERF",  # Perflint: Performance linting
     "Q",
+    "SIM",  # Simplify: Helps simplify your code
 ]
 lint.ignore = [
     "G004",  # Allow use of f-string in logging
     "ISC003",  # Allow explicitly concatenated strings
-    "N805",  # Allow first argument of a method be named other than `self`
+#    "N805",  # Allow first argument of a method be named other than `self`
 ]
 # Enable autofix for formatting and import sorting
 fix = true
@@ -140,13 +141,17 @@ exclude = [
     "venv",
     "docs",
 ]
-lint.per-file-ignores = {}
 
 # Allow unused variables when underscore-prefixed.
 lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Assume Python 3.9.
 target-version = "py39"
+
+[tool.ruff.lint.per-file-ignores]
+"conftest.py" = [
+    "PERF203"  # Allow `try`-`except` within a loop incurs performance overhead
+]
 
 [tool.ruff.lint.isort]
 known-first-party = [
