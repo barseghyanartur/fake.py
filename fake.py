@@ -1544,8 +1544,8 @@ class JpgGenerator:
         jpeg = original.copy()
 
         # Step 1: Update the SOF0 marker with new dimensions
-        SOF0 = b"\xFF\xC0"
-        sof0_index = cls.find_marker(jpeg, SOF0)
+        sof0 = b"\xFF\xC0"
+        sof0_index = cls.find_marker(jpeg, sof0)
 
         # SOF0 structure:
         # [Marker]
@@ -1576,8 +1576,8 @@ class JpgGenerator:
         jpeg[sof0_index + 8] = new_width_bytes[1]
 
         # Step 2: Locate the Start of Scan (SOS) marker
-        SOS = b"\xFF\xDA"
-        sos_index = cls.find_marker(jpeg, SOS)
+        sos = b"\xFF\xDA"
+        sos_index = cls.find_marker(jpeg, sos)
 
         # SOS structure:
         # [Marker]
@@ -1592,8 +1592,8 @@ class JpgGenerator:
         image_data_start = sos_index + 2 + sos_length
 
         # Locate the End of Image (EOI) marker
-        EOI = b"\xFF\xD9"
-        eoi_index = jpeg.find(EOI, image_data_start)
+        eoi = b"\xFF\xD9"
+        eoi_index = jpeg.find(eoi, image_data_start)
         if eoi_index == -1:
             eoi_index = 0
             # raise ValueError("EOI marker not found.")
@@ -1630,7 +1630,7 @@ class ProviderRegistryItem(str):
 
     def __new__(cls, value, *args, **kwargs):
         obj = str.__new__(cls, value)
-        obj.tags = tuple()
+        obj.tags = ()
         return obj
 
 
@@ -5433,7 +5433,7 @@ class CLI:
         else:
             self.faker = FAKER
         faker_id = f"{self.faker.__module__}.{self.faker.__class__.__name__}"
-        self.provider_list = sorted(list(PROVIDER_REGISTRY[faker_id]))
+        self.provider_list = sorted(PROVIDER_REGISTRY[faker_id])
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -5529,9 +5529,7 @@ class TestScript(unittest.TestCase):
 
 class TestOrganizeProviders(unittest.TestCase):
     def setUp(self):
-        self.provider_list = sorted(
-            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
-        )
+        self.provider_list = sorted(PROVIDER_REGISTRY[f"{__name__}.Faker"])
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
@@ -5605,9 +5603,7 @@ class TestOrganizeProviders(unittest.TestCase):
 
 class TestCLI(unittest.TestCase):
     def setUp(self):
-        self.provider_list = sorted(
-            list(PROVIDER_REGISTRY[f"{__name__}.Faker"])
-        )
+        self.provider_list = sorted(PROVIDER_REGISTRY[f"{__name__}.Faker"])
 
     @patch("sys.argv", ["fake-py"])
     def test_provider_list(self):
@@ -6069,7 +6065,7 @@ class TestFaker(unittest.TestCase):
                     length=4, min_digits=3
                 )  # 2 required characters + 3 digits > 4
         with self.subTest("Test multiple generated passwords are unique."):
-            passwords = set(self.faker.password() for _ in range(25))
+            passwords = {self.faker.password() for _ in range(25)}
             self.assertEqual(len(passwords), 25, "Passwords should be unique.")
 
     def test_pyfloat(self) -> None:
