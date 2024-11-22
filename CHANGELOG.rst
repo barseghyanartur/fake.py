@@ -18,7 +18,7 @@ are used for versioning (schema follows below):
 
 0.10.5
 ------
-*Unreleased*
+2024-11-23
 
 - Add benchmarks section to the main README.
 - Improve docs. Add a dedicated section on files creation.
