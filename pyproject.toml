@@ -43,7 +43,6 @@ dev = [
     "doc8",
     "ipython",
     "mypy",
-    "pip-tools",
     "pydoclint",
     "ruff",
     "twine",
