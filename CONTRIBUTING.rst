@@ -9,6 +9,8 @@ Contributor guidelines
 .. _doc8: https://doc8.readthedocs.io/
 .. _ruff: https://beta.ruff.rs/docs/
 .. _pip-tools: https://pip-tools.readthedocs.io/
+.. _uv: https://docs.astral.sh/uv/
+.. _tox: https://tox.wiki
 .. _issues: https://github.com/barseghyanartur/fake.py/issues
 .. _discussions: https://github.com/barseghyanartur/fake.py/discussions
 .. _pull request: https://github.com/barseghyanartur/fake.py/pulls
@@ -29,8 +31,8 @@ TL;DR:
 
 .. code-block:: sh
 
-    pip install pipx --user  # Install pipx
-    pipx install pre-commit  # Install pre-commit
+    curl -LsSf https://astral.sh/uv/install.sh | sh  # Install uv
+    uv tool install pre-commit  # Install pre-commit
     pre-commit install  # Install pre-commit hooks
 
 Installing `pre-commit`_ will ensure you adhere to the project code quality
@@ -51,7 +53,7 @@ Still, if you want to run checks manually:
 
 Requirements
 ------------
-Requirements are compiled using `pip-tools`_.
+Requirements are compiled using `uv`_.
 
 .. code-block:: sh
 
@@ -77,7 +79,7 @@ Testing
 Check `testing`_.
 
 If you introduce changes or fixes, make sure to test them locally using
-all supported environments. For that use tox.
+all supported environments. For that use `tox`_.
 
 .. code-block:: sh
 
