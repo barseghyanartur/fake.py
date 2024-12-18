@@ -1,6 +1,7 @@
 Contributor guidelines
 ======================
 
+.. _fake.py: https://fakepy.readthedocs.io
 .. _documentation: https://fakepy.readthedocs.io/#writing-documentation
 .. _testing: https://fakepy.readthedocs.io/#testing
 .. _pre-commit: https://pre-commit.com/#installation
@@ -20,6 +21,7 @@ Contributor guidelines
 .. _recipes: https://fakepy.readthedocs.io/en/latest/recipes.html
 .. _quick start: https://fakepy.readthedocs.io/en/latest/quick_start.html
 .. _prerequisites: https://fakepy.readthedocs.io/#prerequisites
+.. _versions manifest: https://github.com/actions/python-versions/blob/main/versions-manifest.json
 
 Developer prerequisites
 -----------------------
@@ -136,6 +138,19 @@ For example:
 
 - Make sure to update the documentation (check whether the `installation`_,
   `features`_, `recipes`_ and `quick start`_ require changes).
+
+GitHub Actions
+--------------
+Only non-EOL versions of Python and software `fake.py`_ aims to integrate with
+are supported.
+
+On GitHub Actions includes tests for more than 40 different variations of
+Python versions and integration packages. Future, non-stable versions
+of Python are being tested too, so that new features/incompatibilities
+could be seen and adopted early.
+
+For the list of Python versions supported by GitHub, see GitHub Actions
+`versions manifest`_.
 
 Questions
 ---------
