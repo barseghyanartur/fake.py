@@ -51,7 +51,7 @@ jobs:
         #          - Windows
         #          - MacOs
         python-version:
-          - "3.14.0-alpha.0"
+          - "3.14.0-alpha.3"
           - "3.13"
           - "3.12"
           - "3.11"
