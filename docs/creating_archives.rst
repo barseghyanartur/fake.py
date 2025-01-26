@@ -15,8 +15,8 @@ control over the content of the files, check the `faker-file`_ package,
 which offers similar functionality but can produce complex documents with
 almost no limitation of the content.
 
-Supported image formats
------------------------
+Supported archive formats
+-------------------------
 Currently, 3 formats are supported:
 
 - ``ZIP``
