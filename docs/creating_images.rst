@@ -13,7 +13,7 @@ check the `faker-file`_ package, which can produce complex images.
 
 Supported image formats
 -----------------------
-Currently, 6 image formats are supported:
+Currently, 7 image formats are supported:
 
 - ``PNG``
 - ``SVG``
