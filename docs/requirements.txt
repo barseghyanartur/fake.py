@@ -2,7 +2,7 @@
 #    uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
 alabaster==0.7.16
     # via sphinx
-anyio==4.7.0
+anyio==4.8.0
     # via
     #   starlette
     #   watchfiles
@@ -26,7 +26,7 @@ click==8.1.8
     #   uvicorn
 colorama==0.4.6
     # via sphinx-autobuild
-coverage==7.6.9
+coverage==7.6.10
     # via pytest-cov
 cryptography==44.0.0
     # via secretstorage
@@ -34,11 +34,11 @@ decorator==5.1.1
     # via ipython
 detect-secrets==1.5.0
     # via fake-py (pyproject.toml)
-django==5.1.4
+django==5.1.5
     # via fake-py (pyproject.toml)
 doc8==1.1.2
     # via fake-py (pyproject.toml)
-docstring-parser-fork==0.0.9
+docstring-parser-fork==0.0.12
     # via pydoclint
 docutils==0.19
     # via
@@ -48,17 +48,19 @@ docutils==0.19
     #   sphinx
     #   sphinx-no-pragma
     #   sphinx-rtd-theme
-executing==2.1.0
+executing==2.2.0
     # via stack-data
 h11==0.14.0
     # via uvicorn
+id==1.5.0
+    # via twine
 idna==3.10
     # via
     #   anyio
     #   requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.5.0
+importlib-metadata==8.6.1
     # via keyring
 iniconfig==2.0.0
     # via pytest
@@ -78,7 +80,7 @@ jeepney==0.8.0
     #   secretstorage
 jinja2==3.1.5
     # via sphinx
-keyring==25.5.0
+keyring==25.6.0
     # via twine
 markdown-it-py==3.0.0
     # via rich
@@ -88,11 +90,11 @@ matplotlib-inline==0.1.7
     # via ipython
 mdurl==0.1.2
     # via markdown-it-py
-more-itertools==10.5.0
+more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-mypy==1.14.0
+mypy==1.14.1
     # via fake-py (pyproject.toml)
 mypy-extensions==1.0.0
     # via mypy
@@ -109,11 +111,9 @@ pbr==6.1.0
     # via stevedore
 pexpect==4.9.0
     # via ipython
-pkginfo==1.12.0
-    # via twine
 pluggy==1.5.0
     # via pytest
-prompt-toolkit==3.0.48
+prompt-toolkit==3.0.50
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -121,9 +121,9 @@ pure-eval==0.2.3
     # via stack-data
 pycparser==2.22
     # via cffi
-pydoclint==0.5.13
+pydoclint==0.6.0
     # via fake-py (pyproject.toml)
-pygments==2.18.0
+pygments==2.19.1
     # via
     #   doc8
     #   ipython
@@ -148,6 +148,7 @@ readme-renderer==43.0
 requests==2.32.3
     # via
     #   detect-secrets
+    #   id
     #   requests-toolbelt
     #   sphinx
     #   twine
@@ -159,7 +160,7 @@ rfc3986==2.0.0
     # via twine
 rich==13.9.4
     # via twine
-ruff==0.8.4
+ruff==0.9.3
     # via fake-py (pyproject.toml)
 secretstorage==3.3.3
     # via keyring
@@ -198,7 +199,7 @@ sqlparse==0.5.3
     # via django
 stack-data==0.6.3
     # via ipython
-starlette==0.42.0
+starlette==0.45.3
     # via sphinx-autobuild
 stevedore==5.4.0
     # via doc8
@@ -206,7 +207,7 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-twine==6.0.1
+twine==6.1.0
     # via fake-py (pyproject.toml)
 typing-extensions==4.12.2
     # via
@@ -217,15 +218,15 @@ urllib3==2.3.0
     # via
     #   requests
     #   twine
-uv==0.5.11
+uv==0.5.24
     # via fake-py (pyproject.toml)
 uvicorn==0.34.0
     # via sphinx-autobuild
-watchfiles==1.0.3
+watchfiles==1.0.4
     # via sphinx-autobuild
 wcwidth==0.2.13
     # via prompt-toolkit
-websockets==14.1
+websockets==14.2
     # via sphinx-autobuild
 zipp==3.21.0
     # via importlib-metadata
