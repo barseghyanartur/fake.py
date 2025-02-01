@@ -12,7 +12,7 @@ hold attachments).
 
 If you don't like the quality of the generated files and want to have more
 control over the content of the files, check the `faker-file`_ package,
-which offers similar functionality but can produce complex documents with
+which offers similar functionality but can produce complex archives with
 almost no limitation of the content.
 
 Supported archive formats
