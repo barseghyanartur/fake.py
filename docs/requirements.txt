@@ -28,7 +28,7 @@ colorama==0.4.6
     # via sphinx-autobuild
 coverage==7.6.10
     # via pytest-cov
-cryptography==44.0.0
+cryptography==44.0.1
     # via secretstorage
 decorator==5.1.1
     # via ipython
