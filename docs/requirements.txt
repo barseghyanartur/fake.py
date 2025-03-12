@@ -10,11 +10,11 @@ asgiref==3.8.1
     # via django
 asttokens==3.0.0
     # via stack-data
-babel==2.16.0
+babel==2.17.0
     # via sphinx
 backports-tarfile==1.2.0
     # via jaraco-context
-certifi==2024.12.14
+certifi==2025.1.31
     # via requests
 cffi==1.17.1
     # via cryptography
@@ -26,15 +26,15 @@ click==8.1.8
     #   uvicorn
 colorama==0.4.6
     # via sphinx-autobuild
-coverage==7.6.10
+coverage==7.6.12
     # via pytest-cov
-cryptography==44.0.0
+cryptography==44.0.2
     # via secretstorage
-decorator==5.1.1
+decorator==5.2.1
     # via ipython
 detect-secrets==1.5.0
     # via fake-py (pyproject.toml)
-django==5.1.5
+django==5.1.7
     # via fake-py (pyproject.toml)
 doc8==1.1.2
     # via fake-py (pyproject.toml)
@@ -64,8 +64,10 @@ importlib-metadata==8.6.1
     # via keyring
 iniconfig==2.0.0
     # via pytest
-ipython==8.31.0
+ipython==9.0.2
     # via fake-py (pyproject.toml)
+ipython-pygments-lexers==1.1.1
+    # via ipython
 jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
@@ -74,11 +76,11 @@ jaraco-functools==4.1.0
     # via keyring
 jedi==0.19.2
     # via ipython
-jeepney==0.8.0
+jeepney==0.9.0
     # via
     #   keyring
     #   secretstorage
-jinja2==3.1.5
+jinja2==3.1.6
     # via sphinx
 keyring==25.6.0
     # via twine
@@ -94,11 +96,11 @@ more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-mypy==1.14.1
+mypy==1.15.0
     # via fake-py (pyproject.toml)
 mypy-extensions==1.0.0
     # via mypy
-nh3==0.2.20
+nh3==0.2.21
     # via readme-renderer
 packaging==24.2
     # via
@@ -107,7 +109,7 @@ packaging==24.2
     #   twine
 parso==0.8.4
     # via jedi
-pbr==6.1.0
+pbr==6.1.1
     # via stevedore
 pexpect==4.9.0
     # via ipython
@@ -121,23 +123,24 @@ pure-eval==0.2.3
     # via stack-data
 pycparser==2.22
     # via cffi
-pydoclint==0.6.0
+pydoclint==0.6.2
     # via fake-py (pyproject.toml)
 pygments==2.19.1
     # via
     #   doc8
     #   ipython
+    #   ipython-pygments-lexers
     #   readme-renderer
     #   rich
     #   sphinx
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   fake-py (pyproject.toml)
     #   pytest-cov
     #   pytest-django
 pytest-cov==6.0.0
     # via fake-py (pyproject.toml)
-pytest-django==4.9.0
+pytest-django==4.10.0
     # via fake-py (pyproject.toml)
 pytest-rst==0.1.5
     # via fake-py (pyproject.toml)
@@ -160,10 +163,12 @@ rfc3986==2.0.0
     # via twine
 rich==13.9.4
     # via twine
-ruff==0.9.3
+ruff==0.9.10
     # via fake-py (pyproject.toml)
 secretstorage==3.3.3
     # via keyring
+setuptools==76.0.0
+    # via pbr
 sniffio==1.3.1
     # via anyio
 snowballstemmer==2.2.0
@@ -199,9 +204,9 @@ sqlparse==0.5.3
     # via django
 stack-data==0.6.3
     # via ipython
-starlette==0.45.3
+starlette==0.46.1
     # via sphinx-autobuild
-stevedore==5.4.0
+stevedore==5.4.1
     # via doc8
 traitlets==5.14.3
     # via
@@ -218,7 +223,7 @@ urllib3==2.3.0
     # via
     #   requests
     #   twine
-uv==0.5.24
+uv==0.6.6
     # via fake-py (pyproject.toml)
 uvicorn==0.34.0
     # via sphinx-autobuild
@@ -226,7 +231,7 @@ watchfiles==1.0.4
     # via sphinx-autobuild
 wcwidth==0.2.13
     # via prompt-toolkit
-websockets==14.2
+websockets==15.0.1
     # via sphinx-autobuild
 zipp==3.21.0
     # via importlib-metadata
