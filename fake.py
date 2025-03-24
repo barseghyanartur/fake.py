@@ -39,7 +39,7 @@ from functools import partial
 from inspect import signature
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile, gettempdir
+from tempfile import gettempdir, mktemp
 from textwrap import wrap
 from threading import Lock
 from typing import (
@@ -67,7 +67,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.10.5"
+__version__ = "0.11"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -1990,10 +1990,41 @@ class Faker:
         return [self.text() for _ in range(nb)]
 
     @provider(tags=("Filename",))
-    def file_name(self, extension: str = "txt") -> str:
+    def file_name(
+        self,
+        prefix: Optional[str] = "",
+        extension: str = "txt",
+    ) -> str:
         """Generate a random filename."""
-        with NamedTemporaryFile(suffix=f".{extension}") as temp_file:
-            return temp_file.name
+        return os.path.basename(
+            mktemp(
+                suffix=f".{extension}" if extension else "",
+                prefix=prefix or "",
+            )
+        )
+
+    @provider(tags=("Filename",))
+    def file_path(
+        self,
+        prefix: Optional[str] = "",
+        extension: str = "txt",
+    ) -> str:
+        """Generate a random file path."""
+        return mktemp(
+            suffix=f".{extension}" if extension else "",
+            prefix=prefix or "",
+        )
+
+    @provider(tags=("Filename",))
+    def dir_path(
+        self,
+        depth: int = 1,
+    ) -> str:
+        """Generate a random dir path."""
+        _path_parts = [
+            random.choice(self._words).lower() for _ in range(depth)
+        ]
+        return os.path.join(*([os.path.sep] + _path_parts))
 
     @provider(tags=("Filename",))
     def file_extension(self) -> str:
@@ -5808,6 +5839,75 @@ class TestFaker(unittest.TestCase):
                 file_name: str = self.faker.file_name(**kwargs)
                 self.assertIsInstance(file_name, str)
                 self.assertTrue(file_name.endswith(f".{expected_extension}"))
+
+    def test_file_path(self) -> None:
+        extensions = [(None, "txt"), ("txt", "txt"), ("jpg", "jpg")]
+        for extension, expected_extension in extensions:
+            with self.subTest(
+                extension=extension, expected_extension=expected_extension
+            ):
+                kwargs = {}
+                if extension is not None:
+                    kwargs["extension"] = extension
+                file_path: str = self.faker.file_path(**kwargs)
+                self.assertIsInstance(file_path, str)
+                self.assertTrue(file_path.endswith(f".{expected_extension}"))
+
+    def test_dir_path(self) -> None:
+
+        with self.subTest("test_default_depth"):
+            # Test with default depth (should be 1)
+            random.seed(0)  # Set seed for reproducibility
+            path = self.faker.dir_path()
+            self.assertTrue(
+                path.startswith(os.path.sep),
+                "Path should start with os.path.sep",
+            )
+            # Split path and remove empty parts caused by leading separator
+            parts = [part for part in path.split(os.path.sep) if part]
+            self.assertEqual(
+                len(parts), 1,
+                "There should be exactly one directory name appended",
+            )
+            # Check that the generated folder is one of the expected words
+            # in lowercase
+            self.assertIn(
+                parts[0],
+                [word.lower() for word in self.faker._words],
+            )
+
+        with self.subTest("test_depth_three"):
+            # Test with depth set to 3
+            depth = 3
+            random.seed(1)  # Set seed for reproducibility
+            path = self.faker.dir_path(depth)
+            self.assertTrue(
+                path.startswith(os.path.sep),
+                "Path should start with os.path.sep",
+            )
+            parts = [part for part in path.split(os.path.sep) if part]
+            self.assertEqual(
+                len(parts),
+                depth,
+                f"There should be exactly {depth} directory names appended",
+            )
+            for part in parts:
+                self.assertIn(
+                    part,
+                    [word.lower() for word in self.faker._words],
+                )
+
+        with self.subTest(" test_randomness_reproducibility"):
+            # Given a fixed seed, the output should be reproducible.
+            random.seed(123)
+            path1 = self.faker.dir_path(2)
+            random.seed(123)
+            path2 = self.faker.dir_path(2)
+            self.assertEqual(
+                path1,
+                path2,
+                "Paths should be the same for the same random seed",
+            )
 
     def test_file_extension(self) -> None:
         with self.subTest("Return type"):
