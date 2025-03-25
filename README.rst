@@ -195,8 +195,10 @@ Filenames
 
     from fake import FAKER
 
+    FAKER.dir_path()  # str
     FAKER.file_extension()  # str
     FAKER.file_name()  # str
+    FAKER.file_path()  # str
     FAKER.mime_type()  # str
 
 Primitive data types

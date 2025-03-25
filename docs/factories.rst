@@ -231,6 +231,12 @@ factories.
 
 TortoiseORM example
 -------------------
+.. note::
+
+    TortoiseORM introduces deadlocks from version to version. Currently, last
+    version that worked smoothly with factories of this package was 0.22.2.
+    0.22.x, 0.20.x and 0.21.x branches worked, while 0.23.x and 0.24.x fail.
+
 Models
 ~~~~~~
 Example TortoiseORM models closely resemble the earlier shown Django models.
