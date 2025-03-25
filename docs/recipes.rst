@@ -334,6 +334,8 @@ Arguments:
 
 - ``extension`` (type: ``str``, default value: ``txt``) is an optional
   argument.
+- ``prefix`` (type: ``str``, default value: ``""``) is an optional
+  argument.
 
 Example with arguments (returns a filename with "png" extension):
 
@@ -346,6 +348,76 @@ Example with arguments (returns a filename with "png" extension):
         from fake import FAKER
 
         FAKER.file_name(extension="png")
+
+----
+
+file_path
+~~~~~~~~~
+
+Returns a random file path with the given extension.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_path
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.file_path()
+
+Arguments:
+
+- ``extension`` (type: ``str``, default value: ``txt``) is an optional
+  argument.
+- ``prefix`` (type: ``str``, default value: ``""``) is an optional
+  argument.
+
+Example with arguments (returns a file path with "png" extension):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_path_extension_png
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.file_path(extension="png")
+
+----
+
+dir_path
+~~~~~~~~
+
+Returns a random dir path.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_dir_path
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.dir_path()
+
+Arguments:
+
+- ``depth`` (type: ``int``, default value: ``1``) is an optional
+  argument.
+
+Example with arguments (returns a dir path):
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_dir_path_depth_3
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.dir_path(depth=3)
 
 ----
 
