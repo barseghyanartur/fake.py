@@ -21,6 +21,7 @@ import subprocess
 import tarfile
 import unittest
 import uuid
+import warnings
 import wave
 import zipfile
 import zlib
@@ -148,6 +149,51 @@ ElementType = Sequence[T]
 # ************************************************
 # ******************* Public *********************
 # ************************************************
+
+
+def str_to_bool(val: str, default: bool) -> bool:
+    """Convert string truthy/falsey values to boolean."""
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, str):
+        val_lower = val.lower()
+        if val_lower in ("true", "1", "yes", "on"):
+            return True
+        elif val_lower in ("false", "0", "no", "off"):
+            return False
+    return default
+
+
+@dataclass
+class Settings:
+    """Settings."""
+
+    word_corpus_zen: bool = str_to_bool(
+        os.getenv("FAKEPY_WORD_CORPUS_ZEN", "True"), False
+    )
+    word_corpus_self: bool = str_to_bool(
+        os.getenv("FAKEPY_WORD_CORPUS_SELF", "True"), False
+    )
+    word_corpus_stdlib: bool = str_to_bool(
+        os.getenv("FAKEPY_WORD_CORPUS_STDLIB", "False"), False
+    )
+
+    def __post_init__(self):
+        if not (
+            self.word_corpus_zen
+            or self.word_corpus_self
+            or self.word_corpus_stdlib
+        ):
+            warnings.warn(
+                "All corpus settings can't be set to False. "
+                "Falling back to `word_corpus_zen=True`.",
+                UserWarning,
+                stacklevel=2,
+            )
+            self.word_corpus_zen = True
+
+
+SETTINGS = Settings()
 
 IMAGE_SERVICES = (
     "https://picsum.photos/{width}/{height}",
@@ -1788,18 +1834,27 @@ class Faker:
         return ALIAS_REGISTRY.get(alias)
 
     def load_words(self) -> None:
-        with contextlib.redirect_stdout(io.StringIO()):
-            # Dynamically import 'this' module
-            this = __import__("this")
+        self._words = []
+        if SETTINGS.word_corpus_zen:
+            with contextlib.redirect_stdout(io.StringIO()):
+                # Dynamically import 'this' module
+                this = __import__("this")
 
-        zen_encoded: str = this.s
-        translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
-        zen: str = self._rot13_translate(zen_encoded, translation_map)
-        self._words = (
-            zen.translate(str.maketrans("", "", string.punctuation))
-            .lower()
-            .split()
-        )
+            zen_encoded: str = this.s
+            translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
+            zen: str = self._rot13_translate(zen_encoded, translation_map)
+            self._words += (
+                zen.translate(str.maketrans("", "", string.punctuation))
+                .lower()
+                .split()
+            )
+        if SETTINGS.word_corpus_self:
+            pass
+        if SETTINGS.word_corpus_stdlib:
+            pass
+
+    def set_words(self, corpus: str) -> None:
+        """Set words from corpus."""
 
     def load_names(self) -> None:
         authorship_data = AuthorshipData()
