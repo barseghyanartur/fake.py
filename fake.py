@@ -6356,6 +6356,12 @@ class TestFaker(unittest.TestCase):
             <= datetime.now(timezone.utc) + timedelta(hours=2)
         )
 
+    def test_year(self) -> None:
+        """Test that the default year is between 1900 and 2100."""
+        _year = self.faker.year()
+        self.assertGreaterEqual(_year, 1900)
+        self.assertLessEqual(_year, 2100)
+
     def test_text_pdf(self) -> None:
         with (
             self.subTest("All params None, should fail"),
