@@ -16,6 +16,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.1
+------
+2025-04-11
+
+- Add ``year`` provider.
+- Add cheat sheet docs.
+
 0.11
 ----
 2025-03-24

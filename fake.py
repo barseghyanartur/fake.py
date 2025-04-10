@@ -67,7 +67,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11"
+__version__ = "0.11.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
@@ -2336,6 +2336,17 @@ class Faker:
         )  # Include the end date time
         random_date_time = start_datetime + timedelta(seconds=random_seconds)
         return random_date_time
+
+    @provider(tags=("Date/Time",))
+    def year(self, start_year: int = 1900, end_year: int = 2100) -> int:
+        """Generate a random year between start_year and end_year (inclusive).
+
+        :param start_year: The lower bound for the random year.
+        :param end_year: The upper bound for the random year.
+        :return: A random year as an integer.
+        :rtype: int
+        """
+        return random.randint(start_year, end_year)
 
     @provider(tags=("Document",))
     def pdf(
