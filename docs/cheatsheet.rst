@@ -1,23 +1,20 @@
-Cheatsheet
-==========
+Cheat sheet
+===========
 Scientific content
 ------------------
 Tricks for scientific content generation.
 
 DOI (Digital Object Identifier)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Generate a fake DOI - a string formatted as `10.####/####-####`:
+Generate a fake DOI - a string formatted as ``10.####/####-####``:
 
-.. container:: jsphinx-toggle-emphasis
+.. code-block:: python
+    :name: test_doi
 
-    .. code-block:: python
-        :name: test_doi
-        :emphasize-lines: 1-
+    from fake import FAKER
 
-        from fake import FAKER
-
-        FAKER.randomise_string(value="10.####/####-####")
-        # '10.4613/4636-8596'
+    FAKER.randomise_string(value="10.####/####-####")
+    # '10.4613/4636-8596'
 
 ----
 
@@ -58,7 +55,7 @@ Generate a fake ORCID ID - four groups of four digits separated by hyphens:
 
 arXiv Identifier
 ~~~~~~~~~~~~~~~~
-Generate a fake arXiv ID in the modern format (e.g., `2101.12345`):
+Generate a fake arXiv ID in the modern format (e.g., ``2101.12345``):
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -95,8 +92,8 @@ list of authors, journal name, publication year, and keywords:
         journal = StringTemplate("Journal of {word} Studies")
         # 'Journal of Better Studies'
 
-        publication_year = FAKER.year()
-        # 2042
+        publication_year = FAKER.year(start_year=1970, end_year=2024)
+        # 2001
 
         keywords = FAKER.words()
         # ['Youre', 'Guess', 'Is', 'Lets', 'Of']
@@ -124,19 +121,19 @@ Generate fake a short abstract:
             ## Abstract
 
             ### Introduction
-            {text(nb_chars=1_000)}
+            {text(nb_chars=200, allow_overflow=True)}
 
             ### Objective
-            {text(nb_chars=1_000)}
+            {text(nb_chars=200, allow_overflow=True)}
 
             ### Methods
-            {text(nb_chars=1_000)}
+            {text(nb_chars=200, allow_overflow=True)}
 
             ### Results
-            {text(nb_chars=1_000)}
+            {text(nb_chars=200, allow_overflow=True)}
 
             ### Conclusion
-            {text(nb_chars=1_000)}
+            {text(nb_chars=200, allow_overflow=True)}
 
             Keywords: {word()}, {word()}, {word()}
             """
@@ -146,27 +143,37 @@ Sample output:
 
 .. code-block:: text
 
-    2025-04-07
+    2025-04-08
 
-    # Title: Way although enough flat to is
+    # Title: Of dutch a cases silenced never
 
-    ## Authors: Nadeem Lumholt, Anthony Warsaw, Collin Polo
+    ## Authors: Michael Dalke, Barry Dragon De Monsyne, Victor Diederich
 
     ## Abstract
 
     ### Introduction
-    Right easy to the better. Ugly flat the that better. Explain those break is the. Break than beats complex python. And better right to explicit. Explicit dense there idea to. Rules lets its special although. Those do although way silenced. Practicality unless although implementation preferably. Simple face complex explicit is. Peters way temptation better at. To although be explicit way. Unless more namespaces complex not. A it break than if. The break tim although idea. Idea often ambiguity do rules. Face honking those not complex. Rules hard is be obvious. Better unless is if rules. Is ugly implementation refuse more. Is complex python is implementation. Better than if purity should. Simple than the obvious the. Is may to explain rules. And complex better better of. Is by special better silently. There do arent readability explain. And although namespaces complex is. Should complex nested python than. Break never refuse guess way. One refuse tim unless unless. Do unless than than one.
+    Implicit idea of better idea. And special errors implicit is. Is are
+    explicit better complicated. More nested cases honking lets. Never of
+    beautiful than be. Explicit way namespaces better explicitly.
 
     ### Objective
-    Easy in arent the although. Explicit the explicit one may. Is readability it practicality better. Should than is better if. Unless should if never great. To to often than arent. Than better youre ambiguity may. Now are idea often tim. Nested obvious the errors refuse. A complicated is one preferably. Cases of namespaces youre never. That lets never counts silenced. The it better namespaces to. Only guess implementation is than. Errors at its purity idea. Than python never the may. More unless better to better. Better pass nested now unless. Flat way do the way. Is implementation easy although is. Explain do lets guess do. Is arent silenced than often. Be cases although way great. One explicit should never zen. Than special to not do. Never should errors than simple. Namespaces readability hard better readability. Be better the cases only. Special although implementation in simple. Explicit its than way a. First although more implicit ugly. It dutch ambiguity implementation namespaces..
+    Better implementation it complex by. Way bad preferably do a. Is than
+    temptation good although. The guess if ambiguity the. Better its sparse
+    and special. Is than is preferably than. Of although do to practicality.
 
     ### Methods
-    Than preferably silently unless one. Obvious may is special than. Is better now than lets. It ugly to is guess. Counts than although implementation is. Better is dutch enough complex. Better beautiful purity arent to. Refuse may one if explain. Should than good to way. To better if although be. Is in may explain bad. There obvious that explicitly python. Its hard implicit cases obvious. Is explicit are its do. Good practicality although special purity. Is python rules is better. Peters practicality should peters purity. Special to by although complex. A the the of now. Better only is idea only. The rules although preferably youre. A the that if better. Now bad the than great. The preferably than nested that. Do unless if those special. Idea one is only the. In complex not to is. Obvious it first than better. Better to although is the. A better do easy explain. Arent only one those the. Be practicality the are is. The by it simple only. Flat bad than it temptation. Do is simple never o.
+    Should its than flat to. There than explicit obvious at. Idea readability
+    idea is ugly. Only refuse now the now. Complex its one complicated of. The
+    flat obvious temptation dutch. Flat is python tim simple.
 
     ### Results
-    If honking be implementation although. That unless hard dutch explicitly. Of never is if if. In good tim implicit is. Are is dense idea implementation. Pass to than easy implementation. Than special never first than. Refuse than ambiguity is face. Obvious sparse namespaces obvious the. Peters the bad do nested. Complicated refuse guess may by. It readability do cases there. Not be the is refuse. Readability easy explicitly and one. Practicality ambiguity is often implementation. Easy it more the not. One readability the the now. One better at if simple. Special there better easy better. Should silently great guess zen. Do explicit obvious ugly youre. One if silenced namespaces is. One zen more errors rules. Although explain may only to. Right are now easy should. To may in readability never. Purity do may more never. Great by better ugly should. Silently errors temptation guess than. Dutch one refuse now purity. Now the never better enough. In do of dense a. Counts one than to a. To a.
+    Way there guess than to. Pass is and are beautiful. It nested that
+    although obvious. Better better simple idea than. Is not better great
+    simple. The complex although explain of. Than special than than obvious.
 
     ### Conclusion
-    Lets than at never never. Is preferably good better explain. Never do youre dense ugly. Lets the rules now complicated. Preferably it better may way. The better at if those. Should flat than is beautiful. Beautiful way although youre ugly. Dutch better should readability peters. Is purity lets great of. Ugly preferably explicit way better. Namespaces idea than explain right. Is than silently unless tim. Be better never than better. Arent namespaces not may easy. Explicit never simple easy never. Is ambiguity unless now ambiguity. May nested is a silently. Than is than enough better. Unless than honking although good. Good guess better sparse complex. Sparse beats better a never. First first complex honking to. Zen should nested bad the. Implementation guess a explicitly be. Way those preferably complex than. Tim complex one only sparse. Is zen to than good. To if than to that. Better way dutch preferably it. Explicit than in than special. Now lets there than nested. Guess the readabil.
+    Explicitly explain more enough honking. To counts dense should pass.
+    Obvious unless is if be. Be implementation good implementation now.
+    Better if than now face. At complex to although than. Than may of better.
 
-    Keywords: Good, Unless, The
+    Keywords: Do, Lets, Unlessd, Purity, Complex

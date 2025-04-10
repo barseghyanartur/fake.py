@@ -130,6 +130,7 @@ Documentation
 - For tips on images creation see `Creating images`_.
 - For tips on archives creation see `Creating archives`_.
 - For various implementation examples, see the `Examples`_.
+- For tricks on specific content creation see the `Cheat sheet`_.
 - For CLI documentation, see the `CLI`_.
 - For guidelines on contributing check the `Contributor guidelines`_.
 

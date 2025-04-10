@@ -21,7 +21,7 @@ try:
 except ImportError:
     version = "0.1"
     project = "fake.py"
-    copyright = "2023, Artur Barseghyan <artur.barseghyan@gmail.com>"
+    copyright = "2023-2025, Artur Barseghyan <artur.barseghyan@gmail.com>"
     author = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 
 # -- General configuration ---------------------------------------------------
@@ -60,7 +60,8 @@ prismjs_base = "//cdnjs.cloudflare.com/ajax/libs/prism/1.29.0"
 html_css_files = [
     f"{prismjs_base}/themes/prism.min.css",
     f"{prismjs_base}/plugins/toolbar/prism-toolbar.min.css",
-    "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx@1.3.4/src/css/sphinx_rtd_theme.css",
+    # "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx@1.3.4/src/css/sphinx_rtd_theme.css",
+    "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx/src/css/sphinx_rtd_theme.css",
 ]
 
 html_js_files = [
@@ -68,7 +69,8 @@ html_js_files = [
     f"{prismjs_base}/plugins/autoloader/prism-autoloader.min.js",
     f"{prismjs_base}/plugins/toolbar/prism-toolbar.min.js",
     f"{prismjs_base}/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js",
-    "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx@1.3.4/src/js/download_adapter.js",
+    # "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx@1.3.4/src/js/download_adapter.js",
+    "https://cdn.jsdelivr.net/gh/barseghyanartur/jsphinx/src/js/download_adapter.js",
 ]
 
 # -- Options for todo extension ----------------------------------------------
