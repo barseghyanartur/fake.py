@@ -67,7 +67,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11"
+__version__ = "0.11.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2024 Artur Barseghyan"
 __license__ = "MIT"
