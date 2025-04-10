@@ -10,6 +10,8 @@ Contents:
 
    index
    recipes
+   cheatsheet
+   creating_files
    creating_images
    creating_pdf
    creating_docx
