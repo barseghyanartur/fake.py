@@ -3929,16 +3929,26 @@ class Faker:
     @provider(tags=("Text",))
     def template(
         self,
-        value: str,
+        template: str,
+        wrap_chars_after: Optional[int] = None,
     ) -> str:
-        return StringTemplate(value)
+        return StringTemplate(
+            template=template,
+            wrap_chars_after=wrap_chars_after,
+            faker=self,
+        )
 
     @provider(tags=("Text",))
     def lazy_template(
         self,
-        value: str,
+        template: str,
+        wrap_chars_after: Optional[int] = None,
     ) -> "LazyStringTemplate":
-        return LazyStringTemplate(value)
+        return LazyStringTemplate(
+            template=template,
+            wrap_chars_after=wrap_chars_after,
+            faker=self,
+        )
 
 
 FAKER = Faker(alias="default")
