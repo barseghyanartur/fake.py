@@ -3926,6 +3926,20 @@ class Faker:
 
     randomize_string = bothify = randomise_string  # noqa
 
+    @provider(tags=("Text",))
+    def template(
+        self,
+        value: str,
+    ) -> str:
+        return StringTemplate(value)
+
+    @provider(tags=("Text",))
+    def lazy_template(
+        self,
+        value: str,
+    ) -> "LazyStringTemplate":
+        return LazyStringTemplate(value)
+
 
 FAKER = Faker(alias="default")
 
