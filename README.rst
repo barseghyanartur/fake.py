@@ -30,6 +30,7 @@ fake.py
 .. _Creating ODT: https://fakepy.readthedocs.io/en/latest/creating_odt.html
 .. _Creating images: https://fakepy.readthedocs.io/en/latest/creating_images.html
 .. _Creating archives: https://fakepy.readthedocs.io/en/latest/creating_archives.html
+.. _Cheat sheet: https://fakepy.readthedocs.io/en/latest/cheatsheet.html
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
@@ -129,6 +130,7 @@ Documentation
 - For tips on images creation see `Creating images`_.
 - For tips on archives creation see `Creating archives`_.
 - For various implementation examples, see the `Examples`_.
+- For tricks on specific content creation see the `Cheat sheet`_.
 - For CLI documentation, see the `CLI`_.
 - For guidelines on contributing check the `Contributor guidelines`_.
 
@@ -223,6 +225,7 @@ Dates
 
     FAKER.date()  # datetime.date
     FAKER.date_time()  # datetime.datetime
+    FAKER.year()  # int
 
 Geographic data
 ~~~~~~~~~~~~~~~

@@ -208,7 +208,7 @@ All customisation options of ``zip`` are also applicable to ``zip_file``.
             list_create_inner_file,
         )
 
-        FAKER.zip(
+        FAKER.zip_file(
             options={
                 "create_inner_file_func": list_create_inner_file,
                 "create_inner_file_args": {
