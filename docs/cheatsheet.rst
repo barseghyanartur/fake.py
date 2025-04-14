@@ -135,7 +135,7 @@ Generate fake a short abstract:
             ### Conclusion
             {text(nb_chars=200, allow_overflow=True)}
 
-            Keywords: {word()}, {word()}, {word()}
+            Keywords: {word}, {word}, {word}
             """
         )
 
