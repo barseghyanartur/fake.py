@@ -422,3 +422,7 @@ factories.
 *Used just like in previous example.*
 
 ----
+
+.. raw:: html
+
+    &nbsp;
