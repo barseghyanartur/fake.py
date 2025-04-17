@@ -21,6 +21,8 @@ sections:
 
 This section covers basic concepts of file generation within `fake.py`_.
 
+Basics
+------
 It's possible to generate either bytes or files on the file system.
 
 - When generating bytes, the returned value is ``BytesValue``.
@@ -91,3 +93,122 @@ Note, that text PDF does contain full text of the entire document in the
 ``content`` key.
 
 ----
+
+Clean up files
+--------------
+``FileSystemStorage`` is the default storage and by default files are stored
+inside a ``tmp`` directory within the system's temporary directory, which is
+commonly cleaned up after system restart. However, there's a mechanism of
+cleaning up files after the tests run. At any time, to clean up all files
+created by that moment, call ``clean_up`` method of the ``FileRegistry``
+class instance, as shown below:
+
+.. code-block:: python
+    :name: test_file_registry
+
+    from fake import FAKER, FILE_REGISTRY  # Import the file registry
+
+    # Create a file
+    txt_file = FAKER.txt_file()  # type: ``StringValue``
+    filename = str(txt_file)  # Relative path to the file
+    storage = txt_file.data["storage"]  # Storage instance
+
+    # File should exist
+    assert storage.exists(filename)
+
+    # Trigger the clean-up
+    FILE_REGISTRY.clean_up()
+
+    # File does no longer exist
+    assert storage.exists(filename) is False
+
+Typically you would call the ``clean_up`` method in the ``tearDown``.
+
+----
+
+To remove a single file, use ``remove`` method of ``FileRegistry`` instance.
+In the example below, the file is removed by provided ``StringValue``
+instance:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_registry_remove_by_string_value
+        :emphasize-lines: 11-12
+
+        from fake import FAKER, FILE_REGISTRY
+
+        # Create a file
+        txt_file = FAKER.txt_file()  # type: StringValue
+        filename = str(txt_file)  # Relative path to the file
+        storage = txt_file.data["storage"]  # Storage instance
+
+        # File should exist
+        assert storage.exists(filename)
+
+        # Remove the file by providing the ``StringValue`` instance
+        FILE_REGISTRY.remove(txt_file)
+
+        # File does no longer exist
+        assert storage.exists(filename) is False
+
+----
+
+You can also remove by path. In the exampl below, the file is removed by
+provided ``str`` instance:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_registry_remove_by_str
+        :emphasize-lines: 11-12
+
+        from fake import FAKER, FILE_REGISTRY
+
+        # Create a file
+        txt_file = FAKER.txt_file()  # type: StringValue
+        filename = str(txt_file)  # Relative path to the file
+        storage = txt_file.data["storage"]  # Storage instance
+
+        # File should exist
+        assert storage.exists(filename)
+
+        # Remove the file by providing the ``filename``
+        FILE_REGISTRY.remove(filename)
+
+        # File does no longer exist
+        assert storage.exists(filename) is False
+
+----
+
+If you only have a path to the file as ``str`` instance, you can find the
+correspondent ``StringValue`` instance by searching, using the ``search``
+method:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_registry_search
+        :emphasize-lines: 11-12
+
+        from fake import FAKER, FILE_REGISTRY
+
+        # Create a file
+        txt_file = FAKER.txt_file()  # type: ``StringValue``
+        filename = str(txt_file)  # Relative path to the file
+        storage = txt_file.data["storage"]  # Storage instance
+
+        # File should exist
+        assert storage.exists(filename)
+
+        # Find the file by providing the ``str`` instance
+        found_file = FILE_REGISTRY.search(filename)  # type: StringValue
+
+        # They should be the same
+        assert txt_file == found_file
+
+----
+
+.. raw:: html
+
+    &nbsp;

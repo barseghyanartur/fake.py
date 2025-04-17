@@ -328,3 +328,7 @@ Using text templates:
     eml_file = FAKER.eml_file(content=StringTemplate(template))
 
 ----
+
+.. raw:: html
+
+    &nbsp;
