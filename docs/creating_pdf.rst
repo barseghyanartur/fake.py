@@ -174,3 +174,7 @@ With ``nb_pages`` tweak:
     :download:`here <_static/examples/creating_pdf/graphic_pdf_file_2.py>`
 
 ----
+
+.. raw:: html
+
+    &nbsp;
