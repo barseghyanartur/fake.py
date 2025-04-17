@@ -100,7 +100,7 @@ list of authors, journal name, publication year, and keywords:
 
 ----
 
-Generate fake a short abstract:
+Generate a fake short abstract:
 
 .. container:: jsphinx-toggle-emphasis
 
