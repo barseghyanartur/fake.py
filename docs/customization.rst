@@ -245,3 +245,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
             model = Person
 
 ----
+
+.. raw:: html
+
+    &nbsp;
