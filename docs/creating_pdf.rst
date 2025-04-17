@@ -66,7 +66,7 @@ For full clarity, see another example below for ``texts`` tweak:
 The produced PDF will consist of 3 pages:
 
 - Content of the first would be: ``Page 1 content``
-- Content of the second page would be: ``Page 1 content``
+- Content of the second page would be: ``Page 2 content``
 - Content of the third page would be: ``Page 3 content``
 
 ----
@@ -174,3 +174,7 @@ With ``nb_pages`` tweak:
     :download:`here <_static/examples/creating_pdf/graphic_pdf_file_2.py>`
 
 ----
+
+.. raw:: html
+
+    &nbsp;

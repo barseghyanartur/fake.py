@@ -131,3 +131,7 @@ The only colour that always stays solid is the default colour - gray
         FAKER.jpg_file(size=(720, 540))
 
 ----
+
+.. raw:: html
+
+    &nbsp;
