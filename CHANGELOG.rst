@@ -336,7 +336,7 @@ are used for versioning (schema follows below):
 ---
 2023-12-08
 
-- Make ``fake.Faker`` and ``fake.Factory`` classes more customizable.
+- Make ``fake.Faker`` and ``fake.Factory`` classes more customisable.
 - Introduce ``provider`` decorator to decorate provider methods.
 - Documentation improvements.
 
@@ -346,7 +346,7 @@ are used for versioning (schema follows below):
 
 - Added ``pydecimal``.
 - Make ``date_time`` timezone aware.
-- Added documentation on how to customize.
+- Added documentation on how to customise.
 
 0.4
 ---

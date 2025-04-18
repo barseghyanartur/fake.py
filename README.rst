@@ -23,7 +23,7 @@ fake.py
 .. _Quick start: https://fakepy.readthedocs.io/en/latest/quick_start.html
 .. _Recipes: https://fakepy.readthedocs.io/en/latest/recipes.html
 .. _Factories: https://fakepy.readthedocs.io/en/latest/factories.html
-.. _Customization: https://fakepy.readthedocs.io/en/latest/customization.html
+.. _Customisation: https://fakepy.readthedocs.io/en/latest/customisation.html
 .. _Creating files: https://fakepy.readthedocs.io/en/latest/creating_files.html
 .. _Creating PDF: https://fakepy.readthedocs.io/en/latest/creating_pdf.html
 .. _Creating DOCX: https://fakepy.readthedocs.io/en/latest/creating_docx.html
@@ -122,7 +122,7 @@ Documentation
 - Documentation is available on `Read the Docs`_.
 - For various ready to use code examples see the `Recipes`_.
 - For tips on how to use the factories see the `Factories`_.
-- For customization tips see the `Customization`_.
+- For customisation tips see the `Customisation`_.
 - For generic information on how to create files see `Creating files`_.
 - For tips on ``PDF`` creation see `Creating PDF`_.
 - For tips on ``DOCX`` creation see `Creating DOCX`_.
@@ -405,14 +405,14 @@ And this is how you could use it:
         group_2=PostSave(add_to_group, name="Yet another group"),
     )
 
-Customize
+Customise
 ---------
 Make your own custom providers and utilize factories with them.
 
 *Filename: custom_fake.py*
 
 .. code-block:: python
-    :name: test_customize
+    :name: test_customise
 
     import random
     import string

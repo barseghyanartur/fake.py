@@ -1,6 +1,6 @@
-Customization
+Customisation
 =============
-Various customization examples:
+Various customisation examples:
 
 - Address provider implementation.
 - Band provider implementation.

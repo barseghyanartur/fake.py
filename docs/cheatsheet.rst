@@ -2,7 +2,7 @@ Cheat sheet
 ===========
 Scientific content
 ------------------
-Tricks for scientific content generation.
+Quick tricks for generating scientific content.
 
 DOI (Digital Object Identifier)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
