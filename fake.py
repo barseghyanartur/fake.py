@@ -1943,7 +1943,7 @@ class Faker:
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
         """Generate a list of words."""
-        return [word.capitalize() for word in random.choices(self._words, k=nb)]
+        return list(random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
