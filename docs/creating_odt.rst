@@ -25,10 +25,10 @@ If you need bytes
 
 The generated ODT will consist of a single page with little text on it.
 
-If you want to control number of pages created, you could:
+If you want to control the number of pages created, you could:
 
-- Pass the list of texts to be used in ``texts`` argument.
-- Pass the number of pages to be created in ``nb_pages`` argument.
+- Pass a list of texts to the ``texts`` argument.
+- Pass the number of pages to the ``nb_pages`` argument.
 
 ----
 

@@ -1535,10 +1535,10 @@ class JpgGenerator:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (128, 128, 128),
     ) -> bytes:
-        """Create a JPG image of a specified size and color.
+        """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the JPG image.
         :rtype: bytes
@@ -1943,7 +1943,7 @@ class Faker:
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
         """Generate a list of words."""
-        return [word.capitalize() for word in random.choices(self._words, k=nb)]
+        return list(random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
@@ -2384,10 +2384,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a PNG image of a specified size and color.
+        """Create a PNG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the PNG image.
         :rtype: bytes
@@ -2397,7 +2397,7 @@ class Faker:
         # PNG file format header
         png_header = b"\x89PNG\r\n\x1a\n"
 
-        # IHDR chunk: width, height, bit depth, color type, compression,
+        # IHDR chunk: width, height, bit depth, colour type, compression,
         # filter, interlace
         ihdr_content = (
             width.to_bytes(4, byteorder="big")
@@ -2440,10 +2440,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an SVG image of a specified size and color.
+        """Create an SVG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the SVG image.
         :rtype: bytes
@@ -2457,10 +2457,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a BMP image of a specified size and color.
+        """Create a BMP image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the BMP image.
         :rtype: bytes
@@ -2499,7 +2499,7 @@ class Faker:
             + width_bytes
             + height_bytes
             + b"\x01\x00"
-            + b"\x18\x00"  # Number of color planes
+            + b"\x18\x00"  # Number of colour planes
             + b"\x00\x00\x00\x00"  # Bits per pixel (24 for RGB)
             + len(image_data).to_bytes(  # Compression method (0 for none)
                 4, byteorder="little"
@@ -2508,8 +2508,8 @@ class Faker:
             # Print resolution of the image (2835 pixels/meter)
             + b"\x13\x0B\x00\x00"
             + b"\x00\x00\x00\x00"
-            + b"\x00\x00\x00\x00"  # Number of colors in the palette
-            + image_data  # Important colors
+            + b"\x00\x00\x00\x00"  # Number of colours in the palette
+            + image_data  # Important colours
         )
 
     @provider(tags=("Image",))
@@ -2518,10 +2518,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a GIF image of a specified size and color.
+        """Create a GIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the GIF image.
         :rtype: bytes
@@ -2534,16 +2534,16 @@ class Faker:
         # Logical Screen Descriptor
         screen_width = width.to_bytes(2, byteorder="little")
         screen_height = height.to_bytes(2, byteorder="little")
-        # Global Color Table Flag set to 1, Color resolution, and Sort Flag
+        # Global Colour Table Flag set to 1, Colour resolution, and Sort Flag
         # to 0
         packed_field = b"\xF7"
-        bg_color_index = b"\x00"  # Background Color Index
+        bg_color_index = b"\x00"  # Background Colour Index
         pixel_aspect_ratio = b"\x00"  # No aspect ratio information
 
-        # Global Color Table.
-        # Since it's a single color, we only need one entry in our table,
+        # Global Colour Table.
+        # Since it's a single colour, we only need one entry in our table,
         # rest are black.
-        # Each color is 3 bytes (RGB).
+        # Each colour is 3 bytes (RGB).
         color_table = bytes(color) + b"\x00" * (3 * 255)
 
         # Image Descriptor
@@ -2558,9 +2558,9 @@ class Faker:
         # Image Data
         lzw_min_code_size = b"\x08"  # Set to 8 for no compression
 
-        # Image Data Blocks for a single color.
-        # Simplest LZW encoding for a single color: clear code, followed
-        # by color index, end code.
+        # Image Data Blocks for a single colour.
+        # Simplest LZW encoding for a single colour: clear code, followed
+        # by colour index, end code.
         image_data_blocks = bytearray(
             [0x02, 0x4C, 0x01, 0x00]
         )  # Compressed data
@@ -2589,10 +2589,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a TIF image of a specified size and color.
+        """Create a TIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the TIF image.
         :rtype: bytes
@@ -2665,10 +2665,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a PPM image of a specified size and color.
+        """Create a PPM image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format, tuple of three
+        :param color: Colour of the image in RGB format, tuple of three
             integers: (0-255, 0-255, 0-255).
         :return: Byte content of the PPM image.
         :rtype: bytes
@@ -2693,10 +2693,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (128, 128, 128),
     ) -> bytes:
-        """Create a JPG image of a specified size and color.
+        """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format, tuple of three
+        :param color: Colour of the image in RGB format, tuple of three
             integers: (0-255, 0-255, 0-255).
         :return: Byte content of the JPG image.
         :rtype: bytes
@@ -2718,7 +2718,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an image of a specified format, size and color."""
+        """Create an image of a specified format, size and colour."""
         if image_format not in {
             "png",
             "svg",
@@ -3246,7 +3246,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PNG image file of a specified size and color."""
+        """Create a PNG image file of a specified size and colour."""
         return self._image_file(
             image_format="png",
             size=size,
@@ -3272,7 +3272,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create an SVG image file of a specified size and color."""
+        """Create an SVG image file of a specified size and colour."""
         return self._image_file(
             image_format="svg",
             size=size,
@@ -3298,7 +3298,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a BMP image file of a specified size and color."""
+        """Create a BMP image file of a specified size and colour."""
         return self._image_file(
             image_format="bmp",
             size=size,
@@ -3324,7 +3324,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a GIF image file of a specified size and color."""
+        """Create a GIF image file of a specified size and colour."""
         return self._image_file(
             image_format="gif",
             size=size,
@@ -3350,7 +3350,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a TIF image file of a specified size and color."""
+        """Create a TIF image file of a specified size and colour."""
         return self._image_file(
             image_format="tif",
             size=size,
@@ -3376,7 +3376,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PPM image file of a specified size and color."""
+        """Create a PPM image file of a specified size and colour."""
         return self._image_file(
             image_format="ppm",
             size=size,
@@ -3402,7 +3402,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a JPG image file of a specified size and color."""
+        """Create a JPG image file of a specified size and colour."""
         return self._image_file(
             image_format="jpg",
             size=size,

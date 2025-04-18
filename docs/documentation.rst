@@ -18,7 +18,7 @@ Contents:
    creating_odt
    creating_archives
    factories
-   customization
+   customisation
    cli
    security
    contributor_guidelines

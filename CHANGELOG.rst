@@ -9,8 +9,8 @@ are used for versioning (schema follows below):
 
     major.minor[.revision]
 
-- It's always safe to upgrade within the same minor version (for example, from
-  0.3 to 0.3.4).
+- It is always safe to upgrade within the same minor version (for example,
+  from 0.3 to 0.3.4).
 - Minor version changes might be backwards incompatible. Read the
   release notes carefully before upgrading (for example, when upgrading from
   0.3.4 to 0.4).
@@ -336,7 +336,7 @@ are used for versioning (schema follows below):
 ---
 2023-12-08
 
-- Make ``fake.Faker`` and ``fake.Factory`` classes more customizable.
+- Make ``fake.Faker`` and ``fake.Factory`` classes more customisable.
 - Introduce ``provider`` decorator to decorate provider methods.
 - Documentation improvements.
 
@@ -346,7 +346,7 @@ are used for versioning (schema follows below):
 
 - Added ``pydecimal``.
 - Make ``date_time`` timezone aware.
-- Added documentation on how to customize.
+- Added documentation on how to customise.
 
 0.4
 ---
