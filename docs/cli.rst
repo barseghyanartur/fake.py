@@ -1,8 +1,8 @@
 CLI
 =============
-All current providers are supported through CLI.
+All current providers are supported through the CLI.
 
-The entrypoint command is ``fake-py``.
+The CLI entry point is the ``fake-py`` command.
 
 ----
 
@@ -377,8 +377,8 @@ Customisation
 -------------
 By default, only standard (built-in) providers are available through CLI.
 
-However, you can easily expose your providers via CLI too. See the
-implementation below as an example.
+However, you can easily expose your custom providers via the CLI as well.
+See the implementation below as an example.
 
 *Filename: data.py*
 
@@ -398,7 +398,7 @@ implementation below as an example.
     :language: python
     :lines: 1-
 
-After that you can use it as follows:
+After that, you can use it as follows:
 
 .. code-block:: sh
 

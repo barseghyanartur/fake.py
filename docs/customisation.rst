@@ -2,7 +2,7 @@ Customisation
 =============
 - The ``fake.FAKER`` is an instance of the ``fake.Faker`` class.
 - The ``fake.FACTORY`` is an instance of the ``fake.Factory`` class,
-  initialised with ``fake.FAKER`` instance.
+  initialised with the ``fake.FAKER`` instance.
 
 The ``Faker`` class is easy to customise. See the following example:
 
