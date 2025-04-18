@@ -9,8 +9,8 @@ Please report security issues by emailing Artur Barseghyan
 
 Supported Versions
 ------------------
-The two most recent ``fake.py`` release series receive security support.
-It's recommended to use the latest version.
+The two most recent ``fake.py`` minor release series receive security support.
+It is recommended to use the latest version.
 
 .. code-block:: text
 
