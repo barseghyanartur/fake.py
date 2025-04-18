@@ -36,13 +36,13 @@ See the following full functional snippet for generating a ``PNG`` image.
     *See the full example*
     :download:`here <_static/examples/creating_images/png_bytes_1.py>`
 
-The generated ``PNG`` image will be an image filled with a given color of a
+The generated ``PNG`` image will be an image filled with a given colour of a
 size 100x100 px.
 
 ----
 
-If you want image of a different size or color, provide ``size``
-(``Tuple[int, int]``) and color (``Tuple[int, int, int]``) arguments along.
+If you want image of a different size or colour, provide ``size``
+(``Tuple[int, int]``) and ``color`` (``Tuple[int, int, int]``) arguments along.
 See the example below:
 
 .. container:: jsphinx-download

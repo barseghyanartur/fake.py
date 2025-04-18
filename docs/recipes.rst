@@ -86,7 +86,7 @@ Returns a random word.
 words
 ~~~~~
 
-Returns a list of ``nb`` random words.
+Returns a list of ``nb`` (number) random words.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -152,7 +152,7 @@ Example with arguments (returns a sentence of 10 words):
 sentences
 ~~~~~~~~~
 
-Returns ``nb`` number of random sentences.
+Returns a list of ``nb`` (number) random sentences.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -219,7 +219,7 @@ Example with arguments (returns a paragraph of 10 sentences):
 paragraphs
 ~~~~~~~~~~
 
-Returns ``nb`` number of random paragraphs.
+Returns a list of ``nb`` (number) random paragraphs.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -285,7 +285,7 @@ Example with arguments (returns a 1000 character long text):
 texts
 ~~~~~
 
-Returns ``nb`` number of random texts.
+Returns a list of ``nb`` (number) random texts.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -390,7 +390,7 @@ Example with arguments (returns a file path with "png" extension):
 dir_path
 ~~~~~~~~
 
-Returns a random dir path.
+Returns a random directory path.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -407,7 +407,7 @@ Arguments:
 - ``depth`` (type: ``int``, default value: ``1``) is an optional
   argument.
 
-Example with arguments (returns a dir path):
+Example with arguments (returns a directory path):
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -441,7 +441,7 @@ Returns a random file extension.
 tld
 ~~~~~
 
-Returns a TLD (top level domain name).
+Returns a TLD (top-level domain name).
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -527,7 +527,7 @@ Returns a free e-mail domain name.
 email
 ~~~~~
 
-Returns a random email.
+Returns a random e-mail address.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -544,7 +544,7 @@ Arguments:
 - ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
   value: ``None``) is an optional argument.
 
-Example with arguments (returns an email with either "gmail.com"
+Example with arguments (returns an e-mail address with either "gmail.com"
 or "proton.me" domain):
 
 .. container:: jsphinx-toggle-emphasis
@@ -562,7 +562,7 @@ or "proton.me" domain):
 company_email
 ~~~~~~~~~~~~~
 
-Returns a random company email.
+Returns a random company e-mail address.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -579,7 +579,7 @@ Arguments:
 - ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
   value: ``None``) is an optional argument.
 
-Example with arguments (returns an email with either "microsoft.com"
+Example with arguments (returns an e-mail address with either "microsoft.com"
 or "google.com" domain):
 
 .. container:: jsphinx-toggle-emphasis
@@ -597,7 +597,7 @@ or "google.com" domain):
 free_email
 ~~~~~~~~~~
 
-Returns a random free email.
+Returns a random free e-mail address.
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -614,7 +614,7 @@ Arguments:
 - ``domain_names`` (type: ``Optional[Tuple[str, ...]]``, default
   value: ``None``) is an optional argument.
 
-Example with arguments (returns an email with either "gmail.com"
+Example with arguments (returns an e-mail with either "gmail.com"
 or "proton.me" domain):
 
 .. container:: jsphinx-toggle-emphasis
@@ -1031,7 +1031,7 @@ pass the ``metadata`` argument.
 image
 ~~~~~
 
-Generates a content (``bytes``) of a image of the specified format and colour.
+Generates a content (``bytes``) of an image of the specified format and colour.
 
 .. container:: jsphinx-toggle-emphasis
 

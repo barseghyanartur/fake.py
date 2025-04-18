@@ -132,7 +132,7 @@ If you need bytes
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_1.py>`
 
-The generated PDF will consist of a single page with a colored square on it.
+The generated PDF will consist of a single page with a coloured square on it.
 
 If you want PDF with more pages, provide the ``nb_pages`` argument.
 

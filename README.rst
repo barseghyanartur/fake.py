@@ -211,7 +211,7 @@ Primitive data types
     from fake import FAKER
 
     FAKER.pybool()  # bool
-    FAKER.pyfloat()  # flot
+    FAKER.pyfloat()  # float
     FAKER.pyint()  # int
     FAKER.pystr()  # str
     FAKER.uuid()  # uuid.UUID
@@ -480,9 +480,9 @@ Differences with alternatives
 radically simplified and reduced in features, but without any external
 dependencies (not even `Pillow`_ or `dateutil`_).
 
-`fake.py`_ is modeled after the famous `Faker`_ package. Its' API is highly
+`fake.py`_ is modelled after the famous `Faker`_ package. Its API is highly
 compatible, although drastically reduced. It's not multilingual and does not
-support postal codes or that many RAW file formats. However, you could easily
+support postal codes or that many raw file formats. However, you could easily
 include it in your production setup without worrying about yet another
 dependency.
 
