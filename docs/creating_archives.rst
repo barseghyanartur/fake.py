@@ -4,16 +4,16 @@ Creating archives
 
 .. _faker-file: https://pypi.org/project/faker-file/
 
-Creating archives for testing could be a challenging job. The goal of this
+Creating archives for testing can be a challenging task. The goal of this
 library is to help you out with basic tasks. You can easily generate ZIP
-and TAR archives with 100 of files inside (supported by this package) or
-even generate EML files (which are also considered archives, since they do
+and TAR archives containing, for example, 100 files supported by this package.
+You can even generate EML files (which are considered archives here since they
 hold attachments).
 
 If you don't like the quality of the generated files and want to have more
 control over the content of the files, check the `faker-file`_ package,
 which offers similar functionality but can produce complex archives with
-almost no limitation of the content.
+almost no limitation on their content.
 
 Supported archive formats
 -------------------------
@@ -107,7 +107,7 @@ page.
 
 ----
 
-There's no depth in terms of nesting:
+There's no limit to the nesting depth:
 
 .. code-block:: python
     :name: test_zip_archive_nested_zip
@@ -139,7 +139,8 @@ each having 5 ``DOCX`` files of 100 pages each.
 
 ----
 
-If you need consistent structure of mixed file types, see this:
+If you need a consistent structure of mixed file types, you can use a list of
+functions as shown below:
 
 .. code-block:: python
     :name: test_zip_archive_structured_using_list_create
@@ -234,12 +235,12 @@ All customisation options of ``zip`` are also applicable to ``zip_file``.
 
 TAR
 ---
-Works very similar to `ZIP`_. Use ``FAKER.tar`` and ``FAKER.tar_file`` instead
+Works very similarly to `ZIP`_. Use ``FAKER.tar`` and ``FAKER.tar_file`` instead
 of ``FAKER.zip`` and ``FAKER.zip_file``.
 
 EML
 ---
-Works very similar to `ZIP`_. Use ``FAKER.eml`` and ``FAKER.eml_file`` instead
+Works very similarly to `ZIP`_. Use ``FAKER.eml`` and ``FAKER.eml_file`` instead
 of ``FAKER.zip`` and ``FAKER.zip_file``.
 
 - ``options``: (Optional) options. Similar to ``ZIP`` options.
@@ -260,7 +261,7 @@ Creating a simple EML archive as bytes is as simple as follows:
 
 ----
 
-This will create a ``EML`` archive with 1 ``DOCX`` file
+This will create an ``EML`` archive with 1 ``DOCX`` file
 named `doc.docx` and 2 ``TXT`` files named `doc_metadata.txt`
 and `doc_isbn.txt`.
 
