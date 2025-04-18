@@ -1,8 +1,8 @@
 CLI
 =============
-All current providers are supported through CLI.
+All current providers are supported through the CLI.
 
-The entrypoint command is ``fake-py``.
+The CLI entry point is the ``fake-py`` command.
 
 ----
 
@@ -43,9 +43,9 @@ All commands overview
        sentences,slug,slugs,svg,svg_file,text,text_pdf,text_pdf_file,texts,
        tld,txt_file,url,username,usernames,uuid,uuids,word,words}
                             Available commands
-        bmp                 Create a BMP image of a specified size and color.
+        bmp                 Create a BMP image of a specified size and colour.
         bmp_file            Create a BMP image file of a specified size and
-                            color.
+                            colour.
         company_email       Generate a random company email.
         date                Generate random date between `start_date`
                             and `end_date`.
@@ -61,11 +61,11 @@ All commands overview
         free_email          Generate a random free email.
         free_email_domain   Generate a random free email domain.
         generic_file        Create a generic file.
-        gif                 Create a GIF image of a specified size and color.
+        gif                 Create a GIF image of a specified size and colour.
         gif_file            Create a GIF image file of a specified size and
-                            color.
+                            colour.
         image               Create an image of a specified format, size and
-                            color.
+                            colour.
         image_url           Generate a random image URL.
         ipv4                Generate a random IP v4.
         last_name           Generate a last name.
@@ -76,9 +76,9 @@ All commands overview
         paragraphs          Generate a list of paragraphs.
         pdf                 Create a PDF document of a given size.
         pdf_file            Create a PDF file.
-        png                 Create a PNG image of a specified size and color.
+        png                 Create a PNG image of a specified size and colour.
         png_file            Create a PNG image file of a specified size and
-                            color.
+                            colour.
         pybool              Generate a random boolean.
         pydecimal           Generate a random Decimal number.
         pyfloat             Generate a random float number.
@@ -90,9 +90,9 @@ All commands overview
         sentences           Generate a list of sentences.
         slug                Generate a slug.
         slugs               Generate a list of slugs.
-        svg                 Create an SVG image of a specified size and color.
+        svg                 Create an SVG image of a specified size and colour.
         svg_file            Create an SVG image file of a specified size and
-                            color.
+                            colour.
         text                Generate a text.
         text_pdf            Create a PDF document of a given size.
         text_pdf_file       Create a text PDF file.
@@ -377,8 +377,8 @@ Customisation
 -------------
 By default, only standard (built-in) providers are available through CLI.
 
-However, you can easily expose your providers via CLI too. See the
-implementation below as an example.
+However, you can easily expose your custom providers via the CLI as well.
+See the implementation below as an example.
 
 *Filename: data.py*
 
@@ -398,7 +398,7 @@ implementation below as an example.
     :language: python
     :lines: 1-
 
-After that you can use it as follows:
+After that, you can use it as follows:
 
 .. code-block:: sh
 
