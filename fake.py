@@ -70,7 +70,7 @@ from uuid import UUID
 __title__ = "fake.py"
 __version__ = "0.11.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023-2024 Artur Barseghyan"
+__copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "AuthorshipData",

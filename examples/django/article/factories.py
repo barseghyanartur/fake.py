@@ -25,7 +25,7 @@ from fake import (
 from article.models import Article
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023-2024 Artur Barseghyan"
+__copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "ArticleFactory",
