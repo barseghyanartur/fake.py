@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.2
+------
+2025-04-21
+
+- Add ``string_template`` and ``lazy_string_template`` providers.
+
 0.11.1
 ------
 2025-04-11

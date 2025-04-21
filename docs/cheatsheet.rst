@@ -79,9 +79,9 @@ list of authors, journal name, publication year, and keywords:
 
     .. code-block:: python
         :name: test_article_metadata
-        :emphasize-lines: 1-
+        :emphasize-lines: 3-
 
-        from fake import FAKER, StringTemplate
+        from fake import FAKER
 
         article_title = FAKER.sentence(suffix="")
         # 'Preferably youre than is now'
@@ -89,7 +89,7 @@ list of authors, journal name, publication year, and keywords:
         authors = [FAKER.name() for _ in range(3)]
         # ['Thomas Sajip', 'Ben Gust', 'Christian Dragon De Monsyne']
 
-        journal = StringTemplate("Journal of {word} Studies")
+        journal = FAKER.string_template("Journal of {word} Studies")
         # 'Journal of Better Studies'
 
         publication_year = FAKER.year(start_year=1970, end_year=2024)
@@ -108,9 +108,9 @@ Generate a fake short abstract:
         :name: test_article_abstract
         :emphasize-lines: 3-
 
-        from fake import StringTemplate
+        from fake import FAKER
 
-        abstract = StringTemplate(
+        abstract = FAKER.string_template(
             """
             {date(start_date="-7d")}
 
