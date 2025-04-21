@@ -29,6 +29,7 @@ from abc import abstractmethod
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
@@ -3897,12 +3898,14 @@ class Faker:
 
     @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
+        """Random choice: pick a single element from the given list."""
         return random.choice(elements)
 
     random_element = random_choice  # noqa
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
+        """Random sample: pick random `length` elements from the given list."""
         return random.sample(elements, length)
 
     random_elements = random_sample  # noqa
@@ -3914,6 +3917,7 @@ class Faker:
         letters: str = string.ascii_uppercase,
         digits: str = string.digits,
     ) -> str:
+        """Randomise string: `?` is replaced with letter, `#` with number."""
         result = ""
         for char in value:
             if char == "?":
@@ -3927,27 +3931,31 @@ class Faker:
     randomize_string = bothify = randomise_string  # noqa
 
     @provider(tags=("Text",))
-    def template(
+    def string_template(
         self,
         template: str,
         wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
     ) -> str:
+        """String template."""
         return StringTemplate(
             template=template,
             wrap_chars_after=wrap_chars_after,
-            faker=self,
+            faker=faker or self,
         )
 
     @provider(tags=("Text",))
-    def lazy_template(
+    def lazy_string_template(
         self,
         template: str,
         wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
     ) -> "LazyStringTemplate":
+        """Lazy string template."""
         return LazyStringTemplate(
             template=template,
             wrap_chars_after=wrap_chars_after,
-            faker=self,
+            faker=faker or self,
         )
 
 
@@ -6935,6 +6943,73 @@ class TestFaker(unittest.TestCase):
         pattern = "ABC-123"
         result = self.faker.randomise_string(pattern)
         self.assertEqual(result, pattern)
+
+    def test_string_template(self) -> None:
+        # Create a mock faker object with some methods
+        mock_faker = MagicMock()
+        mock_faker.name.return_value = "John Doe"
+        mock_faker.sentence.return_value = "This is a test sentence."
+        mock_faker.date.return_value = "2023-01-01"
+        mock_faker.custom_method.return_value = "Custom value"
+        mock_faker.method123.return_value = "Numeric method"
+        mock_faker.boolean_method.return_value = "Boolean result"
+        mock_faker.string_template = deepcopy(self.faker.string_template)
+        template = (
+            "Name: {name()}\n"
+            "Sentence: {sentence(nb_words=10)}\n"
+            "Date: {date(start_date='-7d')}\n"
+            "Custom: {custom_method(param='value')}"
+        )
+        string_template = self.faker.string_template(
+            template,
+            faker=mock_faker,
+        )
+        expected = (
+            "Name: John Doe\n"
+            "Sentence: This is a test sentence.\n"
+            "Date: 2023-01-01\n"
+            "Custom: Custom value"
+        )
+        self.assertEqual(string_template, expected)
+        mock_faker.name.assert_called_once()
+        mock_faker.sentence.assert_called_once_with(nb_words=10)
+        mock_faker.date.assert_called_once_with(start_date="-7d")
+        mock_faker.custom_method.assert_called_once_with(param="value")
+
+    def test_lazy_string_template(self) -> None:
+        # Create a mock faker object with some methods
+        mock_faker = MagicMock()
+        mock_faker.name.return_value = "John Doe"
+        mock_faker.sentence.return_value = "This is a test sentence."
+        mock_faker.date.return_value = "2023-01-01"
+        mock_faker.custom_method.return_value = "Custom value"
+        mock_faker.method123.return_value = "Numeric method"
+        mock_faker.boolean_method.return_value = "Boolean result"
+        mock_faker.lazy_string_template = deepcopy(
+            self.faker.lazy_string_template
+        )
+        template = (
+            "Name: {name()}\n"
+            "Sentence: {sentence(nb_words=10)}\n"
+            "Date: {date(start_date='-7d')}\n"
+            "Custom: {custom_method(param='value')}"
+        )
+        string_template = self.faker.lazy_string_template(
+            template,
+            faker=mock_faker,
+        )
+        expected = (
+            "Name: John Doe\n"
+            "Sentence: This is a test sentence.\n"
+            "Date: 2023-01-01\n"
+            "Custom: Custom value"
+        )
+        result = str(string_template)
+        self.assertEqual(result, expected)
+        mock_faker.name.assert_called_once()
+        mock_faker.sentence.assert_called_once_with(nb_words=10)
+        mock_faker.date.assert_called_once_with(start_date="-7d")
+        mock_faker.custom_method.assert_called_once_with(param="value")
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()
