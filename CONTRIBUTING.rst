@@ -74,7 +74,7 @@ TL;DR:
 
 Documentation
 -------------
-Check `documentation`_.
+Check the `documentation`_.
 
 Testing
 -------
@@ -158,6 +158,6 @@ Questions can be asked on GitHub `discussions`_.
 
 Issues
 ------
-For reporting a bug or filing a feature request use GitHub `issues`_.
+For reporting a bug or filing a feature request, use GitHub `issues`_.
 
 **Do not report security issues on GitHub**. Check the `support`_ section.

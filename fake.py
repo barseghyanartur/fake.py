@@ -30,6 +30,7 @@ from abc import abstractmethod
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
@@ -68,9 +69,9 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.1"
+__version__ = "0.11.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023-2024 Artur Barseghyan"
+__copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "AuthorshipData",
@@ -1581,10 +1582,10 @@ class JpgGenerator:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (128, 128, 128),
     ) -> bytes:
-        """Create a JPG image of a specified size and color.
+        """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the JPG image.
         :rtype: bytes
@@ -1998,7 +1999,7 @@ class Faker:
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
         """Generate a list of words."""
-        return [word.capitalize() for word in random.choices(self._words, k=nb)]
+        return list(random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
@@ -2439,10 +2440,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a PNG image of a specified size and color.
+        """Create a PNG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the PNG image.
         :rtype: bytes
@@ -2452,7 +2453,7 @@ class Faker:
         # PNG file format header
         png_header = b"\x89PNG\r\n\x1a\n"
 
-        # IHDR chunk: width, height, bit depth, color type, compression,
+        # IHDR chunk: width, height, bit depth, colour type, compression,
         # filter, interlace
         ihdr_content = (
             width.to_bytes(4, byteorder="big")
@@ -2495,10 +2496,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an SVG image of a specified size and color.
+        """Create an SVG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the SVG image.
         :rtype: bytes
@@ -2512,10 +2513,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a BMP image of a specified size and color.
+        """Create a BMP image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the BMP image.
         :rtype: bytes
@@ -2554,7 +2555,7 @@ class Faker:
             + width_bytes
             + height_bytes
             + b"\x01\x00"
-            + b"\x18\x00"  # Number of color planes
+            + b"\x18\x00"  # Number of colour planes
             + b"\x00\x00\x00\x00"  # Bits per pixel (24 for RGB)
             + len(image_data).to_bytes(  # Compression method (0 for none)
                 4, byteorder="little"
@@ -2563,8 +2564,8 @@ class Faker:
             # Print resolution of the image (2835 pixels/meter)
             + b"\x13\x0B\x00\x00"
             + b"\x00\x00\x00\x00"
-            + b"\x00\x00\x00\x00"  # Number of colors in the palette
-            + image_data  # Important colors
+            + b"\x00\x00\x00\x00"  # Number of colours in the palette
+            + image_data  # Important colours
         )
 
     @provider(tags=("Image",))
@@ -2573,10 +2574,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a GIF image of a specified size and color.
+        """Create a GIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the GIF image.
         :rtype: bytes
@@ -2589,16 +2590,16 @@ class Faker:
         # Logical Screen Descriptor
         screen_width = width.to_bytes(2, byteorder="little")
         screen_height = height.to_bytes(2, byteorder="little")
-        # Global Color Table Flag set to 1, Color resolution, and Sort Flag
+        # Global Colour Table Flag set to 1, Colour resolution, and Sort Flag
         # to 0
         packed_field = b"\xF7"
-        bg_color_index = b"\x00"  # Background Color Index
+        bg_color_index = b"\x00"  # Background Colour Index
         pixel_aspect_ratio = b"\x00"  # No aspect ratio information
 
-        # Global Color Table.
-        # Since it's a single color, we only need one entry in our table,
+        # Global Colour Table.
+        # Since it's a single colour, we only need one entry in our table,
         # rest are black.
-        # Each color is 3 bytes (RGB).
+        # Each colour is 3 bytes (RGB).
         color_table = bytes(color) + b"\x00" * (3 * 255)
 
         # Image Descriptor
@@ -2613,9 +2614,9 @@ class Faker:
         # Image Data
         lzw_min_code_size = b"\x08"  # Set to 8 for no compression
 
-        # Image Data Blocks for a single color.
-        # Simplest LZW encoding for a single color: clear code, followed
-        # by color index, end code.
+        # Image Data Blocks for a single colour.
+        # Simplest LZW encoding for a single colour: clear code, followed
+        # by colour index, end code.
         image_data_blocks = bytearray(
             [0x02, 0x4C, 0x01, 0x00]
         )  # Compressed data
@@ -2644,10 +2645,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a TIF image of a specified size and color.
+        """Create a TIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format (tuple of three
+        :param color: Colour of the image in RGB format (tuple of three
             integers).
         :return: Byte content of the TIF image.
         :rtype: bytes
@@ -2720,10 +2721,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create a PPM image of a specified size and color.
+        """Create a PPM image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format, tuple of three
+        :param color: Colour of the image in RGB format, tuple of three
             integers: (0-255, 0-255, 0-255).
         :return: Byte content of the PPM image.
         :rtype: bytes
@@ -2748,10 +2749,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (128, 128, 128),
     ) -> bytes:
-        """Create a JPG image of a specified size and color.
+        """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-        :param color: Color of the image in RGB format, tuple of three
+        :param color: Colour of the image in RGB format, tuple of three
             integers: (0-255, 0-255, 0-255).
         :return: Byte content of the JPG image.
         :rtype: bytes
@@ -2773,7 +2774,7 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an image of a specified format, size and color."""
+        """Create an image of a specified format, size and colour."""
         if image_format not in {
             "png",
             "svg",
@@ -3301,7 +3302,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PNG image file of a specified size and color."""
+        """Create a PNG image file of a specified size and colour."""
         return self._image_file(
             image_format="png",
             size=size,
@@ -3327,7 +3328,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create an SVG image file of a specified size and color."""
+        """Create an SVG image file of a specified size and colour."""
         return self._image_file(
             image_format="svg",
             size=size,
@@ -3353,7 +3354,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a BMP image file of a specified size and color."""
+        """Create a BMP image file of a specified size and colour."""
         return self._image_file(
             image_format="bmp",
             size=size,
@@ -3379,7 +3380,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a GIF image file of a specified size and color."""
+        """Create a GIF image file of a specified size and colour."""
         return self._image_file(
             image_format="gif",
             size=size,
@@ -3405,7 +3406,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a TIF image file of a specified size and color."""
+        """Create a TIF image file of a specified size and colour."""
         return self._image_file(
             image_format="tif",
             size=size,
@@ -3431,7 +3432,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PPM image file of a specified size and color."""
+        """Create a PPM image file of a specified size and colour."""
         return self._image_file(
             image_format="ppm",
             size=size,
@@ -3457,7 +3458,7 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a JPG image file of a specified size and color."""
+        """Create a JPG image file of a specified size and colour."""
         return self._image_file(
             image_format="jpg",
             size=size,
@@ -3952,12 +3953,14 @@ class Faker:
 
     @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
+        """Random choice: pick a single element from the given list."""
         return random.choice(elements)
 
     random_element = random_choice  # noqa
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
+        """Random sample: pick random `length` elements from the given list."""
         return random.sample(elements, length)
 
     random_elements = random_sample  # noqa
@@ -3969,6 +3972,7 @@ class Faker:
         letters: str = string.ascii_uppercase,
         digits: str = string.digits,
     ) -> str:
+        """Randomise string: `?` is replaced with letter, `#` with number."""
         result = ""
         for char in value:
             if char == "?":
@@ -3980,6 +3984,34 @@ class Faker:
         return result
 
     randomize_string = bothify = randomise_string  # noqa
+
+    @provider(tags=("Text",))
+    def string_template(
+        self,
+        template: str,
+        wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
+    ) -> str:
+        """String template."""
+        return StringTemplate(
+            template=template,
+            wrap_chars_after=wrap_chars_after,
+            faker=faker or self,
+        )
+
+    @provider(tags=("Text",))
+    def lazy_string_template(
+        self,
+        template: str,
+        wrap_chars_after: Optional[int] = None,
+        faker: Optional["Faker"] = None,
+    ) -> "LazyStringTemplate":
+        """Lazy string template."""
+        return LazyStringTemplate(
+            template=template,
+            wrap_chars_after=wrap_chars_after,
+            faker=faker or self,
+        )
 
 
 FAKER = Faker(alias="default")
@@ -6966,6 +6998,73 @@ class TestFaker(unittest.TestCase):
         pattern = "ABC-123"
         result = self.faker.randomise_string(pattern)
         self.assertEqual(result, pattern)
+
+    def test_string_template(self) -> None:
+        # Create a mock faker object with some methods
+        mock_faker = MagicMock()
+        mock_faker.name.return_value = "John Doe"
+        mock_faker.sentence.return_value = "This is a test sentence."
+        mock_faker.date.return_value = "2023-01-01"
+        mock_faker.custom_method.return_value = "Custom value"
+        mock_faker.method123.return_value = "Numeric method"
+        mock_faker.boolean_method.return_value = "Boolean result"
+        mock_faker.string_template = deepcopy(self.faker.string_template)
+        template = (
+            "Name: {name()}\n"
+            "Sentence: {sentence(nb_words=10)}\n"
+            "Date: {date(start_date='-7d')}\n"
+            "Custom: {custom_method(param='value')}"
+        )
+        string_template = self.faker.string_template(
+            template,
+            faker=mock_faker,
+        )
+        expected = (
+            "Name: John Doe\n"
+            "Sentence: This is a test sentence.\n"
+            "Date: 2023-01-01\n"
+            "Custom: Custom value"
+        )
+        self.assertEqual(string_template, expected)
+        mock_faker.name.assert_called_once()
+        mock_faker.sentence.assert_called_once_with(nb_words=10)
+        mock_faker.date.assert_called_once_with(start_date="-7d")
+        mock_faker.custom_method.assert_called_once_with(param="value")
+
+    def test_lazy_string_template(self) -> None:
+        # Create a mock faker object with some methods
+        mock_faker = MagicMock()
+        mock_faker.name.return_value = "John Doe"
+        mock_faker.sentence.return_value = "This is a test sentence."
+        mock_faker.date.return_value = "2023-01-01"
+        mock_faker.custom_method.return_value = "Custom value"
+        mock_faker.method123.return_value = "Numeric method"
+        mock_faker.boolean_method.return_value = "Boolean result"
+        mock_faker.lazy_string_template = deepcopy(
+            self.faker.lazy_string_template
+        )
+        template = (
+            "Name: {name()}\n"
+            "Sentence: {sentence(nb_words=10)}\n"
+            "Date: {date(start_date='-7d')}\n"
+            "Custom: {custom_method(param='value')}"
+        )
+        string_template = self.faker.lazy_string_template(
+            template,
+            faker=mock_faker,
+        )
+        expected = (
+            "Name: John Doe\n"
+            "Sentence: This is a test sentence.\n"
+            "Date: 2023-01-01\n"
+            "Custom: Custom value"
+        )
+        result = str(string_template)
+        self.assertEqual(result, expected)
+        mock_faker.name.assert_called_once()
+        mock_faker.sentence.assert_called_once_with(nb_words=10)
+        mock_faker.date.assert_called_once_with(start_date="-7d")
+        mock_faker.custom_method.assert_called_once_with(param="value")
 
     def test_storage(self) -> None:
         storage = FileSystemStorage()

@@ -23,7 +23,8 @@ This section covers basic concepts of file generation within `fake.py`_.
 
 Basics
 ------
-It's possible to generate either bytes or files on the file system.
+It's possible to generate either in-memory byte content or actual files on the
+file system.
 
 - When generating bytes, the returned value is ``BytesValue``.
 - When generating files on the file system, the returned value
@@ -36,7 +37,7 @@ meta-data about the specific kind of file.
 For generated files, it will always have the following:
 
 - ``storage``: Storage class that was used to generate the file.
-- ``filename``: Absolute file path. It's important to know, that string
+- ``filename``: Absolute file path. It's important to know that string
   representation of the file contains a relative file path.
 
 ----
@@ -119,16 +120,16 @@ class instance, as shown below:
     # Trigger the clean-up
     FILE_REGISTRY.clean_up()
 
-    # File does no longer exist
+    # File no longer exists
     assert storage.exists(filename) is False
 
 Typically you would call the ``clean_up`` method in the ``tearDown``.
 
 ----
 
-To remove a single file, use ``remove`` method of ``FileRegistry`` instance.
-In the example below, the file is removed by provided ``StringValue``
-instance:
+To remove a single file, use the ``remove`` method of ``FileRegistry``
+instance. In the example below, the file is removed by providing
+the ``StringValue`` instance:
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -149,13 +150,13 @@ instance:
         # Remove the file by providing the ``StringValue`` instance
         FILE_REGISTRY.remove(txt_file)
 
-        # File does no longer exist
+        # File no longer exists
         assert storage.exists(filename) is False
 
 ----
 
 You can also remove by path. In the exampl below, the file is removed by
-provided ``str`` instance:
+providing the ``str`` instance:
 
 .. container:: jsphinx-toggle-emphasis
 
@@ -176,7 +177,7 @@ provided ``str`` instance:
         # Remove the file by providing the ``filename``
         FILE_REGISTRY.remove(filename)
 
-        # File does no longer exist
+        # File no longer exist
         assert storage.exists(filename) is False
 
 ----

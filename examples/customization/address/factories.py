@@ -5,7 +5,7 @@ from fake_address import FACTORY as ADDRESS_FACTORY
 from override_default_data import FACTORY as OVERRIDE_DEFAULT_DATA_FACTORY
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
-__copyright__ = "2023-2024 Artur Barseghyan"
+__copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
 __all__ = (
     "AddressFactory",

@@ -32,10 +32,10 @@ If you need bytes
 
 The generated PDF will consist of a single page with little text on it.
 
-If you want to control number of pages created, you could:
+If you want to control the number of pages created, you could:
 
-- Pass the list of texts to be used in ``texts`` argument.
-- Pass the number of pages to be created in ``nb_pages`` argument.
+- Pass a list of texts to the ``texts`` argument.
+- Pass the number of pages to the ``nb_pages`` argument.
 
 ----
 
@@ -63,11 +63,11 @@ For full clarity, see another example below for ``texts`` tweak:
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_bytes_2b.py>`
 
-The produced PDF will consist of 3 pages:
+The produced PDF will have 3 pages:
 
-- Content of the first would be: ``Page 1 content``
-- Content of the second page would be: ``Page 2 content``
-- Content of the third page would be: ``Page 3 content``
+- The first will show: ``Page 1 content``
+- The second page will show: ``Page 2 content``
+- The third page will show: ``Page 3 content``
 
 ----
 
@@ -132,9 +132,9 @@ If you need bytes
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_1.py>`
 
-The generated PDF will consist of a single page with a colored square on it.
+The generated PDF will consist of a single page with a coloured square on it.
 
-If you want PDF with more pages, provide the ``nb_pages`` argument.
+If you want a PDF with more pages, provide the ``nb_pages`` argument.
 
 ----
 

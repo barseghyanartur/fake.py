@@ -1,7 +1,7 @@
 fake.py examples
 ================
 
-- `Customization <customization/README.rst>`_.
+- `Customisation <customisation/README.rst>`_.
 - `Dataclasses <dataclasses/README.rst>`_.
 - `Django <django/README.rst>`_.
 - `Hypothesis <hypothesis/README.rst>`_.

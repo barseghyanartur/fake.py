@@ -90,19 +90,19 @@ Breakdown:
   function, which is used by ``PreInit``, accepts a dictionary with model data
   as argument and all changes to that dictionary are passed further to the
   class constructor. It's important to mention that functions passed to the
-  ``PreInit``, do hot have to return anything.
-- ``password`` is a non-required field and since Django has a well working way
-  for setting it, use of ``PreSave`` is the best option here. It's important
-  to mention that functions passed to the ``PreSave``, do hot have to return
-  anything.
+  ``PreInit``, do not have to return anything.
+- ``password`` is a non-required field and since Django provides a built-in
+  way to handle passwords, use of ``PreSave`` is the best option here.
+  It's important to mention that functions passed to the ``PreSave``, do not
+  have to return anything.
 - ``group`` is a non-required many-to-many relationship. We need a User
   instance to be created before we can add User to a Group. That's why
-  ``PostSave`` is best option here. It's important to mention that functions
-  passed to the ``PostSave``, do hot have to return anything.
+  ``PostSave`` is the best option here. It's important to mention that
+  functions passed to the ``PostSave``, do not have to return anything.
 
 ----
 
-Factory for the the ``Artice`` model could look as this:
+A factory for the ``Article`` model could look like this:
 
 *Filename: article/factories.py*
 
