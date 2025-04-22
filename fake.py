@@ -31,7 +31,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from dataclasses import dataclass, field, fields, is_dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from email.message import EmailMessage
 from email.policy import default
@@ -68,7 +68,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.2"
+__version__ = "0.11.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2348,6 +2348,19 @@ class Faker:
         :rtype: int
         """
         return random.randint(start_year, end_year)
+
+    @provider(tags=("Date/Time",))
+    def time(self, fmt: str = "%H:%M:%S") -> str:
+        """Generate a random time string formatted according to `fmt`.
+
+        :param fmt: The format to use.
+        :return: A random time string formatted according to `fmt`.
+        :rtype: str
+        """
+        hour = self.pyint(min_value=0, max_value=23)
+        minute = self.pyint(min_value=0, max_value=59)
+        second = self.pyint(min_value=0, max_value=59)
+        return time(hour, minute, second).strftime(fmt)
 
     @provider(tags=("Document",))
     def pdf(
@@ -6393,6 +6406,21 @@ class TestFaker(unittest.TestCase):
         _year = self.faker.year()
         self.assertGreaterEqual(_year, 1900)
         self.assertLessEqual(_year, 2100)
+
+    def test_time(self) -> None:
+        # Test default format
+        with self.subTest("test_time_default_format"):
+            t = self.faker.time()
+            # HH:MM:SS
+            self.assertRegex(
+                t,
+                r"^[0-1]\d:[0-5]\d:[0-5]\d$|^2[0-3]:[0-5]\d:[0-5]\d$",
+            )
+        # Test custom format
+        with self.subTest("test_time_custom_format"):
+            t2 = self.faker.time(fmt="%H:%M")
+            # HH:MM
+            self.assertRegex(t2, r"^[0-1]\d:[0-5]\d$|^2[0-3]:[0-5]\d$")
 
     def test_text_pdf(self) -> None:
         with (

@@ -226,6 +226,7 @@ Dates
     FAKER.date()  # datetime.date
     FAKER.date_time()  # datetime.datetime
     FAKER.year()  # int
+    FAKER.time()  # str
 
 Geographic data
 ~~~~~~~~~~~~~~~
