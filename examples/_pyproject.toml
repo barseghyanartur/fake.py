@@ -1,0 +1,52 @@
+[tool.pytest.ini_options]
+addopts = [
+    "-ra",
+    "-vvv",
+    "-q",
+   "--cov=.",
+   "--ignore=.tox",
+   "--ignore=requirements",
+   "--ignore=release",
+   "--ignore=tmp",
+   "--cov-report=html",
+   "--cov-report=term",
+   "--cov-report=annotate",
+   "--cov-append",
+   "--capture=no",
+]
+testpaths = [
+    "**/test*.py",  # matches test*.py in root, band/, address/, or any subdir
+#    "**/*.rst",     # matches *.rst (and test*.rst) everywhere
+]
+pythonpath = [
+    ".",
+]
+
+[tool.coverage.run]
+relative_files = true
+omit = [
+    ".tox/*",
+    "**/manage.py",
+    "**/test*.py",
+    "**/conftest.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "@overload",
+]
+
+[tool.mypy]
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[tool.pydoclint]
+style = 'sphinx'
+exclude = '\.git|\.tox|tests/data|__copy_fake\.py'
+require-return-section-when-returning-nothing = false
+allow-init-docstring = true
+arg-type-hints-in-docstring = false

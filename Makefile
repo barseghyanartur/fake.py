@@ -46,7 +46,7 @@ test: clean
 	source $(VENV) && pytest -vrx -s
 
 test-all: test \
-customization-test \
+customisation-test \
 dataclasses-test \
 django-test \
 hypothesis-test \
@@ -56,50 +56,50 @@ sqlalchemy-test \
 sqlmodel-test \
 tortoise-test
 
-customization-test:
-	source $(VENV) && cd examples/customization/ && python manage.py test
+customisation-test:
+	source $(VENV) && cd examples/customisation/ && pytest
 
 dataclasses-test:
-	source $(VENV) && cd examples/dataclasses/ && python manage.py test
+	source $(VENV) && cd examples/dataclasses/ && pytest
 
 django-test:
 	source $(VENV) && cd examples/django/ && ./manage.py test
 
 hypothesis-test:
-	source $(VENV) && cd examples/hypothesis/ && python manage.py test
+	source $(VENV) && cd examples/hypothesis/ && pytest
 
 lazyfuzzy-test:
-	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py test
+	source $(VENV) && cd examples/lazyfuzzy/ && pytest
 
 pydantic-test:
-	source $(VENV) && cd examples/pydantic/ && python manage.py test
+	source $(VENV) && cd examples/pydantic/ && pytest
 
 sqlalchemy-test:
-	source $(VENV) && cd examples/sqlalchemy/ && python manage.py test
+	source $(VENV) && cd examples/sqlalchemy/ && pytest
 
 sqlmodel-test:
-	source $(VENV) && cd examples/sqlmodel/ && python manage.py test
+	source $(VENV) && cd examples/sqlmodel/ && pytest
 
 tortoise-test:
-	source $(VENV) && cd examples/tortoise/ && python manage.py test
+	source $(VENV) && cd examples/tortoise/ && pytest
 
 shell:
 	source $(VENV) && ipython
 
-customization-shell:
-	source $(VENV) && cd examples/customization/ && python manage.py shell
+customisation-shell:
+	source $(VENV) && cd examples/customisation/ && python manage.py shell
 
-customization-address-cli:
+customisation-address-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customization/ && python address_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customisation/ && python address_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
-customization-band-cli:
+customisation-band-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customization/ && python band_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customisation/ && python band_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
-customization-custom-data-cli:
+customisation-custom-data-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customization/ && python custom_data_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	source $(VENV) && cd examples/customisation/ && python custom_data_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
 dataclasses-shell:
 	source $(VENV) && cd examples/dataclasses/ && python manage.py shell

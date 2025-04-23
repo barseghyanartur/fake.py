@@ -1,6 +1,6 @@
+from band.models import Band
 from fake import ModelFactory
 
-from band.models import Band
 from fake_band import FACTORY
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"

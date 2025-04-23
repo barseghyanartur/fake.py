@@ -1,5 +1,4 @@
 from fake import CLI
-
 from override_default_data import FAKER
 
 
