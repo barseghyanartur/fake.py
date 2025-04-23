@@ -45,6 +45,17 @@ install:
 test: clean
 	source $(VENV) && pytest -vrx -s
 
+test-integration: customisation-test \
+dataclasses-test \
+django-test \
+hypothesis-test \
+lazyfuzzy-test \
+pydantic-test \
+sqlalchemy-test \
+sqlmodel-test \
+tortoise-test
+
+
 test-all: test \
 customisation-test \
 dataclasses-test \
@@ -143,6 +154,7 @@ clean:
 	find . -type f -name "builddocs.zip" -exec rm -f {} \;
 	find . -type f -name "*.py,cover" -exec rm -f {} \;
 	find . -type f -name "*.orig" -exec rm -f {} \;
+	find . -type f -name "*.coverage" -exec rm -f {} \;
 	find . -type f -name "*.db" -exec rm -f {} \;
 	find . -type d -name "__pycache__" -exec rm -rf {} \; -prune
 	rm -rf build/

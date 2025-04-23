@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy.orm import sessionmaker
 
-from article.models import Base
-from config import ENGINE
+# from article.models import Base
+# from config import ENGINE
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -10,6 +10,9 @@ def setup_database():
     """Create all tables before any tests run, and drop them when the
     session ends.
     """
+    from article.models import Base
+    from config import ENGINE
+
     Base.metadata.create_all(ENGINE)
     yield
     Base.metadata.drop_all(ENGINE)
@@ -20,6 +23,7 @@ def db_session():
     """Provide a new database session for a test and roll back after each
     test.
     """
+    from config import ENGINE
     # Establish a connection and start a transaction
     connection = ENGINE.connect()
     transaction = connection.begin()

@@ -158,10 +158,12 @@ target-version = "py39"
 known-first-party = [
     "address",
     "article",
+    "band",
     "config",
     "data",
     "fake_address",
     "fake_band",
+    "override_default_data",
 ]
 known-third-party = []
 
