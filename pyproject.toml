@@ -182,6 +182,7 @@ addopts = [
    "--ignore=.tox",
    "--ignore=requirements",
    "--ignore=release",
+   "--ignore=examples",
    "--ignore=tmp",
    "--cov-report=html",
    "--cov-report=term",
@@ -197,6 +198,10 @@ testpaths = [
 ]
 pythonpath = [
     "examples/django",
+]
+norecursedirs = [
+    ".git",
+    "examples",
 ]
 DJANGO_SETTINGS_MODULE = "blog.settings"
 
