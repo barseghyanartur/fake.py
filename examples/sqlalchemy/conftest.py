@@ -1,8 +1,4 @@
 import pytest
-from sqlalchemy.orm import sessionmaker
-
-# from article.models import Base
-# from config import ENGINE
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -23,6 +19,8 @@ def db_session():
     """Provide a new database session for a test and roll back after each
     test.
     """
+    from sqlalchemy.orm import sessionmaker
+
     from config import ENGINE
     # Establish a connection and start a transaction
     connection = ENGINE.connect()

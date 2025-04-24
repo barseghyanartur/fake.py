@@ -1,33 +1,23 @@
-import asyncio
-
 import pytest
-import pytest_asyncio
-from tortoise import Tortoise
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """
-    Create an instance of the default event loop for session-scoped
-    async fixtures.
-    """
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+async def init():
+    # Initialise SQLite DB and specify the app name of "models"
+    #  alongside the models "article.models"
+    from tortoise import Tortoise
 
-
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def initialize_db():
-    """
-    Initialize Tortoise ORM with an in-memory SQLite database and generate
-    schemas before tests, then close connections (dropping the in-memory DB)
-    after.
-    """
     await Tortoise.init(
         db_url="sqlite://:memory:",
+        # db_url="sqlite://tortoise_db.sqlite3",
         modules={"models": ["article.models"]},
     )
+    # Generate the schema
     await Tortoise.generate_schemas()
-    yield
-    # Teardown: close connections to drop the in-memory database
-    await Tortoise.close_connections()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
+    """Create all tables once before any tests run."""
+    from tortoise import run_async
+
+    run_async(init())

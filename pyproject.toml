@@ -51,7 +51,6 @@ dev = [
 test = [
     "django",
     "pytest",
-    "pytest-asyncio",
     "pytest-cov",
     "pytest-django",
     "pytest-rst",
