@@ -204,7 +204,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/django/ && python manage.py test
+        run: cd examples/django/ && pytest
 
   # *************************************
   # ********** Hypothesis example *******

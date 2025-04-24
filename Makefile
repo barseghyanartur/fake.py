@@ -74,7 +74,7 @@ dataclasses-test:
 	source $(VENV) && cd examples/dataclasses/ && pytest
 
 django-test:
-	source $(VENV) && cd examples/django/ && ./manage.py test
+	source $(VENV) && cd examples/django/ && pytest
 
 hypothesis-test:
 	source $(VENV) && cd examples/hypothesis/ && pytest
