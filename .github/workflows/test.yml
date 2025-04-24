@@ -120,7 +120,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/customisation/ && python manage.py test
+        run: cd examples/customisation/ && pytest
 
   # *************************************
   # ******** Dataclasses example ********
@@ -156,7 +156,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/dataclasses/ && python manage.py test
+        run: cd examples/dataclasses/ && pytest
 
   # *************************************
   # ************ Django example *********
@@ -241,7 +241,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/hypothesis/ && python manage.py test
+        run: cd examples/hypothesis/ && pytest
 
   # *************************************
   # *********** Pydantic example ********
@@ -278,7 +278,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/pydantic/ && python manage.py test
+        run: cd examples/pydantic/ && pytest
 
   # *************************************
   # *********** SQLAlchemy example ********
@@ -315,7 +315,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/sqlalchemy/ && python manage.py test
+        run: cd examples/sqlalchemy/ && pytest
 
   # *************************************
   # *********** SQLModel example ********
@@ -352,7 +352,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/sqlmodel/ && python manage.py test
+        run: cd examples/sqlmodel/ && pytest
 
   # *************************************
   # ********* TortoiseORM example *******
@@ -389,7 +389,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/tortoise/ && python manage.py test
+        run: cd examples/tortoise/ && pytest
 
   # *************************************
   # ************** Coveralls ************
