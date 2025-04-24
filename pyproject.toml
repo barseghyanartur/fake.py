@@ -107,7 +107,7 @@ lint.ignore = [
 # Enable autofix for formatting and import sorting
 fix = true
 src = [
-    "examples/customization",
+    "examples/customisation",
     "examples/dataclasses",
     "examples/django",
     "examples/hypothesis",

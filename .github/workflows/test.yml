@@ -87,11 +87,11 @@ jobs:
           flag-name: Run Tests
 
   # *************************************
-  # ******** Customization example ******
+  # ******** Customisation example ******
   # *************************************
-  test_customization_example:
+  test_customisation_example:
     needs: pre-commit
-    name: test customization example ${{ matrix.python-version }} - ${{ matrix.os }}
+    name: test customisation example ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -120,7 +120,7 @@ jobs:
         run: |
           pip install -e .[all]
       - name: Run test suite
-        run: cd examples/customization/ && python manage.py test
+        run: cd examples/customisation/ && python manage.py test
 
   # *************************************
   # ******** Dataclasses example ********
