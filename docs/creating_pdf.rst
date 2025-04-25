@@ -45,7 +45,7 @@ See the example below for ``texts`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2.py
         :language: python
-        :lines: 3-
+        :lines: 3-4
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_bytes_2.py>`
@@ -58,7 +58,7 @@ For full clarity, see another example below for ``texts`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2b.py
         :language: python
-        :lines: 3-
+        :lines: 3-4
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_bytes_2b.py>`
@@ -77,7 +77,7 @@ See the example below for ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_3.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_bytes_3.py>`
@@ -88,7 +88,7 @@ If you need files
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_1.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_file_1.py>`
@@ -101,7 +101,7 @@ With ``texts`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_2.py
         :language: python
-        :lines: 3-
+        :lines: 3-4
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_file_2.py>`
@@ -114,7 +114,7 @@ With ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_3.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/text_pdf_file_3.py>`
@@ -128,6 +128,7 @@ If you need bytes
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_1.py
         :language: python
+        :lines: 1-3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_1.py>`
@@ -144,7 +145,7 @@ See the example below for ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_2.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_bytes_2.py>`
@@ -155,7 +156,7 @@ If you need files
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_1.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_file_1.py>`
@@ -168,7 +169,7 @@ With ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_2.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_pdf/graphic_pdf_file_2.py>`
