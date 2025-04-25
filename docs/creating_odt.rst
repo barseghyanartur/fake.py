@@ -38,7 +38,7 @@ See the example below for ``texts`` tweak:
 
     .. literalinclude:: _static/examples/creating_odt/odt_bytes_2.py
         :language: python
-        :lines: 3-
+        :lines: 3-4
 
     *See the full example*
     :download:`here <_static/examples/creating_odt/odt_bytes_2.py>`
@@ -51,7 +51,7 @@ See the example below for ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_odt/odt_bytes_3.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_odt/odt_bytes_3.py>`
@@ -62,7 +62,7 @@ If you need files
 
     .. literalinclude:: _static/examples/creating_odt/odt_file_1.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_odt/odt_file_1.py>`
@@ -75,7 +75,7 @@ With ``texts`` tweak:
 
     .. literalinclude:: _static/examples/creating_odt/odt_file_2.py
         :language: python
-        :lines: 3-
+        :lines: 3-4
 
     *See the full example*
     :download:`here <_static/examples/creating_odt/odt_file_2.py>`
@@ -88,7 +88,7 @@ With ``nb_pages`` tweak:
 
     .. literalinclude:: _static/examples/creating_odt/odt_file_3.py
         :language: python
-        :lines: 3-
+        :lines: 3
 
     *See the full example*
     :download:`here <_static/examples/creating_odt/odt_file_3.py>`
@@ -97,35 +97,44 @@ With ``nb_pages`` tweak:
 
 Using text templates:
 
-.. code-block:: python
-    :name: test_text_templates
+.. container:: jsphinx-toggle-emphasis-replace
 
-    from fake import FAKER, StringTemplate
+    .. code-block:: python
+        :name: test_text_templates
+        :emphasize-lines: 1-26
 
-    template = """
-    {date(start_date='-7d')}
-    {name}
-    {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
-    {randomise_string(value='#### ??', digits='123456789')} {city}
+        from fake import FAKER, StringTemplate
 
-    Dear friend,
+        template = """
+        {date(start_date='-7d')}
+        {name}
+        {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+        {randomise_string(value='#### ??', digits='123456789')} {city}
 
-    {text(nb_chars=1000, allow_overflow=True)}
+        Dear friend,
 
-    Sincerely yours,
+        {text(nb_chars=1000, allow_overflow=True)}
 
-    {name}
-    {email}
-    {domain_name}
-    """
-    # ODT file of 1 page
-    odt_file_1 = FAKER.odt_file(
-        texts=[StringTemplate(template)],
-    )
-    # ODT file of 10 pages
-    odt_file_10 = FAKER.odt_file(
-        texts=[StringTemplate(template) for _ in range(10)],
-    )
+        Sincerely yours,
+
+        {name}
+        {email}
+        {domain_name}
+        """
+        # ODT file of 1 page
+        odt_file_1 = FAKER.odt_file(
+            texts=[StringTemplate(template)],
+        )
+        # ODT file of 10 pages
+        odt_file_10 = FAKER.odt_file(
+            texts=[StringTemplate(template) for _ in range(10)],
+        )
+
+        # Tests
+        assert isinstance(odt_file_1, str)
+        assert odt_file_1.data["storage"].exists(odt_file_1)
+        assert isinstance(odt_file_10, str)
+        assert odt_file_10.data["storage"].exists(odt_file_10)
 
 ----
 
