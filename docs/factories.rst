@@ -38,12 +38,12 @@ application specific custom model.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/django/article/models.py
+    .. literalinclude:: ../examples/django/article/models.py
         :language: python
         :lines: 1-3, 9-26
 
     *See the full example*
-    :download:`here <_static/examples/factories/django/article/models.py>`
+    :download:`here <../examples/django/article/models.py>`
 
 ----
 
@@ -56,12 +56,12 @@ Factory for the Django's built-in ``Group`` model could look as simple as this:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/django/article/factories.py
+    .. literalinclude:: ../examples/django/article/factories.py
         :language: python
         :lines: 4-5, 7, 10-11, 13, 23, 56-58, 68-72
 
     *See the full example*
-    :download:`here <_static/examples/factories/django/article/factories.py>`
+    :download:`here <../examples/django/article/factories.py>`
 
 ----
 
@@ -71,12 +71,12 @@ Factory for the Django's built-in ``User`` model could look as this:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/django/article/factories.py
+    .. literalinclude:: ../examples/django/article/factories.py
         :language: python
         :lines: 1-2, 4, 6-10, 12, 15-17, 23, 73-90, 121-135, 141-146
 
     *See the full example*
-    :download:`here <_static/examples/factories/django/article/factories.py>`
+    :download:`here <../examples/django/article/factories.py>`
 
 Breakdown:
 
@@ -108,12 +108,12 @@ A factory for the ``Article`` model could look like this:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/django/article/factories.py
+    .. literalinclude:: ../examples/django/article/factories.py
         :language: python
         :lines: 3, 10, 14, 18, 20, 23-25, 35-55, 157-163, 180-198
 
     *See the full example*
-    :download:`here <_static/examples/factories/django/article/factories.py>`
+    :download:`here <../examples/django/article/factories.py>`
 
 Breakdown:
 
@@ -140,12 +140,12 @@ All together it would look as follows:
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/django/article/factories.py
+    .. literalinclude:: ../examples/django/article/factories.py
         :language: python
         :lines: 1-25, 35-58, 68-90, 121-135, 141-146, 157-163, 180-199
 
     *See the full example*
-    :download:`here <_static/examples/factories/django/article/factories.py>`
+    :download:`here <../examples/django/article/factories.py>`
 
 ----
 
@@ -200,12 +200,12 @@ Example Pydantic models closely resemble the earlier shown Django models.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/pydantic/article/models.py
+    .. literalinclude:: ../examples/pydantic/article/models.py
         :language: python
         :lines: 1-5, 15-25, 31-
 
     *See the full example*
-    :download:`here <_static/examples/factories/pydantic/article/models.py>`
+    :download:`here <../examples/pydantic/article/models.py>`
 
 ----
 
@@ -218,12 +218,12 @@ factories.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/pydantic/article/factories.py
+    .. literalinclude:: ../examples/pydantic/article/factories.py
         :language: python
         :lines: 1-20, 30-98, 114-140
 
     *See the full example*
-    :download:`here <_static/examples/factories/pydantic/article/factories.py>`
+    :download:`here <../examples/pydantic/article/factories.py>`
 
 *Used just like in previous example.*
 
@@ -245,12 +245,12 @@ Example TortoiseORM models closely resemble the earlier shown Django models.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/tortoise/article/models.py
+    .. literalinclude:: ../examples/tortoise/article/models.py
         :language: python
         :lines: 1-5, 15-21, 25-41, 45-61
 
     *See the full example*
-    :download:`here <_static/examples/factories/tortoise/article/models.py>`
+    :download:`here <../examples/tortoise/article/models.py>`
 
 ----
 
@@ -263,12 +263,12 @@ factories.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/tortoise/article/factories.py
+    .. literalinclude:: ../examples/tortoise/article/factories.py
         :language: python
         :lines: 1-21, 31-106, 116-143
 
     *See the full example*
-    :download:`here <_static/examples/factories/tortoise/article/factories.py>`
+    :download:`here <../examples/tortoise/article/factories.py>`
 
 *Used just like in previous example.*
 
@@ -284,12 +284,12 @@ Example dataclass models closely resemble the earlier shown Django models.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/dataclasses/article/models.py
+    .. literalinclude:: ../examples/dataclasses/article/models.py
         :language: python
         :lines: 1-5, 15-
 
     *See the full example*
-    :download:`here <_static/examples/factories/dataclasses/article/models.py>`
+    :download:`here <../examples/dataclasses/article/models.py>`
 
 ----
 
@@ -302,12 +302,12 @@ factories.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/dataclasses/article/factories.py
+    .. literalinclude:: ../examples/dataclasses/article/factories.py
         :language: python
         :lines: 1-20, 30-98, 109-135
 
     *See the full example*
-    :download:`here <_static/examples/factories/dataclasses/article/factories.py>`
+    :download:`here <../examples/dataclasses/article/factories.py>`
 
 *Used just like in previous example.*
 
@@ -322,12 +322,12 @@ Configuration
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlalchemy/config.py
+    .. literalinclude:: ../examples/sqlalchemy/config.py
         :language: python
         :lines: 1-2, 12-
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlalchemy/config.py>`
+    :download:`here <../examples/sqlalchemy/config.py>`
 
 ----
 
@@ -339,12 +339,12 @@ Example SQLAlchemy models closely resemble the earlier shown Django models.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlalchemy/article/models.py
+    .. literalinclude:: ../examples/sqlalchemy/article/models.py
         :language: python
         :lines: 1-16, 26-46, 50-75, 79-105
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlalchemy/article/models.py>`
+    :download:`here <../examples/sqlalchemy/article/models.py>`
 
 ----
 
@@ -357,12 +357,12 @@ factories.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlalchemy/article/factories.py
+    .. literalinclude:: ../examples/sqlalchemy/article/factories.py
         :language: python
         :lines: 1-21, 30-122, 133-163
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlalchemy/article/factories.py>`
+    :download:`here <../examples/sqlalchemy/article/factories.py>`
 
 *Used just like in previous example.*
 
@@ -377,12 +377,12 @@ Configuration
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlmodel/config.py
+    .. literalinclude:: ../examples/sqlmodel/config.py
         :language: python
         :lines: 1-2, 12-
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlmodel/config.py>`
+    :download:`here <../examples/sqlmodel/config.py>`
 
 ----
 
@@ -394,12 +394,12 @@ Example SQLModel models closely resemble the earlier shown Django models.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlmodel/article/models.py
+    .. literalinclude:: ../examples/sqlmodel/article/models.py
         :language: python
         :lines: 1-5, 15-
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlmodel/article/models.py>`
+    :download:`here <../examples/sqlmodel/article/models.py>`
 
 ----
 
@@ -412,12 +412,12 @@ factories.
 
 .. container:: jsphinx-download
 
-    .. literalinclude:: _static/examples/factories/sqlmodel/article/factories.py
+    .. literalinclude:: ../examples/sqlmodel/article/factories.py
         :language: python
         :lines: 1-21, 31-
 
     *See the full example*
-    :download:`here <_static/examples/factories/sqlmodel/article/factories.py>`
+    :download:`here <../examples/sqlmodel/article/factories.py>`
 
 *Used just like in previous example.*
 

@@ -1,1 +1,0 @@
-../../../../../../examples/sqlmodel/article/models.py
