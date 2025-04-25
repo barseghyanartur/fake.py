@@ -8,7 +8,7 @@ import IPython
 
 
 def run_tests():
-    """Function to run tests in the customization directory."""
+    """Function to run tests in the customisation directory."""
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir="./", pattern="tests.py")
     runner = unittest.TextTestRunner()

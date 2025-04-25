@@ -107,7 +107,7 @@ lint.ignore = [
 # Enable autofix for formatting and import sorting
 fix = true
 src = [
-    "examples/customization",
+    "examples/customisation",
     "examples/dataclasses",
     "examples/django",
     "examples/hypothesis",
@@ -157,10 +157,12 @@ target-version = "py39"
 known-first-party = [
     "address",
     "article",
+    "band",
     "config",
     "data",
     "fake_address",
     "fake_band",
+    "override_default_data",
 ]
 known-third-party = []
 
@@ -179,6 +181,7 @@ addopts = [
    "--ignore=.tox",
    "--ignore=requirements",
    "--ignore=release",
+   "--ignore=examples",
    "--ignore=tmp",
    "--cov-report=html",
    "--cov-report=term",
@@ -191,9 +194,14 @@ testpaths = [
     "__copy_fake.py",
     "*.rst",
     "**/*.rst",
+    "docs/test_docs.py",
 ]
 pythonpath = [
     "examples/django",
+]
+norecursedirs = [
+    ".git",
+    "examples",
 ]
 DJANGO_SETTINGS_MODULE = "blog.settings"
 
