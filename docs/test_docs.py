@@ -1,10 +1,7 @@
 import logging
 from pathlib import Path
-from unittest import mock
-from unittest.mock import create_autospec
 
 import pytest
-from django.test import override_settings
 from fake import FILE_REGISTRY
 
 # Walk through the directory and all subdirectories for .py files
@@ -19,7 +16,13 @@ def execute_file(file_path, caplog):
     with caplog.at_level(logging.WARNING):
         with open(file_path, "r") as f:
             code = f.read()
-        exec(code, global_vars)
+        try:
+            exec(code, global_vars)
+        except Exception as err:
+            raise Exception(
+                f"\r\nErrored file {file_path}: {err}"
+                f"\r\nErrored code: \r\n```\r\n{code}\r\n```"
+            ) from err
 
 
 @pytest.mark.flaky(retries=3, delay=1)
