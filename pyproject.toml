@@ -194,6 +194,7 @@ testpaths = [
     "__copy_fake.py",
     "*.rst",
     "**/*.rst",
+    "docs/test_docs.py",
 ]
 pythonpath = [
     "examples/django",
