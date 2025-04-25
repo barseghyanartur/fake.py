@@ -382,19 +382,19 @@ See the implementation below as an example.
 
 *Filename: data.py*
 
-.. literalinclude:: _static/examples/cli/data.py
+.. literalinclude:: ../examples/customisation/data.py
     :language: python
     :lines: 173-175, 222-229, 275-281, 290-
 
 *Filename: fake_address.py*
 
-.. literalinclude:: _static/examples/cli/fake_address.py
+.. literalinclude:: ../examples/customisation/fake_address.py
     :language: python
     :lines: 1-6, 15-
 
 *Filename: address_cli.py*
 
-.. literalinclude:: _static/examples/cli/address_cli.py
+.. literalinclude:: ../examples/customisation/address_cli.py
     :language: python
     :lines: 1-
 
