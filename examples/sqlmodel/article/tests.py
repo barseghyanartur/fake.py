@@ -1,6 +1,6 @@
 import unittest
 
-from fake import xor_transform
+from fake import FILE_REGISTRY, xor_transform
 
 from article.factories import ArticleFactory, UserFactory
 from config import SESSION
@@ -20,6 +20,8 @@ class TestFactories(unittest.TestCase):
         # Clean up the session after each test
         self.session.rollback()
         self.session.close()
+        # Clean up files
+        FILE_REGISTRY.clean_up()
 
     def test_user_creation(self):
         user = UserFactory(username="testuser")
