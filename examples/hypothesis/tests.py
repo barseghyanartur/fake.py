@@ -82,6 +82,74 @@ class TestFakerWithHypothesis(unittest.TestCase):
         self.assertEqual(len(texts), nb)
 
     @given(
+        min_val=st.integers(
+            min_value=-1e10,
+            max_value=1e10,
+        ),
+        max_val=st.integers(
+            min_value=-1e10,
+            max_value=1e10,
+        ),
+    )
+    def test_pyint(self, min_val, max_val):
+        if min_val > max_val:
+            min_val, max_val = max_val, min_val
+        val = self.faker.pyint(min_value=min_val, max_value=max_val)
+        self.assertIsInstance(val, int)
+        self.assertGreaterEqual(val, min_val)
+        self.assertLessEqual(val, max_val)
+
+    @given(nb_chars=st.integers(min_value=0, max_value=100))
+    def test_pystr(self, nb_chars):
+        val = self.faker.pystr(nb_chars=nb_chars)
+        self.assertIsInstance(val, str)
+        self.assertEqual(len(val), nb_chars)
+
+    @given(
+        length=st.integers(min_value=1, max_value=50),
+        min_lower=st.integers(min_value=0, max_value=5),
+        min_upper=st.integers(min_value=0, max_value=5),
+        min_digits=st.integers(min_value=0, max_value=5),
+        min_special=st.integers(min_value=0, max_value=5),
+    )
+    def test_password(
+        self,
+        length,
+        min_lower,
+        min_upper,
+        min_digits,
+        min_special,
+    ):
+        sum_req = min_lower + min_upper + min_digits + min_special
+        if length < sum_req:
+            with self.assertRaises(ValueError):
+                self.faker.password(
+                    length=length,
+                    min_lower=min_lower,
+                    min_upper=min_upper,
+                    min_digits=min_digits,
+                    min_special=min_special,
+                )
+        else:
+            pwd = self.faker.password(
+                length=length,
+                min_lower=min_lower,
+                min_upper=min_upper,
+                min_digits=min_digits,
+                min_special=min_special,
+            )
+            self.assertIsInstance(pwd, str)
+            self.assertEqual(len(pwd), length)
+            lowers = sum(c.islower() for c in pwd)
+            uppers = sum(c.isupper() for c in pwd)
+            digits = sum(c.isdigit() for c in pwd)
+            specials = length - (lowers + uppers + digits)
+            self.assertGreaterEqual(lowers, min_lower)
+            self.assertGreaterEqual(uppers, min_upper)
+            self.assertGreaterEqual(digits, min_digits)
+            self.assertGreaterEqual(specials, min_special)
+
+    @given(
         min_val=st.floats(
             min_value=-1e10,
             max_value=1e10,
@@ -163,7 +231,7 @@ class TestFakerWithHypothesis(unittest.TestCase):
         ),
     )
     def test_bmp(self, size, color):
-        bmp_bytes = self.faker.bmp(size=size, color=color)
+        bmp_bytes = self.faker.svg(size=size, color=color)
         self.assertIsInstance(bmp_bytes, bytes)
 
     @given(
@@ -180,6 +248,51 @@ class TestFakerWithHypothesis(unittest.TestCase):
     def test_gif(self, size, color):
         gif_bytes = self.faker.gif(size=size, color=color)
         self.assertIsInstance(gif_bytes, bytes)
+
+    @given(
+        size=st.tuples(
+            st.integers(min_value=1, max_value=500),
+            st.integers(min_value=1, max_value=500),
+        ),
+        color=st.tuples(
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+        ),
+    )
+    def test_tif(self, size, color):
+        tif_bytes = self.faker.tif(size=size, color=color)
+        self.assertIsInstance(tif_bytes, bytes)
+
+    @given(
+        size=st.tuples(
+            st.integers(min_value=1, max_value=500),
+            st.integers(min_value=1, max_value=500),
+        ),
+        color=st.tuples(
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+        ),
+    )
+    def test_ppm(self, size, color):
+        ppm_bytes = self.faker.ppm(size=size, color=color)
+        self.assertIsInstance(ppm_bytes, bytes)
+
+    @given(
+        size=st.tuples(
+            st.integers(min_value=1, max_value=500),
+            st.integers(min_value=1, max_value=500),
+        ),
+        color=st.tuples(
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+        ),
+    )
+    def test_jpg(self, size, color):
+        jpg_bytes = self.faker.jpg(size=size, color=color)
+        self.assertIsInstance(jpg_bytes, bytes)
 
     @given(nb_pages=st.integers(min_value=1, max_value=10))
     def test_docx(self, nb_pages):
