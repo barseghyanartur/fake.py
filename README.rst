@@ -317,6 +317,7 @@ and ``User`` models.
 
 *Filename: factories.py*
 
+.. pytestmark: django_db
 .. code-block:: python
     :name: test_factories
 
@@ -379,7 +380,10 @@ and ``User`` models.
 
 And this is how you could use it:
 
+.. continue: test_factories
+.. pytestmark: django_db
 .. code-block:: python
+    :name: test_factories_usage
 
     # Create just one user
     user = UserFactory()
