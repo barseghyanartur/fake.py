@@ -6526,7 +6526,7 @@ class TestFaker(unittest.TestCase):
             self.subTest("All params None, should fail"),
             self.assertRaises(ValueError),
         ):
-            self.faker.docx(nb_pages=None, texts=None),  # noqa
+            self.faker.docx(nb_pages=None, texts=None)  # noqa
 
         with self.subTest("Without params"):
             docx = self.faker.docx()
@@ -6544,7 +6544,7 @@ class TestFaker(unittest.TestCase):
             self.subTest("All params None, should fail"),
             self.assertRaises(ValueError),
         ):
-            self.faker.odt(nb_pages=None, texts=None),  # noqa
+            self.faker.odt(nb_pages=None, texts=None)  # noqa
 
         with self.subTest("Without params"):
             odt = self.faker.odt()
