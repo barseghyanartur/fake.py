@@ -393,8 +393,8 @@ def returns_list(func: Callable) -> bool:
                 BytesValue,
                 StringValue,
             }
-        ):
-                return True
+        ):  # noqa
+            return True
 
     return False
 
@@ -4642,7 +4642,7 @@ class ModelFactory:
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):
+            ):  # noqa
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -4785,7 +4785,7 @@ class DjangoModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):
+            ):  # noqa
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -4972,7 +4972,7 @@ class TortoiseModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):
+            ):  # noqa
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -5139,7 +5139,7 @@ class SQLAlchemyModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):
+            ):  # noqa
                 model_data[_field] = (
                     value()
                     if isinstance(
