@@ -393,7 +393,7 @@ def returns_list(func: Callable) -> bool:
                 BytesValue,
                 StringValue,
             }
-        ):  # noqa
+        ):
             return True
 
     return False
@@ -4642,7 +4642,7 @@ class ModelFactory:
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):  # noqa
+            ):
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -4785,7 +4785,7 @@ class DjangoModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):  # noqa
+            ):
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -4972,7 +4972,7 @@ class TortoiseModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):  # noqa
+            ):
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -5139,7 +5139,7 @@ class SQLAlchemyModelFactory(ModelFactory):
                     and not getattr(value, "is_pre_save", False)
                     and not getattr(value, "is_post_save", False)
                 )
-            ):  # noqa
+            ):
                 model_data[_field] = (
                     value()
                     if isinstance(
@@ -6526,7 +6526,7 @@ class TestFaker(unittest.TestCase):
             self.subTest("All params None, should fail"),
             self.assertRaises(ValueError),
         ):
-            self.faker.docx(nb_pages=None, texts=None)  # noqa
+            self.faker.docx(nb_pages=None, texts=None)
 
         with self.subTest("Without params"):
             docx = self.faker.docx()
@@ -6544,7 +6544,7 @@ class TestFaker(unittest.TestCase):
             self.subTest("All params None, should fail"),
             self.assertRaises(ValueError),
         ):
-            self.faker.odt(nb_pages=None, texts=None)  # noqa
+            self.faker.odt(nb_pages=None, texts=None)
 
         with self.subTest("Without params"):
             odt = self.faker.odt()
