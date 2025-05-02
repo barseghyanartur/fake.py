@@ -16,6 +16,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.4
+------
+2025-05-03
+
+- Add ``rtf`` and ``epub`` providers.
+
 0.11.3
 ------
 2025-04-22

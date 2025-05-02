@@ -77,8 +77,8 @@ texts, (person) names, URLs, dates, file names, IPs, primitive Python data
 types (such as `uuid`, `str`, `int`, `float`, `bool`), GEO data such as city,
 country, geo-location, country code, latitude, longitude and locales,
 IBANs and ISBNs, as well as byte content for multiple file formats
-including `PDF`, `DOCX`, `ODT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`,
-`JPG`, `WAV`, `ZIP`, `TAR` and `EML`.
+including `PDF`, `DOCX`, `ODT`, `RTF`, `EPUB`, `PNG`, `SVG`, `BMP`, `GIF`,
+`TIF`, `PPM`, `JPG`, `WAV`, `ZIP`, `TAR` and `EML`.
 
 The package also supports file creation on the filesystem and includes
 factories (dynamic fixtures) compatible with `Django`_, `TortoiseORM`_,
@@ -88,8 +88,9 @@ Features
 ========
 - Generation of random texts, (person) names, emails, URLs, dates, IPs, and
   primitive Python data types.
-- Support for various file formats (`PDF`, `DOCX`, `ODT`, `TXT`, `PNG`, `SVG`,
-  `BMP`, `GIF`, `TIF`, `PPM`, `JPG`, `WAV`, `ZIP`, `TAR`, `EML`) and file
+- Support for various file formats (`PDF`, `DOCX`, `ODT`, `RTF`, `EPUB`,
+  `TXT`, `PNG`, `SVG`, `BMP`, `GIF`, `TIF`, `PPM`, `JPG`, `WAV`, `ZIP`,
+  `TAR`, `EML`) and file
   creation on the filesystem.
 - Basic factories for integration with `Django`_, `Pydantic`_,
   `TortoiseORM`_ and `SQLAlchemy`_.
@@ -275,12 +276,14 @@ As bytes
     FAKER.bmp()  # bytes
     FAKER.docx()  # bytes
     FAKER.eml()  # bytes
+    FAKER.epub()  # bytes
     FAKER.gif()  # bytes
     FAKER.jpg()  # bytes
     FAKER.odt()  # bytes
     FAKER.pdf()  # bytes
     FAKER.png()  # bytes
     FAKER.ppm()  # bytes
+    FAKER.rtf()  # bytes
     FAKER.svg()  # bytes
     FAKER.tar()  # bytes
     FAKER.tif()  # bytes
@@ -297,12 +300,14 @@ As files on the file system
     FAKER.bmp_file()  # str
     FAKER.docx_file()  # str
     FAKER.eml_file()  # str
+    FAKER.epub_file()  # str
     FAKER.gif_file()  # str
     FAKER.jpg_file()  # str
     FAKER.odt_file()  # str
     FAKER.pdf_file()  # str
     FAKER.png_file()  # str
     FAKER.ppm_file()  # str
+    FAKER.rtf_file()  # str
     FAKER.svg_file()  # str
     FAKER.tar_file()  # str
     FAKER.tif_file()  # str
