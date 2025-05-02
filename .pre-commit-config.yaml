@@ -5,22 +5,20 @@ default_language_version:
 
 repos:
 
-  - repo: local
+  - repo: https://github.com/PyCQA/doc8
+    rev: v1.1.2
     hooks:
-      - id: detect-secrets
-        name: Detect secrets
-        language: python
-        entry: detect-secrets-hook
-        args: ['--baseline', '.secrets.baseline']
-
       - id: doc8
-        name: Doc8 linter
-        language: python
-        entry: doc8
         args: []
 
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         exclude: "data/"
@@ -49,12 +47,13 @@ repos:
 #        args: [ "--settings-path", "pyproject.toml", "--profile=black" ]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.4.8
+    rev: v0.11.0
     hooks:
       - id: ruff
         name: lint
         files: .
         args: [ "--config", "pyproject.toml", "--fix" ]
+#      - id: ruff-format
 
   - repo: https://github.com/jsh9/pydoclint
     rev: 0.4.2
