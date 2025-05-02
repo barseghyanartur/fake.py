@@ -6,15 +6,15 @@ calls the `clean_up` method of the `FILE_REGISTRY` instance.
 """
 
 from fake import FILE_REGISTRY
+from pytest_codeblock.constants import CODEBLOCK_MARK
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
-__all__ = (
-    "pytest_runtest_teardown",
-)
+__all__ = ("pytest_runtest_teardown",)
 
 
 def pytest_runtest_teardown(item, nextitem):
     """Clean up after test ends."""
-    FILE_REGISTRY.clean_up()
+    if item.get_closest_marker(CODEBLOCK_MARK):
+        FILE_REGISTRY.clean_up()
