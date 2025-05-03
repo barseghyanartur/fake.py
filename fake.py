@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.3"
+__version__ = "0.11.4"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -79,6 +79,7 @@ __all__ = (
     "CLI",
     "DjangoModelFactory",
     "DocxGenerator",
+    "EpubGenerator",
     "FACTORY",
     "FAKER",
     "FILE_REGISTRY",
@@ -99,6 +100,7 @@ __all__ = (
     "PreInit",
     "PreSave",
     "PydanticModelFactory",
+    "RtfGenerator",
     "SQLAlchemyModelFactory",
     "StringTemplate",
     "StringValue",
@@ -114,6 +116,7 @@ __all__ = (
     "create_inner_pdf_file",
     "create_inner_png_file",
     "create_inner_ppm_file",
+    "create_inner_rtf_file",
     "create_inner_svg_file",
     "create_inner_tar_file",
     "create_inner_text_pdf_file",
@@ -359,6 +362,21 @@ DOC_TPL_DOC_STRUCTURE_CONTENT_TYPES = (
     b"</Types>"
 )
 
+RTF_HEADER = r"{\rtf1\ansi\deff0"
+RTF_FONT_TABLE = r"{\fonttbl{\f0\fnil\fcharset0 Arial;}}"
+RTF_COLOR_TABLE = r"{\colortbl ;\red0\green0\blue0;}"
+RTF_DOCUMENT_START = "\n"
+RTF_DOCUMENT_END = "\n}"
+
+EPUB_MIMETYPE = b"application/epub+zip"
+EPUB_CONTAINER_XML = b"""<?xml version="1.0"?>
+<container version="1.0"
+           xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf"
+              media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>"""
 
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
@@ -1420,6 +1438,192 @@ class OdtGenerator:
             )
 
         return odt_bytes.getvalue()
+
+
+class RtfGenerator:
+    """RtfGenerator - generates an RTF file with text.
+
+    Usage example:
+
+    .. code-block:: python
+
+        from pathlib import Path
+        from fake import FAKER
+
+        Path("/tmp/example.rtf").write_bytes(
+            RtfGenerator(FAKER).create(nb_pages=5)
+        )
+    """
+
+    def __init__(self, faker: "Faker") -> None:
+        self.faker = faker
+
+    def _escape(self, text: str) -> str:
+        """Escape backslashes, braces and unicode characters for RTF."""
+        # Basic escaping of backslash and braces; extend as needed.
+        return (
+            text.replace("\\", r"\\")
+                .replace("{", r"\{")
+                .replace("}", r"\}")
+                # TODO: for full unicode support \uXXXX escapes are needed
+        )
+
+    def _create_page(self, text: str, is_last_page: bool) -> str:
+        # Split into lines, wrap each as a paragraph
+        paragraphs = []
+        for line in text.split("\n"):
+            esc = self._escape(line)
+            paragraphs.append(rf"\pard\sa200\sl276\slmult1 {esc}\par")
+        page_rtf = "\n".join(paragraphs)
+        # Insert a page break if not the last page
+        if not is_last_page:
+            page_rtf += r"\page"
+        return page_rtf
+
+    def create(
+        self,
+        nb_pages: Optional[int] = None,
+        texts: Optional[List[str]] = None,
+        metadata: Optional["MetaData"] = None,
+    ) -> bytes:
+        if not nb_pages and not texts:
+            raise ValueError("Either `nb_pages` or `texts` must be provided.")
+        if texts:
+            nb_pages = len(texts)
+        else:
+            texts = self.faker.sentences(nb=nb_pages)  # generate dummy texts
+
+        if metadata:
+            metadata.add_content(texts)  # type: ignore
+
+        # Build the full RTF document
+        content = [
+            RTF_HEADER,
+            RTF_FONT_TABLE,
+            RTF_COLOR_TABLE,
+            RTF_DOCUMENT_START,
+        ]
+
+        for i, page_text in enumerate(texts):  # type: ignore
+            content.append(self._create_page(page_text, i == nb_pages - 1))  # type: ignore
+
+        content.append(RTF_DOCUMENT_END)
+
+        # Return bytes
+        return "\n".join(content).encode("utf-8")
+
+
+class EpubGenerator:
+    """EpubGenerator - generates a minimal EPUB file with text pages."""
+
+    def __init__(self, faker: "Faker") -> None:
+        self.faker = faker
+
+    def _escape(self, text: str) -> str:
+        """Basic escape for XML."""
+        return (text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;"))
+
+    def _create_xhtml(self, text: str, index: int) -> bytes:
+        escaped = self._escape(text)
+        xhtml = f"""<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>Page {index}</title></head>
+<body><div>{escaped.replace(chr(10), '<br/>')}</div></body>
+</html>"""
+        return xhtml.encode("utf-8")
+
+    def _create_opf(self, nb_pages: int) -> bytes:
+        manifest_items = []
+        spine_items = []
+        for i in range(1, nb_pages+1):
+            manifest_items.append(
+                f'<item '
+                f'id="page{i}" '
+                f'href="page{i}.xhtml" '
+                f'media-type="application/xhtml+xml"/>'
+            )
+            spine_items.append(f'<itemref idref="page{i}"/>')
+
+        manifest = "\n    ".join(manifest_items)
+        spine = "\n    ".join(spine_items)
+        opf = f"""<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0"
+         unique-identifier="BookId">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Fake Document</dc:title>
+    <dc:language>en</dc:language>
+    <dc:identifier id="BookId">fake-book-id</dc:identifier>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    {manifest}
+  </manifest>
+  <spine toc="ncx">
+    {spine}
+  </spine>
+</package>"""
+        return opf.encode("utf-8")
+
+    def _create_ncx(self, nb_pages: int) -> bytes:
+        navpoints = [
+            f"""<navPoint id="navPoint-{i}" playOrder="{i}">
+              <navLabel><text>Page {i}</text></navLabel>
+              <content src="page{i}.xhtml"/>
+            </navPoint>"""
+            for i in range(1, nb_pages + 1)
+        ]
+        navbody = "\n    ".join(navpoints)
+        ncx = f"""<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN"
+  "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="fake-book-id"/>
+  </head>
+  <docTitle><text>Fake Document</text></docTitle>
+  <navMap>
+    {navbody}
+  </navMap>
+</ncx>"""
+        return ncx.encode("utf-8")
+
+    def create(
+        self,
+        nb_pages: Optional[int] = None,
+        texts: Optional[List[str]] = None,
+        metadata: Optional["MetaData"] = None,
+    ) -> bytes:
+        if not nb_pages and not texts:
+            raise ValueError("Either `nb_pages` or `texts` must be provided.")
+        if texts:
+            nb_pages = len(texts)
+        else:
+            texts = self.faker.sentences(nb=nb_pages)  # type: ignore
+
+        if metadata:
+            metadata.add_content(texts)  # type: ignore
+
+        buf = io.BytesIO()
+        # EPUB requires mimetype as first file, uncompressed
+        with zipfile.ZipFile(buf, "w") as epub:
+            epub.writestr(
+                "mimetype", EPUB_MIMETYPE, compress_type=zipfile.ZIP_STORED
+            )
+            # Container
+            epub.writestr("META-INF/container.xml", EPUB_CONTAINER_XML)
+            # XHTML pages
+            for idx, page in enumerate(texts, start=1):  # type: ignore
+                epub.writestr(
+                    f"OEBPS/page{idx}.xhtml", self._create_xhtml(page, idx)
+                )
+            # OPF package
+            epub.writestr("OEBPS/content.opf", self._create_opf(nb_pages))
+            # NCX
+            epub.writestr("OEBPS/toc.ncx", self._create_ncx(nb_pages))
+        return buf.getvalue()
 
 
 class JpgGenerator:
@@ -2860,6 +3064,28 @@ class Faker:
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
     @provider(tags=("Document",))
+    def rtf(
+        self,
+        nb_pages: Optional[int] = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional["MetaData"] = None,
+    ) -> bytes:
+        """Create an RTF document."""
+        _rtf = RtfGenerator(faker=self)
+        return _rtf.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
+
+    @provider(tags=("Document",))
+    def epub(
+        self,
+        nb_pages: Optional[int] = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional["MetaData"] = None,
+    ) -> bytes:
+        """Create a minimal EPUB document."""
+        _epub = EpubGenerator(faker=self)
+        return _epub.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
+
+    @provider(tags=("Document",))
     def odt(
         self,
         nb_pages: Optional[int] = 1,
@@ -3563,6 +3789,78 @@ class Faker:
             "File",
         )
     )
+    def rtf_file(
+        self,
+        nb_pages: int = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        """Create an RTF document file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="rtf",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.rtf(nb_pages=nb_pages, texts=texts, metadata=metadata)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
+    def epub_file(
+        self,
+        nb_pages: int = 1,
+        texts: Optional[List[str]] = None,
+        metadata: Optional[MetaData] = None,
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> StringValue:
+        """Create a EPUB document file."""
+        if storage is None:
+            storage = FileSystemStorage()
+        filename = storage.generate_filename(
+            extension="epub",
+            prefix=prefix,
+            basename=basename,
+        )
+        if not metadata:
+            metadata = MetaData()
+        data = self.epub(nb_pages=nb_pages, texts=texts, metadata=metadata)
+        storage.write_bytes(filename=filename, data=data)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "storage": storage,
+            "filename": filename,
+            "content": metadata.content,
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(
+        tags=(
+            "Document",
+            "File",
+        )
+    )
     def odt_file(
         self,
         nb_pages: int = 1,
@@ -4241,6 +4539,48 @@ def create_inner_docx_file(
 ) -> StringValue:
     """Create inner DOCX file."""
     return FAKER.docx_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        texts=texts,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_rtf_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    texts: Optional[List[str]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> StringValue:
+    """Create inner RTF file."""
+    return FAKER.rtf_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        nb_pages=nb_pages,
+        texts=texts,
+        metadata=metadata,
+        **kwargs,
+    )
+
+
+def create_inner_epub_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    nb_pages: Optional[int] = 1,
+    texts: Optional[List[str]] = None,
+    metadata: Optional[MetaData] = None,
+    **kwargs,
+) -> StringValue:
+    """Create inner EPUB file."""
+    return FAKER.epub_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -6594,6 +6934,42 @@ class TestFaker(unittest.TestCase):
             self.assertTrue(docx)
             self.assertIsInstance(docx, bytes)
 
+    def test_rtf(self) -> None:
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.rtf(nb_pages=None, texts=None)
+
+        with self.subTest("Without params"):
+            rtf = self.faker.rtf()
+            self.assertTrue(rtf)
+            self.assertIsInstance(rtf, bytes)
+
+        with self.subTest("With `texts` provided"):
+            texts = self.faker.sentences()
+            rtf = self.faker.rtf(texts=texts)
+            self.assertTrue(rtf)
+            self.assertIsInstance(rtf, bytes)
+
+    def test_epub(self) -> None:
+        with (
+            self.subTest("All params None, should fail"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.epub(nb_pages=None, texts=None)
+
+        with self.subTest("Without params"):
+            epub = self.faker.epub()
+            self.assertTrue(epub)
+            self.assertIsInstance(epub, bytes)
+
+        with self.subTest("With `texts` provided"):
+            texts = self.faker.sentences()
+            epub = self.faker.epub(texts=texts)
+            self.assertTrue(epub)
+            self.assertIsInstance(epub, bytes)
+
     def test_odt(self) -> None:
         with (
             self.subTest("All params None, should fail"),
@@ -6772,6 +7148,16 @@ class TestFaker(unittest.TestCase):
 
     def test_create_inner_docx_file(self):
         value = create_inner_docx_file()
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_rtf_file(self):
+        value = create_inner_rtf_file()
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_epub_file(self):
+        value = create_inner_epub_file()
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
 
