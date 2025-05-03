@@ -22,6 +22,7 @@ def db_session():
     from sqlalchemy.orm import sessionmaker
 
     from config import ENGINE
+
     # Establish a connection and start a transaction
     connection = ENGINE.connect()
     transaction = connection.begin()

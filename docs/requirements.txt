@@ -16,7 +16,7 @@ certifi==2025.4.26
     # via requests
 cffi==1.17.1
     # via cryptography
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
     # via requests
 click==8.1.8
     # via
@@ -26,7 +26,7 @@ colorama==0.4.6
     # via sphinx-autobuild
 coverage==7.8.0
     # via pytest-cov
-cryptography==44.0.2
+cryptography==44.0.3
     # via secretstorage
 decorator==5.2.1
     # via ipython
@@ -135,7 +135,7 @@ pytest==8.3.5
     #   pytest-codeblock
     #   pytest-cov
     #   pytest-django
-pytest-codeblock==0.1.1
+pytest-codeblock==0.1.2
     # via fake-py (pyproject.toml)
 pytest-cov==6.1.1
     # via fake-py (pyproject.toml)
@@ -160,7 +160,7 @@ rfc3986==2.0.0
     # via twine
 rich==14.0.0
     # via twine
-ruff==0.11.7
+ruff==0.11.8
     # via fake-py (pyproject.toml)
 secretstorage==3.3.3
     # via keyring
