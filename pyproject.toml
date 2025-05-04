@@ -39,14 +39,17 @@ Changelog = "https://fakepy.readthedocs.io/en/latest/changelog.html"
 [project.optional-dependencies]
 all = ["fake.py[dev,test,docs]"]
 dev = [
+    "build",
     "detect-secrets",
     "doc8",
     "ipython",
     "mypy",
+    "pkginfo",
     "pydoclint",
     "ruff",
     "twine",
     "uv",
+    "wheel",
 ]
 test = [
     "django",
