@@ -24,6 +24,7 @@ If you need bytes
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_1.py
+        :name: test_creating_pdf_text_pdf_bytes_1
         :language: python
         :lines: 1-3
 
@@ -44,6 +45,7 @@ See the example below for ``texts`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2.py
+        :name: test_creating_pdf_text_pdf_bytes_2
         :language: python
         :lines: 3-4
 
@@ -57,6 +59,7 @@ For full clarity, see another example below for ``texts`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_2b.py
+        :name: test_creating_pdf_text_pdf_bytes_2b
         :language: python
         :lines: 3-4
 
@@ -76,6 +79,7 @@ See the example below for ``nb_pages`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_bytes_3.py
+        :name: test_creating_pdf_text_pdf_bytes_3
         :language: python
         :lines: 3
 
@@ -87,6 +91,7 @@ If you need files
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_1.py
+        :name: test_creating_pdf_text_pdf_file_1
         :language: python
         :lines: 3
 
@@ -100,6 +105,7 @@ With ``texts`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_2.py
+        :name: test_creating_pdf_text_pdf_file_2
         :language: python
         :lines: 3-4
 
@@ -113,6 +119,7 @@ With ``nb_pages`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/text_pdf_file_3.py
+        :name: test_creating_pdf_text_pdf_file_3
         :language: python
         :lines: 3
 
@@ -127,6 +134,7 @@ If you need bytes
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_1.py
+        :name: test_creating_pdf_graphic_pdf_bytes_1
         :language: python
         :lines: 1-3
 
@@ -144,6 +152,7 @@ See the example below for ``nb_pages`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_bytes_2.py
+        :name: test_creating_pdf_graphic_pdf_bytes_2
         :language: python
         :lines: 3
 
@@ -155,6 +164,7 @@ If you need files
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_1.py
+        :name: test_creating_pdf_graphic_pdf_file_1
         :language: python
         :lines: 3
 
@@ -168,6 +178,7 @@ With ``nb_pages`` tweak:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_pdf/graphic_pdf_file_2.py
+        :name: test_creating_pdf_graphic_pdf_file_2
         :language: python
         :lines: 3
 
