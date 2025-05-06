@@ -1,6 +1,10 @@
 Release history and notes
 =========================
 
+.. External references
+
+.. _pytest-codeblock: https://github.com/barseghyanartur/pytest-codeblock/
+
 `Sequence based identifiers
 <http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers>`_
 are used for versioning (schema follows below):
@@ -15,6 +19,13 @@ are used for versioning (schema follows below):
   release notes carefully before upgrading (for example, when upgrading from
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
+
+0.11.5
+------
+2025-05-07
+
+- Fully delegate documentation testing to `pytest-codeblock`_.
+- Add additional tags to binary providers, such as images or documents.
 
 0.11.4
 ------

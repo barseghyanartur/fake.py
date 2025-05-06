@@ -179,6 +179,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
 *Filename: models.py*
 
+.. continue: test_customisation_custom_fake
 .. code-block:: python
     :name: test_customisation_models
 
@@ -214,12 +215,18 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
 *Filename: factories.py*
 
+.. continue: test_customisation_custom_fake
 .. code-block:: python
+    :name: test_customisation_factories
+    :emphasize-lines: 1-2, 5-6, 9-
 
     from fake import ModelFactory, SubFactory, post_save, pre_save
 
+    """
+    Import ORM models and customised FACTORY instance as follows:
     from models import Address, Person
     from custom_fake import FACTORY
+    """
 
 
     class AddressFactory(ModelFactory):
@@ -243,6 +250,24 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
         class Meta:
             model = Person
+
+----
+
+And this is how you could use it:
+
+.. continue: test_customisation_custom_fake
+.. code-block:: python
+    :name: test_customisation_use_factories
+
+    address = AddressFactory()
+    assert isinstance(address, Address)
+    assert address.city in CITIES
+    assert address.region in REGIONS
+
+    person = PersonFactory()
+    assert isinstance(person, Person)
+    assert person.first_name in FIRST_NAMES
+    assert person.last_name in LAST_NAMES
 
 ----
 
