@@ -256,6 +256,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 ----
 
 And this is how you could use it:
+
 .. container:: jsphinx-toggle-emphasis
 
     .. continue: test_customisation_custom_fake
