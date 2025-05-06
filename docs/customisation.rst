@@ -262,6 +262,7 @@ And this is how you could use it:
     .. continue: test_customisation_custom_fake
     .. code-block:: python
         :name: test_customisation_use_factories
+        :emphasize-lines: 1, 5-6
 
         address = AddressFactory()
         assert isinstance(address, Address)
