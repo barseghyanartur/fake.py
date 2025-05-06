@@ -179,6 +179,7 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
 *Filename: models.py*
 
+.. continue: test_customisation_custom_fake
 .. code-block:: python
     :name: test_customisation_models
 
@@ -214,35 +215,64 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
 
 *Filename: factories.py*
 
-.. code-block:: python
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import ModelFactory, SubFactory, post_save, pre_save
+    .. continue: test_customisation_custom_fake
+    .. code-block:: python
+        :name: test_customisation_factories
+        :emphasize-lines: 1-2, 5-6, 9-
 
-    from models import Address, Person
-    from custom_fake import FACTORY
+        from fake import ModelFactory, SubFactory, post_save, pre_save
 
-
-    class AddressFactory(ModelFactory):
-        id = FACTORY.pyint()
-        address_line = FACTORY.address_line()
-        postal_code = FACTORY.postal_code()
-        city = FACTORY.city()
-        region = FACTORY.region()
-
-        class Meta:
-            model = Address
+        """
+        Import ORM models and customised FACTORY instance as follows:
+        from models import Address, Person
+        from custom_fake import FACTORY
+        """
 
 
-    class PersonFactory(ModelFactory):
-        id = FACTORY.pyint()
-        first_name = FACTORY.first_name()
-        last_name = FACTORY.last_name()
-        email = FACTORY.email()
-        dob = FACTORY.date()
-        address = SubFactory(AddressFactory)
+        class AddressFactory(ModelFactory):
+            id = FACTORY.pyint()
+            address_line = FACTORY.address_line()
+            postal_code = FACTORY.postal_code()
+            city = FACTORY.city()
+            region = FACTORY.region()
 
-        class Meta:
-            model = Person
+            class Meta:
+                model = Address
+
+
+        class PersonFactory(ModelFactory):
+            id = FACTORY.pyint()
+            first_name = FACTORY.first_name()
+            last_name = FACTORY.last_name()
+            email = FACTORY.email()
+            dob = FACTORY.date()
+            address = SubFactory(AddressFactory)
+
+            class Meta:
+                model = Person
+
+----
+
+And this is how you could use it:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. continue: test_customisation_custom_fake
+    .. code-block:: python
+        :name: test_customisation_use_factories
+        :emphasize-lines: 1, 5-6
+
+        address = AddressFactory()
+        assert isinstance(address, Address)
+        assert address.city in CITIES
+        assert address.region in REGIONS
+
+        person = PersonFactory()
+        assert isinstance(person, Person)
+        assert person.first_name in FIRST_NAMES
+        assert person.last_name in LAST_NAMES
 
 ----
 

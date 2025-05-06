@@ -30,6 +30,7 @@ See the following fully functional snippet for generating a ``PNG`` image.
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_images/png_bytes_1.py
+        :name: test_creating_images_png_bytes_1
         :language: python
         :lines: 1-3
 
@@ -49,6 +50,7 @@ See the example below:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_images/png_bytes_2.py
+        :name: test_creating_images_png_bytes_2
         :language: python
         :lines: 3-
 
@@ -62,6 +64,7 @@ Generate a ``PNG`` image.
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_images/png_file_1.py
+        :name: test_creating_images_png_file_1
         :language: python
         :lines: 3-
 
@@ -75,6 +78,7 @@ With ``size`` and ``color`` tweaks:
 .. container:: jsphinx-download
 
     .. literalinclude:: _static/examples/creating_images/png_file_2.py
+        :name: test_creating_images_png_file_2
         :language: python
         :lines: 3-
 
