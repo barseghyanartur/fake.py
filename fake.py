@@ -68,7 +68,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.4"
+__version__ = "0.11.5"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2566,7 +2566,7 @@ class Faker:
         second = self.pyint(min_value=0, max_value=59)
         return time(hour, minute, second).strftime(fmt)
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def pdf(
         self,
         nb_pages: int = 1,
@@ -2580,7 +2580,7 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def text_pdf(
         self,
         nb_pages: int = 1,
@@ -2596,7 +2596,7 @@ class Faker:
             **kwargs,
         )
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def png(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2652,7 +2652,7 @@ class Faker:
 
         return png_data
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def svg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2669,7 +2669,7 @@ class Faker:
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def bmp(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2730,7 +2730,7 @@ class Faker:
             + image_data  # Important colours
         )
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def gif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2801,7 +2801,7 @@ class Faker:
             + footer
         )
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def tif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2877,7 +2877,7 @@ class Faker:
         # Complete TIFF file
         return tiff_header + ifd + image_data + bits_per_sample + res_bytes
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def ppm(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2905,7 +2905,7 @@ class Faker:
         # Complete PPM file
         return ppm_header + bytes(image_data)
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def jpg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -2921,7 +2921,7 @@ class Faker:
         """
         return JpgGenerator.generate(size=size, color=color)
 
-    @provider(tags=("Image",))
+    @provider(tags=("Binary", "Image",))
     def image(
         self,
         image_format: Literal[
@@ -2950,7 +2950,7 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
-    @provider(tags=("Audio",))
+    @provider(tags=("Binary", "Audio",))
     def wav(
         self,
         frequency: int = 440,
@@ -2997,7 +2997,7 @@ class Faker:
 
         return wav_bytes
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def docx(
         self,
         nb_pages: Optional[int] = 1,
@@ -3008,7 +3008,7 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def rtf(
         self,
         nb_pages: Optional[int] = 1,
@@ -3019,7 +3019,7 @@ class Faker:
         _rtf = RtfGenerator(faker=self)
         return _rtf.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def epub(
         self,
         nb_pages: Optional[int] = 1,
@@ -3030,7 +3030,7 @@ class Faker:
         _epub = EpubGenerator(faker=self)
         return _epub.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Document",))
+    @provider(tags=("Binary", "Document",))
     def odt(
         self,
         nb_pages: Optional[int] = 1,
@@ -3049,7 +3049,7 @@ class Faker:
         """Create random bytes."""
         return os.urandom(length)
 
-    @provider(tags=("Archive",))
+    @provider(tags=("Binary", "Archive",))
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
         """Create a ZIP archive file as bytes.
 
@@ -3136,7 +3136,7 @@ class Faker:
         raw_content.data = data
         return raw_content
 
-    @provider(tags=("Archive",))
+    @provider(tags=("Binary", "Archive",))
     def tar(
         self,
         options: Optional[Dict[str, Any]] = None,
@@ -3241,12 +3241,7 @@ class Faker:
         raw_content.data = data
         return raw_content
 
-    @provider(
-        tags=(
-            "Archive",
-            "Email",
-        )
-    )
+    @provider(tags=("Archive", "Binary", "Email"))
     def eml(
         self,
         options: Optional[Dict[str, Any]] = None,
@@ -3369,12 +3364,7 @@ class Faker:
         raw_content.data = data
         return raw_content
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Binary", "Document", "File"))
     def pdf_file(
         self,
         nb_pages: int = 1,
@@ -3410,12 +3400,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Binary", "Document", "File"))
     def text_pdf_file(
         self,
         nb_pages: int = 1,
@@ -3471,12 +3456,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def png_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3497,12 +3477,7 @@ class Faker:
             extension=extension,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def svg_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3523,12 +3498,7 @@ class Faker:
             extension=extension,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def bmp_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3549,12 +3519,7 @@ class Faker:
             extension=extension,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def gif_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3575,12 +3540,7 @@ class Faker:
             extension=extension,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def tif_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3601,12 +3561,7 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def ppm_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3627,12 +3582,7 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider(
-        tags=(
-            "Image",
-            "File",
-        )
-    )
+    @provider(tags=("Image", "File"))
     def jpg_file(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3653,12 +3603,7 @@ class Faker:
             prefix=prefix,
         )
 
-    @provider(
-        tags=(
-            "Audio",
-            "File",
-        )
-    )
+    @provider(tags=("Audio", "File"))
     def wav_file(
         self,
         frequency: int = 440,
@@ -3692,12 +3637,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Document", "File"))
     def docx_file(
         self,
         nb_pages: int = 1,
@@ -3728,12 +3668,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Document", "File"))
     def rtf_file(
         self,
         nb_pages: int = 1,
@@ -3764,12 +3699,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Document", "File"))
     def epub_file(
         self,
         nb_pages: int = 1,
@@ -3800,12 +3730,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Document",
-            "File",
-        )
-    )
+    @provider(tags=("Document", "File"))
     def odt_file(
         self,
         nb_pages: int = 1,
@@ -3836,12 +3761,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Binary",
-            "File",
-        )
-    )
+    @provider(tags=("File",))
     def bin_file(
         self,
         length: int = 16,
@@ -3868,12 +3788,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Archive",
-            "File",
-        )
-    )
+    @provider(tags=("Archive", "File"))
     def zip_file(
         self,
         metadata: Optional[MetaData] = None,
@@ -3931,12 +3846,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Archive",
-            "File",
-        )
-    )
+    @provider(tags=("Archive", "File"))
     def tar_file(
         self,
         metadata: Optional[MetaData] = None,
@@ -3972,13 +3882,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Archive",
-            "Email",
-            "File",
-        )
-    )
+    @provider(tags=("Archive", "Email", "File"))
     def eml_file(
         self,
         metadata: Optional[MetaData] = None,
@@ -4016,12 +3920,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(
-        tags=(
-            "Text",
-            "File",
-        )
-    )
+    @provider(tags=("File", "Text"))
     def txt_file(
         self,
         nb_chars: Optional[int] = 200,
