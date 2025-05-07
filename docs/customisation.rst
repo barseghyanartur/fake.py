@@ -220,15 +220,13 @@ You can now use both ``FAKER`` and ``FACTORY`` as you would normally do.
     .. continue: test_customisation_custom_fake
     .. code-block:: python
         :name: test_customisation_factories
-        :emphasize-lines: 1-2, 5-6, 9-
+        :emphasize-lines: 1, 6-
 
         from fake import ModelFactory, SubFactory, post_save, pre_save
 
-        """
-        Import ORM models and customised FACTORY instance as follows:
-        from models import Address, Person
-        from custom_fake import FACTORY
-        """
+        # Import defined ORM models and customised FACTORY instance:
+        # from models import Address, Person
+        # from custom_fake import FACTORY
 
 
         class AddressFactory(ModelFactory):
