@@ -3364,7 +3364,7 @@ class Faker:
         raw_content.data = data
         return raw_content
 
-    @provider(tags=("Binary", "Document", "File"))
+    @provider(tags=("Document", "File"))
     def pdf_file(
         self,
         nb_pages: int = 1,
@@ -3400,7 +3400,7 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
-    @provider(tags=("Binary", "Document", "File"))
+    @provider(tags=("Document", "File"))
     def text_pdf_file(
         self,
         nb_pages: int = 1,
