@@ -1,5 +1,9 @@
 name: Deploy llms.txt
 
+permissions:
+  contents: write    # Required to push commits
+  pages: write       # If you’re deploying to GitHub Pages
+
 on:
   push:
     branches: [ dev ]
