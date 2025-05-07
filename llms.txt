@@ -1,0 +1,6708 @@
+fake.py
+*******
+
+Minimalistic, standalone alternative fake data generator with no
+dependencies.
+
+[image: PyPI Version][image][image: Supported Python
+versions][image][image: Build Status][image][image: Documentation
+Status][image][image: MIT][image][image: Coverage][image]
+
+>>`fake.py`_<< is a standalone, portable library designed for
+generating various random data types for testing.
+
+It offers a simplified, dependency-free alternative for creating
+random texts, (person) names, URLs, dates, file names, IPs, primitive
+Python data types (such as *uuid*, *str*, *int*, *float*, *bool*), GEO
+data such as city, country, geo-location, country code, latitude,
+longitude and locales, IBANs and ISBNs, as well as byte content for
+multiple file formats including *PDF*, *DOCX*, *ODT*, *RTF*, *EPUB*,
+*PNG*, *SVG*, *BMP*, *GIF*, *TIF*, *PPM*, *JPG*, *WAV*, *ZIP*, *TAR*
+and *EML*.
+
+The package also supports file creation on the filesystem and includes
+factories (dynamic fixtures) compatible with Django, TortoiseORM,
+Pydantic and SQLAlchemy (which means it works with SQLModel too).
+
+
+Features
+========
+
+* Generation of random texts, (person) names, emails, URLs, dates,
+  IPs, and primitive Python data types.
+
+* Support for various file formats (*PDF*, *DOCX*, *ODT*, *RTF*,
+  *EPUB*, *TXT*, *PNG*, *SVG*, *BMP*, *GIF*, *TIF*, *PPM*, *JPG*,
+  *WAV*, *ZIP*, *TAR*, *EML*) and file creation on the filesystem.
+
+* Basic factories for integration with Django, Pydantic, TortoiseORM
+  and SQLAlchemy.
+
+* CLI for generating data from command line.
+
+
+Prerequisites
+=============
+
+Python 3.9+
+
+
+Installation
+============
+
+
+pip
+---
+
+   pip install fake.py
+
+
+Download and copy
+-----------------
+
+"fake.py" is the sole, self-contained module of the package. It
+includes tests too. If it's more convenient to you, you could simply
+download the "fake.py" module and include it in your repository.
+
+Since tests are included, it won't have a negative impact on your test
+coverage (you might need to apply tweaks to your coverage
+configuration).
+
+
+Documentation
+=============
+
+* Documentation is available on Read the Docs.
+
+* For various ready to use code examples see the Recipes.
+
+* For tips on how to use the factories see the Factories.
+
+* For customisation tips see the Customisation.
+
+* For generic information on how to create files see Creating files.
+
+* For tips on "PDF" creation see Creating PDF.
+
+* For tips on "DOCX" creation see Creating DOCX.
+
+* For tips on "ODT" creation see Creating ODT.
+
+* For tips on images creation see Creating images.
+
+* For tips on archives creation see Creating archives.
+
+* For various implementation examples, see the Examples.
+
+* For tricks on specific content creation see the Cheat sheet.
+
+* For CLI documentation, see the CLI.
+
+* For guidelines on contributing check the Contributor guidelines.
+
+
+Usage
+=====
+
+
+Generate data
+-------------
+
+
+Person names
+~~~~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.first_name()  # str
+   FAKER.first_names()  # list[str]
+   FAKER.last_name()  # str
+   FAKER.last_names()  # list[str]
+   FAKER.name()  # str
+   FAKER.names()  # list[str]
+   FAKER.username()  # str
+   FAKER.usernames()  # list[str]
+
+
+Random texts
+~~~~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.password()  # str
+   FAKER.paragraph()  # str
+   FAKER.paragraphs()  # list[str]
+   FAKER.sentence()  # str
+   FAKER.sentences()  # list[str]
+   FAKER.slug()  # str
+   FAKER.slugs()  # list[str]
+   FAKER.text()  # str
+   FAKER.texts()  # list[str]
+   FAKER.word()  # str
+   FAKER.words()  # list[str]
+
+
+Internet
+~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.company_email()  # str
+   FAKER.domain_name()  # str
+   FAKER.email()  # str
+   FAKER.free_email()  # str
+   FAKER.free_email_domain()  # str
+   FAKER.image_url()  # str
+   FAKER.ipv4()  # str
+   FAKER.tld()  # str
+   FAKER.url()  # str
+
+
+Filenames
+~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.dir_path()  # str
+   FAKER.file_extension()  # str
+   FAKER.file_name()  # str
+   FAKER.file_path()  # str
+   FAKER.mime_type()  # str
+
+
+Primitive data types
+~~~~~~~~~~~~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.pybool()  # bool
+   FAKER.pyfloat()  # float
+   FAKER.pyint()  # int
+   FAKER.pystr()  # str
+   FAKER.uuid()  # uuid.UUID
+
+
+Dates
+~~~~~
+
+   from fake import FAKER
+
+   FAKER.date()  # datetime.date
+   FAKER.date_time()  # datetime.datetime
+   FAKER.year()  # int
+   FAKER.time()  # str
+
+
+Geographic data
+~~~~~~~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.city()  # str
+   FAKER.country()  # str
+   FAKER.geo_location()  # str
+   FAKER.country_code()  # str
+   FAKER.locale()  # str
+   FAKER.latitude()  # float
+   FAKER.longitude()  # float
+   FAKER.latitude_longitude()  # tuple[float, float]
+
+
+Books
+~~~~~
+
+   from fake import FAKER
+
+   FAKER.isbn10()  # str
+   FAKER.isbn13()  # str
+
+
+Banking
+~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.iban()  # str
+
+
+Generate files
+--------------
+
+
+As bytes
+~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.bmp()  # bytes
+   FAKER.docx()  # bytes
+   FAKER.eml()  # bytes
+   FAKER.epub()  # bytes
+   FAKER.gif()  # bytes
+   FAKER.jpg()  # bytes
+   FAKER.odt()  # bytes
+   FAKER.pdf()  # bytes
+   FAKER.png()  # bytes
+   FAKER.ppm()  # bytes
+   FAKER.rtf()  # bytes
+   FAKER.svg()  # bytes
+   FAKER.tar()  # bytes
+   FAKER.tif()  # bytes
+   FAKER.wav()  # bytes
+   FAKER.zip()  # bytes
+
+
+As files on the file system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   from fake import FAKER
+
+   FAKER.bmp_file()  # str
+   FAKER.docx_file()  # str
+   FAKER.eml_file()  # str
+   FAKER.epub_file()  # str
+   FAKER.gif_file()  # str
+   FAKER.jpg_file()  # str
+   FAKER.odt_file()  # str
+   FAKER.pdf_file()  # str
+   FAKER.png_file()  # str
+   FAKER.ppm_file()  # str
+   FAKER.rtf_file()  # str
+   FAKER.svg_file()  # str
+   FAKER.tar_file()  # str
+   FAKER.tif_file()  # str
+   FAKER.txt_file()  # str
+   FAKER.wav_file()  # str
+   FAKER.zip_file()  # str
+
+
+Factories/dynamic fixtures
+--------------------------
+
+This is how you could define factories for Django's built-in "Group"
+and "User" models.
+
+*Filename: factories.py*
+
+   from django.contrib.auth.models import Group, User
+   from fake import (
+       DjangoModelFactory,
+       FACTORY,
+       PostSave,
+       PreSave,
+       trait,
+   )
+
+
+   class GroupFactory(DjangoModelFactory):
+       """Group factory."""
+
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+
+   def set_password(user: User, password: str) -> None:
+       """Helper function for setting password for the User."""
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       """Helper function for adding the User to a Group."""
+       group = GroupFactory(name=name)
+       user.groups.add(group)
+
+
+   class UserFactory(DjangoModelFactory):
+       """User factory."""
+
+       username = FACTORY.username()
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="Test group")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           """Trait."""
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+And this is how you could use it:
+
+   # Create just one user
+   user = UserFactory()
+
+   # Create 5 users
+   users = UserFactory.create_batch(5)
+
+   # Create a user using `is_admin_user` trait
+   user = UserFactory(is_admin_user=True)
+
+   # Create a user with custom password
+   user = UserFactory(
+       password=PreSave(set_password, password="another-password"),
+   )
+
+   # Add a user to another group
+   user = UserFactory(
+       group=PostSave(add_to_group, name="Another group"),
+   )
+
+   # Or even add user to multiple groups at once
+   user = UserFactory(
+       group_1=PostSave(add_to_group, name="Another group"),
+       group_2=PostSave(add_to_group, name="Yet another group"),
+   )
+
+
+Customise
+---------
+
+Make your own custom providers and utilize factories with them.
+
+*Filename: custom_fake.py*
+
+   import random
+   import string
+
+   from fake import Faker, Factory, provider
+
+
+   class CustomFaker(Faker):
+
+       @provider
+       def postal_code(self) -> str:
+           number_part = "".join(random.choices(string.digits, k=4))
+           letter_part = "".join(random.choices(string.ascii_uppercase, k=2))
+           return f"{number_part} {letter_part}"
+
+
+   FAKER = CustomFaker()
+   FACTORY = Factory(FAKER)
+
+Now you can use it as follows (make sure to import your custom
+instances of "FAKER" and "FACTORY"):
+
+   from custom_fake import FAKER  # Custom `FAKER` instance
+
+   FAKER.postal_code()
+
+Or as follows:
+
+   from fake import ModelFactory
+
+   from custom_fake import FACTORY  # Custom `FACTORY` instance
+
+
+   class AddressFactory(ModelFactory):
+
+       # ... other definitions
+       postal_code = FACTORY.postal_code()
+       # ... other definitions
+
+       class Meta:
+           model = Address
+
+
+Tests
+=====
+
+Run the tests with unittest:
+
+   python -m unittest fake.py
+
+Or pytest:
+
+   pytest
+
+
+Differences with alternatives
+=============================
+
+>>`fake.py`_<< is Faker + factory_boy + >>`faker-file`_<< in one
+package, radically simplified and reduced in features, but without any
+external dependencies (not even Pillow or dateutil).
+
+>>`fake.py`_<< is modelled after the famous Faker package. Its API is
+highly compatible, although drastically reduced. It's not multilingual
+and does not support postal codes or that many raw file formats.
+However, you could easily include it in your production setup without
+worrying about yet another dependency.
+
+On the other hand, >>`fake.py`_<< factories look quite similar to
+factory_boy factories, although again - drastically simplified and
+reduced in features.
+
+The file generation part of >>`fake.py`_<< is modelled after the
+>>`faker-file`_<<. You don't get a large variety of file types
+supported and you don't have that much control over the content of the
+files generated, but you get dependency-free valid files and if that's
+all you need, you don't need to look further.
+
+However, at any point, if you discover that you "need more", go for
+Faker, factory_boy and >>`faker-file`_<< combination.
+
+
+Benchmarks
+==========
+
+See fake-py-benchmarks for the details.
+
+
+Related projects
+================
+
+* fake-py-pathy-storage: Pathy backed cloud storages for
+  >>`fake.py`_<<. Supports *AWS S3*, *Google Cloud Storage* and *Azure
+  Cloud Storage*.
+
+* fake-py-django-storage: Django and django-storages backed storages
+  for >>`fake.py`_<<. Among others, supports *AWS S3*, *Google Cloud
+  Storage* and *Azure Cloud Storage*.
+
+* fake-py-qt: Graphical user interface to >>`fake.py`_<<.
+
+* fake-py-wasm: >>`fake.py`_<< on WASM (web assembly).
+
+
+Writing documentation
+=====================
+
+Keep the following hierarchy.
+
+   =====
+   title
+   =====
+
+   header
+   ======
+
+   sub-header
+   ----------
+
+   sub-sub-header
+   ~~~~~~~~~~~~~~
+
+   sub-sub-sub-header
+   ^^^^^^^^^^^^^^^^^^
+
+   sub-sub-sub-sub-header
+   ++++++++++++++++++++++
+
+   sub-sub-sub-sub-sub-header
+   **************************
+
+
+License
+=======
+
+MIT
+
+
+Support
+=======
+
+For security issues contact me at the e-mail given in the Author
+section.
+
+For overall issues, go to GitHub.
+
+
+Author
+======
+
+Artur Barseghyan <artur.barseghyan@gmail.com>
+
+======================================================================
+
+
+Recipes
+=======
+
+
+Imports and initialization
+--------------------------
+
+   from fake import FAKER
+
+======================================================================
+
+
+Providers
+---------
+
+
+first_name
+~~~~~~~~~~
+
+Returns a random first name.
+
+   from fake import FAKER
+
+   FAKER.first_name()
+
+======================================================================
+
+
+last_name
+~~~~~~~~~
+
+Returns a random last name.
+
+   from fake import FAKER
+
+   FAKER.last_name()
+
+======================================================================
+
+
+name
+~~~~
+
+Returns a random full name.
+
+   from fake import FAKER
+
+   FAKER.name()
+
+======================================================================
+
+
+word
+~~~~
+
+Returns a random word.
+
+   from fake import FAKER
+
+   FAKER.word()
+
+======================================================================
+
+
+words
+~~~~~
+
+Returns a list of "nb" (number) random words.
+
+   from fake import FAKER
+
+   FAKER.words()
+
+Arguments:
+
+* "nb" (type: "int", default value: "5") is an optional argument.
+
+Example with arguments (returns a list of 10 words):
+
+   from fake import FAKER
+
+   FAKER.words(nb=10)
+
+======================================================================
+
+
+sentence
+~~~~~~~~
+
+Returns a random sentence with "nb_words" number of words.
+
+   from fake import FAKER
+
+   FAKER.sentence()
+
+Arguments:
+
+* "nb_words" (type: "int", default value: "5") is an optional
+  argument.
+
+Example with arguments (returns a sentence of 10 words):
+
+   from fake import FAKER
+
+   FAKER.sentence(nb_words=10)
+
+======================================================================
+
+
+sentences
+~~~~~~~~~
+
+Returns a list of "nb" (number) random sentences.
+
+   from fake import FAKER
+
+   FAKER.sentences()
+
+Arguments:
+
+* "nb" (type: "int", default value: "3") is an optional argument.
+
+Example with arguments (returns a list of 10 sentences):
+
+   from fake import FAKER
+
+   FAKER.sentences(nb=10)
+
+======================================================================
+
+
+paragraph
+~~~~~~~~~
+
+Returns a random paragraph with "nb_sentences" number of sentences.
+
+   from fake import FAKER
+
+   FAKER.paragraph()
+
+Arguments:
+
+* "nb_sentences" (type: "int", default value: "5") is an optional
+  argument.
+
+Example with arguments (returns a paragraph of 10 sentences):
+
+   from fake import FAKER
+
+   FAKER.paragraph(nb_sentences=10)
+
+======================================================================
+
+
+paragraphs
+~~~~~~~~~~
+
+Returns a list of "nb" (number) random paragraphs.
+
+   from fake import FAKER
+
+   FAKER.paragraphs()
+
+Arguments:
+
+* "nb" (type: "int", default value: "3") is an optional argument.
+
+Example with arguments (returns a list of 10 paragraphs):
+
+   from fake import FAKER
+
+   FAKER.paragraphs(nb=10)
+
+======================================================================
+
+
+text
+~~~~
+
+Returns random text with up to "nb_chars" characters.
+
+   from fake import FAKER
+
+   FAKER.text()
+
+Arguments:
+
+* "nb_chars" (type: "int", default value: "200") is an optional
+  argument.
+
+Example with arguments (returns a 1000 character long text):
+
+   from fake import FAKER
+
+   FAKER.text(nb_chars=1_000)
+
+======================================================================
+
+
+texts
+~~~~~
+
+Returns a list of "nb" (number) random texts.
+
+   from fake import FAKER
+
+   FAKER.texts()
+
+Arguments:
+
+* "nb" (type: "int", default value: "3") is an optional argument.
+
+Example with arguments (returns a list of 10 texts):
+
+   from fake import FAKER
+
+   FAKER.texts(nb=10)
+
+======================================================================
+
+
+file_name
+~~~~~~~~~
+
+Returns a random file name with the given extension.
+
+   from fake import FAKER
+
+   FAKER.file_name()
+
+Arguments:
+
+* "extension" (type: "str", default value: "txt") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: """") is an optional argument.
+
+Example with arguments (returns a filename with "png" extension):
+
+   from fake import FAKER
+
+   FAKER.file_name(extension="png")
+
+======================================================================
+
+
+file_path
+~~~~~~~~~
+
+Returns a random file path with the given extension.
+
+   from fake import FAKER
+
+   FAKER.file_path()
+
+Arguments:
+
+* "extension" (type: "str", default value: "txt") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: """") is an optional argument.
+
+Example with arguments (returns a file path with "png" extension):
+
+   from fake import FAKER
+
+   FAKER.file_path(extension="png")
+
+======================================================================
+
+
+dir_path
+~~~~~~~~
+
+Returns a random directory path.
+
+   from fake import FAKER
+
+   FAKER.dir_path()
+
+Arguments:
+
+* "depth" (type: "int", default value: "1") is an optional argument.
+
+Example with arguments (returns a directory path):
+
+   from fake import FAKER
+
+   FAKER.dir_path(depth=3)
+
+======================================================================
+
+
+file_extension
+~~~~~~~~~~~~~~
+
+Returns a random file extension.
+
+   from fake import FAKER
+
+   FAKER.file_extension()
+
+======================================================================
+
+
+tld
+~~~
+
+Returns a TLD (top-level domain name).
+
+   from fake import FAKER
+
+   FAKER.tld()
+
+Arguments:
+
+* "tlds" (type: "Optional[Tuple[str, ...]]", default value: "None") is
+  an optional argument.
+
+Example with arguments (returns either "com", "net" or "org" TLD):
+
+   from fake import FAKER
+
+   FAKER.tld(tlds=("com", "net", "org"))
+
+======================================================================
+
+
+domain_name
+~~~~~~~~~~~
+
+Returns a domain name.
+
+   from fake import FAKER
+
+   FAKER.domain_name()
+
+Arguments:
+
+* "tlds" (type: "Optional[Tuple[str, ...]]", default value: "None") is
+  an optional argument.
+
+Example with arguments (returns an domain name with either "com",
+"net" or "org" TLD):
+
+   from fake import FAKER
+
+   FAKER.domain_name(tlds=("com", "net", "org"))
+
+======================================================================
+
+
+free_email_domain
+~~~~~~~~~~~~~~~~~
+
+Returns a free e-mail domain name.
+
+   from fake import FAKER
+
+   FAKER.free_email_domain()
+
+======================================================================
+
+
+email
+~~~~~
+
+Returns a random e-mail address.
+
+   from fake import FAKER
+
+   FAKER.email()
+
+Arguments:
+
+* "domain_names" (type: "Optional[Tuple[str, ...]]", default value:
+  "None") is an optional argument.
+
+Example with arguments (returns an e-mail address with either
+"gmail.com" or "proton.me" domain):
+
+   from fake import FAKER
+
+   FAKER.email(domain_names=("gmail.com", "proton.me"))
+
+======================================================================
+
+
+company_email
+~~~~~~~~~~~~~
+
+Returns a random company e-mail address.
+
+   from fake import FAKER
+
+   FAKER.company_email()
+
+Arguments:
+
+* "domain_names" (type: "Optional[Tuple[str, ...]]", default value:
+  "None") is an optional argument.
+
+Example with arguments (returns an e-mail address with either
+"microsoft.com" or "google.com" domain):
+
+   from fake import FAKER
+
+   FAKER.email(domain_names=("microsoft.com", "google.com"))
+
+======================================================================
+
+
+free_email
+~~~~~~~~~~
+
+Returns a random free e-mail address.
+
+   from fake import FAKER
+
+   FAKER.free_email()
+
+Arguments:
+
+* "domain_names" (type: "Optional[Tuple[str, ...]]", default value:
+  "None") is an optional argument.
+
+Example with arguments (returns an e-mail with either "gmail.com" or
+"proton.me" domain):
+
+   from fake import FAKER
+
+   FAKER.email(domain_names=("gmail.com", "proton.me"))
+
+======================================================================
+
+
+url
+~~~
+
+Returns a random URL.
+
+   from fake import FAKER
+
+   FAKER.url()
+
+Arguments:
+
+* "protocols" (type: "Optional[Tuple[str]]", default value: "None") is
+  an optional argument.
+
+* "tlds" (type: "Optional[Tuple[str]]", default value: "None") is an
+  optional argument.
+
+* "suffixes" (type: "Optional[Tuple[str]]", default value: "None") is
+  an optional argument.
+
+======================================================================
+
+
+image_url
+~~~~~~~~~
+
+Returns a valid random image URL.
+
+   from fake import FAKER
+
+   FAKER.image_url()
+
+Arguments:
+
+* "width" (type: "int", default value: "800") is a required argument.
+
+* "height" (type: "int", default value: "600") is an required
+  argument.
+
+* "service_url" (type: "Optional[str]", default value: "None") is an
+  optional argument.
+
+Example with arguments (alternative dimensions):
+
+   from fake import FAKER
+
+   FAKER.image_url(width=640, height=480)
+
+======================================================================
+
+
+pyint
+~~~~~
+
+Returns a random integer between "min_value" and "max_value".
+
+   from fake import FAKER
+
+   FAKER.pyint()
+
+Arguments:
+
+* "min_value" (type: "int", default value: "0") is an optional
+  argument.
+
+* "max_value" (type: "int", default value: "9999") is an optional
+  argument.
+
+Example with arguments (returns an integer between 0 and 100):
+
+   from fake import FAKER
+
+   FAKER.pyint(min_value=0, max_value=100)
+
+======================================================================
+
+
+pybool
+~~~~~~
+
+Returns a random boolean value.
+
+   from fake import FAKER
+
+   FAKER.pybool()
+
+======================================================================
+
+
+pystr
+~~~~~
+
+Returns a random string of "nb_chars" length.
+
+   from fake import FAKER
+
+   FAKER.pystr()
+
+Arguments:
+
+* "nb_chars" (type: "int", default value: "20") is an optional
+  argument.
+
+Example with arguments (returns a string of 64 characters):
+
+   from fake import FAKER
+
+   FAKER.pystr(nb_chars=64)
+
+======================================================================
+
+
+pyfloat
+~~~~~~~
+
+Returns a random float between "min_value" and "max_value".
+
+   from fake import FAKER
+
+   FAKER.pyfloat()
+
+Arguments:
+
+* "min_value" (type: "float", default value: "0.0") is an optional
+  argument.
+
+* "max_value" (type: "float", default value: "10.00") is an optional
+  argument.
+
+Example with arguments (returns a float between 0 and 100):
+
+   from fake import FAKER
+
+   FAKER.pyfloat(min_value=0.0, max_value=100.0)
+
+======================================================================
+
+
+pydecimal
+~~~~~~~~~
+
+Returns a random decimal, according to given "left_digits" and
+"right_digits".
+
+   from fake import FAKER
+
+   FAKER.pydecimal()
+
+Arguments:
+
+* "left_digits" (type: "int", default value: "5") is an optional
+  argument.
+
+* "right_digits" (type: "int", default value: "2") is an optional
+  argument.
+
+* "positive" (type: "bool", default value: "True") is an optional
+  argument.
+
+Example with arguments:
+
+   from fake import FAKER
+
+   FAKER.pydecimal(left_digits=1, right_digits=4, positive=False)
+
+======================================================================
+
+
+ipv4
+~~~~
+
+Returns a random IPv4 address.
+
+   from fake import FAKER
+
+   FAKER.ipv4()
+
+======================================================================
+
+
+date
+~~~~
+
+Generates a random date.
+
+   from fake import FAKER
+
+   FAKER.date()
+
+Arguments:
+
+* "start_date" (type: "str", default value: "-7d") is a optional
+  argument.
+
+* "end_date" (type: "str", default value: "+0d") is an optional
+  argument.
+
+Example with arguments, generate a random date between given
+"start_date" and "end_date":
+
+   from fake import FAKER
+
+   FAKER.date(start_date="-1d", end_date="+1d")
+
+======================================================================
+
+
+date_time
+~~~~~~~~~
+
+Generates a random datetime.
+
+   from fake import FAKER
+
+   FAKER.date_time()
+
+Arguments:
+
+* "start_date" (type: "str", default value: "-7d") is an optional
+  argument.
+
+* "end_date" (type: "str", default value: "+0d") is an optional
+  argument.
+
+Example with arguments, generate a random date between given
+"start_date" and "end_date":
+
+   from fake import FAKER
+
+   FAKER.date_time(start_date="-1d", end_date="+1d")
+
+======================================================================
+
+
+pdf
+~~~
+
+Generates a content ("bytes") of a PDF document.
+
+   from fake import FAKER
+
+   FAKER.pdf()
+
+Arguments:
+
+* "nb_pages" (type: "int", default value: "1") is an optional
+  argument.
+
+* "texts" (type: "list[str]", default value: "None") is an optional
+  argument.
+
+* "generator" (type: "Union[Type[TextPdfGenerator],
+  Type[GraphicPdfGenerator]]", default value: "GraphicPdfGenerator")
+  is an optional argument.
+
+* "metadata" (type: "MetaData", default value: "None") is an optional
+  argument.
+
+Note:
+
+  "texts" is valid only in case "TextPdfGenerator" is used.
+
+Note:
+
+  Either "nb_pages" or "texts" shall be provided. "nb_pages" is by
+  default set to "1", but if "texts" is given, the value of "nb_pages"
+  is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content ("bytes") of a PDF document of 100 pages with
+random graphics:
+
+   from fake import FAKER
+
+   FAKER.pdf(nb_pages=100)
+
+Generate a content ("bytes") of a PDF document of 100 pages with
+random texts:
+
+   from fake import FAKER
+   from fake import TextPdfGenerator
+
+   FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF
+(texts), pass the "metadata" argument.
+
+   from fake import FAKER
+   from fake import MetaData, TextPdfGenerator
+
+   metadata = MetaData()
+   FAKER.pdf(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+   print(metadata.content)  # Inspect ``metadata``
+
+======================================================================
+
+
+image
+~~~~~
+
+Generates a content ("bytes") of an image of the specified format and
+colour.
+
+   from fake import FAKER
+
+   FAKER.image()  # Supported formats are `png`, `svg`, `bmp` and `gif`
+
+Arguments:
+
+* "image_format" (type: "str", default value: "png") is an optional
+  argument.
+
+* "size" (type: "Tuple[int, int]", default value: "(100, 100)") is an
+  optional argument.
+
+* "color" (type: "Tuple[int, int, int]", default value: "(0, 0, 255)")
+  is an optional argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.image(
+       image_format="svg",  # SVG format
+       size=(640, 480),  # 640px width, 480px height
+       color=(0, 0, 0),  # Fill rectangle with black
+   )
+
+======================================================================
+
+
+docx
+~~~~
+
+Generates a content ("bytes") of a DOCX document.
+
+   from fake import FAKER
+
+   FAKER.docx()
+
+Arguments:
+
+* "nb_pages" (type: "int", default value: "1") is an optional
+  argument.
+
+* "texts" (type: "list[str]", default value: "None") is an optional
+  argument.
+
+Note:
+
+  Either "nb_pages" or "texts" shall be provided. "nb_pages" is by
+  default set to "1", but if "texts" is given, the value of "nb_pages"
+  is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content ("bytes") of a DOCX document of 100 pages with
+random texts:
+
+   from fake import FAKER
+
+   FAKER.docx(nb_pages=100)
+
+If you want to get insights of the content used to generate the DOCX
+(texts), pass the "metadata" argument.
+
+   from fake import FAKER
+   from fake import MetaData
+
+   metadata = MetaData()
+   FAKER.docx(nb_pages=100, metadata=metadata)
+
+   print(metadata.content)  # Inspect ``metadata``
+
+======================================================================
+
+
+odt
+~~~
+
+Generates a content ("bytes") of a ODT document.
+
+   from fake import FAKER
+
+   FAKER.odt()
+
+Arguments:
+
+* "nb_pages" (type: "int", default value: "1") is an optional
+  argument.
+
+* "texts" (type: "list[str]", default value: "None") is an optional
+  argument.
+
+Note:
+
+  Either "nb_pages" or "texts" shall be provided. "nb_pages" is by
+  default set to "1", but if "texts" is given, the value of "nb_pages"
+  is adjusted accordingly.
+
+Examples with arguments.
+
+Generate a content ("bytes") of a ODT document of 100 pages with
+random texts:
+
+   from fake import FAKER
+
+   FAKER.odt(nb_pages=100)
+
+If you want to get insights of the content used to generate the ODT
+(texts), pass the "metadata" argument.
+
+   from fake import FAKER
+   from fake import MetaData
+
+   metadata = MetaData()
+   FAKER.odt(nb_pages=100, metadata=metadata)
+
+   print(metadata.content)  # Inspect ``metadata``
+
+======================================================================
+
+
+bin
+~~~
+
+Generates a content ("bytes") of a BIN document.
+
+   from fake import FAKER
+
+   FAKER.bin()
+
+Arguments:
+
+* "length" (type: "int", default value: "16") is a required argument.
+
+Examples with arguments.
+
+Generate a content ("bytes") of a BIN document of length 100:
+
+   from fake import FAKER
+
+   FAKER.bin(length=100)
+
+======================================================================
+
+
+zip
+~~~
+
+Generates a content ("bytes") of a ZIP document.
+
+   from fake import FAKER
+
+   FAKER.zip()
+
+Arguments:
+
+* "options" (type: "Dict", default value: "None") is an optional
+  argument.
+
+======================================================================
+
+
+eml
+~~~
+
+Generates a content ("bytes") of a EML document.
+
+   from fake import FAKER
+
+   FAKER.eml()
+
+Arguments:
+
+* "options" (type: "Dict", default value: "None") is an optional
+  argument.
+
+* "content" (type: "str", default value: "None") is an optional
+  argument.
+
+* "subject" (type: "str", default value: "None") is an optional
+  argument.
+
+======================================================================
+
+
+tar
+~~~
+
+Generates a content ("bytes") of a TAR document.
+
+   from fake import FAKER
+
+   FAKER.tar()
+
+Arguments:
+
+* "options" (type: "Dict", default value: "None") is an optional
+  argument.
+
+======================================================================
+
+
+pdf_file
+~~~~~~~~
+
+Generates a "PDF" file.
+
+   from fake import FAKER
+
+   FAKER.pdf_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "pdf" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Examples with arguments.
+
+Generate a PDF document of 100 pages with random graphics:
+
+   from fake import FAKER
+
+   FAKER.pdf_file(nb_pages=100)
+
+Generate a PDF document of 100 pages with random texts:
+
+   from fake import FAKER
+   from fake import TextPdfGenerator
+
+   FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
+
+If you want to get insights of the content used to generate the PDF
+(texts), pass the "metadata" argument.
+
+   from fake import FAKER
+   from fake import MetaData, TextPdfGenerator
+
+   metadata = MetaData()
+   FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator, metadata=metadata)
+
+   print(metadata.content)  # Inspect ``metadata``
+
+======================================================================
+
+
+png_file
+~~~~~~~~
+
+Generates a "PNG" file.
+
+   from fake import FAKER
+
+   FAKER.png_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "png" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.png_file(
+       basename="png_file",  # Basename
+       size=(640, 480),  # 640px width, 480px height
+       color=(0, 0, 0),  # Fill rectangle with black
+   )
+
+======================================================================
+
+
+svg_file
+~~~~~~~~
+
+Generates an "SVG" file.
+
+   from fake import FAKER
+
+   FAKER.svg_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "svg" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.svg_file(
+       basename="svg_file",  # Basename
+       size=(640, 480),  # 640px width, 480px height
+       color=(0, 0, 0),  # Fill rectangle with black
+   )
+
+======================================================================
+
+
+bmp_file
+~~~~~~~~
+
+Generates a "BMP" file.
+
+   from fake import FAKER
+
+   FAKER.bmp_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "bmp" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.bmp_file(
+       basename="bmp_file",  # Basename
+       size=(640, 480),  # 640px width, 480px height
+       color=(0, 0, 0),  # Fill rectangle with black
+   )
+
+======================================================================
+
+
+gif_file
+~~~~~~~~
+
+Generates a "GIF" file.
+
+   from fake import FAKER
+
+   FAKER.gif_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "gif" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.gif_file(
+       basename="gif_file",  # Basename
+       size=(640, 480),  # 640px width, 480px height
+       color=(0, 0, 0),  # Fill rectangle with black
+   )
+
+======================================================================
+
+
+txt_file
+~~~~~~~~
+
+Generates a "TXT" file.
+
+   from fake import FAKER
+
+   FAKER.txt_file()
+
+Arguments:
+
+Note:
+
+  Accepts all arguments of "text" + the following:
+
+* "storage" (type: "BaseStorage", default value: "None") is an
+  optional argument.
+
+* "basename" (type: "str", default value: "None") is an optional
+  argument.
+
+* "prefix" (type: "str", default value: "None") is an optional
+  argument.
+
+Example with arguments.
+
+   from fake import FAKER
+
+   FAKER.txt_file(
+       basename="txt_file",  # Basename
+       nb_chars=10_000,  # 10_000 characters long
+   )
+
+======================================================================
+
+
+city
+~~~~
+
+Get a random city.
+
+   from fake import FAKER
+
+   FAKER.city()
+
+======================================================================
+
+
+country
+~~~~~~~
+
+Get a random country.
+
+   from fake import FAKER
+
+   FAKER.country()
+
+======================================================================
+
+
+geo_location
+~~~~~~~~~~~~
+
+Get a random geo-location.
+
+   from fake import FAKER
+
+   FAKER.geo_location()
+
+======================================================================
+
+
+country_code
+~~~~~~~~~~~~
+
+Get a random country code.
+
+   from fake import FAKER
+
+   FAKER.country_code()
+
+======================================================================
+
+
+locale
+~~~~~~
+
+Generate a random locale.
+
+   from fake import FAKER
+
+   FAKER.locale()
+
+======================================================================
+
+
+latitude
+~~~~~~~~
+
+Generate a random latitude.
+
+   from fake import FAKER
+
+   FAKER.latitude()
+
+======================================================================
+
+
+longitude
+~~~~~~~~~
+
+Generate a random longitude.
+
+   from fake import FAKER
+
+   FAKER.longitude()
+
+======================================================================
+
+
+latitude_longitude
+~~~~~~~~~~~~~~~~~~
+
+Generate a random (latitude, longitude) pair.
+
+   from fake import FAKER
+
+   FAKER.latitude_longitude()
+
+======================================================================
+
+
+isbn10
+~~~~~~
+
+Generate a random ISBN10. Can be validated using isbn-checker.
+
+   from fake import FAKER
+
+   FAKER.isbn10()
+
+======================================================================
+
+
+isbn13
+~~~~~~
+
+Generate a random ISBN13. Can be validated using isbn-checker.
+
+   from fake import FAKER
+
+   FAKER.isbn13()
+
+======================================================================
+
+
+iban
+~~~~
+
+Generate a random IBAN. Can be validated using iban-calculator.
+
+   from fake import FAKER
+
+   FAKER.iban()
+
+======================================================================
+
+
+random_choice
+~~~~~~~~~~~~~
+
+Picks a random element from the sequence given.
+
+   from fake import FAKER
+
+   FAKER.random_choice(("Art", "Photography", "Generative AI"))
+
+======================================================================
+
+
+random_sample
+~~~~~~~~~~~~~
+
+Picks a given number of random elements from the sequence given.
+
+   from fake import FAKER
+
+   FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
+
+======================================================================
+
+
+randomise_string
+~~~~~~~~~~~~~~~~
+
+Replaces placeholders in a given string with random letters and
+digits.
+
+* Placeholders "?" are replaced by random uppercase letters.
+
+* Placeholders "#" are replaced by random digits.
+
+   from fake import FAKER
+
+   FAKER.randomise_string("???? ##")
+
+======================================================================
+
+Optional arguments:
+
+* "letters" (type: "str", default value: "string.ascii_uppercase").
+
+* "digits" (type: "str", default value: "string.digits").
+
+Example with arguments.
+
+   import string
+   from fake import FAKER
+
+   FAKER.randomise_string(
+       "???? ##",
+       letters=string.ascii_letters,  # Use both upper- and lower-case
+       digits="123456789",  # Exclude 0
+   )
+
+Sample output:
+
+   1234 Aa
+
+======================================================================
+
+======================================================================
+
+
+Cheat sheet
+===========
+
+
+Scientific content
+------------------
+
+Quick tricks for generating scientific content.
+
+
+DOI (Digital Object Identifier)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generate a fake DOI - a string formatted as "10.####/####-####":
+
+   from fake import FAKER
+
+   FAKER.randomise_string(value="10.####/####-####")
+   # '10.4613/4636-8596'
+
+======================================================================
+
+
+ISSN/EISSN (International/Electronic Serial Number)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generate a fake ISSN/EISSN - a string of eight digits with a hyphen
+between the groups of four digits:
+
+   from fake import FAKER
+
+   FAKER.randomise_string(value="####-####")
+   # '6160-6320'
+
+======================================================================
+
+
+ORCID (Open Researcher and Contributor ID)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generate a fake ORCID ID - four groups of four digits separated by
+hyphens:
+
+   from fake import FAKER
+
+   FAKER.randomise_string(value="####-####-####-####")
+   # '6827-5849-5672-2984'
+
+======================================================================
+
+
+arXiv Identifier
+~~~~~~~~~~~~~~~~
+
+Generate a fake arXiv ID in the modern format (e.g., "2101.12345"):
+
+   from fake import FAKER
+
+   FAKER.randomise_string(value="####.#####")
+   # '0206.74568'
+
+======================================================================
+
+
+Scientific article metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Generate fake metadata for a scientific article, including a title, a
+list of authors, journal name, publication year, and keywords:
+
+   from fake import FAKER
+
+   article_title = FAKER.sentence(suffix="")
+   # 'Preferably youre than is now'
+
+   authors = [FAKER.name() for _ in range(3)]
+   # ['Thomas Sajip', 'Ben Gust', 'Christian Dragon De Monsyne']
+
+   journal = FAKER.string_template("Journal of {word} Studies")
+   # 'Journal of Better Studies'
+
+   publication_year = FAKER.year(start_year=1970, end_year=2024)
+   # 2001
+
+   keywords = FAKER.words()
+   # ['Youre', 'Guess', 'Is', 'Lets', 'Of']
+
+======================================================================
+
+Generate a fake short abstract:
+
+   from fake import FAKER
+
+   abstract = FAKER.string_template(
+       """
+       {date(start_date="-7d")}
+
+       # Title: {sentence(nb_words=6, suffix="")}
+
+       ## Authors: {name}, {name}, {name}
+
+       ## Abstract
+
+       ### Introduction
+       {text(nb_chars=200, allow_overflow=True)}
+
+       ### Objective
+       {text(nb_chars=200, allow_overflow=True)}
+
+       ### Methods
+       {text(nb_chars=200, allow_overflow=True)}
+
+       ### Results
+       {text(nb_chars=200, allow_overflow=True)}
+
+       ### Conclusion
+       {text(nb_chars=200, allow_overflow=True)}
+
+       Keywords: {word}, {word}, {word}
+       """
+   )
+
+Sample output:
+
+   2025-04-08
+
+   # Title: Of dutch a cases silenced never
+
+   ## Authors: Michael Dalke, Barry Dragon De Monsyne, Victor Diederich
+
+   ## Abstract
+
+   ### Introduction
+   Implicit idea of better idea. And special errors implicit is. Is are
+   explicit better complicated. More nested cases honking lets. Never of
+   beautiful than be. Explicit way namespaces better explicitly.
+
+   ### Objective
+   Better implementation it complex by. Way bad preferably do a. Is than
+   temptation good although. The guess if ambiguity the. Better its sparse
+   and special. Is than is preferably than. Of although do to practicality.
+
+   ### Methods
+   Should its than flat to. There than explicit obvious at. Idea readability
+   idea is ugly. Only refuse now the now. Complex its one complicated of. The
+   flat obvious temptation dutch. Flat is python tim simple.
+
+   ### Results
+   Way there guess than to. Pass is and are beautiful. It nested that
+   although obvious. Better better simple idea than. Is not better great
+   simple. The complex although explain of. Than special than than obvious.
+
+   ### Conclusion
+   Explicitly explain more enough honking. To counts dense should pass.
+   Obvious unless is if be. Be implementation good implementation now.
+   Better if than now face. At complex to although than. Than may of better.
+
+   Keywords: Do, Lets, Unlessd, Purity, Complex
+
+======================================================================
+
+
+Creating files
+==============
+
+Creation of specific file formats is extensively covered in dedicated
+sections:
+
+* Creating archives
+
+* Creating DOCX
+
+* Creating images
+
+* Creating ODT
+
+* Creating PDF
+
+This section covers basic concepts of file generation within
+>>`fake.py`_<<.
+
+
+Basics
+------
+
+It's possible to generate either in-memory byte content or actual
+files on the file system.
+
+* When generating bytes, the returned value is "BytesValue".
+
+* When generating files on the file system, the returned value is
+  "StringValue".
+
+Both "BytesValue" and "StringValue" behave like "bytes" and "str"
+respectively, but have a "data" ("dict") property, which contains
+useful meta-data about the specific kind of file.
+
+For generated files, it will always have the following:
+
+* "storage": Storage class that was used to generate the file.
+
+* "filename": Absolute file path. It's important to know that string
+  representation of the file contains a relative file path.
+
+======================================================================
+
+See the example below for a **graphic** PDF generation:
+
+   from fake import FAKER
+
+   pdf_file = FAKER.pdf_file()
+
+   print(pdf_file)  # Relative path
+   # tmp/tmpnvwoa2ap.pdf
+
+   print(pdf_file.data["filename"])  # Absolute path
+   # /tmp/tmp/tmpnvwoa2ap.pdf
+
+   print(pdf_file.data)  # Meta-data
+   # {'storage': <fake.FileSystemStorage at 0x7f72221fd750>,
+   #  'filename': '/tmp/tmp/tmpragc8wyr.pdf',
+   #  'content': None}
+
+======================================================================
+
+See the example below for a **text** PDF generation:
+
+   from fake import FAKER
+
+   pdf_file = FAKER.text_pdf_file()
+
+   print(pdf_file)
+   # tmp/tmpragc8wyr.pdf
+
+   print(pdf_file.data["filename"])
+   # /tmp/tmp/tmpragc8wyr.pdf
+
+   print(pdf_file.data)
+   # {'storage': <fake.FileSystemStorage at 0x7f7222157750>,
+   #  'filename': '/tmp/tmp/tmpragc8wyr.pdf',
+   #  'content': 'If dutch beats although complex.'}
+
+Note, that text PDF does contain full text of the entire document in
+the "content" key.
+
+======================================================================
+
+
+Clean up files
+--------------
+
+"FileSystemStorage" is the default storage and by default files are
+stored inside a "tmp" directory within the system's temporary
+directory, which is commonly cleaned up after system restart. However,
+there's a mechanism of cleaning up files after the tests run. At any
+time, to clean up all files created by that moment, call "clean_up"
+method of the "FileRegistry" class instance, as shown below:
+
+   from fake import FAKER, FILE_REGISTRY  # Import the file registry
+
+   # Create a file
+   txt_file = FAKER.txt_file()  # type: ``StringValue``
+   filename = str(txt_file)  # Relative path to the file
+   storage = txt_file.data["storage"]  # Storage instance
+
+   # File should exist
+   assert storage.exists(filename)
+
+   # Trigger the clean-up
+   FILE_REGISTRY.clean_up()
+
+   # File no longer exists
+   assert storage.exists(filename) is False
+
+Typically you would call the "clean_up" method in the "tearDown".
+
+======================================================================
+
+To remove a single file, use the "remove" method of "FileRegistry"
+instance. In the example below, the file is removed by providing the
+"StringValue" instance:
+
+   from fake import FAKER, FILE_REGISTRY
+
+   # Create a file
+   txt_file = FAKER.txt_file()  # type: StringValue
+   filename = str(txt_file)  # Relative path to the file
+   storage = txt_file.data["storage"]  # Storage instance
+
+   # File should exist
+   assert storage.exists(filename)
+
+   # Remove the file by providing the ``StringValue`` instance
+   FILE_REGISTRY.remove(txt_file)
+
+   # File no longer exists
+   assert storage.exists(filename) is False
+
+======================================================================
+
+You can also remove by path. In the exampl below, the file is removed
+by providing the "str" instance:
+
+   from fake import FAKER, FILE_REGISTRY
+
+   # Create a file
+   txt_file = FAKER.txt_file()  # type: StringValue
+   filename = str(txt_file)  # Relative path to the file
+   storage = txt_file.data["storage"]  # Storage instance
+
+   # File should exist
+   assert storage.exists(filename)
+
+   # Remove the file by providing the ``filename``
+   FILE_REGISTRY.remove(filename)
+
+   # File no longer exist
+   assert storage.exists(filename) is False
+
+======================================================================
+
+If you only have a path to the file as "str" instance, you can find
+the correspondent "StringValue" instance by searching, using the
+"search" method:
+
+   from fake import FAKER, FILE_REGISTRY
+
+   # Create a file
+   txt_file = FAKER.txt_file()  # type: ``StringValue``
+   filename = str(txt_file)  # Relative path to the file
+   storage = txt_file.data["storage"]  # Storage instance
+
+   # File should exist
+   assert storage.exists(filename)
+
+   # Find the file by providing the ``str`` instance
+   found_file = FILE_REGISTRY.search(filename)  # type: StringValue
+
+   # They should be the same
+   assert txt_file == found_file
+
+======================================================================
+
+======================================================================
+
+
+Creating images
+===============
+
+Creating images for testing can be a challenging task. The goal of
+this library is to help you out with basic tasks. You can easily
+generate very basic graphic images (no custom shapes).
+
+If you don't like how image files are generated by this library, you
+can check the >>`faker-file`_<< package, which can produce complex
+images.
+
+
+Supported image formats
+-----------------------
+
+Currently, 7 image formats are supported:
+
+* "PNG"
+
+* "SVG"
+
+* "BMP"
+
+* "GIF"
+
+* "TIF"
+
+* "PPM"
+
+* "JPG"
+
+
+Generating images as bytes
+--------------------------
+
+See the following fully functional snippet for generating a "PNG"
+image.
+
+   from fake import FAKER
+
+   png_bytes = FAKER.png()
+
+*See the full example* "here"
+
+The generated "PNG" image will be an image filled with a given colour
+of a size 100x100 px.
+
+======================================================================
+
+If you want an image of a different size or colour, provide "size"
+(width, height: "Tuple[int, int]") or "color" (RGB tuple: "Tuple[int,
+int, int]") arguments. See the example below:
+
+   png_bytes = FAKER.png(size=(500, 500), color=(127, 127, 127))
+
+*See the full example* "here"
+
+
+Generating files
+----------------
+
+Generate a "PNG" image.
+
+   png_file = FAKER.png_file()
+
+*See the full example* "here"
+
+======================================================================
+
+With "size" and "color" tweaks:
+
+   png_file = FAKER.png_file(size=(500, 500), color=(127, 127, 127))
+
+*See the full example* "here"
+
+======================================================================
+
+All other image formats ("SVG", "BMP", "GIF", "TIF", "PPM" and "JPG")
+work in exactly the same way.
+
+The only format that slightly deviates from others is "JPG". Produced
+"JPG" images are still rectangles, but unlike all others, instead of
+being filled with a single solid colour, they are filled with a
+mixture of colours, based on a chosen base colour. Also, colours on
+the "JPG" image are not precise, but a closest match to the colour
+given.
+
+The following code will generate a 10x10 px square filled with a solid
+yellow colour.
+
+   from fake import FAKER
+
+   FAKER.jpg_file(size=(10, 10), color=(182, 232, 90))
+
+While the following code will generate a 640x480 px square filled with
+yellow and other colours.
+
+   from fake import FAKER
+
+   FAKER.jpg_file(size=(640, 480), color=(18, 52, 185))
+
+The only colour that always stays solid is the default colour - gray
+"(128, 128, 128)".
+
+   from fake import FAKER
+
+   FAKER.jpg_file(size=(720, 540))
+
+======================================================================
+
+======================================================================
+
+
+Creating PDF
+============
+
+PDF is certainly one of the most complicated formats out there. And
+certainly one of the formats most of the developers will be having
+trouble with, as there are many versions and dialects.
+
+The goal of this library is to help you out with basic tasks. You can
+easily generate PDFs with 100 pages (paper size is A4), having a
+little text on each. Or you can generate PDFs with images. Currently,
+you can't have both at the same time.
+
+If you don't like how PDF files are generated by this library, you can
+check the >>`faker-file`_<< package, which can produce complex PDF
+documents.
+
+
+Building PDF with text
+----------------------
+
+
+If you need bytes
+~~~~~~~~~~~~~~~~~
+
+   from fake import FAKER, TextPdfGenerator
+
+   pdf_bytes = FAKER.pdf(generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+The generated PDF will consist of a single page with little text on
+it.
+
+If you want to control the number of pages created, you could:
+
+* Pass a list of texts to the "texts" argument.
+
+* Pass the number of pages to the "nb_pages" argument.
+
+======================================================================
+
+See the example below for "texts" tweak:
+
+   texts = FAKER.sentences()
+   pdf_bytes = FAKER.pdf(texts=texts, generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+======================================================================
+
+For full clarity, see another example below for "texts" tweak:
+
+   texts = ["Page 1 content", "Page 2 content", "Page 3 content"]
+   pdf_bytes = FAKER.pdf(texts=texts, generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+The produced PDF will have 3 pages:
+
+* The first will show: "Page 1 content"
+
+* The second page will show: "Page 2 content"
+
+* The third page will show: "Page 3 content"
+
+======================================================================
+
+See the example below for "nb_pages" tweak:
+
+   pdf_bytes = FAKER.pdf(nb_pages=100, generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+
+If you need files
+~~~~~~~~~~~~~~~~~
+
+   pdf_file = FAKER.pdf_file(generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+======================================================================
+
+With "texts" tweak:
+
+   texts = FAKER.sentences()
+   pdf_file = FAKER.pdf_file(texts=texts, generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+======================================================================
+
+With "nb_pages" tweak:
+
+   pdf_file = FAKER.pdf_file(nb_pages=100, generator=TextPdfGenerator)
+
+*See the full example* "here"
+
+
+Building PDF with graphics
+--------------------------
+
+
+If you need bytes
+~~~~~~~~~~~~~~~~~
+
+   from fake import FAKER, GraphicPdfGenerator
+
+   pdf_bytes = FAKER.pdf(generator=GraphicPdfGenerator)
+
+*See the full example* "here"
+
+The generated PDF will consist of a single page with a coloured square
+on it.
+
+If you want a PDF with more pages, provide the "nb_pages" argument.
+
+======================================================================
+
+See the example below for "nb_pages" tweak:
+
+   pdf_bytes = FAKER.pdf(nb_pages=100, generator=GraphicPdfGenerator)
+
+*See the full example* "here"
+
+
+If you need files
+~~~~~~~~~~~~~~~~~
+
+   pdf_file = FAKER.pdf_file(generator=GraphicPdfGenerator)
+
+*See the full example* "here"
+
+======================================================================
+
+With "nb_pages" tweak:
+
+   pdf_file = FAKER.pdf_file(nb_pages=100, generator=GraphicPdfGenerator)
+
+*See the full example* "here"
+
+======================================================================
+
+======================================================================
+
+
+Creating DOCX
+=============
+
+The goal of this library is to help you out with basic tasks. You can
+easily generate DOCX files with 100 pages (paper size is A4), having a
+little text on each.
+
+If you don't like how DOCX files are generated by this library, you
+can check the >>`faker-file`_<< package, which can produce complex
+DOCX documents.
+
+
+If you need bytes
+-----------------
+
+   from fake import FAKER
+
+   docx_bytes = FAKER.docx()
+
+*See the full example* "here"
+
+The generated DOCX will consist of a single page with little text on
+it.
+
+If you want to control the number of pages created, you could:
+
+* Pass a list of texts to the "texts" argument.
+
+* Pass the number of pages to the "nb_pages" argument.
+
+======================================================================
+
+See the example below for "texts" tweak:
+
+   texts = FAKER.sentences()
+   docx_bytes = FAKER.docx(texts=texts)
+
+*See the full example* "here"
+
+======================================================================
+
+See the example below for "nb_pages" tweak:
+
+   docx_bytes = FAKER.docx(nb_pages=100)
+
+*See the full example* "here"
+
+
+If you need files
+-----------------
+
+   docx_file = FAKER.docx_file()
+
+*See the full example* "here"
+
+======================================================================
+
+With "texts" tweak:
+
+   texts = FAKER.sentences()
+   docx_file = FAKER.docx_file(texts=texts)
+
+*See the full example* "here"
+
+======================================================================
+
+With "nb_pages" tweak:
+
+   docx_file = FAKER.docx_file(nb_pages=100)
+
+*See the full example* "here"
+
+======================================================================
+
+Using text templates:
+
+   from fake import FAKER, StringTemplate
+
+   template = """
+   {date(start_date='-7d')}
+   {name}
+   {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+   {randomise_string(value='#### ??', digits='123456789')} {city}
+
+   Dear friend,
+
+   {text(nb_chars=1000, allow_overflow=True)}
+
+   Sincerely yours,
+
+   {name}
+   {email}
+   {domain_name}
+   """
+   # DOCX file of 1 page
+   docx_file_1 = FAKER.docx_file(
+       texts=[StringTemplate(template)],
+   )
+   # DOCX file of 10 pages
+   docx_file_10 = FAKER.docx_file(
+       texts=[StringTemplate(template) for _ in range(10)],
+   )
+
+   # Tests
+   assert isinstance(docx_file_1, str)
+   assert docx_file_1.data["storage"].exists(docx_file_1)
+   assert isinstance(docx_file_10, str)
+   assert docx_file_10.data["storage"].exists(docx_file_10)
+
+======================================================================
+
+======================================================================
+
+
+Creating ODT
+============
+
+The goal of this library is to help you out with basic tasks. You can
+easily generate ODT files with 100 pages (paper size is A4), having a
+little text on each.
+
+If you don't like how ODT files are generated by this library, you can
+check the >>`faker-file`_<< package, which can produce complex ODT
+documents.
+
+
+If you need bytes
+-----------------
+
+   from fake import FAKER
+
+   odt_bytes = FAKER.odt()
+
+*See the full example* "here"
+
+The generated ODT will consist of a single page with little text on
+it.
+
+If you want to control the number of pages created, you could:
+
+* Pass a list of texts to the "texts" argument.
+
+* Pass the number of pages to the "nb_pages" argument.
+
+======================================================================
+
+See the example below for "texts" tweak:
+
+   texts = FAKER.sentences()
+   odt_bytes = FAKER.odt(texts=texts)
+
+*See the full example* "here"
+
+======================================================================
+
+See the example below for "nb_pages" tweak:
+
+   odt_bytes = FAKER.odt(nb_pages=100)
+
+*See the full example* "here"
+
+
+If you need files
+-----------------
+
+   odt_file = FAKER.odt_file()
+
+*See the full example* "here"
+
+======================================================================
+
+With "texts" tweak:
+
+   texts = FAKER.sentences()
+   odt_file = FAKER.odt_file(texts=texts)
+
+*See the full example* "here"
+
+======================================================================
+
+With "nb_pages" tweak:
+
+   odt_file = FAKER.odt_file(nb_pages=100)
+
+*See the full example* "here"
+
+======================================================================
+
+Using text templates:
+
+   from fake import FAKER, StringTemplate
+
+   template = """
+   {date(start_date='-7d')}
+   {name}
+   {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+   {randomise_string(value='#### ??', digits='123456789')} {city}
+
+   Dear friend,
+
+   {text(nb_chars=1000, allow_overflow=True)}
+
+   Sincerely yours,
+
+   {name}
+   {email}
+   {domain_name}
+   """
+   # ODT file of 1 page
+   odt_file_1 = FAKER.odt_file(
+       texts=[StringTemplate(template)],
+   )
+   # ODT file of 10 pages
+   odt_file_10 = FAKER.odt_file(
+       texts=[StringTemplate(template) for _ in range(10)],
+   )
+
+   # Tests
+   assert isinstance(odt_file_1, str)
+   assert odt_file_1.data["storage"].exists(odt_file_1)
+   assert isinstance(odt_file_10, str)
+   assert odt_file_10.data["storage"].exists(odt_file_10)
+
+======================================================================
+
+======================================================================
+
+
+Creating archives
+=================
+
+Creating archives for testing can be a challenging task. The goal of
+this library is to help you out with basic tasks. You can easily
+generate ZIP and TAR archives containing, for example, 100 files
+supported by this package. You can even generate EML files (which are
+considered archives here since they hold attachments).
+
+If you don't like the quality of the generated files and want to have
+more control over the content of the files, check the >>`faker-
+file`_<< package, which offers similar functionality but can produce
+complex archives with almost no limitation on their content.
+
+
+Supported archive formats
+-------------------------
+
+Currently, 3 formats are supported:
+
+* "ZIP"
+
+* "TAR"
+
+* "EML"
+
+
+ZIP
+---
+
+Creating a simple ZIP archive as bytes is as simple as follows:
+
+   from fake import FAKER
+
+   FAKER.zip()
+
+The generated ZIP archive will consist of a single "TXT" with little
+text.
+
+All customisation options are passed through the "options" optional
+argument, which is a (nested) dictionary with the following keys:
+
+* "count" ("int"):
+
+* "create_inner_file_func" ("callable"):
+
+* "create_inner_file_args" ("dict[str, Any]"):
+
+* "directory" ("str"):
+
+======================================================================
+
+To customise the number of files in the archive, use the "count" key
+of the "options" argument:
+
+   from fake import FAKER
+
+   FAKER.zip(options={"count": 5})
+
+This will create a "ZIP" archive with 5 "TXT" files.
+
+======================================================================
+
+To customise the type of files in the archive, use the
+"create_inner_file_func" key of the "options" argument:
+
+   from fake import FAKER, create_inner_docx_file
+
+   FAKER.zip(
+       options={
+           "create_inner_file_func": create_inner_docx_file,
+       }
+   )
+
+This will create a "ZIP" archive with a single "DOCX" file.
+
+======================================================================
+
+All arguments of the "create_inner_file_func" are passed in the
+"create_inner_file_args" argument:
+
+   from fake import FAKER, create_inner_docx_file
+
+   FAKER.zip(
+       options={
+           "create_inner_file_func": create_inner_docx_file,
+           "create_inner_file_args": {
+                "texts": ["There", "are", "no", "limits"],
+           }
+       }
+   )
+
+This will create a "ZIP" archive with single "DOCX" file of 4 pages,
+where each of the given words ("There", "are", "no", "limits") would
+occupy a single page.
+
+======================================================================
+
+There's no limit to the nesting depth:
+
+   from fake import (
+       FAKER,
+       create_inner_zip_file,
+       create_inner_docx_file,
+   )
+
+   FAKER.zip(
+       options={
+           "count": 3,
+           "create_inner_file_func": create_inner_zip_file,
+           "create_inner_file_args": {
+               "options": {
+                   "count": 5,
+                   "create_inner_file_func": create_inner_docx_file,
+                   "create_inner_file_args": {
+                      "nb_pages": 100,
+                   }
+               }
+           }
+       }
+   )
+
+This will create a nested "ZIP" archive with 3 "ZIP" archives in it,
+each having 5 "DOCX" files of 100 pages each.
+
+======================================================================
+
+If you need a consistent structure of mixed file types, you can use a
+list of functions as shown below:
+
+   from fake import (
+       FAKER,
+       create_inner_docx_file,
+       create_inner_txt_file,
+       list_create_inner_file,
+   )
+
+   FAKER.zip(
+       options={
+           "create_inner_file_func": list_create_inner_file,
+           "create_inner_file_args": {
+               "func_list": [
+                   (
+                       create_inner_docx_file,
+                       {"basename": "doc"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_metadata"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_isbn"},
+                   ),
+               ],
+           },
+       }
+   )
+
+This will create a "ZIP" archive with 1 "DOCX" file named *doc.docx*
+and 2 "TXT" files named *doc_metadata.txt* and *doc_isbn.txt*.
+
+======================================================================
+
+If you need a file on a disk, instead of bytes, use "FAKER.zip_file"
+instead.
+
+   from fake import FAKER
+
+   FAKER.zip_file()
+
+======================================================================
+
+All customisation options of "zip" are also applicable to "zip_file".
+
+   from fake import (
+       FAKER,
+       create_inner_docx_file,
+       create_inner_txt_file,
+       list_create_inner_file,
+   )
+
+   FAKER.zip_file(
+       options={
+           "create_inner_file_func": list_create_inner_file,
+           "create_inner_file_args": {
+               "func_list": [
+                   (
+                       create_inner_docx_file,
+                       {"basename": "doc"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_metadata"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_isbn"},
+                   ),
+               ],
+           },
+       }
+   )
+
+======================================================================
+
+
+TAR
+---
+
+Works very similarly to >>`ZIP`_<<. Use "FAKER.tar" and
+"FAKER.tar_file" instead of "FAKER.zip" and "FAKER.zip_file".
+
+
+EML
+---
+
+Works very similarly to >>`ZIP`_<<. Use "FAKER.eml" and
+"FAKER.eml_file" instead of "FAKER.zip" and "FAKER.zip_file".
+
+* "options": (Optional) options. Similar to "ZIP" options.
+
+* "content": (Optional) content of the email file.
+
+* "subject": (Optional) subject of the email file.
+
+Creating a simple EML archive as bytes is as simple as follows:
+
+   from fake import FAKER
+
+   FAKER.eml()
+
+======================================================================
+
+This will create an "EML" archive with 1 "DOCX" file named *doc.docx*
+and 2 "TXT" files named *doc_metadata.txt* and *doc_isbn.txt*.
+
+   from fake import (
+       FAKER,
+       create_inner_docx_file,
+       create_inner_txt_file,
+       list_create_inner_file,
+   )
+
+   FAKER.eml(
+       options={
+           "create_inner_file_func": list_create_inner_file,
+           "create_inner_file_args": {
+               "func_list": [
+                   (
+                       create_inner_docx_file,
+                       {"basename": "doc"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_metadata"},
+                   ),
+                   (
+                       create_inner_txt_file,
+                       {"basename": "doc_isbn"},
+                   ),
+               ],
+           },
+       }
+   )
+
+======================================================================
+
+Using text templates:
+
+   from fake import FAKER, StringTemplate
+
+   template = """
+   {date(start_date='-7d')}
+   {name}
+   {sentence(nb_words=2, suffix='')} {pyint(min_value=1, max_value=99)}
+   {randomise_string(value='#### ??', digits='123456789')} {city}
+
+   Dear friend,
+
+   {text(nb_chars=1000, allow_overflow=True)}
+
+   Sincerely yours,
+
+   {name}
+   {email}
+   {domain_name}
+   """
+   # EML file
+   eml_file = FAKER.eml_file(content=StringTemplate(template))
+
+======================================================================
+
+======================================================================
+
+
+Factories
+=========
+
+* "pre_init" is a method decorator that will always run before the
+  instance is initialised.
+
+* "pre_save" is a method decorator that will always run before the
+  instance is saved.
+
+* "post_save" is a method decorator that will always run after the
+  instance is saved.
+
+* "trait" decorator runs the code if set to True in factory
+  constructor.
+
+* "PreInit" is like the "pre_init" decorator of the "ModelFactory",
+  but you can pass arguments to it and have a lot of flexibility. See
+  a working example (below) of how set a user password in Django.
+
+* "PreSave" is like the "pre_save" decorator of the "ModelFactory",
+  but you can pass arguments to it and have a lot of flexibility. See
+  a working example (below) of how set a user password in Django.
+
+* "PostSave" is like the "post_save" decorator of the "ModelFactory",
+  but you can pass arguments to it and have a lot of flexibility. See
+  a working example (below) of how to assign a User to a Group after
+  User creation.
+
+* "LazyAttribute" expects a callable, will take the instance as a
+  first argument, runs it with extra arguments specified and sets the
+  value as an attribute name.
+
+* "LazyFunction" expects a callable, runs it (without any arguments)
+  and sets the value as an attribute name.
+
+* "SubFactory" is for specifying relations (typically - ForeignKeys or
+  nested objects).
+
+
+Django example
+--------------
+
+
+Models
+~~~~~~
+
+In the "Django" example, we will be using "User" and "Group" models
+from "django.contrib.auth" sub-package. The "Article" would be the
+only application specific custom model.
+
+*Filename: article/models.py*
+
+   from django.conf import settings
+   from django.db import models
+   from django.utils import timezone
+
+
+   class Article(models.Model):
+       title = models.CharField(max_length=255)
+       slug = models.SlugField(unique=True)
+       content = models.TextField()
+       headline = models.TextField()
+       category = models.CharField(max_length=255)
+       pages = models.IntegerField()
+       auto_minutes_to_read = models.IntegerField()
+       image = models.ImageField(null=True, blank=True)
+       pub_date = models.DateField(default=timezone.now)
+       safe_for_work = models.BooleanField(default=False)
+       minutes_to_read = models.IntegerField(default=5)
+       author = models.ForeignKey(
+           settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+       )
+       tags = models.JSONField(default=list)
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Factory for the Django's built-in "Group" model could look as simple
+as this:
+
+*Filename: article/factories.py*
+
+   from django.contrib.auth.models import (
+       Group,
+   )
+   from fake import (
+       FACTORY,
+       DjangoModelFactory,
+   )
+
+
+   class GroupFactory(DjangoModelFactory):
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+*See the full example* "here"
+
+======================================================================
+
+Factory for the Django's built-in "User" model could look as this:
+
+*Filename: article/factories.py*
+
+   from typing import Any, Dict
+
+   from django.contrib.auth.models import (
+       User,
+   )
+   from django.utils import timezone
+   from django.utils.text import slugify
+   from fake import (
+       FAKER,
+       PostSave,
+       PreInit,
+       PreSave,
+   )
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       group = GroupFactory(name=name)
+       user.groups.add(group)
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(DjangoModelFactory):
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+       last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+*See the full example* "here"
+
+Breakdown:
+
+* "username" is a required field. We shouldn't be using "PreSave" or
+  "PostSave" methods here, because we need it to be available and
+  resolved before calling the class constructor (missing required
+  fields would fail on Pydantic and other frameworks that enforce
+  strong type checking). That's why "PreInit", which operates on the
+  "dict" level, from which the model instance is constructed, is used
+  here to construct the "username" value from "first_name" and the
+  "last_name". The "set_username" helper function, which is used by
+  "PreInit", accepts a dictionary with model data as argument and all
+  changes to that dictionary are passed further to the class
+  constructor. It's important to mention that functions passed to the
+  "PreInit", do not have to return anything.
+
+* "password" is a non-required field and since Django provides a
+  built-in way to handle passwords, use of "PreSave" is the best
+  option here. It's important to mention that functions passed to the
+  "PreSave", do not have to return anything.
+
+* "group" is a non-required many-to-many relationship. We need a User
+  instance to be created before we can add User to a Group. That's why
+  "PostSave" is the best option here. It's important to mention that
+  functions passed to the "PostSave", do not have to return anything.
+
+======================================================================
+
+A factory for the "Article" model could look like this:
+
+*Filename: article/factories.py*
+
+   from django.conf import settings
+   from fake import (
+       FileSystemStorage,
+       SubFactory,
+       pre_init,
+   )
+
+   from article.models import Article
+
+   # For Django, all files shall be placed inside `MEDIA_ROOT` directory.
+   # That's why you need to apply this trick - define a
+   # custom `FileSystemStorage` class and pass it to the file factory as
+   # `storage` argument.
+   STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(DjangoModelFactory):
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+Breakdown:
+
+* "headline" is a required field that should be available and resolved
+  before the class constructor is called. We already know that
+  "PreInit" should be used for such cases. The "headline" value is
+  constructed from "content".
+
+* "author" is a foreign key relation field to the "User" model. For
+  foreign key relations "SubFactory" is our best choice.
+
+* "image" is a file field. Files created shall be placed in the path
+  specified in "MEDIA_ROOT" Django setting. That's why we create and
+  configure the "STORAGE" instance to pass it to "FACTORY.png_file" in
+  a "storage" argument.
+
+* "auto_minutes_to_read" is a required field of the "Article" model.
+  It needs to be resolved and available before the constructor class
+  is called. That's the "@pre_init" decorator is used on the
+  "set_auto_minutes_read" helper method.
+
+======================================================================
+
+All together it would look as follows:
+
+*Filename: article/factories.py*
+
+   from typing import Any, Dict
+
+   from django.conf import settings
+   from django.contrib.auth.models import (
+       Group,
+       User,
+   )
+   from django.utils import timezone
+   from django.utils.text import slugify
+   from fake import (
+       FACTORY,
+       FAKER,
+       DjangoModelFactory,
+       FileSystemStorage,
+       PostSave,
+       PreInit,
+       PreSave,
+       SubFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       trait,
+   )
+
+   from article.models import Article
+
+   # For Django, all files shall be placed inside `MEDIA_ROOT` directory.
+   # That's why you need to apply this trick - define a
+   # custom `FileSystemStorage` class and pass it to the file factory as
+   # `storage` argument.
+   STORAGE = FileSystemStorage(root_path=settings.MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   class GroupFactory(DjangoModelFactory):
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       group = GroupFactory(name=name)
+       user.groups.add(group)
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(DjangoModelFactory):
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+       last_login = FACTORY.date_time(tzinfo=timezone.get_current_timezone())
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(DjangoModelFactory):
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date(tzinfo=timezone.get_current_timezone())
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+======================================================================
+
+**Usage example**
+
+   # Create one article
+   article = ArticleFactory()
+
+   # Create 5 articles
+   articles = ArticleFactory.create_batch(5)
+
+   # Create one article with authors username set to admin.
+   article = ArticleFactory(author__username="admin")
+
+   # Using trait
+   user = UserFactory(is_admin_user=True)
+
+   # Using trait in SubFactory
+   article = ArticleFactory(author__is_admin_user=True)
+
+   # Create a user. Created user will automatically have his password
+   # set to "test1234" and will be added to the group "Test group".
+   user = UserFactory()
+
+   # Create a user with custom password
+   user = UserFactory(
+       password=PreSave(set_password, password="another-pass"),
+   )
+
+   # Add a user to another group
+   user = UserFactory(
+       group=PostSave(add_to_group, name="Another group"),
+   )
+
+   # Or even add user to multiple groups at once
+   user = UserFactory(
+       group_1=PostSave(add_to_group, name="Another group"),
+       group_2=PostSave(add_to_group, name="Yet another group"),
+   )
+
+======================================================================
+
+
+Pydantic example
+----------------
+
+
+Models
+~~~~~~
+
+Example Pydantic models closely resemble the earlier shown Django
+models.
+
+*Filename: article/models.py*
+
+   from datetime import date, datetime
+   from typing import List, Optional, Set
+
+   from fake import xor_transform
+   from pydantic import BaseModel, Field
+
+
+   class Group(BaseModel):
+       id: int
+       name: str
+
+       class Config:
+           allow_mutation = False
+
+       def __hash__(self):
+           return hash((self.id, self.name))
+
+
+   class User(BaseModel):
+       id: int
+       username: str = Field(max_length=255)
+       first_name: str = Field(max_length=255)
+       last_name: str = Field(max_length=255)
+       email: str = Field(max_length=255)
+       date_joined: datetime = Field(default_factory=datetime.utcnow)
+       last_login: Optional[datetime] = None
+       password: Optional[str] = Field("", max_length=255)
+       is_superuser: bool = Field(default=False)
+       is_staff: bool = Field(default=False)
+       is_active: bool = Field(default=True)
+       groups: Set[Group] = Field(default_factory=set)
+
+       class Config:
+           extra = "allow"  # For testing purposes only
+
+       def __str__(self):
+           return self.username
+
+       def set_password(self, password: str) -> None:
+           self.password = xor_transform(password)
+
+
+   class Article(BaseModel):
+       id: int
+       title: str = Field(max_length=255)
+       slug: str = Field(max_length=255, unique=True)
+       content: str
+       headline: str
+       category: str = Field(max_length=255)
+       pages: int
+       auto_minutes_to_read: int
+       author: User
+       image: Optional[str] = None  # Use str to represent the image path or URL
+       pub_date: date = Field(default_factory=date.today)
+       safe_for_work: bool = False
+       minutes_to_read: int = 5
+       tags: List[str] = Field(default_factory=list)
+
+       class Config:
+           extra = "allow"  # For testing purposes only
+
+       def __str__(self):
+           return self.title
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Example Pydantic factories are almost identical to the earlier shown
+Django factories.
+
+*Filename: article/factories.py*
+
+   from pathlib import Path
+   from typing import Any, Dict
+
+   from fake import (
+       FACTORY,
+       FAKER,
+       FileSystemStorage,
+       PostSave,
+       PreInit,
+       PreSave,
+       PydanticModelFactory,
+       SubFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       slugify,
+       trait,
+   )
+
+   from article.models import Article, Group, User
+
+   # Build paths inside the project like this: BASE_DIR / 'subdir'.
+   BASE_DIR = Path(__file__).resolve().parent.parent
+   MEDIA_ROOT = BASE_DIR / "media"
+
+   STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   class GroupFactory(PydanticModelFactory):
+       id = FACTORY.pyint()
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       group = GroupFactory(name=name)
+       user.groups.add(group)
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(PydanticModelFactory):
+       id = FACTORY.pyint()
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+
+   def set_headline(data) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(PydanticModelFactory):
+       id = FACTORY.pyint()
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date()
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+*Used just like in previous example.*
+
+======================================================================
+
+
+TortoiseORM example
+-------------------
+
+Note:
+
+  TortoiseORM introduces deadlocks from version to version. Currently,
+  last version that worked smoothly with factories of this package was
+  0.22.2. 0.22.x, 0.20.x and 0.21.x branches worked, while 0.23.x and
+  0.24.x fail.
+
+
+Models
+~~~~~~
+
+Example TortoiseORM models closely resemble the earlier shown Django
+models.
+
+*Filename: article/models.py*
+
+   from datetime import date
+
+   from fake import xor_transform
+   from tortoise import fields
+   from tortoise.models import Model
+
+
+   class Group(Model):
+       """Group model."""
+
+       id = fields.IntField(pk=True)
+       name = fields.CharField(max_length=255, unique=True)
+
+
+   class User(Model):
+       """User model."""
+
+       id = fields.IntField(pk=True)
+       username = fields.CharField(max_length=255, unique=True)
+       first_name = fields.CharField(max_length=255)
+       last_name = fields.CharField(max_length=255)
+       email = fields.CharField(max_length=255)
+       password = fields.CharField(max_length=255, null=True, blank=True)
+       last_login = fields.DatetimeField(null=True, blank=True)
+       is_superuser = fields.BooleanField(default=False)
+       is_staff = fields.BooleanField(default=False)
+       is_active = fields.BooleanField(default=True)
+       date_joined = fields.DatetimeField(null=True, blank=True)
+       groups = fields.ManyToManyField("models.Group", on_delete=fields.CASCADE)
+
+       def set_password(self, password: str) -> None:
+           self.password = xor_transform(password)
+
+
+   class Article(Model):
+       """Article model."""
+
+       id = fields.IntField(pk=True)
+       title = fields.CharField(max_length=255)
+       slug = fields.CharField(max_length=255, unique=True)
+       content = fields.TextField()
+       headline = fields.TextField()
+       category = fields.CharField(max_length=255)
+       pages = fields.IntField()
+       auto_minutes_to_read = fields.IntField()
+       image = fields.TextField(null=True, blank=True)
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Example TortoiseORM factories are almost identical to the earlier
+shown Django factories.
+
+*Filename: article/factories.py*
+
+   from pathlib import Path
+   from typing import Any, Dict
+
+   from fake import (
+       FACTORY,
+       FAKER,
+       FileSystemStorage,
+       PostSave,
+       PreInit,
+       PreSave,
+       SubFactory,
+       TortoiseModelFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       run_async_in_thread,
+       slugify,
+       trait,
+   )
+
+   from article.models import Article, Group, User
+
+   # Build paths inside the project like this: BASE_DIR / 'subdir'.
+   BASE_DIR = Path(__file__).resolve().parent.parent
+   MEDIA_ROOT = BASE_DIR / "media"
+
+   STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   class GroupFactory(TortoiseModelFactory):
+       """Group factory."""
+
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       group = GroupFactory(name=name)
+
+       async def _add_to_group():
+           await user.groups.add(group)
+           await user.save()
+
+       run_async_in_thread(_add_to_group())
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(TortoiseModelFactory):
+       """User factory."""
+
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(TortoiseModelFactory):
+       """Article factory."""
+
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date()
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+*Used just like in previous example.*
+
+======================================================================
+
+
+Dataclasses example
+-------------------
+
+
+Models
+~~~~~~
+
+Example dataclass models closely resemble the earlier shown Django
+models.
+
+*Filename: article/models.py*
+
+   from dataclasses import dataclass, field
+   from datetime import date, datetime
+   from typing import List, Optional, Set
+
+   from fake import xor_transform
+
+
+   @dataclass(frozen=True)
+   class Group:
+       id: int
+       name: str
+
+
+   @dataclass
+   class User:
+       id: int
+       username: str
+       first_name: str
+       last_name: str
+       email: str
+       date_joined: datetime = field(default_factory=datetime.utcnow)
+       last_login: Optional[datetime] = None
+       password: Optional[str] = None
+       is_superuser: bool = False
+       is_staff: bool = False
+       is_active: bool = True
+       groups: Set[Group] = field(default_factory=set)
+
+       def __str__(self):
+           return self.username
+
+       def set_password(self, password: str) -> None:
+           self.password = xor_transform(password)
+
+
+   @dataclass
+   class Article:
+       id: int
+       title: str
+       slug: str
+       content: str
+       headline: str
+       category: str
+       pages: int
+       auto_minutes_to_read: int
+       author: User
+       image: Optional[str] = None  # Use str to represent the image path or URL
+       pub_date: date = field(default_factory=date.today)
+       safe_for_work: bool = False
+       minutes_to_read: int = 5
+       tags: List[str] = field(default_factory=list)
+
+       def __str__(self):
+           return self.title
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Example dataclass factories are almost identical to the earlier shown
+Django factories.
+
+*Filename: article/factories.py*
+
+   from pathlib import Path
+   from typing import Any, Dict
+
+   from fake import (
+       FACTORY,
+       FAKER,
+       FileSystemStorage,
+       ModelFactory,
+       PostSave,
+       PreInit,
+       PreSave,
+       SubFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       slugify,
+       trait,
+   )
+
+   from article.models import Article, Group, User
+
+   # Build paths inside the project like this: BASE_DIR / 'subdir'.
+   BASE_DIR = Path(__file__).resolve().parent.parent
+   MEDIA_ROOT = BASE_DIR / "media"
+
+   STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   class GroupFactory(ModelFactory):
+       id = FACTORY.pyint()
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       group = GroupFactory(name=name)
+       user.groups.add(group)
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(ModelFactory):
+       id = FACTORY.pyint()
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(ModelFactory):
+       id = FACTORY.pyint()
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date()
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+*Used just like in previous example.*
+
+======================================================================
+
+
+SQLAlchemy example
+------------------
+
+
+Configuration
+~~~~~~~~~~~~~
+
+*Filename: config.py*
+
+   from sqlalchemy import create_engine
+   from sqlalchemy.orm import scoped_session, sessionmaker
+
+   # SQLAlchemy
+   DATABASE_URL = "sqlite:///test_database.db"
+   ENGINE = create_engine(DATABASE_URL)
+   SESSION = scoped_session(sessionmaker(bind=ENGINE))
+
+*See the full example* "here"
+
+======================================================================
+
+
+Models
+~~~~~~
+
+Example SQLAlchemy models closely resemble the earlier shown Django
+models.
+
+*Filename: article/models.py*
+
+   from datetime import datetime
+
+   from fake import xor_transform
+   from sqlalchemy import (
+       JSON,
+       Boolean,
+       Column,
+       DateTime,
+       ForeignKey,
+       Integer,
+       String,
+       Table,
+       Text,
+   )
+   from sqlalchemy.ext.declarative import declarative_base
+   from sqlalchemy.orm import relationship
+
+
+   Base = declarative_base()
+
+
+   # Association table for the many-to-many relationship
+   user_group_association = Table(
+       "user_group",
+       Base.metadata,
+       Column("user_id", Integer, ForeignKey("users.id")),
+       Column("group_id", Integer, ForeignKey("groups.id")),
+   )
+
+
+   class Group(Base):
+       """Group model."""
+
+       __tablename__ = "groups"
+
+       id = Column(Integer, primary_key=True)
+       name = Column(String(255), unique=True)
+
+
+   class User(Base):
+       """User model."""
+
+       __tablename__ = "users"
+
+       id = Column(Integer, primary_key=True)
+       username = Column(String(255), unique=True)
+       first_name = Column(String(255))
+       last_name = Column(String(255))
+       email = Column(String(255))
+       date_joined = Column(DateTime, default=datetime.utcnow)
+       last_login = Column(DateTime, nullable=True)
+       password = Column(String(255), nullable=True)
+       is_superuser = Column(Boolean, default=False)
+       is_staff = Column(Boolean, default=False)
+       is_active = Column(Boolean, default=True)
+
+       # Many-to-many relationship
+       groups = relationship(
+           "Group", secondary=user_group_association, backref="users"
+       )
+
+       # One-to-many relationship
+       articles = relationship("Article", back_populates="author")
+
+       def set_password(self, password: str) -> None:
+           self.password = xor_transform(password)
+
+
+   class Article(Base):
+       """Article model."""
+
+       __tablename__ = "articles"
+
+       id = Column(Integer, primary_key=True)
+       title = Column(String(255))
+       slug = Column(String(255), unique=True)
+       content = Column(Text)
+       headline = Column(Text)
+       category = Column(String(255))
+       pages = Column(Integer)
+       auto_minutes_to_read = Column(Integer)
+       image = Column(Text, nullable=True)
+       pub_date = Column(DateTime, default=datetime.utcnow)
+       safe_for_work = Column(Boolean, default=False)
+       minutes_to_read = Column(Integer, default=5)
+       author_id = Column(Integer, ForeignKey("users.id"))
+       tags = Column(JSON, default=list)
+
+       # Relationships
+       author = relationship("User", back_populates="articles")
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Example SQLAlchemy factories are almost identical to the earlier shown
+Django factories.
+
+*Filename: article/factories.py*
+
+   from pathlib import Path
+   from typing import Any, Dict
+
+   from fake import (
+       FACTORY,
+       FAKER,
+       FileSystemStorage,
+       PostSave,
+       PreInit,
+       PreSave,
+       SQLAlchemyModelFactory,
+       SubFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       slugify,
+       trait,
+   )
+
+   from article.models import Article, Group, User
+   from config import SESSION
+
+   # Storage config. Build paths inside the project like this: BASE_DIR / 'subdir'
+   BASE_DIR = Path(__file__).resolve().parent.parent
+   MEDIA_ROOT = BASE_DIR / "media"
+   STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   def get_session():
+       return SESSION()
+
+
+   class GroupFactory(SQLAlchemyModelFactory):
+       """User factory."""
+
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       session = get_session()
+       # Check if the group already exists
+       group = session.query(Group).filter_by(name=name).first()
+
+       # If the group doesn't exist, create a new one
+       if not group:
+           group = Group(name=name)
+           session.add(group)
+           session.commit()  # Commit to assign an ID to the new group
+
+       # Add the group to the user's groups using append
+       if group not in user.groups:
+           user.groups.append(group)
+           session.commit()  # Commit the changes
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(SQLAlchemyModelFactory):
+       """User factory."""
+
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(SQLAlchemyModelFactory):
+       """Article factory."""
+
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date()
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+*See the full example* "here"
+
+*Used just like in previous example.*
+
+======================================================================
+
+
+SQLModel example
+----------------
+
+
+Configuration
+~~~~~~~~~~~~~
+
+*Filename: config.py*
+
+   from sqlalchemy.orm import scoped_session, sessionmaker
+   from sqlmodel import SQLModel, create_engine
+
+   # SQLAlchemy
+   DATABASE_URL = "sqlite:///test_database.db"
+   ENGINE = create_engine(DATABASE_URL)
+   SESSION = scoped_session(sessionmaker(bind=ENGINE))
+
+
+   def create_tables():
+       """Create tables."""
+       SQLModel.metadata.create_all(ENGINE)
+
+
+   def get_db():
+       """Get database connection."""
+       session = SESSION()
+       try:
+           yield session
+           session.commit()
+       finally:
+           session.close()
+
+
+   if __name__ == "__main__":
+       create_tables()
+
+*See the full example* "here"
+
+======================================================================
+
+
+Models
+~~~~~~
+
+Example SQLModel models closely resemble the earlier shown Django
+models.
+
+*Filename: article/models.py*
+
+   from datetime import datetime
+   from typing import List, Optional
+
+   from fake import xor_transform
+   from sqlmodel import JSON, Column, Field, Relationship, SQLModel
+
+
+   class UserGroup(SQLModel, table=True):
+       user_id: Optional[int] = Field(
+           default=None,
+           foreign_key="user.id",
+           primary_key=True,
+       )
+       group_id: Optional[int] = Field(
+           default=None,
+           foreign_key="group.id",
+           primary_key=True,
+       )
+
+
+   class Group(SQLModel, table=True):
+       id: Optional[int] = Field(default=None, primary_key=True)
+       name: str = Field(sa_column_kwargs={"unique": True})
+       users: List["User"] = Relationship(
+           back_populates="groups",
+           link_model=UserGroup,
+       )
+
+       def __repr__(self):
+           return f"<Group(group='{self.name}')>"
+
+
+   class User(SQLModel, table=True):
+       id: Optional[int] = Field(default=None, primary_key=True)
+       username: str = Field(sa_column_kwargs={"unique": True})
+       first_name: str
+       last_name: str
+       email: str
+       date_joined: datetime = Field(default_factory=datetime.utcnow)
+       last_login: Optional[datetime]
+       password: str
+       is_superuser: bool = Field(default=False)
+       is_staff: bool = Field(default=False)
+       is_active: bool = Field(default=True)
+       groups: List[Group] = Relationship(
+           back_populates="users",
+           link_model=UserGroup,
+       )
+       articles: List["Article"] = Relationship(back_populates="author")
+
+       def __repr__(self):
+           return f"<User(username='{self.username}', email='{self.email}')>"
+
+       def set_password(self, password: str) -> None:
+           self.password = xor_transform(password)
+
+
+   class Article(SQLModel, table=True):
+       id: Optional[int] = Field(default=None, primary_key=True)
+       title: str
+       slug: str = Field(sa_column_kwargs={"unique": True})
+       content: str
+       headline: str
+       category: str
+       pages: int
+       auto_minutes_to_read: int
+       image: Optional[str]
+       pub_date: datetime = Field(default_factory=datetime.utcnow)
+       safe_for_work: bool = Field(default=False)
+       minutes_to_read: int = Field(default=5)
+       author_id: int = Field(foreign_key="user.id")
+       tags: Optional[List[str]] = Field(
+           default_factory=list,
+           sa_column=Column(JSON),
+       )
+       author: User = Relationship(back_populates="articles")
+
+       # Needed for Column(JSON)
+       class Config:
+           arbitrary_types_allowed = True
+
+       def __repr__(self):
+           return (
+               f"<Article(title='{self.title}', author='{self.author.username}')>"
+           )
+
+*See the full example* "here"
+
+======================================================================
+
+
+Factories
+~~~~~~~~~
+
+Example SQLModel factories are identical to the earlier shown
+SQLAlchemy factories.
+
+*Filename: article/factories.py*
+
+   from pathlib import Path
+   from typing import Any, Dict
+
+   from fake import (
+       FACTORY,
+       FAKER,
+       FileSystemStorage,
+       PostSave,
+       PreInit,
+       PreSave,
+       SQLAlchemyModelFactory,
+       SubFactory,
+       post_save,
+       pre_init,
+       pre_save,
+       slugify,
+       trait,
+   )
+
+   from article.models import Article, Group, User
+   from config import SESSION
+
+   # Storage config. Build paths inside the project like this: BASE_DIR / 'subdir'
+   BASE_DIR = Path(__file__).resolve().parent.parent
+   MEDIA_ROOT = BASE_DIR / "media"
+   STORAGE = FileSystemStorage(root_path=MEDIA_ROOT, rel_path="tmp")
+
+   CATEGORIES = (
+       "art",
+       "technology",
+       "literature",
+   )
+   TAGS = (
+       "painting",
+       "photography",
+       "ai",
+       "data-engineering",
+       "fiction",
+       "poetry",
+       "manual",
+   )
+
+
+   def get_session():
+       return SESSION()
+
+
+   class GroupFactory(SQLAlchemyModelFactory):
+       """User factory."""
+
+       name = FACTORY.word()
+
+       class Meta:
+           model = Group
+           get_or_create = ("name",)
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+
+   def set_password(user: User, password: str) -> None:
+       user.set_password(password)
+
+
+   def add_to_group(user: User, name: str) -> None:
+       session = get_session()
+       # Check if the group already exists
+       group = session.query(Group).filter_by(name=name).first()
+
+       # If the group doesn't exist, create a new one
+       if not group:
+           group = Group(name=name)
+           session.add(group)
+           session.commit()  # Commit to assign an ID to the new group
+
+       # Add the group to the user's groups using append
+       if group not in user.groups:
+           user.groups.append(group)
+           session.commit()  # Commit the changes
+
+
+   def set_username(data: Dict[str, Any]) -> None:
+       first_name = slugify(data["first_name"])
+       last_name = slugify(data["last_name"])
+       data["username"] = f"{first_name}_{last_name}_{FAKER.pystr().lower()}"
+
+
+   class UserFactory(SQLAlchemyModelFactory):
+       """User factory."""
+
+       username = PreInit(set_username)
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       date_joined = FACTORY.date_time()
+       last_login = FACTORY.date_time()
+       is_superuser = False
+       is_staff = False
+       is_active = FACTORY.pybool()
+       password = PreSave(set_password, password="test1234")
+       group = PostSave(add_to_group, name="TestGroup1234")
+
+       class Meta:
+           model = User
+           get_or_create = ("username",)
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+       @trait
+       def is_admin_user(self, instance: User) -> None:
+           instance.is_superuser = True
+           instance.is_staff = True
+           instance.is_active = True
+
+       @pre_save
+       def _pre_save_method(self, instance):
+           # For testing purposes only
+           instance._pre_save_called = True
+
+       @post_save
+       def _post_save_method(self, instance):
+           # For testing purposes only
+           instance._post_save_called = True
+
+
+   def set_headline(data: Dict[str, Any]) -> None:
+       data["headline"] = data["content"][:25]
+
+
+   class ArticleFactory(SQLAlchemyModelFactory):
+       """Article factory."""
+
+       title = FACTORY.sentence()
+       slug = FACTORY.slug()
+       content = FACTORY.text()
+       headline = PreInit(set_headline)
+       category = FACTORY.random_choice(elements=CATEGORIES)
+       pages = FACTORY.pyint(min_value=1, max_value=100)
+       image = FACTORY.png_file(storage=STORAGE)
+       pub_date = FACTORY.date()
+       safe_for_work = FACTORY.pybool()
+       minutes_to_read = FACTORY.pyint(min_value=1, max_value=10)
+       author = SubFactory(UserFactory)
+       tags = FACTORY.random_sample(elements=TAGS, length=3)
+
+       class Meta:
+           model = Article
+
+       class MetaSQLAlchemy:
+           get_session = get_session
+
+       @pre_init
+       def set_auto_minutes_to_read(self, data: Dict[str, Any]) -> None:
+           data["auto_minutes_to_read"] = data["pages"]
+
+       @pre_save
+       def _pre_save_method(self, instance):
+           # For testing purposes only
+           instance._pre_save_called = True
+
+       @post_save
+       def _post_save_method(self, instance):
+           # For testing purposes only
+           instance._post_save_called = True
+
+*See the full example* "here"
+
+*Used just like in previous example.*
+
+======================================================================
+
+======================================================================
+
+
+Customisation
+=============
+
+* The "fake.FAKER" is an instance of the "fake.Faker" class.
+
+* The "fake.FACTORY" is an instance of the "fake.Factory" class,
+  initialised with the "fake.FAKER" instance.
+
+The "Faker" class is easy to customise. See the following example:
+
+*Filename: custom_fake.py*
+
+   import random
+   import string
+
+   from fake import Faker, Factory, provider
+
+
+   # Custom first names dictionary
+   FIRST_NAMES = [
+       "Anahit",
+       "Ani",
+       "Aram",
+       "Areg",
+       "Artur",
+       "Astghik",
+       "Atom",
+       "Barsegh",
+       "Gaiane",
+       "Gor",
+       "Hakob",
+       "Hasmik",
+       "Levon",
+       "Lilit",
+       "Mariam",
+       "Nare",
+       "Narek",
+       "Nune",
+       "Raffi",
+       "Shant",
+       "Tatev",
+       "Tigran",
+       "Vahan",
+       "Vardan",
+   ]
+
+   # Custom last names dictionary
+   LAST_NAMES = [
+       "Amatouni",
+       "Avagyan",
+       "Danielyan",
+       "Egoyan",
+       "Gevorgyan",
+       "Gnouni",
+       "Grigoryan",
+       "Hakobyan",
+       "Harutyunyan",
+       "Hovhannisyan",
+       "Karapetyan",
+       "Khachatryan",
+       "Manukyan",
+       "Melikyan",
+       "Mkrtchyan",
+       "Petrosyan",
+       "Sahakyants",
+       "Sargsyan",
+       "Saroyan",
+       "Sedrakyan",
+       "Simonyan",
+       "Stepanyan",
+       "Ter-Martirosyan",
+       "Vardanyan",
+   ]
+
+   # Custom words dictionary
+   WORDS = [
+       "time", "person", "year", "way", "day", "thing", "man", "world",
+       "life", "hand", "part", "child", "eye", "woman", "place", "work",
+       "week", "case", "point", "government", "company", "number", "group",
+       "problem", "fact", "be", "have", "do", "say", "get", "make", "go",
+       "know", "take", "see", "come", "think", "look", "want", "give",
+       "use", "find", "tell", "ask", "work", "seem", "feel", "try", "leave",
+       "call", "good", "new", "first", "last", "long", "great", "little",
+       "own", "other", "old", "right", "big", "high", "different", "small",
+       "large", "next", "early", "young", "important", "few", "public",
+       "bad", "same", "able", "to", "of", "in", "for", "on", "with", "as",
+       "at", "by", "from", "up", "about", "into", "over", "after",
+       "beneath", "under", "above", "the", "and", "a", "that", "I", "it",
+       "not",
+   ]
+
+   STREET_NAMES = [
+       "Bosweg",
+       "Groningerweg",
+       "Jasmijnstraat",
+       "Noordstraat",
+       "Ooststraat",
+       "Oranjestraat",
+       "Prinsengracht",
+       "Ringweg",
+       "Weststraat",
+       "Zonnelaan",
+       "Zuidstraat",
+   ]
+
+   CITIES = [
+       "Amsterdam",
+       "Delft",
+       "Den Haag",
+       "Groningen",
+       "Leiden",
+       "Nijmegen",
+   ]
+
+   REGIONS = [
+       "Friesland",
+       "Groningen",
+       "Limburg",
+       "Utrecht",
+   ]
+
+
+   class CustomFaker(Faker):
+       """Custom Faker class."""
+
+       def load_names(self) -> None:
+           """Override default first- and last-names dictionaries."""
+           self._first_names = FIRST_NAMES
+           self._last_names = LAST_NAMES
+
+       def load_words(self) -> None:
+           """Override default words dictionary."""
+           self._words = WORDS
+
+       @provider
+       def address_line(self) -> str:
+           """Generate a random Dutch address line like 'Oranjestraat 1'.
+
+           :return: A randomly generated Dutch address line as a string.
+           """
+           # Generate components of the address
+           street = random.choice(STREET_NAMES)
+           house_number = random.randint(1, 200)
+           suffixes = [""] * 10 + ["A", "B", "C"]  # Optional suffixes
+           suffix = random.choice(suffixes)
+
+           # Combine components into a Dutch address format
+           return f"{street} {house_number}{suffix}"
+
+       @provider
+       def city(self) -> str:
+           return random.choice(CITIES)
+
+       @provider
+       def region(self) -> str:
+           return random.choice(REGIONS)
+
+       @provider
+       def postal_code(self) -> str:
+           """Generate a random Dutch postal code in the format '1234 AB'.
+
+           :return: A randomly generated Dutch postal code as a string.
+           """
+           number_part = "".join(random.choices(string.digits, k=4))
+           letter_part = "".join(random.choices(string.ascii_uppercase, k=2))
+           return f"{number_part} {letter_part}"
+
+
+   FAKER = CustomFaker()
+   FACTORY = Factory(FAKER)
+
+The "postal_code" is the provider method and shall be decorated with
+"@provider" decorator.
+
+You can now use both "FAKER" and "FACTORY" as you would normally do.
+
+======================================================================
+
+*Filename: models.py*
+
+   from dataclasses import dataclass
+   from datetime import date
+
+
+   @dataclass
+   class Address:
+       id: int
+       address_line: str
+       postal_code: str
+       city: str
+       region: str
+
+       def __str__(self) -> str:
+           return self.address_line
+
+
+   @dataclass
+   class Person:
+       id: int
+       first_name: str
+       last_name: str
+       email: str
+       dob: date
+       address: Address
+
+       def __str__(self) -> str:
+           return self.username
+
+======================================================================
+
+*Filename: factories.py*
+
+   from fake import ModelFactory, SubFactory, post_save, pre_save
+
+   # Import defined ORM models and customised FACTORY instance:
+   # from models import Address, Person
+   # from custom_fake import FACTORY
+
+
+   class AddressFactory(ModelFactory):
+       id = FACTORY.pyint()
+       address_line = FACTORY.address_line()
+       postal_code = FACTORY.postal_code()
+       city = FACTORY.city()
+       region = FACTORY.region()
+
+       class Meta:
+           model = Address
+
+
+   class PersonFactory(ModelFactory):
+       id = FACTORY.pyint()
+       first_name = FACTORY.first_name()
+       last_name = FACTORY.last_name()
+       email = FACTORY.email()
+       dob = FACTORY.date()
+       address = SubFactory(AddressFactory)
+
+       class Meta:
+           model = Person
+
+======================================================================
+
+And this is how you could use it:
+
+   address = AddressFactory()
+   assert isinstance(address, Address)
+   assert address.city in CITIES
+   assert address.region in REGIONS
+
+   person = PersonFactory()
+   assert isinstance(person, Person)
+   assert person.first_name in FIRST_NAMES
+   assert person.last_name in LAST_NAMES
+
+======================================================================
+
+======================================================================
+
+
+CLI
+===
+
+All current providers are supported through the CLI.
+
+The CLI entry point is the "fake-py" command.
+
+======================================================================
+
+
+Help
+----
+
+
+All commands overview
+~~~~~~~~~~~~~~~~~~~~~
+
+*Command*
+
+   fake-py --help
+
+*Output*
+
+   usage: fake-py [-h]
+                  {bmp,bmp_file,company_email,date,date_time,docx,docx_file,
+                   domain_name,email,file_name,first_name,first_names,
+                   free_email,free_email_domain,generic_file,gif,gif_file,
+                   image,image_url,ipv4,last_name,last_names,name,names,
+                   paragraph,paragraphs,pdf,pdf_file,png,png_file,pybool,
+                   pydecimal,pyfloat,pyint,pystr,random_choice,random_sample,
+                   sentence,sentences,slug,slugs,svg,svg_file,text,text_pdf,
+                   text_pdf_file,texts,tld,txt_file,url,username,usernames,
+                   uuid,uuids,word,words}
+                  ...
+
+   CLI for fake.py
+
+   positional arguments:
+     {bmp,bmp_file,company_email,date,date_time,docx,docx_file,domain_name,
+      email,file_name,first_name,first_names,free_email,free_email_domain,
+      generic_file,gif,gif_file,image,image_url,ipv4,last_name,last_names,
+      name,names,paragraph,paragraphs,pdf,pdf_file,png,png_file,pybool,
+      pydecimal,pyfloat,pyint,pystr,random_choice,random_sample,sentence,
+      sentences,slug,slugs,svg,svg_file,text,text_pdf,text_pdf_file,texts,
+      tld,txt_file,url,username,usernames,uuid,uuids,word,words}
+                           Available commands
+       bmp                 Create a BMP image of a specified size and colour.
+       bmp_file            Create a BMP image file of a specified size and
+                           colour.
+       company_email       Generate a random company email.
+       date                Generate random date between `start_date`
+                           and `end_date`.
+       date_time           Generate a random datetime between `start_date`
+                           and `end_date`.
+       docx                Create a DOCX document.
+       docx_file           Create a DOCX document file.
+       domain_name         Generate a random domain name.
+       email               Generate a random email.
+       file_name           Generate a random filename.
+       first_name          Generate a first name.
+       first_names         Generate a list of first names.
+       free_email          Generate a random free email.
+       free_email_domain   Generate a random free email domain.
+       generic_file        Create a generic file.
+       gif                 Create a GIF image of a specified size and colour.
+       gif_file            Create a GIF image file of a specified size and
+                           colour.
+       image               Create an image of a specified format, size and
+                           colour.
+       image_url           Generate a random image URL.
+       ipv4                Generate a random IP v4.
+       last_name           Generate a last name.
+       last_names          Generate a list of last names.
+       name                Generate a name.
+       names               Generate a list of names.
+       paragraph           Generate a paragraph.
+       paragraphs          Generate a list of paragraphs.
+       pdf                 Create a PDF document of a given size.
+       pdf_file            Create a PDF file.
+       png                 Create a PNG image of a specified size and colour.
+       png_file            Create a PNG image file of a specified size and
+                           colour.
+       pybool              Generate a random boolean.
+       pydecimal           Generate a random Decimal number.
+       pyfloat             Generate a random float number.
+       pyint               Generate a random integer.
+       pystr               Generate a random string.
+       random_choice
+       random_sample
+       sentence            Generate a sentence.
+       sentences           Generate a list of sentences.
+       slug                Generate a slug.
+       slugs               Generate a list of slugs.
+       svg                 Create an SVG image of a specified size and colour.
+       svg_file            Create an SVG image file of a specified size and
+                           colour.
+       text                Generate a text.
+       text_pdf            Create a PDF document of a given size.
+       text_pdf_file       Create a text PDF file.
+       texts               Generate a list of texts.
+       tld                 Generate a random TLD.
+       txt_file            Create a text document file.
+       url                 Generate a random URL.
+       username            Generate a username.
+       usernames           Generate a list of usernames.
+       uuid                Generate a UUID.
+       uuids               Generate a list of UUIDs.
+       word                Generate a word.
+       words               Generate a list of words.
+
+   options:
+     -h, --help            show this help message and exit
+
+======================================================================
+
+
+Specific command help
+~~~~~~~~~~~~~~~~~~~~~
+
+Each command has help too.
+
+*Command*
+
+   fake-py url --help
+
+*Output*
+
+   usage: fake-py url [-h] [--protocols PROTOCOLS] [--tlds TLDS] [--suffixes SUFFIXES]
+
+   options:
+     -h, --help            show this help message and exit
+     --protocols PROTOCOLS
+                           protocols (type: Optional[tuple[str, ...]])
+     --tlds TLDS           tlds (type: Optional[tuple[str, ...]])
+     --suffixes SUFFIXES   suffixes (type: Optional[tuple[str, ...]])
+
+======================================================================
+
+
+Common commands
+---------------
+
+
+company_email
+~~~~~~~~~~~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py company_email
+
+*Output*
+
+   michaelfrechet@right.com
+
+**With customisations**
+
+*Command*
+
+   fake-py company_email --domain_names="github.com,microsoft.com"
+
+*Output*
+
+   barrybaxter@github.com
+
+======================================================================
+
+
+date
+~~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py date
+
+*Output*
+
+   2024-06-21
+
+======================================================================
+
+**With customisations**
+
+*Command*
+
+   fake-py date --start_date="-7d" --end_date="7d"
+
+*Output*
+
+   2024-07-04
+
+======================================================================
+
+
+docx_file
+~~~~~~~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py docx_file
+
+*Output*
+
+   tmp/tmp_0tnpurz.docx
+
+======================================================================
+
+**With customisations**
+
+*Command*
+
+   fake-py docx_file --nb_pages=100 --basename="my_docx_file"
+
+*Output*
+
+   tmp/my_docx_file.docx
+
+======================================================================
+
+
+email
+~~~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py email
+
+*Output*
+
+   bad@not.org
+
+**With customisations**
+
+*Command*
+
+   fake-py email --domain_names="github.com,microsoft.com"
+
+*Output*
+
+   guess@github.com
+
+======================================================================
+
+
+url
+~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py url
+
+*Output*
+
+   http://one.com/lets.php
+
+======================================================================
+
+**With customisations**
+
+*Command*
+
+   fake-py url --tlds="am,nl,ie"
+
+*Output*
+
+   https://readability.ie/face.go
+
+======================================================================
+
+
+slug
+~~~~
+
+*Command*
+
+   fake-py slug
+
+*Output*
+
+   unless-ambiguity-to-taaxihkoywxbolrienhq
+
+======================================================================
+
+
+text
+~~~~
+
+**With defaults**
+
+*Command*
+
+   fake-py text
+
+*Output*
+
+   Should sparse and of idea. Is is is it than. Idea should is should
+   explicitly. Are often practicality refuse than. Of the of in do.
+   Is errors namespaces the better. Never to is do idea. The complicate.
+
+======================================================================
+
+**With customisations**
+
+*Command*
+
+   fake-py text --nb_chars=75
+
+*Output*
+
+   Complicated is than explain right. Be silently better idea hard. Break than
+
+======================================================================
+
+
+username
+~~~~~~~~
+
+*Command*
+
+   fake-py username
+
+*Output*
+
+   better_if_great_ldffdumuptmqtzssjbgv
+
+======================================================================
+
+
+Customisation
+-------------
+
+By default, only standard (built-in) providers are available through
+CLI.
+
+However, you can easily expose your custom providers via the CLI as
+well. See the implementation below as an example.
+
+*Filename: data.py*
+
+   STREET_NAMES = [
+       "Oranjestraat",
+       "Groningerweg",
+       "Kamperfoeliestraat",
+       "Larixlaan",
+   ]
+
+   CITIES = [
+       "Amsterdam",
+       "Rotterdam",
+       "Den Haag",
+       "Capelle aan den IJssel",
+       "Assen",
+   ]
+
+   REGIONS = [
+       "Drenthe",
+       "Flevoland",
+       "Zeeland",
+       "Zuid-Holland",
+   ]
+
+*Filename: fake_address.py*
+
+   import random
+   import string
+
+   from fake import Factory, Faker, provider
+
+   from data import CITIES, REGIONS, STREET_NAMES
+
+
+   class FakerAddress(Faker):
+       """Custom Faker class for addresses."""
+
+       @provider
+       def address_line(self) -> str:
+           """Generate a random Dutch address line like 'Oranjestraat 1'.
+
+           :return: A randomly generated Dutch address line as a string.
+           :rtype: str
+           """
+           # Generate components of the address
+           street = random.choice(STREET_NAMES)
+           house_number = random.randint(1, 200)
+           suffixes = [""] * 10 + ["A", "B", "C"]  # Optional suffixes
+           suffix = random.choice(suffixes)
+
+           # Combine components into a Dutch address format
+           return f"{street} {house_number}{suffix}"
+
+       @provider
+       def city(self) -> str:
+           return random.choice(CITIES)
+
+       @provider
+       def region(self) -> str:
+           return random.choice(REGIONS)
+
+       @provider
+       def postal_code(self) -> str:
+           """Generate a random Dutch postal code in the format '1234 AB'.
+
+           :return: A randomly generated Dutch postal code as a string.
+           :rtype: str
+           """
+           number_part = "".join(random.choices(string.digits, k=4))
+           letter_part = "".join(random.choices(string.ascii_uppercase, k=2))
+           return f"{number_part} {letter_part}"
+
+
+   FAKER = FakerAddress(alias="address")
+   FACTORY = Factory(FAKER)
+
+*Filename: address_cli.py*
+
+   from fake import CLI
+
+   from fake_address import FAKER
+
+
+   def main():
+       cli = CLI(faker=FAKER)
+       cli.execute_command()
+
+
+   if __name__ == "__main__":
+       main()
+
+After that, you can use it as follows:
+
+   python address_cli.py --help
+
+======================================================================
+
+======================================================================
+
+
+Security Policy
+===============
+
+
+Reporting a Vulnerability
+-------------------------
+
+**Do not report security issues on GitHub!**
+
+Please report security issues by emailing Artur Barseghyan
+<artur.barseghyan@gmail.com>.
+
+
+Supported Versions
+------------------
+
+The two most recent "fake.py" minor release series receive security
+support. It is recommended to use the latest version.
+
+   ┌─────────────────┬────────────────┐
+   │ Version         │ Supported      │
+   ├─────────────────┼────────────────┤
+   │ 0.11.x          │ Yes            │
+   ├─────────────────┼────────────────┤
+   │ 0.10.x          │ Yes            │
+   ├─────────────────┼────────────────┤
+   │ < 0.10          │ No             │
+   └─────────────────┴────────────────┘
+
+Note:
+
+  For example, during the development cycle leading to the release of
+  "fake.py" 0.17.x, support will be provided for "fake.py" 0.16.x.Upon
+  the release of "fake.py" 0.18.x, security support for "fake.py"
+  0.16.x will end.
+
+======================================================================
+
+
+Contributor guidelines
+======================
+
+
+Developer prerequisites
+-----------------------
+
+
+pre-commit
+~~~~~~~~~~
+
+Refer to pre-commit for installation instructions.
+
+TL;DR:
+
+   curl -LsSf https://astral.sh/uv/install.sh | sh  # Install uv
+   uv tool install pre-commit  # Install pre-commit
+   pre-commit install  # Install pre-commit hooks
+
+Installing pre-commit will ensure you adhere to the project code
+quality standards.
+
+
+Code standards
+--------------
+
+ruff and doc8 will be automatically triggered by pre-commit.
+
+ruff is configured to do the job of black and isort as well.
+
+Still, if you want to run checks manually:
+
+   make doc8
+   make ruff
+
+
+Requirements
+------------
+
+Requirements are compiled using uv.
+
+   make compile-requirements
+
+
+Virtual environment
+-------------------
+
+You are advised to work in virtual environment.
+
+TL;DR:
+
+   python -m venv env
+   pip install -e .[all]
+
+
+Documentation
+-------------
+
+Check the documentation.
+
+
+Testing
+-------
+
+Check testing.
+
+If you introduce changes or fixes, make sure to test them locally
+using all supported environments. For that use tox.
+
+   tox
+
+In any case, GitHub Actions will catch potential errors, but using tox
+speeds things up.
+
+For a quick test of the package and all examples, use the following
+*Makefile* command:
+
+   make test-all
+
+
+Pull requests
+-------------
+
+You can contribute to the project by making a pull request.
+
+For example:
+
+* To fix documentation typos.
+
+* To improve documentation (for instance, to add new recipe or fix an
+  existing recipe that doesn't seem to work).
+
+* To introduce a new feature (for instance, add support for a non-
+  supported file type).
+
+**Good to know:**
+
+* This library consists of a single "fake.py" module. That module is
+  dependency free, self-contained (includes all tests) and portable.
+  Do not submit pull requests splitting the "fake.py" module into
+  small parts. Pull requests with external dependencies in "fake.py"
+  module will not be accepted either.
+
+* Some tests contain simplified implementation of existing libraries
+  (Django ORM, TortoiseORM, SQLAlchemy). If you need to add
+  integration tests for existing functionality, you can add the
+  relevant code and requirements to the examples, along with tests.
+  Currently, all integration tests are running in the CI against the
+  latest version of Python.
+
+**General list to go through:**
+
+* Does your change require documentation update?
+
+* Does your change require update to tests?
+
+* Does your change rely on third-party package or a cloud based
+  service? If so, please consider turning it into a dedicated
+  standalone package, since this library is dependency free (and will
+  always stay so).
+
+**When fixing bugs (in addition to the general list):**
+
+* Make sure to add regression tests.
+
+**When adding a new feature (in addition to the general list):**
+
+* Make sure to update the documentation (check whether the
+  installation, features, recipes and quick start require changes).
+
+
+GitHub Actions
+--------------
+
+Only non-EOL versions of Python and software >>`fake.py`_<< aims to
+integrate with are supported.
+
+On GitHub Actions includes tests for more than 40 different variations
+of Python versions and integration packages. Future, non-stable
+versions of Python are being tested too, so that new
+features/incompatibilities could be seen and adopted early.
+
+For the list of Python versions supported by GitHub, see GitHub
+Actions versions manifest.
+
+
+Questions
+---------
+
+Questions can be asked on GitHub discussions.
+
+
+Issues
+------
+
+For reporting a bug or filing a feature request, use GitHub issues.
+
+**Do not report security issues on GitHub**. Check the support
+section.
+
+======================================================================
+
+
+Release history and notes
+=========================
+
+Sequence based identifiers are used for versioning (schema follows
+below):
+
+   major.minor[.revision]
+
+* It is always safe to upgrade within the same minor version (for
+  example, from 0.3 to 0.3.4).
+
+* Minor version changes might be backwards incompatible. Read the
+  release notes carefully before upgrading (for example, when
+  upgrading from 0.3.4 to 0.4).
+
+* All backwards incompatible changes are mentioned in this document.
+
+
+0.11.5
+------
+
+2025-05-07
+
+* Fully delegate documentation testing to pytest-codeblock.
+
+* Add additional tags to binary providers, such as images or
+  documents.
+
+
+0.11.4
+------
+
+2025-05-03
+
+* Add "rtf" and "epub" providers.
+
+
+0.11.3
+------
+
+2025-04-22
+
+* Add "time" provider.
+
+
+0.11.2
+------
+
+2025-04-21
+
+* Add "string_template" and "lazy_string_template" providers.
+
+
+0.11.1
+------
+
+2025-04-11
+
+* Add "year" provider.
+
+* Add cheat sheet docs.
+
+
+0.11
+----
+
+2025-03-24
+
+* Optimise "file_name" provider. Add "prefix" argument.
+
+* Add "file_path" and "dir_path" providers.
+
+
+0.10.5
+------
+
+2024-11-23
+
+* Add benchmarks section to the main README.
+
+* Improve docs. Add a dedicated section on files creation.
+
+* Test against Django 5.1.
+
+* Clean-up.
+
+
+0.10.4
+------
+
+2024-10-17
+
+* Add a "separator" argument to the "slugify" function.
+
+* Minor documentation improvements.
+
+
+0.10.3
+------
+
+2024-10-16
+
+* Add *JPG* file support through "jpg" and "jpg_file" providers.
+
+
+0.10.2
+------
+
+2024-10-07
+
+* Test against Python 3.13 and 3.14.
+
+* Upgrade GitHub Actions.
+
+
+0.10.1
+------
+
+2024-10-05
+
+* Added "password" provider.
+
+
+0.10
+----
+
+2024-09-27
+
+* For both "StringTemplate" and "LazyStringTemplate" the "faker"
+  argument had become optional and positionally moved from first to
+  the last place.
+
+* Improve string templates.
+
+* Minor documentation improvements.
+
+
+0.9.9
+-----
+
+2024-09-27
+
+* Improve string templates.
+
+* Minor documentation improvements.
+
+
+0.9.8
+-----
+
+2024-09-26
+
+* Implement string templates.
+
+* Minor documentation improvements.
+
+
+0.9.7
+-----
+
+2024-09-17
+
+* Minor (documentation) fixes.
+
+
+0.9.6
+-----
+
+2024-09-16
+
+* Add *ZIP* file support through "zip" and "zip_file" providers.
+
+* Add *TAR* file support through "tar" and "tar_file" providers.
+
+* Add *EML* file support through "eml" and "eml_file" providers.
+
+* Add inner file functions for creating archive files with unlimited
+  depth.
+
+
+0.9.5
+-----
+
+2024-09-11
+
+* Minor optimisations.
+
+
+0.9.4
+-----
+
+2024-08-18
+
+* Add *WAV* audio file support through "wav" and "wav_file" providers.
+
+
+0.9.3
+-----
+
+2024-08-09
+
+* Prepare for namespaced packages. "fakepy" is now an additional
+  registered namespace, next to "fake". All integration packages can
+  make use of the "fakepy" namespace. For instance:
+
+     from fake import FAKER
+     from fakepy.pathy_storage.aws_s3 import AWSS3Storage
+
+     STORAGE = AWSS3Storage(
+         bucket_name="bucket_name",
+         root_path="tmp",  # Optional
+         rel_path="sub-tmp",  # Optional
+     )
+
+     txt_file = FAKER.txt_file(storage=STORAGE)
+
+     STORAGE.exists(txt_file)
+
+
+0.9.2
+-----
+
+2024-08-05
+
+* Implement "randomise_string" provider, that replaces placeholders in
+  a given string with random letters and digits. Placeholders "?" are
+  replaced by random uppercase letters, and placeholders "#" are
+  replaced by random digits.
+
+
+0.9.1
+-----
+
+2024-08-04
+
+* Minor fixes.
+
+
+0.9
+---
+
+2024-08-03
+
+* Drop support for EOL Python 3.7 and almost EOL 3.8.
+
+* Add country support through "country" provider.
+
+* Add city support through "city" provider.
+
+* Add geo-location support through "geo_location" provider.
+
+* Add latitude/longitude support through "latitude", "longitude" and
+  "latitude_longitude" providers.
+
+
+0.8.4
+-----
+
+2024-08-01
+
+* Added ISBN support through "isbn10" and "isbn13" providers.
+
+* Added country code support through "country_code" provider.
+
+* Added locale support through "locale" provider.
+
+* Added IBAN support through "iban" provider.
+
+
+0.8.3
+-----
+
+2024-07-27
+
+* Added "mime_type" provider.
+
+
+0.8.2
+-----
+
+2024-07-27
+
+* Added "file_extension" provider.
+
+
+0.8.1
+-----
+
+2024-07-24
+
+* Added *ODT* file support through "odt" and "odt_file" providers.
+
+
+0.8
+---
+
+2024-07-24
+
+* The "extension" argument is renamed to "image_format" argument for
+  "png_file", "svg_file", "bmp_file" and "gif_file" providers. The
+  "extension" argument serves now solely a purpose of providing the
+  actual file extension and it's optional ("None" by default). If not
+  given, the "image_format" value is used for file extension instead.
+
+* Minor fixes in generation of image files.
+
+* Added *TIF* support through "tif" and "tif_file" providers.
+
+
+0.7.5
+-----
+
+2024-07-04
+
+* Improve text *PDF* generation according to 1.4 (most common) spec
+  instead of 1.0.
+
+
+0.7.4
+-----
+
+2024-06-28
+
+* Add CLI.
+
+
+0.7.3
+-----
+
+2024-06-21
+
+Note:
+
+  Release dedicated to my dear son Tigran, who turned 12 today.
+
+* Add "text_pdf" and "text_pdf_file" providers, which are shortcuts
+  for "pdf" and "pdf_file" with "generator" set to "TextPdfGenerator".
+
+* Allow to optionally tag providers.
+
+* Tag all implemented providers.
+
+
+0.7.2
+-----
+
+2024-06-17
+
+* Add basic "slugify" function.
+
+* Minor fixes in "free_email" and "company_email" providers.
+
+
+0.7.1
+-----
+
+2024-06-11
+
+* Test against *SQLModel*. Also included SQLModel examples.
+
+* Improve docs.
+
+
+0.7
+---
+
+2024-06-09
+
+Note:
+
+  This release contains minor backwards incompatible changes. Namely,
+  in the "email" provider.
+
+* The "domain" (type: "str", default value: "example.com") argument of
+  the "email" provider has been dropped in favour of "domain_names"
+  (type: "Optional[Tuple[str]", default value: "None").
+
+* Added a dedicated "PydanticModelFactory" (yet equal to
+  "ModelFactory") for future improvements.
+
+* Added "PreInit" factory class and "pre_init" decorator.
+
+* Improved documentation of factories.
+
+* Added "random_choice" and "random_sample" providers.
+
+* Added "tld", "domain_name", "free_email_domain", "company_email" and
+  "free_email" providers.
+
+
+0.6.9
+-----
+
+2024-05-10
+
+* Minor fixes in "pdf_file" and "docx_file" providers.
+
+* Minor fixes in docs.
+
+
+0.6.8
+-----
+
+2024-05-06
+
+* Minor fixes in docs.
+
+
+0.6.7
+-----
+
+2024-01-17
+
+* Add "uuids", "first_names", "last_names", "names", "usernames" and
+  "slugs" plural providers (return "List").
+
+
+0.6.6
+-----
+
+2024-01-15
+
+* Add "image_url" provider.
+
+
+0.6.5
+-----
+
+2023-12-18
+
+* Improve docs.
+
+* MyPy fixes.
+
+
+0.6.4
+-----
+
+2023-12-16
+
+* Add "PreSave" and "PostSave".
+
+
+0.6.3
+-----
+
+2023-12-13
+
+* Add "LazyAttribute" and "LazyFunction".
+
+* Improve package portability (tests).
+
+* Improve tests.
+
+
+0.6.2
+-----
+
+2023-12-11
+
+* Add "SQLAlchemyModelFactory".
+
+
+0.6.1
+-----
+
+2023-12-10
+
+* Allow to load registered "Faker" instance by "uid" or "alias".
+
+* Improve test coverage.
+
+
+0.6
+---
+
+2023-12-09
+
+* Add optional argument "alias" to the "Faker" class.
+
+* Improve multiple "Faker" instances.
+
+* Add "generic_file" provider.
+
+
+0.5
+---
+
+2023-12-08
+
+* Make "fake.Faker" and "fake.Factory" classes more customisable.
+
+* Introduce "provider" decorator to decorate provider methods.
+
+* Documentation improvements.
+
+
+0.4.1
+-----
+
+2023-12-07
+
+* Added "pydecimal".
+
+* Make "date_time" timezone aware.
+
+* Added documentation on how to customise.
+
+
+0.4
+---
+
+2023-12-06
+
+* Streamline on how to use traits, pre- and post-save hooks.
+
+
+0.3.1
+-----
+
+2023-12-04
+
+* Improve *Tortoise ORM* factory.
+
+* Add traits.
+
+* Improve documentation.
+
+
+0.3
+---
+
+2023-12-03
+
+* Added factories.
+
+* Added mechanism to clean-up (remove) the created test files.
+
+* Improved documentation.
+
+
+0.2
+---
+
+2023-12-01
+
+* Add factories.
+
+* Improve docs.
+
+* Add "uuid", "slug" and "username" generators.
+
+* Change "date_between" to "date".
+
+* Change "date_time_between" to "date_time".
+
+
+0.1.3
+-----
+
+2023-11-28
+
+* Added "pdf_file", "docx_file", "png_file", "svg_file", "bmp_file",
+  "gif_file" support.
+
+* Added storages.
+
+
+0.1.2
+-----
+
+2023-11-26
+
+* Adding "texts" support.
+
+* Improve tests and documentation.
+
+
+0.1.1
+-----
+
+2023-11-26
+
+* Adding *DOCX* support.
+
+* Fixes in documentation.
+
+
+0.1
+---
+
+2023-11-25
+
+* Initial beta release.
+
+======================================================================
+
+
+Package
+=======
+
+* fake module
+
+  * "AuthorshipData"
+
+    * "AuthorshipData.first_names"
+
+    * "AuthorshipData.last_names"
+
+  * "BaseStorage"
+
+    * "BaseStorage.abspath()"
+
+    * "BaseStorage.exists()"
+
+    * "BaseStorage.generate_basename()"
+
+    * "BaseStorage.generate_filename()"
+
+    * "BaseStorage.relpath()"
+
+    * "BaseStorage.unlink()"
+
+    * "BaseStorage.write_bytes()"
+
+    * "BaseStorage.write_text()"
+
+  * "CLI"
+
+    * "CLI.execute_command()"
+
+    * "CLI.setup_parser()"
+
+  * "DjangoModelFactory"
+
+    * "DjangoModelFactory.create()"
+
+    * "DjangoModelFactory.save()"
+
+  * "DocxGenerator"
+
+    * "DocxGenerator.create()"
+
+  * "EpubGenerator"
+
+    * "EpubGenerator.create()"
+
+  * "Factory"
+
+    * "Factory.faker"
+
+  * "FactoryMethod"
+
+  * "Faker"
+
+    * "Faker.bin()"
+
+    * "Faker.bin_file()"
+
+    * "Faker.bmp()"
+
+    * "Faker.bmp_file()"
+
+    * "Faker.bothify()"
+
+    * "Faker.city()"
+
+    * "Faker.company_email()"
+
+    * "Faker.country()"
+
+    * "Faker.country_code()"
+
+    * "Faker.date()"
+
+    * "Faker.date_time()"
+
+    * "Faker.dir_path()"
+
+    * "Faker.docx()"
+
+    * "Faker.docx_file()"
+
+    * "Faker.domain_name()"
+
+    * "Faker.email()"
+
+    * "Faker.eml()"
+
+    * "Faker.eml_file()"
+
+    * "Faker.epub()"
+
+    * "Faker.epub_file()"
+
+    * "Faker.file_extension()"
+
+    * "Faker.file_name()"
+
+    * "Faker.file_path()"
+
+    * "Faker.first_name()"
+
+    * "Faker.first_names()"
+
+    * "Faker.free_email()"
+
+    * "Faker.free_email_domain()"
+
+    * "Faker.generic_file()"
+
+    * "Faker.geo_location()"
+
+    * "Faker.get_by_alias()"
+
+    * "Faker.get_by_uid()"
+
+    * "Faker.gif()"
+
+    * "Faker.gif_file()"
+
+    * "Faker.iban()"
+
+    * "Faker.image()"
+
+    * "Faker.image_url()"
+
+    * "Faker.ipv4()"
+
+    * "Faker.isbn10()"
+
+    * "Faker.isbn13()"
+
+    * "Faker.jpg()"
+
+    * "Faker.jpg_file()"
+
+    * "Faker.last_name()"
+
+    * "Faker.last_names()"
+
+    * "Faker.lat()"
+
+    * "Faker.latitude()"
+
+    * "Faker.latitude_longitude()"
+
+    * "Faker.latlng()"
+
+    * "Faker.latlon()"
+
+    * "Faker.lazy_string_template()"
+
+    * "Faker.lng()"
+
+    * "Faker.load_data()"
+
+    * "Faker.load_geo_locations()"
+
+    * "Faker.load_locales_and_country_codes()"
+
+    * "Faker.load_names()"
+
+    * "Faker.load_words()"
+
+    * "Faker.locale()"
+
+    * "Faker.lon()"
+
+    * "Faker.longitude()"
+
+    * "Faker.mime_type()"
+
+    * "Faker.name()"
+
+    * "Faker.names()"
+
+    * "Faker.odt()"
+
+    * "Faker.odt_file()"
+
+    * "Faker.paragraph()"
+
+    * "Faker.paragraphs()"
+
+    * "Faker.password()"
+
+    * "Faker.pdf()"
+
+    * "Faker.pdf_file()"
+
+    * "Faker.png()"
+
+    * "Faker.png_file()"
+
+    * "Faker.ppm()"
+
+    * "Faker.ppm_file()"
+
+    * "Faker.pybool()"
+
+    * "Faker.pydecimal()"
+
+    * "Faker.pyfloat()"
+
+    * "Faker.pyint()"
+
+    * "Faker.pystr()"
+
+    * "Faker.random_choice()"
+
+    * "Faker.random_element()"
+
+    * "Faker.random_elements()"
+
+    * "Faker.random_sample()"
+
+    * "Faker.randomise_string()"
+
+    * "Faker.randomize_string()"
+
+    * "Faker.rtf()"
+
+    * "Faker.rtf_file()"
+
+    * "Faker.sentence()"
+
+    * "Faker.sentences()"
+
+    * "Faker.slug()"
+
+    * "Faker.slugs()"
+
+    * "Faker.string_template()"
+
+    * "Faker.svg()"
+
+    * "Faker.svg_file()"
+
+    * "Faker.tar()"
+
+    * "Faker.tar_file()"
+
+    * "Faker.text()"
+
+    * "Faker.text_pdf()"
+
+    * "Faker.text_pdf_file()"
+
+    * "Faker.texts()"
+
+    * "Faker.tif()"
+
+    * "Faker.tif_file()"
+
+    * "Faker.time()"
+
+    * "Faker.tld()"
+
+    * "Faker.txt_file()"
+
+    * "Faker.url()"
+
+    * "Faker.username()"
+
+    * "Faker.usernames()"
+
+    * "Faker.uuid()"
+
+    * "Faker.uuids()"
+
+    * "Faker.wav()"
+
+    * "Faker.wav_file()"
+
+    * "Faker.word()"
+
+    * "Faker.words()"
+
+    * "Faker.year()"
+
+    * "Faker.zip()"
+
+    * "Faker.zip_file()"
+
+  * "FileRegistry"
+
+    * "FileRegistry.add()"
+
+    * "FileRegistry.clean_up()"
+
+    * "FileRegistry.remove()"
+
+    * "FileRegistry.search()"
+
+  * "FileSystemStorage"
+
+    * "FileSystemStorage.abspath()"
+
+    * "FileSystemStorage.exists()"
+
+    * "FileSystemStorage.generate_filename()"
+
+    * "FileSystemStorage.relpath()"
+
+    * "FileSystemStorage.unlink()"
+
+    * "FileSystemStorage.write_bytes()"
+
+    * "FileSystemStorage.write_text()"
+
+  * "GraphicPdfGenerator"
+
+    * "GraphicPdfGenerator.create()"
+
+    * "GraphicPdfGenerator.image_color"
+
+    * "GraphicPdfGenerator.image_size"
+
+    * "GraphicPdfGenerator.nb_pages"
+
+  * "LazyAttribute"
+
+  * "LazyFunction"
+
+  * "LazyStringTemplate"
+
+  * "MetaData"
+
+    * "MetaData.add_content()"
+
+    * "MetaData.content"
+
+  * "ModelFactory"
+
+    * "ModelFactory.Meta"
+
+      * "ModelFactory.Meta.get_or_create"
+
+    * "ModelFactory.create()"
+
+    * "ModelFactory.create_batch()"
+
+    * "ModelFactory.save()"
+
+  * "OdtGenerator"
+
+    * "OdtGenerator.create()"
+
+  * "PostSave"
+
+    * "PostSave.execute()"
+
+  * "PreInit"
+
+    * "PreInit.execute()"
+
+  * "PreSave"
+
+    * "PreSave.execute()"
+
+  * "PydanticModelFactory"
+
+  * "RtfGenerator"
+
+    * "RtfGenerator.create()"
+
+  * "SQLAlchemyModelFactory"
+
+    * "SQLAlchemyModelFactory.create()"
+
+    * "SQLAlchemyModelFactory.save()"
+
+  * "StringTemplate"
+
+  * "StringValue"
+
+    * "StringValue.data"
+
+  * "SubFactory"
+
+  * "TextPdfGenerator"
+
+    * "TextPdfGenerator.create()"
+
+    * "TextPdfGenerator.nb_pages"
+
+    * "TextPdfGenerator.texts"
+
+  * "TortoiseModelFactory"
+
+    * "TortoiseModelFactory.create()"
+
+    * "TortoiseModelFactory.save()"
+
+  * "create_inner_bmp_file()"
+
+  * "create_inner_docx_file()"
+
+  * "create_inner_eml_file()"
+
+  * "create_inner_gif_file()"
+
+  * "create_inner_jpg_file()"
+
+  * "create_inner_odt_file()"
+
+  * "create_inner_pdf_file()"
+
+  * "create_inner_png_file()"
+
+  * "create_inner_ppm_file()"
+
+  * "create_inner_rtf_file()"
+
+  * "create_inner_svg_file()"
+
+  * "create_inner_tar_file()"
+
+  * "create_inner_text_pdf_file()"
+
+  * "create_inner_tif_file()"
+
+  * "create_inner_txt_file()"
+
+  * "create_inner_wav_file()"
+
+  * "create_inner_zip_file()"
+
+  * "fill_dataclass()"
+
+  * "fill_pydantic_model()"
+
+  * "format_type_hint()"
+
+  * "fuzzy_choice_create_inner_file()"
+
+  * "get_argparse_type()"
+
+  * "get_provider_args()"
+
+  * "get_provider_defaults()"
+
+  * "is_optional_type()"
+
+  * "list_create_inner_file()"
+
+  * "main()"
+
+  * "organize_providers()"
+
+  * "post_save()"
+
+  * "pre_init()"
+
+  * "pre_save()"
+
+  * "provider()"
+
+  * "run_async_in_thread()"
+
+  * "slugify()"
+
+  * "trait()"
+
+  * "wrap_text()"
+
+  * "xor_transform()"
+
+
+Indices and tables
+==================
+
+* Index
+
+* Module Index
+
+* Search Page
