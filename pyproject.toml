@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.11.4"
+version = "0.11.5"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -39,14 +39,17 @@ Changelog = "https://fakepy.readthedocs.io/en/latest/changelog.html"
 [project.optional-dependencies]
 all = ["fake.py[dev,test,docs]"]
 dev = [
+    "build",
     "detect-secrets",
     "doc8",
     "ipython",
     "mypy",
+    "pkginfo",
     "pydoclint",
     "ruff",
     "twine",
     "uv",
+    "wheel",
 ]
 test = [
     "django",

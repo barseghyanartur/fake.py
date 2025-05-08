@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.11.4
+VERSION := 0.11.5
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -7,6 +7,7 @@ UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
 build_docs:
+	source $(VENV) && sphinx-build -n -b text docs builddocs
 	source $(VENV) && sphinx-build -n -a -b html docs builddocs
 	cd builddocs && zip -r ../builddocs.zip . -x ".*" && cd ..
 
