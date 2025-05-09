@@ -34,6 +34,7 @@ fake.py
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
+.. _llms.txt: https://barseghyanartur.github.io/fake.py/llms.txt
 
 .. Related projects
 
@@ -60,6 +61,10 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
 .. image:: https://readthedocs.org/projects/fakepy/badge/?version=latest
     :target: http://fakepy.readthedocs.io
     :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/docs-llms.txt-blue
+    :target: https://barseghyanartur.github.io/fake.py/llms.txt
+    :alt: llms.txt - documentation for LLMs
 
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://github.com/barseghyanartur/fake.py/#License
