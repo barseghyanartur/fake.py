@@ -12,6 +12,8 @@ asttokens==3.0.0
     # via stack-data
 babel==2.17.0
     # via sphinx
+build==1.2.2.post1
+    # via fake-py (pyproject.toml)
 certifi==2025.4.26
     # via requests
 cffi==1.17.1
@@ -32,7 +34,7 @@ decorator==5.2.1
     # via ipython
 detect-secrets==1.5.0
     # via fake-py (pyproject.toml)
-django==5.2
+django==5.2.1
     # via fake-py (pyproject.toml)
 doc8==1.1.2
     # via fake-py (pyproject.toml)
@@ -100,6 +102,7 @@ nh3==0.2.21
     # via readme-renderer
 packaging==25.0
     # via
+    #   build
     #   pytest
     #   sphinx
     #   twine
@@ -109,6 +112,8 @@ pbr==6.1.1
     # via stevedore
 pexpect==4.9.0
     # via ipython
+pkginfo==1.12.1.2
+    # via fake-py (pyproject.toml)
 pluggy==1.5.0
     # via pytest
 prompt-toolkit==3.0.51
@@ -129,13 +134,15 @@ pygments==2.19.1
     #   readme-renderer
     #   rich
     #   sphinx
+pyproject-hooks==1.2.0
+    # via build
 pytest==8.3.5
     # via
     #   fake-py (pyproject.toml)
     #   pytest-codeblock
     #   pytest-cov
     #   pytest-django
-pytest-codeblock==0.1.2
+pytest-codeblock==0.1.5
     # via fake-py (pyproject.toml)
 pytest-cov==6.1.1
     # via fake-py (pyproject.toml)
@@ -160,15 +167,15 @@ rfc3986==2.0.0
     # via twine
 rich==14.0.0
     # via twine
-ruff==0.11.8
+ruff==0.11.9
     # via fake-py (pyproject.toml)
 secretstorage==3.3.3
     # via keyring
-setuptools==80.1.0
+setuptools==80.4.0
     # via pbr
 sniffio==1.3.1
     # via anyio
-snowballstemmer==2.2.0
+snowballstemmer==3.0.1
     # via sphinx
 sphinx==5.3.0
     # via
@@ -219,7 +226,7 @@ urllib3==2.4.0
     # via
     #   requests
     #   twine
-uv==0.7.2
+uv==0.7.3
     # via fake-py (pyproject.toml)
 uvicorn==0.34.2
     # via sphinx-autobuild
@@ -229,3 +236,5 @@ wcwidth==0.2.13
     # via prompt-toolkit
 websockets==15.0.1
     # via sphinx-autobuild
+wheel==0.45.1
+    # via fake-py (pyproject.toml)
