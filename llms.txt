@@ -5559,6 +5559,30 @@ For a quick test of the package and all examples, use the following
    make test-all
 
 
+Releasing
+---------
+
+**Sequence of steps:**
+
+1. Clean and build
+
+         make clean
+         make build
+
+2. Check the build
+
+         make check-build
+
+3. Test release on test.pypi.org. Make sure to check it before moving
+   forward.
+
+         make test-release
+
+4. Release
+
+         make release
+
+
 Pull requests
 -------------
 
