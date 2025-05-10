@@ -2963,15 +2963,28 @@ Works very similarly to >>`ZIP`_<<. Use "FAKER.eml" and
 
 * "options": (Optional) options. Similar to "ZIP" options.
 
-* "content": (Optional) content of the email file.
+* "content": (Optional) Email message content.
 
-* "subject": (Optional) subject of the email file.
+* "subject": (Optional) Email message subject.
+
+* "cte_type": (Optional) Email message Content-Transfer-Encoding
+  (CTE).
+
+* "policy": (Optional) Email message policy.
 
 Creating a simple EML archive as bytes is as simple as follows:
 
    from fake import FAKER
 
    FAKER.eml()
+
+======================================================================
+
+Create an EML archive with "Content-Transfer-Encoding" set to "7bit":
+
+   from fake import FAKER
+
+   FAKER.eml(cte_type="7bit")
 
 ======================================================================
 
@@ -5645,6 +5658,17 @@ below):
   upgrading from 0.3.4 to 0.4).
 
 * All backwards incompatible changes are mentioned in this document.
+
+
+0.11.6
+------
+
+2025-05-10
+
+* Correct guessing of mimetypes in "eml" and "eml_file" providers.
+
+* Add "cte_type" and "policy" arguments to "eml" and "eml_file"
+  providers.
 
 
 0.11.5
