@@ -235,17 +235,19 @@ All customisation options of ``zip`` are also applicable to ``zip_file``.
 
 TAR
 ---
-Works very similarly to `ZIP`_. Use ``FAKER.tar`` and ``FAKER.tar_file`` instead
-of ``FAKER.zip`` and ``FAKER.zip_file``.
+Works very similarly to `ZIP`_. Use ``FAKER.tar`` and ``FAKER.tar_file``
+instead of ``FAKER.zip`` and ``FAKER.zip_file``.
 
 EML
 ---
-Works very similarly to `ZIP`_. Use ``FAKER.eml`` and ``FAKER.eml_file`` instead
-of ``FAKER.zip`` and ``FAKER.zip_file``.
+Works very similarly to `ZIP`_. Use ``FAKER.eml`` and ``FAKER.eml_file``
+instead of ``FAKER.zip`` and ``FAKER.zip_file``.
 
 - ``options``: (Optional) options. Similar to ``ZIP`` options.
-- ``content``: (Optional) content of the email file.
-- ``subject``: (Optional) subject of the email file.
+- ``content``: (Optional) Email message content.
+- ``subject``: (Optional) Email message subject.
+- ``cte_type``: (Optional) Email message Content-Transfer-Encoding (CTE).
+- ``policy``: (Optional) Email message policy.
 
 Creating a simple EML archive as bytes is as simple as follows:
 
@@ -258,6 +260,20 @@ Creating a simple EML archive as bytes is as simple as follows:
         from fake import FAKER
 
         FAKER.eml()
+
+----
+
+Create an EML archive with ``Content-Transfer-Encoding`` set to ``7bit``:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_eml_archive_cte_7bit
+        :emphasize-lines: 3
+
+        from fake import FAKER
+
+        FAKER.eml(cte_type="7bit")
 
 ----
 
