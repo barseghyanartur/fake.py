@@ -20,6 +20,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.6
+------
+2025-05-10
+
+- Correct guessing of mimetypes in ``eml`` and ``eml_file`` providers.
+- Add ``cte_type`` and ``policy`` arguments to ``eml`` and ``eml_file``
+  providers.
+
 0.11.5
 ------
 2025-05-07

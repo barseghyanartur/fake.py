@@ -35,7 +35,7 @@ from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from email.message import EmailMessage
-from email.policy import default
+from email.policy import Policy, default
 from email.utils import parseaddr
 from functools import partial
 from inspect import signature
@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.5"
+__version__ = "0.11.6"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -378,6 +378,19 @@ EPUB_CONTAINER_XML = b"""<?xml version="1.0"?>
   </rootfiles>
 </container>"""
 
+# Missing/specific custom types
+MISSING_MIMETYPES = {
+    ".docx": "application/"
+             "vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".pptx": "application/"
+             "vnd.openxmlformats-officedocument.presentationml.presentation",
+    ".xlsx": "application/"
+             "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".epub": "application/epub+zip",
+    ".odt": "application/vnd.oasis.opendocument.text",
+    ".rtf": "application/rtf",
+}
+
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
 
 TEMP_DIR = gettempdir()
@@ -386,6 +399,36 @@ TEMP_DIR = gettempdir()
 def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
     return SLUGIFY_RE.sub(separator, value).lower()
+
+
+def get_mime_maintype_subtype(path: str) -> Tuple[str, str]:
+    """
+    Determine the MIME maintype and subtype for the given file path,
+    using Python's built-in mimetypes plus a few custom entries.
+
+    :param path: Path to the file (extension is used for lookup).
+    :return: (maintype, subtype) tuple, for example ("application", "pdf")
+    :rtype: Tuple[str, str]
+    """
+    # Initialize the system-wide mappings
+    mimetypes.init()
+
+    for ext, ctype in MISSING_MIMETYPES.items():
+        mimetypes.add_type(ctype, ext, strict=True)
+
+    # Prefer `guess_file_type` on Python 3.13+, else `guess_type`
+    if hasattr(mimetypes, "guess_file_type"):
+        ctype, encoding = mimetypes.guess_file_type(path)
+    else:
+        ctype, encoding = mimetypes.guess_type(path)
+
+    # If unknown or if an encoding hint was returned, fall back safely
+    if ctype is None or encoding is not None:
+        ctype = "application/octet-stream"
+
+    # Split into maintype/subtype
+    maintype, subtype = ctype.split("/", 1)
+    return maintype, subtype
 
 
 class MetaData:
@@ -3302,6 +3345,8 @@ class Faker:
         options: Optional[Dict[str, Any]] = None,
         content: Optional[str] = None,
         subject: Optional[str] = None,
+        cte_type: Optional[str] = None,
+        policy: Optional[Policy] = None,
         **kwargs,
     ) -> BytesValue:
         """Generate an EML file bytes.
@@ -3310,6 +3355,8 @@ class Faker:
             ZIP.
         :param content: Email body text.
         :param subject: Email subject.
+        :param cte_type: Content-Transfer-Encoding (CTE) type.
+        :param policy: Email message policy.
         :param **kwargs: Additional keyword arguments to pass to the function.
         :rtype: BytesValue
         :return: Relative path (from root directory) of the generated file
@@ -3343,11 +3390,16 @@ class Faker:
             "inner": {},
         }
 
-        msg = EmailMessage()
+        # Choose the policy to use for creating and serializing
+        if policy is None:
+            # Clone the `default` and apply `cte_type` if given
+            policy = default.clone(cte_type=cte_type) if cte_type else default
+
+        msg = EmailMessage(policy=policy)
         msg["To"] = self.email()
         msg["From"] = self.email()
         msg["Subject"] = subject
-        msg.set_content(content)
+        msg.set_content(content, cte=policy.cte_type)
         data.update(
             {
                 "to": msg["To"],
@@ -3383,8 +3435,9 @@ class Faker:
                 for __file in _files:
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
-                    _content_type = "application/octet-stream"
-                    _maintype, _subtype = _content_type.split("/", 1)
+                    _maintype, _subtype = get_mime_maintype_subtype(
+                        path=__file_abs_path,
+                    )
                     with open(__file_abs_path, "rb") as _fp:
                         _file_data = _fp.read()
                         msg.add_attachment(
@@ -3403,8 +3456,9 @@ class Faker:
                     )
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
-                    _content_type = "application/octet-stream"
-                    _maintype, _subtype = _content_type.split("/", 1)
+                    _maintype, _subtype = get_mime_maintype_subtype(
+                        path=__file_abs_path,
+                    )
                     with open(__file_abs_path, "rb") as _fp:
                         _file_data = _fp.read()
                         msg.add_attachment(
@@ -3415,7 +3469,7 @@ class Faker:
                         )
                     os.remove(__file_abs_path)  # Clean up temporary files
 
-        raw_content = BytesValue(msg.as_bytes(policy=default))
+        raw_content = BytesValue(msg.as_bytes(policy=policy))
         raw_content.data = data
         return raw_content
 
@@ -3947,6 +4001,8 @@ class Faker:
         options: Optional[Dict[str, Any]] = None,
         content: Optional[str] = None,
         subject: Optional[str] = None,
+        cte_type: Optional[str] = None,
+        policy: Optional[Policy] = None,
         **kwargs,
     ) -> StringValue:
         """Create an EML file."""
@@ -3964,6 +4020,8 @@ class Faker:
             options=options,
             content=content,
             subject=subject,
+            cte_type=cte_type,
+            policy=policy,
         )
         storage.write_bytes(filename=filename, data=data)
         file = StringValue(storage.relpath(filename))
@@ -4558,6 +4616,8 @@ def create_inner_eml_file(
     options: Optional[Dict[str, Any]] = None,
     content: Optional[str] = None,
     subject: Optional[str] = None,
+    cte_type: Optional[str] = None,
+    policy: Optional[Policy] = None,
     metadata: Optional[MetaData] = None,
     **kwargs,
 ) -> StringValue:
@@ -4569,6 +4629,8 @@ def create_inner_eml_file(
         options=options,
         content=content,
         subject=subject,
+        cte_type=cte_type,
+        policy=policy,
         metadata=metadata,
         **kwargs,
     )
