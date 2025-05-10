@@ -142,7 +142,7 @@ pytest==8.3.5
     #   pytest-codeblock
     #   pytest-cov
     #   pytest-django
-pytest-codeblock==0.1.5
+pytest-codeblock==0.1.7
     # via fake-py (pyproject.toml)
 pytest-cov==6.1.1
     # via fake-py (pyproject.toml)
