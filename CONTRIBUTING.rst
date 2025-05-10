@@ -97,6 +97,35 @@ command:
 
     make test-all
 
+Releasing
+---------
+**Sequence of steps:**
+
+#. Clean and build
+
+    .. code-block:: sh
+
+        make clean
+        make build
+
+#. Check the build
+
+    .. code-block:: sh
+
+        make check-build
+
+#. Test release on test.pypi.org. Make sure to check it before moving forward.
+
+    .. code-block:: sh
+
+        make test-release
+
+#. Release
+
+    .. code-block:: sh
+
+        make release
+
 Pull requests
 -------------
 You can contribute to the project by making a `pull request`_.
