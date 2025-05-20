@@ -63,7 +63,7 @@ Minimalistic, standalone alternative fake data generator with no dependencies.
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/badge/docs-llms.txt-blue
-    :target: https://barseghyanartur.github.io/fake.py/llms.txt
+    :target: https://fakepy.readthedocs.io/en/latest/llms.txt
     :alt: llms.txt - documentation for LLMs
 
 .. image:: https://img.shields.io/badge/license-MIT-blue.svg
