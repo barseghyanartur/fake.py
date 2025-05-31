@@ -20,6 +20,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.7
+------
+2025-05-31
+
+- Minor documentation improvements.
+
 0.11.6
 ------
 2025-05-10
