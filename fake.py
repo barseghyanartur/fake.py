@@ -104,6 +104,13 @@ __all__ = (
     "StringTemplate",
     "StringValue",
     "SubFactory",
+    "TestCLI",
+    "TestFaker",
+    "TestLazyStringTemplate",
+    "TestOrganiseProviders",
+    "TestScript",
+    "TestSlugify",
+    "TestStringTemplate",
     "TextPdfGenerator",
     "TortoiseModelFactory",
     "create_inner_bmp_file",
@@ -133,7 +140,7 @@ __all__ = (
     "is_optional_type",
     "list_create_inner_file",
     "main",
-    "organize_providers",
+    "organise_providers",
     "post_save",
     "pre_init",
     "pre_save",
@@ -5759,8 +5766,8 @@ def get_argparse_type(param_type) -> Any:
         return str
 
 
-def organize_providers(provider_tags) -> Dict[str, Any]:
-    """Organize providers by category for easier navigation."""
+def organise_providers(provider_tags) -> Dict[str, Any]:
+    """Organise providers by category for easier navigation."""
     categories: Dict[str, Any] = {}
     for _provider, tags in provider_tags:
         for tag in tags:
@@ -5773,6 +5780,9 @@ def organize_providers(provider_tags) -> Dict[str, Any]:
 
     # Return categories sorted by the category names
     return dict(sorted(categories.items()))
+
+
+organize_providers = organise_providers  # For backwards compatibility
 
 
 def format_type_hint(type_hint) -> str:
@@ -5913,41 +5923,41 @@ class TestScript(unittest.TestCase):
         result.stdout.startswith("usage:")
 
 
-class TestOrganizeProviders(unittest.TestCase):
+class TestOrganiseProviders(unittest.TestCase):
     def setUp(self):
         self.provider_list = sorted(PROVIDER_REGISTRY[f"{__name__}.Faker"])
         self.provider_tags = [
             (_provider, _provider.tags) for _provider in self.provider_list
         ]
 
-    def test_organize_providers_empty(self):
+    def test_organise_providers_empty(self):
         provider_tags: List[Tuple[str, Iterable[str]]] = []
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected: Dict[str, Any] = {}
         self.assertEqual(result, expected)
 
-    def test_organize_providers_single_tag(self):
+    def test_organise_providers_single_tag(self):
         provider_tags = [(ProviderRegistryItem("provider1"), ("Tag1",))]
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected = {"Tag1": [ProviderRegistryItem("provider1")]}
         self.assertEqual(result, expected)
 
-    def test_organize_providers_multiple_tags(self):
+    def test_organise_providers_multiple_tags(self):
         provider_tags = [(ProviderRegistryItem("provider1"), ("Tag1", "Tag2"))]
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected = {
             "Tag1": [ProviderRegistryItem("provider1")],
             "Tag2": [ProviderRegistryItem("provider1")],
         }
         self.assertEqual(result, expected)
 
-    def test_organize_providers_multiple_providers(self):
+    def test_organise_providers_multiple_providers(self):
         provider_tags = [
             (ProviderRegistryItem("provider1"), ("Tag1",)),
             (ProviderRegistryItem("provider2"), ("Tag1", "Tag2")),
             (ProviderRegistryItem("provider3"), ("Tag3",)),
         ]
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected = {
             "Tag1": [
                 ProviderRegistryItem("provider1"),
@@ -5958,13 +5968,13 @@ class TestOrganizeProviders(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-    def test_organize_providers_sorting(self):
+    def test_organise_providers_sorting(self):
         provider_tags = [
             (ProviderRegistryItem("provider3"), ("Tag1",)),
             (ProviderRegistryItem("provider1"), ("Tag1",)),
             (ProviderRegistryItem("provider2"), ("Tag1",)),
         ]
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected = {
             "Tag1": [
                 ProviderRegistryItem("provider1"),
@@ -5974,12 +5984,12 @@ class TestOrganizeProviders(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-    def test_organize_providers_category_sorting(self):
+    def test_organise_providers_category_sorting(self):
         provider_tags = [
             (ProviderRegistryItem("provider1"), ("TagB",)),
             (ProviderRegistryItem("provider2"), ("TagA",)),
         ]
-        result = organize_providers(provider_tags)
+        result = organise_providers(provider_tags)
         expected = {
             "TagA": [ProviderRegistryItem("provider2")],
             "TagB": [ProviderRegistryItem("provider1")],
