@@ -16,8 +16,6 @@ prune .github
 # Exclude specific files
 exclude __copy_fake.py
 exclude .env
-exclude *.md
-exclude *.rst
 exclude .coveralls.yml
 exclude .gitignore
 exclude .pre-commit-config.yaml
