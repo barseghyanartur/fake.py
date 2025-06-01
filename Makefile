@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.11.6
+VERSION := 0.11.8
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate

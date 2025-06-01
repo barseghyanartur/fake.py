@@ -35,6 +35,7 @@ fake.py
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
 .. _llms.txt: https://barseghyanartur.github.io/fake.py/llms.txt
+.. _Test/coverage configuration tweaks: https://fakepy.readthedocs.io/en/latest/test_configuration_tweaks.html
 
 .. Related projects
 
@@ -121,7 +122,7 @@ tests too. If it's more convenient to you, you could simply download the
 ``fake.py`` module and include it in your repository.
 
 Since tests are included, it won't have a negative impact on your test
-coverage (you might need to apply tweaks to your coverage configuration).
+coverage (you might need to apply `test/coverage configuration tweaks`_).
 
 Documentation
 =============
