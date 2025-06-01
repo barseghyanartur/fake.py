@@ -35,7 +35,7 @@ fake.py
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
 .. _llms.txt: https://barseghyanartur.github.io/fake.py/llms.txt
-.. _Test/coverage configuration tweaks: https://fakepy.readthedocs.io/en/latest/test_configuration_tweaks.txt
+.. _Test/coverage configuration tweaks: https://fakepy.readthedocs.io/en/latest/test_configuration_tweaks.html
 
 .. Related projects
 
