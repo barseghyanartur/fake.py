@@ -68,7 +68,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.8"
+__version__ = "0.11.9"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -4212,7 +4212,29 @@ class Faker:
         wrap_chars_after: Optional[int] = None,
         faker: Optional["Faker"] = None,
     ) -> str:
-        """String template."""
+        """String template.
+
+        Generate a string by substituting placeholders in a template with fake
+        data or provided values.
+
+        :param template: Template string containing placeholders in curly
+            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
+            match Faker method names or be overridden by kwargs.
+        :param wrap_chars_after: Number of characters to wrap around.
+        :param faker: Faker instance to use.
+        :returns: String with placeholders replaced with correspondent fake
+            values.
+
+        Examples:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.string_template(
+                "Hello {first_name}! I have two words for you: {words(nb=2)}"
+            )
+            > "Hello Mike! I have two words for you: ['idea', 'first']"
+        """
         return StringTemplate(
             template=template,
             wrap_chars_after=wrap_chars_after,
@@ -4226,7 +4248,32 @@ class Faker:
         wrap_chars_after: Optional[int] = None,
         faker: Optional["Faker"] = None,
     ) -> "LazyStringTemplate":
-        """Lazy string template."""
+        """Lazy string template.
+
+        Generate a string by substituting placeholders in a template with fake
+        data or provided values.
+
+        :param template: Template string containing placeholders in curly
+            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
+            match Faker method names or be overridden by kwargs.
+        :param wrap_chars_after: Number of characters to wrap around.
+        :param faker: Faker instance to use.
+        :returns: String with placeholders replaced with correspondent fake
+            values.
+
+        Examples:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            tpl = FAKER.lazy_string_template(
+                "Hello {first_name}! I have two words for you: {words(nb=2)}"
+            )
+            print(tpl)
+            > "Hello Mike! I have two words for you: ['idea', 'first']"
+            print(tpl)
+            > Hello Lars! I have two words for you: ['be', 'if']
+        """
         return LazyStringTemplate(
             template=template,
             wrap_chars_after=wrap_chars_after,
