@@ -4222,6 +4222,7 @@ class Faker:
             match Faker method names or be overridden by kwargs.
         :param wrap_chars_after: Number of characters to wrap around.
         :param faker: Faker instance to use.
+        :rtype: str
         :returns: String with placeholders replaced with correspondent fake
             values.
 
@@ -4258,6 +4259,7 @@ class Faker:
             match Faker method names or be overridden by kwargs.
         :param wrap_chars_after: Number of characters to wrap around.
         :param faker: Faker instance to use.
+        :rtype: LazyStringTemplate
         :returns: String with placeholders replaced with correspondent fake
             values.
 
