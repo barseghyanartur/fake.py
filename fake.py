@@ -2413,7 +2413,8 @@ class Faker:
         :param min_special: Minimum number of special characters. Default is 0.
         :rtype: str
         :return: Random password string.
-        :raises: ValueError
+        :raises ValueError: if the total ``length`` is less than the sum of
+            all minimum character constraints.
         """
         if length < min_lower + min_upper + min_digits + min_special:
             raise ValueError("Length is too short for the given constraints.")
@@ -2466,7 +2467,8 @@ class Faker:
             can be negative.
         :return: Random Decimal number.
         :rtype: Decimal
-        :raises: ValueError
+        :raises ValueError: if ``left_digits`` or ``right_digits`` is less
+            than 0.
         """
         if left_digits < 0:
             raise ValueError("`left_digits` must be at least 0")
@@ -2517,7 +2519,7 @@ class Faker:
         :param tzinfo: Timezone info.
         :return: A datetime object representing the time offset.
         :rtype: datetime
-        :raises: ValueError
+        :raises ValueError: if date string format is incorrect.
         """
         if date_str in ["now", "today"]:
             return datetime.now(tzinfo)
