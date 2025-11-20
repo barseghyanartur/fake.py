@@ -476,6 +476,8 @@ Related projects
 
 * fake-py-qt: Graphical user interface to >>`fake.py`_<<.
 
+* fake-py-mcp: MCP interface to >>`fake.py`_<< fake-data methods.
+
 * fake-py-wasm: >>`fake.py`_<< on WASM (web assembly).
 
 
