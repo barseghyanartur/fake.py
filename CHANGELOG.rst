@@ -4,6 +4,7 @@ Release history and notes
 .. External references
 
 .. _pytest-codeblock: https://github.com/barseghyanartur/pytest-codeblock/
+.. _fake-py-mcp: https://github.com/barseghyanartur/fake-py-mcp/
 
 `Sequence based identifiers
 <http://en.wikipedia.org/wiki/Software_versioning#Sequence-based_identifiers>`_
@@ -19,6 +20,25 @@ are used for versioning (schema follows below):
   release notes carefully before upgrading (for example, when upgrading from
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
+
+0.11.12
+-------
+2025-11-21
+
+- Add `emails`, `free_emails and` `company_emails` providers.
+
+0.11.11
+-------
+2025-11-19
+
+- Test against Python 3.15.
+- Mention `fake-py-mcp`_ in the docs (related projects).
+
+0.11.10
+-------
+2025-11-16
+
+- Add doc-strings to some of the not well documented methods.
 
 0.11.9
 ------

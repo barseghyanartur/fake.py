@@ -1244,7 +1244,8 @@ Generates a content (``bytes``) of a ZIP document.
 
 Arguments:
 
-- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional
+  argument.
 
 ----
 
@@ -1265,9 +1266,12 @@ Generates a content (``bytes``) of a EML document.
 
 Arguments:
 
-- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
-- ``content`` (type: ``str``, default value: ``None``) is an optional argument.
-- ``subject`` (type: ``str``, default value: ``None``) is an optional argument.
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional
+  argument.
+- ``content`` (type: ``str``, default value: ``None``) is an optional
+  argument.
+- ``subject`` (type: ``str``, default value: ``None``) is an optional
+  argument.
 
 ----
 
@@ -1288,7 +1292,8 @@ Generates a content (``bytes``) of a TAR document.
 
 Arguments:
 
-- ``options`` (type: ``Dict``, default value: ``None``) is an optional argument.
+- ``options`` (type: ``Dict``, default value: ``None``) is an optional
+  argument.
 
 ----
 

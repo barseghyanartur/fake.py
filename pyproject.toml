@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.11.9"
+version = "0.11.12"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python",
     "Topic :: Software Development :: Testing",
@@ -53,7 +54,7 @@ dev = [
 ]
 test = [
     "django",
-    "pytest<9.0",
+    "pytest",
     "pytest-cov",
     "pytest-django",
     "pytest-codeblock",
@@ -174,6 +175,7 @@ known-third-party = []
 ignore-path = [
     "docs/requirements.txt",
     "fake.py.egg-info/SOURCES.txt",
+    "docs/llms.rst",
 ]
 
 [tool.pytest.ini_options]

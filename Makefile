@@ -1,5 +1,5 @@
 # Update version ONLY here
-VERSION := 0.11.9
+VERSION := 0.11.12
 SHELL := /bin/bash
 # Makefile for project
 VENV := ~/.virtualenvs/fake.py/bin/activate
@@ -56,6 +56,31 @@ sqlalchemy-test \
 sqlmodel-test \
 tortoise-test
 
+install-django:
+	source $(VENV) && pip install -r examples/django/requirements.in
+
+install-hypothesis:
+	source $(VENV) && pip install -r examples/hypothesis/requirements.in
+
+install-pydantic:
+	source $(VENV) && pip install -r examples/pydantic/requirements.in
+
+install-sqlalchemy:
+	source $(VENV) && pip install -r examples/sqlalchemy/requirements.in
+
+install-sqlmodel:
+	source $(VENV) && pip install -r examples/sqlmodel/requirements.in
+
+install-tortoise:
+	source $(VENV) && pip install -r examples/tortoise/requirements.in
+
+install-all: install \
+	install-django \
+	install-hypothesis \
+	install-pydantic \
+	install-sqlalchemy \
+	install-sqlmodel \
+	install-tortoise
 
 test-all: test \
 customisation-test \

@@ -141,6 +141,7 @@ Using text templates:
         assert docx_file_1.data["storage"].exists(docx_file_1)
         assert isinstance(docx_file_10, str)
         assert docx_file_10.data["storage"].exists(docx_file_10)
+
 ----
 
 .. raw:: html

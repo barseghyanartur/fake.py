@@ -42,6 +42,7 @@ fake.py
 .. _fake-py-pathy-storage: https://github.com/barseghyanartur/fake-py-pathy-storage
 .. _fake-py-django-storage: https://github.com/barseghyanartur/fake-py-django-storage
 .. _fake-py-qt: https://github.com/barseghyanartur/fake-py-qt
+.. _fake-py-mcp: https://github.com/barseghyanartur/fake-py-mcp
 .. _fake-py-wasm: https://github.com/barseghyanartur/fake-py-wasm
 .. _fake-py-benchmarks: https://github.com/barseghyanartur/fake-py-benchmarks
 
@@ -188,9 +189,12 @@ Internet
     from fake import FAKER
 
     FAKER.company_email()  # str
+    FAKER.company_emails()  # list[str]
     FAKER.domain_name()  # str
     FAKER.email()  # str
+    FAKER.emails()  # list[str]
     FAKER.free_email()  # str
+    FAKER.free_emails()  # list[str]
     FAKER.free_email_domain()  # str
     FAKER.image_url()  # str
     FAKER.ipv4()  # str
@@ -527,6 +531,7 @@ Related projects
   for `fake.py`_. Among others, supports `AWS S3`, `Google Cloud Storage` and
   `Azure Cloud Storage`.
 - `fake-py-qt`_: Graphical user interface to `fake.py`_.
+- `fake-py-mcp`_: MCP interface to `fake.py`_ fake-data methods.
 - `fake-py-wasm`_: `fake.py`_ on WASM (web assembly).
 
 Writing documentation

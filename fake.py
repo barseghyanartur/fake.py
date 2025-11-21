@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.9"
+__version__ = "0.11.12"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2373,6 +2373,15 @@ class Faker:
         )
 
     @provider(tags=("Internet",))
+    def emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random emails."""
+        return [self.email(domain_names=domain_names) for _ in range(nb)]
+
+    @provider(tags=("Internet",))
     def company_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -2382,6 +2391,17 @@ class Faker:
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
     @provider(tags=("Internet",))
+    def company_emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random company emails."""
+        return [
+            self.company_email(domain_names=domain_names) for _ in range(nb)
+        ]
+
+    @provider(tags=("Internet",))
     def free_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -2389,6 +2409,17 @@ class Faker:
         """Generate a random free email."""
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
+
+    @provider(tags=("Internet",))
+    def free_emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random free emails."""
+        return [
+            self.free_email(domain_names=domain_names) for _ in range(nb)
+        ]
 
     @provider(tags=("Internet",))
     def url(
@@ -2468,7 +2499,8 @@ class Faker:
         :param min_special: Minimum number of special characters. Default is 0.
         :rtype: str
         :return: Random password string.
-        :raises: ValueError
+        :raises ValueError: if the total ``length`` is less than the sum of
+            all minimum character constraints.
         """
         if length < min_lower + min_upper + min_digits + min_special:
             raise ValueError("Length is too short for the given constraints.")
@@ -2521,7 +2553,8 @@ class Faker:
             can be negative.
         :return: Random Decimal number.
         :rtype: Decimal
-        :raises: ValueError
+        :raises ValueError: if ``left_digits`` or ``right_digits`` is less
+            than 0.
         """
         if left_digits < 0:
             raise ValueError("`left_digits` must be at least 0")
@@ -2572,7 +2605,7 @@ class Faker:
         :param tzinfo: Timezone info.
         :return: A datetime object representing the time offset.
         :rtype: datetime
-        :raises: ValueError
+        :raises ValueError: if date string format is incorrect.
         """
         if date_str in ["now", "today"]:
             return datetime.now(tzinfo)
@@ -2602,6 +2635,36 @@ class Faker:
     ) -> date:
         """Generate random date between `start_date` and `end_date`.
 
+        Both `start_date` and `end_date` use a shorthand
+        notation: [+/-][number][unit]
+
+        - Units: 'd' (days), 'H' (hours), 'M' (minutes)
+        - Sign: '+' for future, '-' for past, or omit '+' for future
+        - Special values: 'now', 'today' for current datetime
+
+        Shorthand notation examples:
+
+        - '-7d': 7 days ago
+        - '+3d' or '3d': 3 days from now
+        - '-24H': 24 hours ago
+        - '+2H': 2 hours from now
+        - '-30M': 30 minutes ago
+        - 'today' or 'now': current datetime
+
+        Usage example:
+
+        .. code-block:: python
+
+            FAKER.date()  # random date between 7 days ago and today
+            FAKER.date('-7d', '+0d')  # same as above (explicit)
+            FAKER.date('-30d', '-1d')  # between 30 days ago and yesterday
+            FAKER.date('+1d', '+7d')  # between tomorrow and next week
+            FAKER.date('today', '+3d')  # between today and 3 days from now
+            FAKER.date('-2H', '+2H')  # within 4-hour window around now
+            FAKER.date('-1d', '-1d')  # yesterday only
+            FAKER.date('-365d', 'today')  # in the past year
+            FAKER.date('+1d', '+30d')  # in the next month
+
         :param start_date: The start date from which the random date should
             be generated in the shorthand notation.
         :param end_date: The end date up to which the random date should be
@@ -2627,6 +2690,37 @@ class Faker:
         tzinfo: timezone = timezone.utc,
     ) -> datetime:
         """Generate a random datetime between `start_date` and `end_date`.
+
+        Both `start_date` and `end_date` use a shorthand
+        notation: [+/-][number][unit]
+
+            - Units: 'd' (days), 'H' (hours), 'M' (minutes)
+            - Sign: '+' for future, '-' for past, or omit '+' for future
+            - Special values: 'now', 'today' for current datetime
+
+        Shorthand notation examples:
+
+            - '-7d': 7 days ago
+            - '+3d' or '3d': 3 days from now
+            - '-24H': 24 hours ago
+            - '+2H': 2 hours from now
+            - '-30M': 30 minutes ago
+            - 'today' or 'now': current datetime
+
+        Usage example:
+
+        .. code-block:: python
+
+            FAKER.date_time()  # random datetime between 7 days ago and now
+            FAKER.date_time('-7d', '+0d')  # same as above (explicit)
+            FAKER.date_time('-24H', '+0H')  # in the past 24 hours
+            FAKER.date_time('-30M', '+30M')  # within 1-hour window around now
+            FAKER.date_time('today', '+1d')  # between now and tomorrow
+            FAKER.date_time('+1H', '+4H')  # between 1-4 hours from now
+            FAKER.date_time('-1d', 'now')  # since yesterday
+            FAKER.date_time('-2H', '-1H')  # between 2-1 hours ago
+            FAKER.date_time('+15M', '+45M')  # in 15-45 minutes
+            FAKER.date_time('-365d', 'today')  # in the past year
 
         :param start_date: The start datetime from which the random datetime
             should be generated in the shorthand notation.
@@ -4281,7 +4375,7 @@ class Faker:
         :returns: String with placeholders replaced with correspondent fake
             values.
 
-        Example:
+        Usage example:
 
         .. code-block:: python
 
@@ -4318,7 +4412,7 @@ class Faker:
         :returns: String with placeholders replaced with correspondent fake
             values.
 
-        Example:
+        Usage example:
 
         .. code-block:: python
 
@@ -6437,6 +6531,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
 
+    def test_emails(self) -> None:
+        emails: List[str] = self.faker.emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
+
     def test_email_custom_domain_names(self) -> None:
         domains = [
             ("example.com", "example.com"),
@@ -6455,6 +6554,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
 
+    def test_company_emails(self) -> None:
+        emails: List[str] = self.faker.company_emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
+
     def test_company_email_custom_domain_names(self) -> None:
         domains = [
             ("microsoft.com", "microsoft.com"),
@@ -6472,6 +6576,11 @@ class TestFaker(unittest.TestCase):
         email: str = self.faker.free_email()
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
+
+    def test_free_emails(self) -> None:
+        emails: List[str] = self.faker.free_emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
 
     def test_url(self) -> None:
         protocols = ("http", "https")
