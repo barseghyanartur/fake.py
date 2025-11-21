@@ -68,7 +68,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.11"
+__version__ = "0.11.12"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2318,6 +2318,15 @@ class Faker:
         )
 
     @provider(tags=("Internet",))
+    def emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random emails."""
+        return [self.email(domain_names=domain_names) for _ in range(nb)]
+
+    @provider(tags=("Internet",))
     def company_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -2327,6 +2336,17 @@ class Faker:
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
     @provider(tags=("Internet",))
+    def company_emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random company emails."""
+        return [
+            self.company_email(domain_names=domain_names) for _ in range(nb)
+        ]
+
+    @provider(tags=("Internet",))
     def free_email(
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
@@ -2334,6 +2354,17 @@ class Faker:
         """Generate a random free email."""
         domain = random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
+
+    @provider(tags=("Internet",))
+    def free_emails(
+        self,
+        nb: int = 5,
+        domain_names: Optional[Tuple[str, ...]] = None,
+    ) -> List[str]:
+        """Generate a list of random free emails."""
+        return [
+            self.free_email(domain_names=domain_names) for _ in range(nb)
+        ]
 
     @provider(tags=("Internet",))
     def url(
@@ -6445,6 +6476,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
 
+    def test_emails(self) -> None:
+        emails: List[str] = self.faker.emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
+
     def test_email_custom_domain_names(self) -> None:
         domains = [
             ("example.com", "example.com"),
@@ -6463,6 +6499,11 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
 
+    def test_company_emails(self) -> None:
+        emails: List[str] = self.faker.company_emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
+
     def test_company_email_custom_domain_names(self) -> None:
         domains = [
             ("microsoft.com", "microsoft.com"),
@@ -6480,6 +6521,11 @@ class TestFaker(unittest.TestCase):
         email: str = self.faker.free_email()
         self.assertIsInstance(email, str)
         self.assertTrue(self.is_valid_email(email))
+
+    def test_free_emails(self) -> None:
+        emails: List[str] = self.faker.free_emails(nb=3)
+        self.assertIsInstance(emails, list)
+        self.assertEqual(len(emails), 3)
 
     def test_url(self) -> None:
         protocols = ("http", "https")

@@ -189,9 +189,12 @@ Internet
     from fake import FAKER
 
     FAKER.company_email()  # str
+    FAKER.company_emails()  # list[str]
     FAKER.domain_name()  # str
     FAKER.email()  # str
+    FAKER.emails()  # list[str]
     FAKER.free_email()  # str
+    FAKER.free_emails()  # list[str]
     FAKER.free_email_domain()  # str
     FAKER.image_url()  # str
     FAKER.ipv4()  # str
