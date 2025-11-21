@@ -165,9 +165,11 @@ ElementType = Sequence[T]
 
 def str_to_bool(val: str | bool | None, default: bool) -> bool:
     """Convert string truthy/falsey values to boolean."""
-    if isinstance(val, bool):
+    if not val:
+        return False
+    elif isinstance(val, bool):
         return val
-    if isinstance(val, str):
+    elif isinstance(val, str):
         val_lower = val.lower()
         if val_lower in ("true", "1", "yes", "on"):
             return True
