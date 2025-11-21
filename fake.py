@@ -35,7 +35,8 @@ from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
 from email.message import EmailMessage
-from email.policy import Policy, default
+from email.policy import Policy
+from email.policy import default as default_policy
 from email.utils import parseaddr
 from functools import partial
 from inspect import signature
@@ -162,7 +163,7 @@ ElementType = Sequence[T]
 # ************************************************
 
 
-def str_to_bool(val: str, default: bool) -> bool:
+def str_to_bool(val: str | bool | None, default: bool) -> bool:
     """Convert string truthy/falsey values to boolean."""
     if isinstance(val, bool):
         return val
@@ -180,13 +181,13 @@ class Settings:
     """Settings."""
 
     word_corpus_zen: bool = str_to_bool(
-        os.getenv("FAKEPY_WORD_CORPUS_ZEN", "True"), False
+        os.getenv("FAKEPY_WORD_CORPUS_ZEN", True), False
     )
     word_corpus_self: bool = str_to_bool(
-        os.getenv("FAKEPY_WORD_CORPUS_SELF", "True"), False
+        os.getenv("FAKEPY_WORD_CORPUS_SELF", False), False
     )
     word_corpus_stdlib: bool = str_to_bool(
-        os.getenv("FAKEPY_WORD_CORPUS_STDLIB", "False"), False
+        os.getenv("FAKEPY_WORD_CORPUS_STDLIB", False), False
     )
 
     def __post_init__(self):
@@ -3494,7 +3495,9 @@ class Faker:
         # Choose the policy to use for creating and serializing
         if policy is None:
             # Clone the `default` and apply `cte_type` if given
-            policy = default.clone(cte_type=cte_type) if cte_type else default
+            policy = default_policy.clone(
+                cte_type=cte_type
+            ) if cte_type else default_policy
 
         msg = EmailMessage(policy=policy)
         msg["To"] = self.email()
