@@ -21,6 +21,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.11.12
+-------
+2025-11-21
+
+- Add `emails`, `free_emails and` `company_emails` providers.
+
 0.11.11
 -------
 2025-11-19
