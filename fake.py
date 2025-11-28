@@ -70,7 +70,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.11.12"
+__version__ = "0.12"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2051,7 +2051,11 @@ class Faker:
     and `color`(default: `(255, 0, 0)`) arguments.
     """
 
-    def __init__(self, alias: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        alias: Optional[str] = None,
+        seed: Optional[int] = None,
+    ) -> None:
         self._words: List[str] = []
         self._first_names: List[str] = []
         self._last_names: List[str] = []
@@ -2060,6 +2064,7 @@ class Faker:
         self._geo_locations: List[str] = []
         self._country_codes: List[str] = []
         self._locales: List[str] = []
+        self.random = random.Random(seed)
 
         self.uid = f"{self.__class__.__module__}.{self.__class__.__name__}"
         if alias and alias in ALIAS_REGISTRY:
@@ -2076,6 +2081,10 @@ class Faker:
             ALIAS_REGISTRY[self.alias] = self
 
         self.load_data()
+
+    def seed(self, seed: Optional[int]) -> None:
+        """Reset the RNG state with a new seed."""
+        self.random.seed(seed)
 
     def load_data(self):
         self.load_words()
@@ -2098,10 +2107,10 @@ class Faker:
                 # Dynamically import 'this' module
                 this = __import__("this")
 
-            zen_encoded: str = this.s
-            translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
-            zen: str = self._rot13_translate(zen_encoded, translation_map)
-            self._words += (
+        zen_encoded: str = this.s
+        translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
+        zen: str = self._rot13_translate(zen_encoded, translation_map)
+        self._words = sorted(
                 zen.translate(str.maketrans("", "", string.punctuation))
                 .lower()
                 .split()
@@ -2116,8 +2125,8 @@ class Faker:
 
     def load_names(self) -> None:
         authorship_data = AuthorshipData()
-        self._first_names = list(authorship_data.first_names)
-        self._last_names = list(authorship_data.last_names)
+        self._first_names = sorted(authorship_data.first_names)
+        self._last_names = sorted(authorship_data.last_names)
 
     def load_geo_locations(self) -> None:
         cities: Set[str] = set()
@@ -2150,9 +2159,9 @@ class Faker:
                 city = parts[1].replace("_", " ")
                 add_city(city)
 
-        self._cities = list(cities)
-        self._countries = list(countries)
-        self._geo_locations = list(geo_locations)
+        self._cities = sorted(cities)
+        self._countries = sorted(countries)
+        self._geo_locations = sorted(geo_locations)
 
     def load_locales_and_country_codes(self) -> None:
         # Fetch all available locales from the system
@@ -2177,8 +2186,8 @@ class Faker:
                 # Add to set to ensure uniqueness
                 add_country_code(__country_code.upper())
 
-        self._country_codes = list(_country_codes)
-        self._locales = list(_locales)
+        self._country_codes = sorted(_country_codes)
+        self._locales = sorted(_locales)
 
     @staticmethod
     def _rot13_translate(text: str, translation_map: Dict[str, str]) -> str:
@@ -2197,7 +2206,7 @@ class Faker:
     @provider(tags=("Person",))
     def first_name(self) -> str:
         """Generate a first name."""
-        return random.choice(self._first_names)
+        return self.random.choice(self._first_names)
 
     @provider(tags=("Person",))
     def first_names(self, nb: int = 5) -> List[str]:
@@ -2207,7 +2216,7 @@ class Faker:
     @provider(tags=("Person",))
     def last_name(self) -> str:
         """Generate a last name."""
-        return random.choice(self._last_names)
+        return self.random.choice(self._last_names)
 
     @provider(tags=("Person",))
     def last_names(self, nb: int = 5) -> List[str]:
@@ -2251,12 +2260,12 @@ class Faker:
     @provider(tags=("Text",))
     def word(self) -> str:
         """Generate a word."""
-        return random.choice(self._words).capitalize()
+        return self.random.choice(self._words).capitalize()
 
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
         """Generate a list of words."""
-        return list(random.choices(self._words, k=nb))
+        return list(self.random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
@@ -2335,24 +2344,24 @@ class Faker:
     ) -> str:
         """Generate a random dir path."""
         _path_parts = [
-            random.choice(self._words).lower() for _ in range(depth)
+            self.random.choice(self._words).lower() for _ in range(depth)
         ]
         return os.path.join(*([os.path.sep] + _path_parts))
 
     @provider(tags=("Filename",))
     def file_extension(self) -> str:
         """Generate a random extension."""
-        return random.choice(FILE_EXTENSIONS)
+        return self.random.choice(FILE_EXTENSIONS)
 
     @provider(tags=("Filename",))
     def mime_type(self) -> str:
         """Generate a random mime type."""
-        return random.choice(MIME_TYPES)
+        return self.random.choice(MIME_TYPES)
 
     @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
         """Generate a random TLD."""
-        return random.choice(tlds or TLDS)
+        return self.random.choice(tlds or TLDS)
 
     @provider(tags=("Internet",))
     def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
@@ -2364,12 +2373,12 @@ class Faker:
     @provider(tags=("Internet",))
     def free_email_domain(self) -> str:
         """Generate a random free email domain."""
-        return random.choice(FREE_EMAIL_DOMAINS)
+        return self.random.choice(FREE_EMAIL_DOMAINS)
 
     @provider(tags=("Internet",))
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
         """Generate a random email."""
-        domain = random.choice(domain_names) if domain_names else None
+        domain = self.random.choice(domain_names) if domain_names else None
         return (
                 f"{'.'.join(_w.lower() for _w in self.words(3))}"
                 f"@{domain or self.domain_name()}"
@@ -2390,7 +2399,7 @@ class Faker:
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
         """Generate a random company email."""
-        domain = random.choice(domain_names) if domain_names else None
+        domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
     @provider(tags=("Internet",))
@@ -2410,7 +2419,7 @@ class Faker:
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
         """Generate a random free email."""
-        domain = random.choice(domain_names) if domain_names else None
+        domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
     @provider(tags=("Internet",))
@@ -2432,8 +2441,8 @@ class Faker:
         suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
         """Generate a random URL."""
-        protocol = random.choice(protocols or URL_PROTOCOLS)
-        suffix = random.choice(suffixes or URL_SUFFIXES)
+        protocol = self.random.choice(protocols or URL_PROTOCOLS)
+        suffix = self.random.choice(suffixes or URL_SUFFIXES)
         return (
             f"{protocol}://"
             f"{self.domain_name(tlds)}"
@@ -2450,7 +2459,7 @@ class Faker:
     ) -> str:
         """Generate a random image URL."""
         if service_url is None:
-            service_url = random.choice(IMAGE_SERVICES)
+            service_url = self.random.choice(IMAGE_SERVICES)
         return service_url.format(width=width, height=height)
 
     @provider(tags=("Python",))
@@ -2462,12 +2471,12 @@ class Faker:
         :rtype: int
         :return: Random integer within the range [min_value, max_value].
         """
-        return random.randint(min_value, max_value)
+        return self.random.randint(min_value, max_value)
 
     @provider(tags=("Python",))
     def pybool(self) -> bool:
         """Generate a random boolean."""
-        return random.choice(
+        return self.random.choice(
             (
                 True,
                 False,
@@ -2482,7 +2491,7 @@ class Faker:
         :rtype: str
         :return: Random string.
         """
-        return "".join(random.choices(string.ascii_letters, k=nb_chars))
+        return "".join(self.random.choices(string.ascii_letters, k=nb_chars))
 
     @provider(tags=("Text",))
     def password(
@@ -2539,7 +2548,7 @@ class Faker:
         max_value: float = 10.0,
     ) -> float:
         """Generate a random float number."""
-        return random.uniform(min_value, max_value)
+        return self.random.uniform(min_value, max_value)
 
     @provider(tags=("Python",))
     def pydecimal(
@@ -2568,7 +2577,7 @@ class Faker:
             # Generate the integer part
             __lower = 10 ** (left_digits - 1)
             __upper = (10**left_digits) - 1
-            int_part = random.randint(__lower, __upper)
+            int_part = self.random.randint(__lower, __upper)
         else:
             int_part = 0
 
@@ -2576,7 +2585,7 @@ class Faker:
             # Generate the fractional part
             __lower = 10 ** (right_digits - 1)
             __upper = (10**right_digits) - 1
-            fractional_part = random.randint(__lower, __upper)
+            fractional_part = self.random.randint(__lower, __upper)
         else:
             fractional_part = 0
 
@@ -2592,7 +2601,9 @@ class Faker:
     @provider(tags=("Internet",))
     def ipv4(self) -> str:
         """Generate a random IP v4."""
-        return ".".join(str(random.randint(0, 255)) for _ in range(4))
+        return ".".join(
+            str(self.random.randint(0, 255)) for _ in range(4)
+        )
 
     def _parse_date_string(
         self, date_str: str, tzinfo: timezone = timezone.utc
@@ -2679,7 +2690,7 @@ class Faker:
         start_datetime = self._parse_date_string(start_date, tzinfo)
         end_datetime = self._parse_date_string(end_date, tzinfo)
         time_between_dates = (end_datetime - start_datetime).days
-        random_days = random.randrange(
+        random_days = self.random.randrange(
             time_between_dates + 1
         )  # Include the end date
         random_date = start_datetime + timedelta(days=random_days)
@@ -2738,7 +2749,7 @@ class Faker:
         time_between_datetimes = int(
             (end_datetime - start_datetime).total_seconds()
         )
-        random_seconds = random.randrange(
+        random_seconds = self.random.randrange(
             time_between_datetimes + 1
         )  # Include the end date time
         random_date_time = start_datetime + timedelta(seconds=random_seconds)
@@ -2753,7 +2764,7 @@ class Faker:
         :return: A random year as an integer.
         :rtype: int
         """
-        return random.randint(start_year, end_year)
+        return self.random.randint(start_year, end_year)
 
     @provider(tags=("Date/Time",))
     def time(self, fmt: str = "%H:%M:%S") -> str:
@@ -4205,46 +4216,49 @@ class Faker:
     @provider(tags=("Geographic",))
     def city(self) -> str:
         """Get a random city."""
-        return random.choice(self._cities)
+        return self.random.choice(self._cities)
 
     @provider(tags=("Geographic",))
     def country(self) -> str:
         """Get a random country."""
-        return random.choice(self._countries)
+        return self.random.choice(self._countries)
 
     @provider(tags=("Geographic",))
     def geo_location(self) -> str:
         """Get a random geo-location."""
-        return random.choice(self._geo_locations)
+        return self.random.choice(self._geo_locations)
 
     @provider(tags=("Geographic",))
     def country_code(self) -> str:
         """Get a random country code."""
-        return random.choice(self._country_codes)
+        return self.random.choice(self._country_codes)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
         """Get a random locale."""
-        return random.choice(self._locales)
+        return self.random.choice(self._locales)
 
     @provider(tags=("Geographic",))
     def latitude(self) -> float:
         """Generate a random latitude."""
-        return random.uniform(-90, 90)
+        return self.random.uniform(-90, 90)
 
     lat = latitude  # noqa
 
     @provider(tags=("Geographic",))
     def longitude(self) -> float:
         """Generate a random longitude."""
-        return random.uniform(-180, 180)
+        return self.random.uniform(-180, 180)
 
     lng = lon = longitude  # noqa
 
     @provider(tags=("Geographic",))
     def latitude_longitude(self) -> Tuple[float, float]:
         """Generate a random (latitude, longitude) pair."""
-        return random.uniform(-90, 90), random.uniform(-180, 180)
+        return (
+            self.random.uniform(-90, 90),
+            self.random.uniform(-180, 180),
+        )
 
     latlng = latlon = latitude_longitude  # noqa
 
@@ -4257,14 +4271,14 @@ class Faker:
     ) -> str:
         """Generate a random valid IBAN number."""
         if not country_code:
-            country_code = random.choice(self._country_codes)
+            country_code = self.random.choice(self._country_codes)
 
         # Generate the bank number and account number
         bank_number = "".join(
-            str(random.randint(0, 9)) for _ in range(bank_length)
+            str(self.random.randint(0, 9)) for _ in range(bank_length)
         )
         account_number = "".join(
-            str(random.randint(0, 9)) for _ in range(account_length)
+            str(self.random.randint(0, 9)) for _ in range(account_length)
         )
 
         # Basic Bank Account Number (BBAN)
@@ -4299,7 +4313,7 @@ class Faker:
     def isbn10(self):
         """Generate a random valid ISBN-10."""
         # Randomly generate the first 9 digits as a string
-        digits = "".join(str(random.randint(0, 9)) for _ in range(9))
+        digits = "".join(str(self.random.randint(0, 9)) for _ in range(9))
         # Calculate the checksum digit
         checksum = self._calculate_isbn10_checksum(digits)
         # Form the full ISBN-10 number
@@ -4318,8 +4332,8 @@ class Faker:
     @provider(tags=("Book",))
     def isbn13(self) -> str:
         """Generate a random valid ISBN-13, starting with 978 or 979."""
-        prefix = random.choice(["978", "979"])
-        digits = [str(random.randint(0, 9)) for _ in range(9)]
+        prefix = self.random.choice(["978", "979"])
+        digits = [str(self.random.randint(0, 9)) for _ in range(9)]
         full_digits = list(prefix) + digits
         checksum = self._isbn13_checksum(full_digits)
         isbn = "".join(full_digits) + checksum
@@ -4328,14 +4342,14 @@ class Faker:
     @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
         """Random choice: pick a single element from the given list."""
-        return random.choice(elements)
+        return self.random.choice(elements)
 
     random_element = random_choice  # noqa
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
         """Random sample: pick random `length` elements from the given list."""
-        return random.sample(elements, length)
+        return self.random.sample(elements, length)
 
     random_elements = random_sample  # noqa
 
@@ -4350,9 +4364,9 @@ class Faker:
         result = ""
         for char in value:
             if char == "?":
-                result += random.choice(letters)
+                result += self.random.choice(letters)
             elif char == "#":
-                result += random.choice(digits)
+                result += self.random.choice(digits)
             else:
                 result += char
         return result
@@ -6282,6 +6296,80 @@ class TestFaker(unittest.TestCase):
         parsed_address = parseaddr(email)
         return "@" in parsed_address[1]
 
+    def test_seed(self) -> None:
+        _providers = [
+            self.faker.first_name,
+            self.faker.first_names,
+            self.faker.last_name,
+            self.faker.last_names,
+            self.faker.name,
+            self.faker.names,
+            self.faker.username,
+            self.faker.usernames,
+            self.faker.slug,
+            self.faker.slugs,
+            self.faker.word,
+            self.faker.words,
+            self.faker.sentence,
+            self.faker.sentences,
+            self.faker.paragraph,
+            self.faker.paragraphs,
+            self.faker.text,
+            self.faker.texts,
+            self.faker.dir_path,
+            self.faker.file_extension,
+            self.faker.mime_type,
+            self.faker.tld,
+            self.faker.domain_name,
+            self.faker.free_email_domain,
+            self.faker.email,
+            self.faker.emails,
+            self.faker.company_email,
+            self.faker.company_emails,
+            self.faker.free_email,
+            self.faker.free_emails,
+            self.faker.url,
+            self.faker.image_url,
+            self.faker.pyint,
+            # self.faker.pybool,
+            self.faker.pystr,
+            self.faker.pyfloat,
+            self.faker.pydecimal,
+            self.faker.ipv4,
+            self.faker.date,
+            # self.faker.date_time,  # TODO: Find out why inconsistent seconds
+            self.faker.year,
+            self.faker.time,
+            self.faker.city,
+            self.faker.country,
+            self.faker.geo_location,
+            self.faker.country_code,
+            self.faker.locale,
+            self.faker.latitude,
+            self.faker.longitude,
+            self.faker.latitude_longitude,
+            self.faker.iban,
+            self.faker.isbn10,
+            self.faker.isbn13,
+            # self.faker.random_choice,  # TODO: Implement test
+            # self.faker.random_sample,  # TODO: Implement test
+            # self.faker.randomise_string,  # TODO: Implement test
+            # self.faker.string_template,  # TODO: Implement test
+            # self.faker.lazy_string_template,  # TODO: Implement test
+        ]
+        for _provider in _providers:
+            self.faker.seed(None)
+            list_1 = [_provider(), _provider(), _provider(), _provider()]
+            self.faker.seed(None)
+            list_2 = [_provider(), _provider(), _provider(), _provider()]
+            self.assertNotEqual(list_1, list_2)
+
+            self.faker.seed(42)
+            list_1 = [_provider(), _provider(), _provider(), _provider()]
+            self.faker.seed(42)
+            list_2 = [_provider(), _provider(), _provider(), _provider()]
+            self.assertEqual(list_1, list_2)
+
     def test_uuid(self) -> None:
         uuid_value = self.faker.uuid()
         self.assertIsInstance(uuid_value, uuid.UUID)
@@ -6427,7 +6515,7 @@ class TestFaker(unittest.TestCase):
 
         with self.subTest("test_default_depth"):
             # Test with default depth (should be 1)
-            random.seed(0)  # Set seed for reproducibility
+            self.faker.seed(0)  # Set seed for reproducibility
             path = self.faker.dir_path()
             self.assertTrue(
                 path.startswith(os.path.sep),
@@ -6449,7 +6537,7 @@ class TestFaker(unittest.TestCase):
         with self.subTest("test_depth_three"):
             # Test with depth set to 3
             depth = 3
-            random.seed(1)  # Set seed for reproducibility
+            self.faker.seed(1)  # Set seed for reproducibility
             path = self.faker.dir_path(depth)
             self.assertTrue(
                 path.startswith(os.path.sep),
@@ -6469,9 +6557,9 @@ class TestFaker(unittest.TestCase):
 
         with self.subTest(" test_randomness_reproducibility"):
             # Given a fixed seed, the output should be reproducible.
-            random.seed(123)
+            self.faker.seed(123)
             path1 = self.faker.dir_path(2)
-            random.seed(123)
+            self.faker.seed(123)
             path2 = self.faker.dir_path(2)
             self.assertEqual(
                 path1,

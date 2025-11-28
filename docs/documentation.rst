@@ -19,6 +19,7 @@ Contents:
    creating_archives
    factories
    customisation
+   seed
    test_configuration_tweaks
    cli
    security
