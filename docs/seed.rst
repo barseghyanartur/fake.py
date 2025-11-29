@@ -36,6 +36,7 @@ The following providers have consistent results when using seed:
 - url
 - image_url
 - pyint
+- pybool
 - pystr
 - pyfloat
 - pydecimal
@@ -54,6 +55,10 @@ The following providers have consistent results when using seed:
 - iban
 - isbn10
 - isbn13
+- random_choice
+- random_sample
+- randomise_string
+- string_template
 
 If you need to seed, it's recommended to create yet another instance of Faker
 to avoid possible collisions.

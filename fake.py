@@ -4281,14 +4281,32 @@ class Faker:
 
     @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
-        """Random choice: pick a single element from the given list."""
+        """Random choice: pick a single element from the given list.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_choice(("Art", "Photography", "Generative AI"))
+            # 'Photography'
+        """
         return self.random.choice(elements)
 
     random_element = random_choice  # noqa
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
-        """Random sample: pick random `length` elements from the given list."""
+        """Random sample: pick random `length` elements from the given list.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
+            # ['Photography', 'Art']
+        """
         return self.random.sample(elements, length)
 
     random_elements = random_sample  # noqa
@@ -4300,7 +4318,18 @@ class Faker:
         letters: str = string.ascii_uppercase,
         digits: str = string.digits,
     ) -> str:
-        """Randomise string: `?` is replaced with letter, `#` with number."""
+        """Randomise string: `?` is replaced with letter, `#` with number.
+
+        Usage example:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.randomise_string(value="10.####/####-####")
+            # '10.4613/4636-8596'
+            FAKER.randomise_string(value="???? ##")
+            # '1234 AB'
+        """
         result = ""
         for char in value:
             if char == "?":
@@ -6237,77 +6266,138 @@ class TestFaker(unittest.TestCase):
         return "@" in parsed_address[1]
 
     def test_seed(self) -> None:
+        _string_template = """
+            {date(start_date="-7d")}
+
+            # Title: {sentence(nb_words=6, suffix="")}
+
+            ## Authors: {name}, {name}, {name}
+
+            ## Abstract
+
+            ### Introduction
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Objective
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Methods
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Results
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Conclusion
+            {text(nb_chars=200, allow_overflow=True)}
+
+        Keywords: {word}, {word}, {word}
+        """
         _providers = [
-            self.faker.first_name,
-            self.faker.first_names,
-            self.faker.last_name,
-            self.faker.last_names,
-            self.faker.name,
-            self.faker.names,
-            self.faker.username,
-            self.faker.usernames,
-            self.faker.slug,
-            self.faker.slugs,
-            self.faker.word,
-            self.faker.words,
-            self.faker.sentence,
-            self.faker.sentences,
-            self.faker.paragraph,
-            self.faker.paragraphs,
-            self.faker.text,
-            self.faker.texts,
-            self.faker.dir_path,
-            self.faker.file_extension,
-            self.faker.mime_type,
-            self.faker.tld,
-            self.faker.domain_name,
-            self.faker.free_email_domain,
-            self.faker.email,
-            self.faker.emails,
-            self.faker.company_email,
-            self.faker.company_emails,
-            self.faker.free_email,
-            self.faker.free_emails,
-            self.faker.url,
-            self.faker.image_url,
-            self.faker.pyint,
-            # self.faker.pybool,
-            self.faker.pystr,
-            self.faker.pyfloat,
-            self.faker.pydecimal,
-            self.faker.ipv4,
-            self.faker.date,
-            # self.faker.date_time,  # TODO: Find out why inconsistent seconds
-            self.faker.year,
-            self.faker.time,
-            self.faker.city,
-            self.faker.country,
-            self.faker.geo_location,
-            self.faker.country_code,
-            self.faker.locale,
-            self.faker.latitude,
-            self.faker.longitude,
-            self.faker.latitude_longitude,
-            self.faker.iban,
-            self.faker.isbn10,
-            self.faker.isbn13,
-            # self.faker.random_choice,  # TODO: Implement test
-            # self.faker.random_sample,  # TODO: Implement test
-            # self.faker.randomise_string,  # TODO: Implement test
-            # self.faker.string_template,  # TODO: Implement test
-            # self.faker.lazy_string_template,  # TODO: Implement test
+            (self.faker.first_name, {}),
+            (self.faker.first_names, {}),
+            (self.faker.last_name, {}),
+            (self.faker.last_names, {}),
+            (self.faker.name, {}),
+            (self.faker.names, {}),
+            (self.faker.username, {}),
+            (self.faker.usernames, {}),
+            (self.faker.slug, {}),
+            (self.faker.slugs, {}),
+            (self.faker.word, {}),
+            (self.faker.words, {}),
+            (self.faker.sentence, {}),
+            (self.faker.sentences, {}),
+            (self.faker.paragraph, {}),
+            (self.faker.paragraphs, {}),
+            (self.faker.text, {}),
+            (self.faker.texts, {}),
+            (self.faker.dir_path, {}),
+            (self.faker.file_extension, {}),
+            (self.faker.mime_type, {}),
+            (self.faker.tld, {}),
+            (self.faker.domain_name, {}),
+            (self.faker.free_email_domain, {}),
+            (self.faker.email, {}),
+            (self.faker.emails, {}),
+            (self.faker.company_email, {}),
+            (self.faker.company_emails, {}),
+            (self.faker.free_email, {}),
+            (self.faker.free_emails, {}),
+            (self.faker.url, {}),
+            (self.faker.image_url, {}),
+            (self.faker.pyint, {}),
+            (self.faker.pybool, {}),
+            (self.faker.pystr, {}),
+            (self.faker.pyfloat, {}),
+            (self.faker.pydecimal, {}),
+            (self.faker.ipv4, {}),
+            (self.faker.date, {}),
+            # (self.faker.date_time, {}),  # TODO: Find out why inconsistent
+            (self.faker.year, {}),
+            (self.faker.time, {}),
+            (self.faker.city, {}),
+            (self.faker.country, {}),
+            (self.faker.geo_location, {}),
+            (self.faker.country_code, {}),
+            (self.faker.locale, {}),
+            (self.faker.latitude, {}),
+            (self.faker.longitude, {}),
+            (self.faker.latitude_longitude, {}),
+            (self.faker.iban, {}),
+            (self.faker.isbn10, {}),
+            (self.faker.isbn13, {}),
+            (
+                self.faker.random_choice,
+                {"elements": ("Art", "Photography", "Generative AI")},
+            ),
+            (
+                self.faker.random_sample,
+                {
+                    "elements": ("Art", "Photography", "Generative AI"),
+                    "length": 2,
+                },
+            ),
+            (self.faker.randomise_string, {"value": "???? ##"}),
+            (
+                self.faker.string_template,
+                {"template": _string_template}
+            ),
+            # (
+            #     self.faker.lazy_string_template,
+            #     {"template": _string_template}
+            # ),  # TODO: Implement test
         ]
-        for _provider in _providers:
+        for (_provider, _kwargs) in _providers:
             self.faker.seed(None)
-            list_1 = [_provider(), _provider(), _provider(), _provider()]
-            self.faker.seed(None)
-            list_2 = [_provider(), _provider(), _provider(), _provider()]
+            list_1 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
+            self.faker.seed(1)
+            list_2 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
             self.assertNotEqual(list_1, list_2)
 
             self.faker.seed(42)
-            list_1 = [_provider(), _provider(), _provider(), _provider()]
+            list_1 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
             self.faker.seed(42)
-            list_2 = [_provider(), _provider(), _provider(), _provider()]
+            list_2 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
             self.assertEqual(list_1, list_2)
 
     def test_uuid(self) -> None:

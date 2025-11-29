@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import asyncio
 import os
 import sys
 import unittest
@@ -32,7 +33,6 @@ def main():
     """Run administrative tasks."""
     sys.path.insert(0, os.path.abspath(os.path.join("..", "..")))
     sys.path.insert(0, os.path.abspath("."))
-    run_async(init())
 
     parser = argparse.ArgumentParser(
         description="Management script for the project."
@@ -44,6 +44,9 @@ def main():
     if args.command == "test":
         run_tests()
     elif args.command == "shell":
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        run_async(init())
         IPython.embed()
     else:
         print("Unknown command. Use 'test' or 'shell'.")

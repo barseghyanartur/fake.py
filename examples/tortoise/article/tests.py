@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from fake import FILE_REGISTRY, run_async_in_thread, xor_transform
@@ -16,6 +17,10 @@ __all__ = ("FactoriesTestCase",)
 class FactoriesTestCase(test.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Explicit event loop creation (Python 3.14 requirement)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
         initializer(["article.models"], db_url="sqlite://:memory:")
         # Your setup code...
 
