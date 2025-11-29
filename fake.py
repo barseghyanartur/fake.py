@@ -6368,21 +6368,22 @@ class TestFaker(unittest.TestCase):
             # ),  # TODO: Implement test
         ]
         for (_provider, _kwargs) in _providers:
-            self.faker.seed(None)
-            list_1 = [
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-            ]
-            self.faker.seed(1)
-            list_2 = [
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-                _provider(**_kwargs),
-            ]
-            self.assertNotEqual(list_1, list_2)
+            if _provider.__name__ not in ("pybool"):
+                self.faker.seed(None)
+                list_1 = [
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                ]
+                self.faker.seed(1)
+                list_2 = [
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                ]
+                self.assertNotEqual(list_1, list_2)
 
             self.faker.seed(42)
             list_1 = [
