@@ -21,6 +21,7 @@ testpaths = [
 pythonpath = [
     ".",
 ]
+pytest_asyncio_mode = "auto"
 
 [tool.coverage.run]
 relative_files = true
