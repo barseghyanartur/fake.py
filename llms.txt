@@ -96,6 +96,8 @@ Documentation
 
 * For tricks on specific content creation see the Cheat sheet.
 
+* For tips on seeding see the Seed.
+
 * For CLI documentation, see the CLI.
 
 * For guidelines on contributing check the Contributor guidelines.
