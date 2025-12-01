@@ -24,7 +24,8 @@ are used for versioning (schema follows below):
 0.12.1
 ------
 - Stop testing against Python 3.9.
-- Add testing against Python 3.14 for all extras.
+- Add testing against Python 3.14 for all integrations.
+- Improve seeding docs.
 
 0.12
 ----

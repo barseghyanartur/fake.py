@@ -32,6 +32,7 @@ fake.py
 .. _Creating archives: https://fakepy.readthedocs.io/en/latest/creating_archives.html
 .. _Cheat sheet: https://fakepy.readthedocs.io/en/latest/cheatsheet.html
 .. _Examples: https://github.com/barseghyanartur/fake.py/tree/main/examples
+.. _Seed: https://fakepy.readthedocs.io/en/latest/seed.html
 .. _CLI: https://fakepy.readthedocs.io/en/latest/cli.html
 .. _Contributor guidelines: https://fakepy.readthedocs.io/en/latest/contributor_guidelines.html
 .. _llms.txt: https://barseghyanartur.github.io/fake.py/llms.txt
@@ -139,6 +140,7 @@ Documentation
 - For tips on archives creation see `Creating archives`_.
 - For various implementation examples, see the `Examples`_.
 - For tricks on specific content creation see the `Cheat sheet`_.
+- For tips on seeding see the `Seed`_.
 - For CLI documentation, see the `CLI`_.
 - For guidelines on contributing check the `Contributor guidelines`_.
 
