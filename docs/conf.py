@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx_no_pragma",
+    "sphinx_markdown_builder",
 ]
 
 templates_path = ["_templates"]
@@ -86,3 +87,9 @@ epub_copyright = copyright
 epub_identifier = "https://github.com/barseghyanartur/fake.py"  # URL or ISBN
 epub_scheme = "URL"  # or "ISBN"
 epub_uid = "https://github.com/barseghyanartur/fake.py"
+
+# -- Options for sphinx-markdown-builder -------------------------------------
+
+# Configuration for the sphinx-markdown-builder extension
+markdown_uri_doc_suffix = ".txt"
+markdown_file_suffix = ".txt"

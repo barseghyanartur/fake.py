@@ -22,6 +22,9 @@ build_docs_epub:
 build_docs_pdf:
 	$(MAKE) -C docs/ latexpdf
 
+build_docs_markdown:
+	$(MAKE) -C docs/ markdown
+
 auto_build_docs:
 	source $(VENV) && sphinx-autobuild docs docs/_build/html
 
