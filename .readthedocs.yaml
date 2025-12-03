@@ -40,4 +40,6 @@ build:
       htmlzip:
         - echo "Override default build command for htmlzip format"
         - mkdir -p $READTHEDOCS_OUTPUT/html/
-        - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+#        - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
+        - sphinx-build -n -b markdown docs $READTHEDOCS_OUTPUT/html/
+        - cp -R markdown/* html/
