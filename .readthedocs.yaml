@@ -42,5 +42,5 @@ build:
         - mkdir -p $READTHEDOCS_OUTPUT/html/
         - mkdir -p $READTHEDOCS_OUTPUT/markdown/
 #        - sphinx-build -n -b text docs $READTHEDOCS_OUTPUT/html/
-        - sphinx-build -n -b markdown docs $READTHEDOCS_OUTPUT/html/
+        - sphinx-build -n -b markdown docs $READTHEDOCS_OUTPUT/markdown/
         - cp -R $READTHEDOCS_OUTPUT/markdown/* $READTHEDOCS_OUTPUT/html/
