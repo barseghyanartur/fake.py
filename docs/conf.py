@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_no_pragma",
     "sphinx_markdown_builder",
+    "sphinx_llms_txt_link",
 ]
 
 templates_path = ["_templates"]
