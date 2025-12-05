@@ -42,6 +42,7 @@ docutils==0.21.2
     #   readme-renderer
     #   restructuredtext-lint
     #   sphinx
+    #   sphinx-llms-txt-link
     #   sphinx-markdown-builder-reloaded
     #   sphinx-no-pragma
     #   sphinx-rtd-theme
@@ -173,11 +174,14 @@ sphinx==8.2.3
     # via
     #   fake-py (pyproject.toml)
     #   sphinx-autobuild
+    #   sphinx-llms-txt-link
     #   sphinx-markdown-builder-reloaded
     #   sphinx-no-pragma
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
 sphinx-autobuild==2025.8.25
+    # via fake-py (pyproject.toml)
+sphinx-llms-txt-link==0.1
     # via fake-py (pyproject.toml)
 sphinx-markdown-builder-reloaded==0.6.9
     # via fake-py (pyproject.toml)
