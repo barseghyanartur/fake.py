@@ -2323,7 +2323,14 @@ class Faker:
         suffix: str = ".",
         allow_overflow: bool = False,
     ) -> str:
-        """Generate a text."""
+        """Generate a text.
+
+        :param nb_chars: Number of characters to generate.
+        :param suffix: Suffix to add to text. Defaults to `.`.
+        :param allow_overflow: Allow overflow. Defaults to False.
+        :return: Text.
+        :rtype: str
+        """
         current_text: str = ""
         while len(current_text) < nb_chars:
             sentence: str = self.sentence()
@@ -2334,7 +2341,12 @@ class Faker:
 
     @provider(tags=("Text",))
     def texts(self, nb: int = 3) -> List[str]:
-        """Generate a list of texts."""
+        """Generate a list of texts.
+
+        :param nb: Number of texts to generate.
+        :return: List of texts.
+        :rtype: List[str]
+        """
         return [self.text() for _ in range(nb)]
 
     @provider(tags=("Filename",))
@@ -2343,7 +2355,13 @@ class Faker:
         prefix: Optional[str] = "",
         extension: str = "txt",
     ) -> str:
-        """Generate a random filename."""
+        """Generate a random filename.
+
+        :param prefix: Prefix to add to filename. Defaults to empty string.
+        :param extension: Extension to add to filename. Defaults to '.txt'.
+        :return: Filename.
+        :rtype: str
+        """
         return os.path.basename(
             mktemp(
                 suffix=f".{extension}" if extension else "",
@@ -2357,7 +2375,13 @@ class Faker:
         prefix: Optional[str] = "",
         extension: str = "txt",
     ) -> str:
-        """Generate a random file path."""
+        """Generate a random file path.
+
+        :param prefix: Prefix to add to file path. Defaults to empty string.
+        :param extension: Extension to add to file path. Defaults to '.txt'.
+        :return: File path.
+        :rtype: str
+        """
         return mktemp(
             suffix=f".{extension}" if extension else "",
             prefix=prefix or "",
@@ -2368,7 +2392,12 @@ class Faker:
         self,
         depth: int = 1,
     ) -> str:
-        """Generate a random dir path."""
+        """Generate a random dir path.
+
+        :param depth: Depth to add to dir path. Defaults to 1.
+        :return: Dir path.
+        :rtype: str
+        """
         _path_parts = [
             self.random.choice(self._words).lower() for _ in range(depth)
         ]
@@ -2376,34 +2405,64 @@ class Faker:
 
     @provider(tags=("Filename",))
     def file_extension(self) -> str:
-        """Generate a random extension."""
+        """Generate a random extension.
+
+        :return: File extension.
+        :rtype: str
+        """
         return self.random.choice(FILE_EXTENSIONS)
 
     @provider(tags=("Filename",))
     def mime_type(self) -> str:
-        """Generate a random mime type."""
+        """Generate a random mime type.
+
+        :return: Mime type.
+        :rtype: str
+        """
         return self.random.choice(MIME_TYPES)
 
     @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random TLD."""
+        """Generate a random TLD.
+
+        :param tlds: List of TLDs to use. If not given or None, a default
+            list of TLDs is used.
+        :return: TLD.
+        :rtype: str
+        """
         return self.random.choice(tlds or TLDS)
 
     @provider(tags=("Internet",))
     def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random domain name."""
+        """Generate a random domain name.
+
+        :param tlds: List of TLDs to use. If not given or None, a default
+            list of TLDs is used.
+        :return: Domain name.
+        :rtype: str
+        """
         domain = self.word().lower()
         tld = self.tld(tlds)
         return f"{domain}.{tld}"
 
     @provider(tags=("Internet",))
     def free_email_domain(self) -> str:
-        """Generate a random free email domain."""
+        """Generate a random free email domain.
+
+        :return: Free email domain.
+        :rtype: str
+        """
         return self.random.choice(FREE_EMAIL_DOMAINS)
 
     @provider(tags=("Internet",))
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random email."""
+        """Generate a random email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return (
                 f"{'.'.join(_w.lower() for _w in self.words(3))}"
@@ -2416,7 +2475,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random emails."""
+        """Generate a list of random emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [self.email(domain_names=domain_names) for _ in range(nb)]
 
     @provider(tags=("Internet",))
@@ -2424,7 +2490,13 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random company email."""
+        """Generate a random company email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Company email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
@@ -2434,7 +2506,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random company emails."""
+        """Generate a list of random company emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [
             self.company_email(domain_names=domain_names) for _ in range(nb)
         ]
@@ -2444,7 +2523,13 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random free email."""
+        """Generate a random free email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Free email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
@@ -2454,7 +2539,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random free emails."""
+        """Generate a list of random free emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [
             self.free_email(domain_names=domain_names) for _ in range(nb)
         ]
