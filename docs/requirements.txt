@@ -43,7 +43,7 @@ docutils==0.21.2
     #   restructuredtext-lint
     #   sphinx
     #   sphinx-llms-txt-link
-    #   sphinx-markdown-builder-reloaded
+    #   sphinx-markdown-builder
     #   sphinx-no-pragma
     #   sphinx-rtd-theme
 executing==2.2.1
@@ -175,7 +175,7 @@ sphinx==8.2.3
     #   fake-py (pyproject.toml)
     #   sphinx-autobuild
     #   sphinx-llms-txt-link
-    #   sphinx-markdown-builder-reloaded
+    #   sphinx-markdown-builder
     #   sphinx-no-pragma
     #   sphinx-rtd-theme
     #   sphinxcontrib-jquery
@@ -183,7 +183,7 @@ sphinx-autobuild==2025.8.25
     # via fake-py (pyproject.toml)
 sphinx-llms-txt-link==0.1
     # via fake-py (pyproject.toml)
-sphinx-markdown-builder-reloaded==0.6.9
+sphinx-markdown-builder==0.6.9
     # via fake-py (pyproject.toml)
 sphinx-no-pragma==0.1.2
     # via fake-py (pyproject.toml)
@@ -212,7 +212,7 @@ starlette==0.50.0
 stevedore==5.6.0
     # via doc8
 tabulate==0.9.0
-    # via sphinx-markdown-builder-reloaded
+    # via sphinx-markdown-builder
 traitlets==5.14.3
     # via
     #   ipython

@@ -2137,81 +2137,150 @@ class Faker:
 
     @provider(tags=("Unique",))
     def uuid(self) -> UUID:
-        """Generate a UUID."""
+        """Generate a UUID.
+
+        :return: UUID
+        :rtype: UUID
+        """
         return uuid.uuid4()
 
     @provider(tags=("Unique",))
     def uuids(self, nb: int = 5) -> List[UUID]:
-        """Generate a list of UUIDs."""
+        """Generate a list of UUIDs.
+
+        :param nb: Number of UUIDs to generate.
+        :return: List of UUIDs
+        :rtype: List[UUID]
+        """
         return [uuid.uuid4() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def first_name(self) -> str:
-        """Generate a first name."""
+        """Generate a first name.
+
+        :return: First name.
+        :rtype: str
+        """
         return self.random.choice(self._first_names)
 
     @provider(tags=("Person",))
     def first_names(self, nb: int = 5) -> List[str]:
-        """Generate a list of first names."""
+        """Generate a list of first names.
+
+        :param nb: Number of first names to generate.
+        :return: List of first names.
+        :rtype: List[str]
+        """
         return [self.first_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def last_name(self) -> str:
-        """Generate a last name."""
+        """Generate a last name.
+
+        :return: Last name.
+        :rtype: str
+        """
         return self.random.choice(self._last_names)
 
     @provider(tags=("Person",))
     def last_names(self, nb: int = 5) -> List[str]:
-        """Generate a list of last names."""
+        """Generate a list of last names.
+
+        :param nb: Number of last names to generate.
+        :return: List of last names.
+        :rtype: List[str]
+        """
         return [self.last_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def name(self) -> str:
-        """Generate a name."""
+        """Generate a name.
+
+        :return: Name.
+        :rtype: str
+        """
         return f"{self.first_name()} {self.last_name()}"
 
     @provider(tags=("Person",))
     def names(self, nb: int = 5) -> List[str]:
-        """Generate a list of names."""
+        """Generate a list of names.
+
+        :param nb: Number of names to generate.
+        :return: List of names.
+        :rtype: List[str]
+        """
         return [self.name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def username(self) -> str:
-        """Generate a username."""
+        """Generate a username.
+
+        :return: Username.
+        :rtype: str
+        """
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
     @provider(tags=("Person",))
     def usernames(self, nb: int = 5) -> List[str]:
-        """Generate a list of usernames."""
+        """Generate a list of usernames.
+
+        :param nb: Number of usernames to generate.
+        :return: List of usernames.
+        :rtype: List[str]
+        """
         return [self.username() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def slug(self) -> str:
-        """Generate a slug."""
+        """Generate a slug.
+
+        :return: Slug.
+        :rtype: str
+        """
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
     @provider(tags=("Text",))
     def slugs(self, nb: int = 5) -> List[str]:
-        """Generate a list of slugs."""
+        """Generate a list of slugs.
+
+        :param nb: Number of slugs to generate.
+        :return: List of slugs.
+        :rtype: List[str]
+        """
         return [self.slug() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def word(self) -> str:
-        """Generate a word."""
+        """Generate a word.
+
+        :return: Word.
+        :rtype: str
+        """
         return self.random.choice(self._words).capitalize()
 
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
-        """Generate a list of words."""
+        """Generate a list of words.
+
+        :param nb: Number of words to generate.
+        :return: List of words.
+        :rtype: List[str]
+        """
         return list(self.random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
-        """Generate a sentence."""
+        """Generate a sentence.
+
+        :param nb_words: Number of words to generate.
+        :param suffix: Suffix to add to sentence. Defaults to `.`.
+        :return: Sentence.
+        :rtype: str
+        """
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}"
             f"{suffix}"
@@ -2219,17 +2288,32 @@ class Faker:
 
     @provider(tags=("Text",))
     def sentences(self, nb: int = 3) -> List[str]:
-        """Generate a list of sentences."""
+        """Generate a list of sentences.
+
+        :param nb: Number of sentences to generate.
+        :return: List of sentences.
+        :rtype: List[str]
+        """
         return [self.sentence() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def paragraph(self, nb_sentences: int = 5) -> str:
-        """Generate a paragraph."""
+        """Generate a paragraph.
+
+        :param nb_sentences: Number of sentences to generate.
+        :return: Paragraph.
+        :rtype: str
+        """
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
     @provider(tags=("Text",))
     def paragraphs(self, nb: int = 3) -> List[str]:
-        """Generate a list of paragraphs."""
+        """Generate a list of paragraphs.
+
+        :param nb: Number of paragraphs to generate.
+        :return: List of paragraphs.
+        :rtype: List[str]
+        """
         return [self.paragraph() for _ in range(nb)]
 
     @provider(tags=("Text",))
