@@ -2558,7 +2558,29 @@ class Faker:
         tlds: Optional[Tuple[str, ...]] = None,
         suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random URL."""
+        """Generate a random URL.
+
+        Example without params:
+
+            FAKER.url()
+
+        Example with params:
+
+            FAKER.url(
+                protocols=("https",),
+                tlds=("com",),
+                suffixes=(".py",),
+            )
+
+        :param protocols: List of protocols to use. If not given or None,
+            default protocols are used.
+        :param tlds: List of TLDs to use. If not given or None, default
+            TLDs are used.
+        :param suffixes: List of suffixes to use. If not given or None,
+            default suffixes are used.
+        :return: URL.
+        :rtype: str
+        """
         protocol = self.random.choice(protocols or URL_PROTOCOLS)
         suffix = self.random.choice(suffixes or URL_SUFFIXES)
         return (
@@ -2575,7 +2597,15 @@ class Faker:
         height: int = 600,
         service_url: Optional[str] = None,
     ) -> str:
-        """Generate a random image URL."""
+        """Generate a random image URL.
+
+        :param width: Width of the image. Default is 800.
+        :param height: Height of the image. Default is 600.
+        :param service_url: Service URL. If not given or None, randomly
+            picked service URL is used.
+        :return: Image URL.
+        :rtype: str
+        """
         if service_url is None:
             service_url = self.random.choice(IMAGE_SERVICES)
         return service_url.format(width=width, height=height)
@@ -2593,7 +2623,11 @@ class Faker:
 
     @provider(tags=("Python",))
     def pybool(self) -> bool:
-        """Generate a random boolean."""
+        """Generate a random boolean.
+
+        :return: Random boolean.
+        :rtype: bool
+        """
         return self.random.choice(
             (
                 True,
