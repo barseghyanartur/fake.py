@@ -3891,7 +3891,34 @@ class Faker:
         prefix: Optional[str] = None,
         **kwargs,
     ) -> StringValue:
-        """Create a PDF file."""
+        """Create a PDF file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.pdf_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.pdf_file(nb_pages=5, prefix="custom_pdf_")
+
+        :param nb_pages: Number of pages in the PDF. Defaults to 1.
+        :param generator: PDF generator class to use. Defaults to
+            GraphicPdfGenerator.
+        :param metadata: Metadata for the PDF. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param **kwargs: Additional keyword arguments to pass to the PDF
+            generator.
+        :return: StringValue containing the relative path of the generated PDF
+            file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -3925,7 +3952,34 @@ class Faker:
         prefix: Optional[str] = None,
         **kwargs,
     ) -> StringValue:
-        """Create a text PDF file."""
+        """Create a text PDF file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.text_pdf_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.text_pdf_file(nb_pages=5, prefix="custom_text_pdf_")
+
+        :param nb_pages: Number of pages in the PDF. Defaults to 1.
+        :param generator: PDF generator class to use. Defaults to
+            TextPdfGenerator.
+        :param metadata: Metadata for the PDF. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param **kwargs: Additional keyword arguments to pass to the PDF
+            generator.
+        :return: StringValue containing the relative path of the generated PDF
+            file.
+        :rtype: StringValue
+        """
         return self.pdf_file(
             nb_pages=nb_pages,
             generator=generator,
@@ -3980,7 +4034,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PNG image file of a specified size and colour."""
+        """Create a PNG image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: StringValue containing the relative path of the generated PNG
+            file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="png",
             size=size,
@@ -4001,7 +4070,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create an SVG image file of a specified size and colour."""
+        """Create an SVG image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated
+            SVG file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="svg",
             size=size,
@@ -4022,7 +4106,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a BMP image file of a specified size and colour."""
+        """Create a BMP image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated BMP
+            file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="bmp",
             size=size,
@@ -4043,7 +4142,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a GIF image file of a specified size and colour."""
+        """Create a GIF image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: StringValue containing the relative path of the generated GIF
+            file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="gif",
             size=size,
@@ -4085,7 +4199,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a PPM image file of a specified size and colour."""
+        """Create a PPM image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated PPM
+            file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="ppm",
             size=size,
