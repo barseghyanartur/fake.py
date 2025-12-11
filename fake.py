@@ -2562,9 +2562,13 @@ class Faker:
 
         Example without params:
 
+        .. code-block:: python
+
             FAKER.url()
 
         Example with params:
+
+        .. code-block:: python
 
             FAKER.url(
                 protocols=("https",),
@@ -2599,8 +2603,8 @@ class Faker:
     ) -> str:
         """Generate a random image URL.
 
-        :param width: Width of the image. Default is 800.
-        :param height: Height of the image. Default is 600.
+        :param width: Width of the image. Defaults to 800.
+        :param height: Height of the image. Defaults to 600.
         :param service_url: Service URL. If not given or None, randomly
             picked service URL is used.
         :return: Image URL.
@@ -2614,10 +2618,10 @@ class Faker:
     def pyint(self, min_value: int = 0, max_value: int = 9999) -> int:
         """Generate a random integer.
 
-        :param min_value: Min value of the generated integer. Default is 0.
-        :param max_value: Max value of the generated integer. Default is 9999.
-        :rtype: int
+        :param min_value: Min value of the generated integer. Defaults to 0.
+        :param max_value: Max value of the generated integer. Defaults to 9999.
         :return: Random integer within the range [min_value, max_value].
+        :rtype: int
         """
         return self.random.randint(min_value, max_value)
 
@@ -2640,8 +2644,8 @@ class Faker:
         """Generate a random string.
 
         :param nb_chars: Number of characters to generate.
-        :rtype: str
         :return: Random string.
+        :rtype: str
         """
         return "".join(self.random.choices(string.ascii_letters, k=nb_chars))
 
@@ -2657,12 +2661,13 @@ class Faker:
         """Generate a random password.
 
         :param length: Total length of the password. Default is 10.
-        :param min_lower: Minimum number of lowercase letters. Default is 1.
-        :param min_upper: Minimum number of uppercase letters. Default is 1.
+        :param min_lower: Minimum number of lowercase letters. Defaults to 1.
+        :param min_upper: Minimum number of uppercase letters. Defaults to 1.
         :param min_digits: Minimum number of digits. Default is 3.
-        :param min_special: Minimum number of special characters. Default is 0.
-        :rtype: str
+        :param min_special: Minimum number of special characters. Defaults
+            to 0.
         :return: Random password string.
+        :rtype: str
         :raises ValueError: if the total ``length`` is less than the sum of
             all minimum character constraints.
         """
@@ -2699,7 +2704,13 @@ class Faker:
         min_value: float = 0.0,
         max_value: float = 10.0,
     ) -> float:
-        """Generate a random float number."""
+        """Generate a random float number.
+
+        :param min_value: Min value of the generated number. Defaults to 0.
+        :param max_value: Max value of the generated number. Defaults to 10.
+        :return: Random float number.
+        :rtype: float
+        """
         return self.random.uniform(min_value, max_value)
 
     @provider(tags=("Python",))
@@ -2712,7 +2723,8 @@ class Faker:
         """Generate a random Decimal number.
 
         :param left_digits: Number of digits to the left of the decimal point.
-        :param right_digits: Number of digits to the right of the decimal point.
+        :param right_digits: Number of digits to the right of the decimal
+            point.
         :param positive: If True, the number will be positive, otherwise it
             can be negative.
         :return: Random Decimal number.
@@ -2752,7 +2764,11 @@ class Faker:
 
     @provider(tags=("Internet",))
     def ipv4(self) -> str:
-        """Generate a random IP v4."""
+        """Generate a random IP v4.
+
+        :return: Random IP v4.
+        :rtype: str
+        """
         return ".".join(
             str(self.random.randint(0, 255)) for _ in range(4)
         )
@@ -2889,10 +2905,10 @@ class Faker:
             FAKER.date_time('-365d', 'today')  # in the past year
 
         :param start_date: The start datetime from which the random datetime
-            should be generated in the shorthand notation.
+            should be generated in the shorthand notation. Defaults to `-7d`.
         :param end_date: The end datetime up to which the random datetime
-            should be generated in the shorthand notation.
-        :param tzinfo: The timezone.
+            should be generated in the shorthand notation. Defaults to `+0d`.
+        :param tzinfo: The timezone. Defaults to `timezone.utc`.
         :return: A string representing the formatted datetime.
         :rtype: datetime
         """
@@ -2911,8 +2927,9 @@ class Faker:
     def year(self, start_year: int = 1900, end_year: int = 2100) -> int:
         """Generate a random year between start_year and end_year (inclusive).
 
-        :param start_year: The lower bound for the random year.
-        :param end_year: The upper bound for the random year.
+        :param start_year: The lower bound for the random year. Defaults
+            to 1900.
+        :param end_year: The upper bound for the random year. Defaults to 2100.
         :return: A random year as an integer.
         :rtype: int
         """
@@ -2922,7 +2939,7 @@ class Faker:
     def time(self, fmt: str = "%H:%M:%S") -> str:
         """Generate a random time string formatted according to `fmt`.
 
-        :param fmt: The format to use.
+        :param fmt: The format to use. Defaults to `%H:%M:%S`.
         :return: A random time string formatted according to `fmt`.
         :rtype: str
         """
@@ -2941,7 +2958,16 @@ class Faker:
         metadata: Optional[MetaData] = None,
         **kwargs,
     ) -> bytes:
-        """Create a PDF document of a given size."""
+        """Create a PDF document of a given size.
+
+        :param nb_pages: The number of pages to generate. Defaults to 1.
+        :param generator: The PDF generator to use. Defaults
+            to `GraphicPdfGenerator`.
+        :param metadata: The metadata to use. Defaults to `None`.
+        :param **kwargs: Additional arguments to pass to `generator`.
+        :return: A bytes object representing the PDF document.
+        :rtype: bytes
+        """
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
@@ -2953,7 +2979,16 @@ class Faker:
         metadata: Optional[MetaData] = None,
         **kwargs,
     ) -> bytes:
-        """Create a PDF document of a given size."""
+        """Create a PDF document of a given size.
+
+        :param nb_pages: The number of pages to generate. Defaults to 1.
+        :param generator: The PDF generator to use. Defaults
+            to `TextPdfGenerator`.
+        :param metadata: The metadata to use. Defaults to `None`.
+        :param **kwargs: Additional arguments to pass to `generator`.
+        :return: A bytes object representing the PDF document.
+        :rtype: bytes
+        """
         return self.pdf(
             nb_pages=nb_pages,
             generator=generator,
@@ -2970,8 +3005,9 @@ class Faker:
         """Create a PNG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers). Defaults to (0, 0, 255).
         :return: Byte content of the PNG image.
         :rtype: bytes
         """
@@ -3026,8 +3062,9 @@ class Faker:
         """Create an SVG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers). Defaults to (0, 0, 255).
         :return: Byte content of the SVG image.
         :rtype: bytes
         """
@@ -3043,8 +3080,9 @@ class Faker:
         """Create a BMP image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers). Defaults to (0, 0, 255).
         :return: Byte content of the BMP image.
         :rtype: bytes
         """
@@ -3104,8 +3142,9 @@ class Faker:
         """Create a GIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers). Defaults to (0, 0, 255).
         :return: Byte content of the GIF image.
         :rtype: bytes
         """
@@ -3175,8 +3214,9 @@ class Faker:
         """Create a TIF image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers). Defaults to (0, 0, 255).
         :return: Byte content of the TIF image.
         :rtype: bytes
         """
@@ -3251,8 +3291,9 @@ class Faker:
         """Create a PPM image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format, tuple of three
-            integers: (0-255, 0-255, 0-255).
+            integers: (0-255, 0-255, 0-255). Defaults to (0, 0, 255).
         :return: Byte content of the PPM image.
         :rtype: bytes
         """
@@ -3279,8 +3320,9 @@ class Faker:
         """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
         :param color: Colour of the image in RGB format, tuple of three
-            integers: (0-255, 0-255, 0-255).
+            integers: (0-255, 0-255, 0-255). Defaults to (128, 128, 128).
         :return: Byte content of the JPG image.
         :rtype: bytes
         """
@@ -3301,7 +3343,17 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
     ) -> bytes:
-        """Create an image of a specified format, size and colour."""
+        """Create an image of a specified format, size and colour.
+
+        :param image_format: Format of the image. Defaults to "png".
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format, tuple of three
+            integers: (0-255, 0-255, 0-255). Defaults to (128, 128, 128).
+        :return: Byte content of the image.
+        :rtype: bytes
+        :raises ValueError: If the image format is not supported.
+        """
         if image_format not in {
             "png",
             "svg",
@@ -3325,10 +3377,11 @@ class Faker:
     ) -> bytes:
         """Create a WAV audio.
 
-        :param frequency: The frequency of the tone in Hz.
-        :param duration: Duration of the tone in seconds.
+        :param frequency: The frequency of the tone in Hz. Defaults to 440.
+        :param duration: Duration of the tone in seconds. Defaults to 1.
         :param volume: Volume of the tone, scale between 0.0 and 1.0.
-        :param sample_rate: Sampling rate in Hz.
+            Defaults to 0.5.
+        :param sample_rate: Sampling rate in Hz. Defaults to 44100.
         :return: Byte content of the WAV audio.
         :rtype: bytes
         """
@@ -3369,7 +3422,27 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
     ) -> bytes:
-        """Create a DOCX document."""
+        """Create a DOCX document.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.docx()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.docx(texts=("Page 1", "Page 2", "Page 3"))
+            FAKER.docx(nb_pages=5)
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :return: Byte content of the DOCX document.
+        :rtype: bytes
+        """
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -3380,7 +3453,27 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional["MetaData"] = None,
     ) -> bytes:
-        """Create an RTF document."""
+        """Create an RTF document.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.rtf()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.rtf(texts=("Page 1", "Page 2", "Page 3"))
+            FAKER.rtf(nb_pages=5)
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :return: Byte content of the RTF document.
+        :rtype: bytes
+        """
         _rtf = RtfGenerator(faker=self)
         return _rtf.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -3391,7 +3484,27 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional["MetaData"] = None,
     ) -> bytes:
-        """Create a minimal EPUB document."""
+        """Create a minimal EPUB document.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.epub()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.epub(texts=("Page 1", "Page 2", "Page 3"))
+            FAKER.epub(nb_pages=5)
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :return: Byte content of the minimal EPUB document.
+        :rtype: bytes
+        """
         _epub = EpubGenerator(faker=self)
         return _epub.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -3402,7 +3515,27 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
     ) -> bytes:
-        """Create a ODT document."""
+        """Create a ODT document.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.odt()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.odt(texts=("Page 1", "Page 2", "Page 3"))
+            FAKER.odt(nb_pages=5)
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :return: Byte content of the ODT document.
+        :rtype: bytes
+        """
         _odt = OdtGenerator(faker=self)
         return _odt.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
@@ -3411,7 +3544,12 @@ class Faker:
         self,
         length: int = 16,
     ) -> bytes:
-        """Create random bytes."""
+        """Create random bytes.
+
+        :param length: Length of the bytes to generate. Defaults to 16.
+        :return: Byte content of the random bytes.
+        :rtype: bytes
+        """
         return os.urandom(length)
 
     @provider(tags=("Binary", "Archive",))
