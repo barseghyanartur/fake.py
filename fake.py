@@ -4178,7 +4178,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a TIF image file of a specified size and colour."""
+        """Create a TIF image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (0, 0, 255).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated
+            TIF file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="tif",
             size=size,
@@ -4235,7 +4250,22 @@ class Faker:
         prefix: Optional[str] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
-        """Create a JPG image file of a specified size and colour."""
+        """Create a JPG image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (128, 128, 128).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated
+            JPG file.
+        :rtype: StringValue
+        """
         return self._image_file(
             image_format="jpg",
             size=size,
@@ -4257,7 +4287,21 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a WAV audio file."""
+        """Create a WAV audio file.
+
+        :param frequency: Frequency of the audio in Hertz. Defaults to 440.
+        :param duration: Duration of the audio in seconds. Defaults to 1.
+        :param volume: Volume of the audio (0.0 to 1.0). Defaults to 0.5.
+        :param sample_rate: Sample rate of the audio in samples per second.
+            Defaults to 44100.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: `StringValue` containing the relative path of the generated
+            WAV file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4290,7 +4334,32 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a DOCX document file."""
+        """Create a DOCX document file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.docx_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.docx_file(nb_pages=5, prefix="custom_docx_")
+            FAKER.docx_file(texts=["First page", "Second page", "Third page"])
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: `StringValue` containing the relative path of the generated
+            DOCX file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4321,7 +4390,32 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create an RTF document file."""
+        """Create an RTF document file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.rtf_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.rtf_file(nb_pages=5, prefix="custom_rtf_")
+            FAKER.rtf_file(texts=["First page", "Second page", "Third page"])
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: `StringValue` containing the relative path of the generated
+            RTF file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4352,7 +4446,32 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a EPUB document file."""
+        """Create a EPUB document file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.epub_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.epub_file(nb_pages=5, prefix="custom_epub_")
+            FAKER.epub_file(texts=["First page", "Second page", "Third page"])
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: `StringValue` containing the relative path of the generated
+            EPUB file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4383,7 +4502,32 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a ODT document file."""
+        """Create a ODT document file.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            FAKER.odt_file()
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            FAKER.odt_file(nb_pages=5, prefix="custom_odt_")
+            FAKER.odt_file(texts=["First page", "Second page", "Third page"])
+
+        :param nb_pages: Number of pages to show. Defaults to 1.
+        :param texts: List of texts to show. Defaults to None.
+        :param metadata: Metadata to show. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: `StringValue` containing the relative path of the generated
+            ODT file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
