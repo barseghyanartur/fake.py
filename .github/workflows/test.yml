@@ -51,13 +51,13 @@ jobs:
         #          - Windows
         #          - MacOs
         python-version:
-          - "3.15.0-alpha.2"
+#          - "3.15.0-alpha.2"
           - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
 #          - "3.8"
     env:
       PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
@@ -101,11 +101,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -137,11 +138,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -173,24 +175,25 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+#          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
         django-version: [
           "5.2",
           "5.1",
-          "5.0",
+#          "5.0",
           "4.2"
         ]
-        exclude:
-          - python-version: "3.9"
-            django-version: "5.0"  # Exclude Python 3.9 with Django 5.0
-          - python-version: "3.9"
-            django-version: "5.1"  # Exclude Python 3.9 with Django 5.1
-          - python-version: "3.9"
-            django-version: "5.2"  # Exclude Python 3.9 with Django 5.2
+#        exclude:
+#          - python-version: "3.9"
+#            django-version: "5.0"  # Exclude Python 3.9 with Django 5.0
+#          - python-version: "3.9"
+#            django-version: "5.1"  # Exclude Python 3.9 with Django 5.1
+#          - python-version: "3.9"
+#            django-version: "5.2"  # Exclude Python 3.9 with Django 5.2
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -224,11 +227,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -261,11 +265,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -298,11 +303,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -335,11 +341,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -372,11 +379,12 @@ jobs:
         os:
           - ubuntu-22.04
         python-version:
+          - "3.14"
           - "3.13"
           - "3.12"
           - "3.11"
           - "3.10"
-          - "3.9"
+#          - "3.9"
     steps:
       - name: Clean-up
         run: sudo apt clean && sudo apt autoclean && sudo rm -rf /tmp/* && sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"

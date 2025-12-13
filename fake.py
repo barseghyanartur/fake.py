@@ -70,7 +70,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.12"
+__version__ = "0.12.1"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -2195,81 +2195,150 @@ class Faker:
 
     @provider(tags=("Unique",))
     def uuid(self) -> UUID:
-        """Generate a UUID."""
+        """Generate a UUID.
+
+        :return: UUID
+        :rtype: UUID
+        """
         return uuid.uuid4()
 
     @provider(tags=("Unique",))
     def uuids(self, nb: int = 5) -> List[UUID]:
-        """Generate a list of UUIDs."""
+        """Generate a list of UUIDs.
+
+        :param nb: Number of UUIDs to generate.
+        :return: List of UUIDs
+        :rtype: List[UUID]
+        """
         return [uuid.uuid4() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def first_name(self) -> str:
-        """Generate a first name."""
+        """Generate a first name.
+
+        :return: First name.
+        :rtype: str
+        """
         return self.random.choice(self._first_names)
 
     @provider(tags=("Person",))
     def first_names(self, nb: int = 5) -> List[str]:
-        """Generate a list of first names."""
+        """Generate a list of first names.
+
+        :param nb: Number of first names to generate.
+        :return: List of first names.
+        :rtype: List[str]
+        """
         return [self.first_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def last_name(self) -> str:
-        """Generate a last name."""
+        """Generate a last name.
+
+        :return: Last name.
+        :rtype: str
+        """
         return self.random.choice(self._last_names)
 
     @provider(tags=("Person",))
     def last_names(self, nb: int = 5) -> List[str]:
-        """Generate a list of last names."""
+        """Generate a list of last names.
+
+        :param nb: Number of last names to generate.
+        :return: List of last names.
+        :rtype: List[str]
+        """
         return [self.last_name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def name(self) -> str:
-        """Generate a name."""
+        """Generate a name.
+
+        :return: Name.
+        :rtype: str
+        """
         return f"{self.first_name()} {self.last_name()}"
 
     @provider(tags=("Person",))
     def names(self, nb: int = 5) -> List[str]:
-        """Generate a list of names."""
+        """Generate a list of names.
+
+        :param nb: Number of names to generate.
+        :return: List of names.
+        :rtype: List[str]
+        """
         return [self.name() for _ in range(nb)]
 
     @provider(tags=("Person",))
     def username(self) -> str:
-        """Generate a username."""
+        """Generate a username.
+
+        :return: Username.
+        :rtype: str
+        """
         return (
             f"{self.word()}_{self.word()}_{self.word()}_{self.pystr()}"
         ).lower()
 
     @provider(tags=("Person",))
     def usernames(self, nb: int = 5) -> List[str]:
-        """Generate a list of usernames."""
+        """Generate a list of usernames.
+
+        :param nb: Number of usernames to generate.
+        :return: List of usernames.
+        :rtype: List[str]
+        """
         return [self.username() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def slug(self) -> str:
-        """Generate a slug."""
+        """Generate a slug.
+
+        :return: Slug.
+        :rtype: str
+        """
         return (
             f"{self.word()}-{self.word()}-{self.word()}-{self.pystr()}"
         ).lower()
 
     @provider(tags=("Text",))
     def slugs(self, nb: int = 5) -> List[str]:
-        """Generate a list of slugs."""
+        """Generate a list of slugs.
+
+        :param nb: Number of slugs to generate.
+        :return: List of slugs.
+        :rtype: List[str]
+        """
         return [self.slug() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def word(self) -> str:
-        """Generate a word."""
+        """Generate a word.
+
+        :return: Word.
+        :rtype: str
+        """
         return self.random.choice(self._words).capitalize()
 
     @provider(tags=("Text",))
     def words(self, nb: int = 5) -> List[str]:
-        """Generate a list of words."""
+        """Generate a list of words.
+
+        :param nb: Number of words to generate.
+        :return: List of words.
+        :rtype: List[str]
+        """
         return list(self.random.choices(self._words, k=nb))
 
     @provider(tags=("Text",))
     def sentence(self, nb_words: int = 5, suffix: str = ".") -> str:
-        """Generate a sentence."""
+        """Generate a sentence.
+
+        :param nb_words: Number of words to generate.
+        :param suffix: Suffix to add to sentence. Defaults to `.`.
+        :return: Sentence.
+        :rtype: str
+        """
         return (
             f"{' '.join([self.word() for _ in range(nb_words)]).capitalize()}"
             f"{suffix}"
@@ -2277,17 +2346,32 @@ class Faker:
 
     @provider(tags=("Text",))
     def sentences(self, nb: int = 3) -> List[str]:
-        """Generate a list of sentences."""
+        """Generate a list of sentences.
+
+        :param nb: Number of sentences to generate.
+        :return: List of sentences.
+        :rtype: List[str]
+        """
         return [self.sentence() for _ in range(nb)]
 
     @provider(tags=("Text",))
     def paragraph(self, nb_sentences: int = 5) -> str:
-        """Generate a paragraph."""
+        """Generate a paragraph.
+
+        :param nb_sentences: Number of sentences to generate.
+        :return: Paragraph.
+        :rtype: str
+        """
         return " ".join([self.sentence() for _ in range(nb_sentences)])
 
     @provider(tags=("Text",))
     def paragraphs(self, nb: int = 3) -> List[str]:
-        """Generate a list of paragraphs."""
+        """Generate a list of paragraphs.
+
+        :param nb: Number of paragraphs to generate.
+        :return: List of paragraphs.
+        :rtype: List[str]
+        """
         return [self.paragraph() for _ in range(nb)]
 
     @provider(tags=("Text",))
@@ -2297,7 +2381,14 @@ class Faker:
         suffix: str = ".",
         allow_overflow: bool = False,
     ) -> str:
-        """Generate a text."""
+        """Generate a text.
+
+        :param nb_chars: Number of characters to generate.
+        :param suffix: Suffix to add to text. Defaults to `.`.
+        :param allow_overflow: Allow overflow. Defaults to False.
+        :return: Text.
+        :rtype: str
+        """
         current_text: str = ""
         while len(current_text) < nb_chars:
             sentence: str = self.sentence()
@@ -2308,7 +2399,12 @@ class Faker:
 
     @provider(tags=("Text",))
     def texts(self, nb: int = 3) -> List[str]:
-        """Generate a list of texts."""
+        """Generate a list of texts.
+
+        :param nb: Number of texts to generate.
+        :return: List of texts.
+        :rtype: List[str]
+        """
         return [self.text() for _ in range(nb)]
 
     @provider(tags=("Filename",))
@@ -2317,7 +2413,13 @@ class Faker:
         prefix: Optional[str] = "",
         extension: str = "txt",
     ) -> str:
-        """Generate a random filename."""
+        """Generate a random filename.
+
+        :param prefix: Prefix to add to filename. Defaults to empty string.
+        :param extension: Extension to add to filename. Defaults to '.txt'.
+        :return: Filename.
+        :rtype: str
+        """
         return os.path.basename(
             mktemp(
                 suffix=f".{extension}" if extension else "",
@@ -2331,7 +2433,13 @@ class Faker:
         prefix: Optional[str] = "",
         extension: str = "txt",
     ) -> str:
-        """Generate a random file path."""
+        """Generate a random file path.
+
+        :param prefix: Prefix to add to file path. Defaults to empty string.
+        :param extension: Extension to add to file path. Defaults to '.txt'.
+        :return: File path.
+        :rtype: str
+        """
         return mktemp(
             suffix=f".{extension}" if extension else "",
             prefix=prefix or "",
@@ -2342,7 +2450,12 @@ class Faker:
         self,
         depth: int = 1,
     ) -> str:
-        """Generate a random dir path."""
+        """Generate a random dir path.
+
+        :param depth: Depth to add to dir path. Defaults to 1.
+        :return: Dir path.
+        :rtype: str
+        """
         _path_parts = [
             self.random.choice(self._words).lower() for _ in range(depth)
         ]
@@ -2350,34 +2463,64 @@ class Faker:
 
     @provider(tags=("Filename",))
     def file_extension(self) -> str:
-        """Generate a random extension."""
+        """Generate a random extension.
+
+        :return: File extension.
+        :rtype: str
+        """
         return self.random.choice(FILE_EXTENSIONS)
 
     @provider(tags=("Filename",))
     def mime_type(self) -> str:
-        """Generate a random mime type."""
+        """Generate a random mime type.
+
+        :return: Mime type.
+        :rtype: str
+        """
         return self.random.choice(MIME_TYPES)
 
     @provider(tags=("Internet",))
     def tld(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random TLD."""
+        """Generate a random TLD.
+
+        :param tlds: List of TLDs to use. If not given or None, a default
+            list of TLDs is used.
+        :return: TLD.
+        :rtype: str
+        """
         return self.random.choice(tlds or TLDS)
 
     @provider(tags=("Internet",))
     def domain_name(self, tlds: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random domain name."""
+        """Generate a random domain name.
+
+        :param tlds: List of TLDs to use. If not given or None, a default
+            list of TLDs is used.
+        :return: Domain name.
+        :rtype: str
+        """
         domain = self.word().lower()
         tld = self.tld(tlds)
         return f"{domain}.{tld}"
 
     @provider(tags=("Internet",))
     def free_email_domain(self) -> str:
-        """Generate a random free email domain."""
+        """Generate a random free email domain.
+
+        :return: Free email domain.
+        :rtype: str
+        """
         return self.random.choice(FREE_EMAIL_DOMAINS)
 
     @provider(tags=("Internet",))
     def email(self, domain_names: Optional[Tuple[str, ...]] = None) -> str:
-        """Generate a random email."""
+        """Generate a random email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return (
                 f"{'.'.join(_w.lower() for _w in self.words(3))}"
@@ -2390,7 +2533,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random emails."""
+        """Generate a list of random emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [self.email(domain_names=domain_names) for _ in range(nb)]
 
     @provider(tags=("Internet",))
@@ -2398,7 +2548,13 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random company email."""
+        """Generate a random company email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Company email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.domain_name()}"
 
@@ -2408,7 +2564,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random company emails."""
+        """Generate a list of random company emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [
             self.company_email(domain_names=domain_names) for _ in range(nb)
         ]
@@ -2418,7 +2581,13 @@ class Faker:
         self,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random free email."""
+        """Generate a random free email.
+
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: Free email.
+        :rtype: str
+        """
         domain = self.random.choice(domain_names) if domain_names else None
         return f"{slugify(self.name())}@{domain or self.free_email_domain()}"
 
@@ -2428,7 +2597,14 @@ class Faker:
         nb: int = 5,
         domain_names: Optional[Tuple[str, ...]] = None,
     ) -> List[str]:
-        """Generate a list of random free emails."""
+        """Generate a list of random free emails.
+
+        :param nb: Number of emails to generate.
+        :param domain_names: List of domains to randomly choose from. If not
+            given or None, random words are used.
+        :return: List of emails.
+        :rtype: List[str]
+        """
         return [
             self.free_email(domain_names=domain_names) for _ in range(nb)
         ]
@@ -2440,7 +2616,29 @@ class Faker:
         tlds: Optional[Tuple[str, ...]] = None,
         suffixes: Optional[Tuple[str, ...]] = None,
     ) -> str:
-        """Generate a random URL."""
+        """Generate a random URL.
+
+        Example without params:
+
+            FAKER.url()
+
+        Example with params:
+
+            FAKER.url(
+                protocols=("https",),
+                tlds=("com",),
+                suffixes=(".py",),
+            )
+
+        :param protocols: List of protocols to use. If not given or None,
+            default protocols are used.
+        :param tlds: List of TLDs to use. If not given or None, default
+            TLDs are used.
+        :param suffixes: List of suffixes to use. If not given or None,
+            default suffixes are used.
+        :return: URL.
+        :rtype: str
+        """
         protocol = self.random.choice(protocols or URL_PROTOCOLS)
         suffix = self.random.choice(suffixes or URL_SUFFIXES)
         return (
@@ -2457,7 +2655,15 @@ class Faker:
         height: int = 600,
         service_url: Optional[str] = None,
     ) -> str:
-        """Generate a random image URL."""
+        """Generate a random image URL.
+
+        :param width: Width of the image. Default is 800.
+        :param height: Height of the image. Default is 600.
+        :param service_url: Service URL. If not given or None, randomly
+            picked service URL is used.
+        :return: Image URL.
+        :rtype: str
+        """
         if service_url is None:
             service_url = self.random.choice(IMAGE_SERVICES)
         return service_url.format(width=width, height=height)
@@ -2475,7 +2681,11 @@ class Faker:
 
     @provider(tags=("Python",))
     def pybool(self) -> bool:
-        """Generate a random boolean."""
+        """Generate a random boolean.
+
+        :return: Random boolean.
+        :rtype: bool
+        """
         return self.random.choice(
             (
                 True,
@@ -4341,14 +4551,32 @@ class Faker:
 
     @provider(tags=("Choice",))
     def random_choice(self, elements: ElementType[T]) -> T:
-        """Random choice: pick a single element from the given list."""
+        """Random choice: pick a single element from the given list.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_choice(("Art", "Photography", "Generative AI"))
+            # 'Photography'
+        """
         return self.random.choice(elements)
 
     random_element = random_choice  # noqa
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
-        """Random sample: pick random `length` elements from the given list."""
+        """Random sample: pick random `length` elements from the given list.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_sample(("Art", "Photography", "Generative AI"), 2)
+            # ['Photography', 'Art']
+        """
         return self.random.sample(elements, length)
 
     random_elements = random_sample  # noqa
@@ -4360,7 +4588,18 @@ class Faker:
         letters: str = string.ascii_uppercase,
         digits: str = string.digits,
     ) -> str:
-        """Randomise string: `?` is replaced with letter, `#` with number."""
+        """Randomise string: `?` is replaced with letter, `#` with number.
+
+        Usage example:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.randomise_string(value="10.####/####-####")
+            # '10.4613/4636-8596'
+            FAKER.randomise_string(value="???? ##")
+            # '1234 AB'
+        """
         result = ""
         for char in value:
             if char == "?":
@@ -6297,77 +6536,139 @@ class TestFaker(unittest.TestCase):
         return "@" in parsed_address[1]
 
     def test_seed(self) -> None:
+        _string_template = """
+            {date(start_date="-7d")}
+
+            # Title: {sentence(nb_words=6, suffix="")}
+
+            ## Authors: {name}, {name}, {name}
+
+            ## Abstract
+
+            ### Introduction
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Objective
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Methods
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Results
+            {text(nb_chars=200, allow_overflow=True)}
+
+            ### Conclusion
+            {text(nb_chars=200, allow_overflow=True)}
+
+        Keywords: {word}, {word}, {word}
+        """
         _providers = [
-            self.faker.first_name,
-            self.faker.first_names,
-            self.faker.last_name,
-            self.faker.last_names,
-            self.faker.name,
-            self.faker.names,
-            self.faker.username,
-            self.faker.usernames,
-            self.faker.slug,
-            self.faker.slugs,
-            self.faker.word,
-            self.faker.words,
-            self.faker.sentence,
-            self.faker.sentences,
-            self.faker.paragraph,
-            self.faker.paragraphs,
-            self.faker.text,
-            self.faker.texts,
-            self.faker.dir_path,
-            self.faker.file_extension,
-            self.faker.mime_type,
-            self.faker.tld,
-            self.faker.domain_name,
-            self.faker.free_email_domain,
-            self.faker.email,
-            self.faker.emails,
-            self.faker.company_email,
-            self.faker.company_emails,
-            self.faker.free_email,
-            self.faker.free_emails,
-            self.faker.url,
-            self.faker.image_url,
-            self.faker.pyint,
-            # self.faker.pybool,
-            self.faker.pystr,
-            self.faker.pyfloat,
-            self.faker.pydecimal,
-            self.faker.ipv4,
-            self.faker.date,
-            # self.faker.date_time,  # TODO: Find out why inconsistent seconds
-            self.faker.year,
-            self.faker.time,
-            self.faker.city,
-            self.faker.country,
-            self.faker.geo_location,
-            self.faker.country_code,
-            self.faker.locale,
-            self.faker.latitude,
-            self.faker.longitude,
-            self.faker.latitude_longitude,
-            self.faker.iban,
-            self.faker.isbn10,
-            self.faker.isbn13,
-            # self.faker.random_choice,  # TODO: Implement test
-            # self.faker.random_sample,  # TODO: Implement test
-            # self.faker.randomise_string,  # TODO: Implement test
-            # self.faker.string_template,  # TODO: Implement test
-            # self.faker.lazy_string_template,  # TODO: Implement test
+            (self.faker.first_name, {}),
+            (self.faker.first_names, {}),
+            (self.faker.last_name, {}),
+            (self.faker.last_names, {}),
+            (self.faker.name, {}),
+            (self.faker.names, {}),
+            (self.faker.username, {}),
+            (self.faker.usernames, {}),
+            (self.faker.slug, {}),
+            (self.faker.slugs, {}),
+            (self.faker.word, {}),
+            (self.faker.words, {}),
+            (self.faker.sentence, {}),
+            (self.faker.sentences, {}),
+            (self.faker.paragraph, {}),
+            (self.faker.paragraphs, {}),
+            (self.faker.text, {}),
+            (self.faker.texts, {}),
+            (self.faker.dir_path, {}),
+            (self.faker.file_extension, {}),
+            (self.faker.mime_type, {}),
+            (self.faker.tld, {}),
+            (self.faker.domain_name, {}),
+            (self.faker.free_email_domain, {}),
+            (self.faker.email, {}),
+            (self.faker.emails, {}),
+            (self.faker.company_email, {}),
+            (self.faker.company_emails, {}),
+            (self.faker.free_email, {}),
+            (self.faker.free_emails, {}),
+            (self.faker.url, {}),
+            (self.faker.image_url, {}),
+            (self.faker.pyint, {}),
+            (self.faker.pybool, {}),
+            (self.faker.pystr, {}),
+            (self.faker.pyfloat, {}),
+            (self.faker.pydecimal, {}),
+            (self.faker.ipv4, {}),
+            (self.faker.date, {}),
+            # (self.faker.date_time, {}),  # TODO: Find out why inconsistent
+            (self.faker.year, {}),
+            (self.faker.time, {}),
+            (self.faker.city, {}),
+            (self.faker.country, {}),
+            (self.faker.geo_location, {}),
+            (self.faker.country_code, {}),
+            (self.faker.locale, {}),
+            (self.faker.latitude, {}),
+            (self.faker.longitude, {}),
+            (self.faker.latitude_longitude, {}),
+            (self.faker.iban, {}),
+            (self.faker.isbn10, {}),
+            (self.faker.isbn13, {}),
+            (
+                self.faker.random_choice,
+                {"elements": ("Art", "Photography", "Generative AI")},
+            ),
+            (
+                self.faker.random_sample,
+                {
+                    "elements": ("Art", "Photography", "Generative AI"),
+                    "length": 2,
+                },
+            ),
+            (self.faker.randomise_string, {"value": "???? ##"}),
+            (
+                self.faker.string_template,
+                {"template": _string_template}
+            ),
+            # (
+            #     self.faker.lazy_string_template,
+            #     {"template": _string_template}
+            # ),  # TODO: Implement test
         ]
-        for _provider in _providers:
-            self.faker.seed(None)
-            list_1 = [_provider(), _provider(), _provider(), _provider()]
-            self.faker.seed(None)
-            list_2 = [_provider(), _provider(), _provider(), _provider()]
-            self.assertNotEqual(list_1, list_2)
+        for (_provider, _kwargs) in _providers:
+            if _provider.__name__ not in ("pybool"):
+                self.faker.seed(None)
+                list_1 = [
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                ]
+                self.faker.seed(1)
+                list_2 = [
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                ]
+                self.assertNotEqual(list_1, list_2)
 
             self.faker.seed(42)
-            list_1 = [_provider(), _provider(), _provider(), _provider()]
+            list_1 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
             self.faker.seed(42)
-            list_2 = [_provider(), _provider(), _provider(), _provider()]
+            list_2 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+            ]
             self.assertEqual(list_1, list_2)
 
     def test_uuid(self) -> None:
