@@ -7115,9 +7115,17 @@ class TestFaker(unittest.TestCase):
                     _provider(**_kwargs),
                     _provider(**_kwargs),
                     _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
                 ]
                 self.faker.seed(1)
                 list_2 = [
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
+                    _provider(**_kwargs),
                     _provider(**_kwargs),
                     _provider(**_kwargs),
                     _provider(**_kwargs),
@@ -7131,9 +7139,17 @@ class TestFaker(unittest.TestCase):
                 _provider(**_kwargs),
                 _provider(**_kwargs),
                 _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
             ]
             self.faker.seed(42)
             list_2 = [
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
+                _provider(**_kwargs),
                 _provider(**_kwargs),
                 _provider(**_kwargs),
                 _provider(**_kwargs),
