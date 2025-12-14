@@ -124,7 +124,7 @@ to avoid possible collisions with other parts of your application that might
 be relying on a separate, unseeded Faker instance.
 
 .. code-block:: python
-    :name: test_seed
+    :name: test_seed_3
 
     from fake import Faker
 
@@ -132,9 +132,9 @@ be relying on a separate, unseeded Faker instance.
 
 You could then do as follows:
 
-.. continue: test_seed
+.. continue: test_seed_3
 .. code-block:: python
-    :name: test_seed_2
+    :name: test_seed_4
 
     FAKER.seed(42)
     l1 = [FAKER.pyint(), FAKER.pyint(), FAKER.pyint(), FAKER.pyint()]
