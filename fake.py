@@ -4683,7 +4683,24 @@ class Faker:
         policy: Optional[Policy] = None,
         **kwargs,
     ) -> StringValue:
-        """Create an EML file."""
+        """Create an EML file.
+
+        :param metadata: Metadata for the EML file. Defaults to None.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param options: Additional options for EML generation.
+            Defaults to None.
+        :param content: Content of the email. Defaults to None.
+        :param subject: Subject of the email. Defaults to None.
+        :param cte_type: Content-Transfer-Encoding type. Defaults to None.
+        :param policy: Email policy to use. Defaults to None.
+        :param **kwargs: Additional keyword arguments.
+        :return: StringValue containing the relative path of the generated EML
+            file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4720,7 +4737,19 @@ class Faker:
         prefix: Optional[str] = None,
         text: Optional[str] = None,
     ) -> StringValue:
-        """Create a text document file."""
+        """Create a text document file.
+
+        :param nb_chars: Number of characters in the text file. Defaults to 200.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param text: Text content to write to the file. If None, random text
+            will be generated. Defaults to None.
+        :return: StringValue containing the relative path of the generated text
+            file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4751,7 +4780,18 @@ class Faker:
         basename: Optional[str] = None,
         prefix: Optional[str] = None,
     ) -> StringValue:
-        """Create a generic file."""
+        """Create a generic file.
+
+        :param content: Content to write to the file. Can be bytes or string.
+        :param extension: File extension.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: StringValue containing the relative path of the generated
+            file.
+        :rtype: StringValue
+        """
         if storage is None:
             storage = FileSystemStorage()
         filename = storage.generate_filename(
@@ -4776,46 +4816,78 @@ class Faker:
 
     @provider(tags=("Geographic",))
     def city(self) -> str:
-        """Get a random city."""
+        """Get a random city.
+
+        :return: A random city name.
+        :rtype: str
+        """
         return self.random.choice(self._cities)
 
     @provider(tags=("Geographic",))
     def country(self) -> str:
-        """Get a random country."""
+        """Get a random country.
+
+        :return: A random country name.
+        :rtype: str
+        """
         return self.random.choice(self._countries)
 
     @provider(tags=("Geographic",))
     def geo_location(self) -> str:
-        """Get a random geo-location."""
+        """Get a random geo-location.
+
+        :return: A random geo-location name.
+        :rtype: str
+        """
         return self.random.choice(self._geo_locations)
 
     @provider(tags=("Geographic",))
     def country_code(self) -> str:
-        """Get a random country code."""
+        """Get a random country code.
+
+        :return: A random country code.
+        :rtype: str
+        """
         return self.random.choice(self._country_codes)
 
     @provider(tags=("Geographic",))
     def locale(self) -> str:
-        """Get a random locale."""
+        """Get a random locale.
+
+        :return: A random locale.
+        :rtype: str
+        """
         return self.random.choice(self._locales)
 
     @provider(tags=("Geographic",))
     def latitude(self) -> float:
-        """Generate a random latitude."""
+        """Generate a random latitude.
+
+        :return: A random latitude.
+        :rtype: float
+        """
         return self.random.uniform(-90, 90)
 
     lat = latitude  # noqa
 
     @provider(tags=("Geographic",))
     def longitude(self) -> float:
-        """Generate a random longitude."""
+        """Generate a random longitude.
+
+        :return: A random longitude.
+        :rtype: float
+        """
         return self.random.uniform(-180, 180)
 
     lng = lon = longitude  # noqa
 
     @provider(tags=("Geographic",))
     def latitude_longitude(self) -> Tuple[float, float]:
-        """Generate a random (latitude, longitude) pair."""
+        """Generate a random (latitude, longitude) pair.
+
+        :return: A tuple containing a random latitude and longitude.
+        :rtype: Tuple[float, float]
+        """
         return (
             self.random.uniform(-90, 90),
             self.random.uniform(-180, 180),
@@ -4830,7 +4902,32 @@ class Faker:
         bank_length: int = 8,
         account_length: int = 10,
     ) -> str:
-        """Generate a random valid IBAN number."""
+        """Generate a random valid IBAN number.
+
+        Usage example without params:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.iban()
+            # 'BA36243707341183493142'
+
+        Usage example with params:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.iban(country_code="DE", bank_length=8, account_length=10)
+            # 'DE45984597116997556579'
+
+        :param country_code: Optional country code. If None, a random country
+            code is selected. Defaults to None.
+        :param bank_length: Length of the bank identifier part. Defaults to 8.
+        :param account_length: Length of the account number part.
+            Defaults to 10.
+        :return: A random valid IBAN number.
+        :rtype: str
+        """
         if not country_code:
             country_code = self.random.choice(self._country_codes)
 
@@ -4871,8 +4968,12 @@ class Faker:
         return checksum
 
     @provider(tags=("Book",))
-    def isbn10(self):
-        """Generate a random valid ISBN-10."""
+    def isbn10(self) -> str:
+        """Generate a random valid ISBN-10.
+
+        :return: A random valid ISBN-10 number in the format 'XXX-XXX-XXX-X'.
+        :rtype: str
+        """
         # Randomly generate the first 9 digits as a string
         digits = "".join(str(self.random.randint(0, 9)) for _ in range(9))
         # Calculate the checksum digit
@@ -4892,7 +4993,12 @@ class Faker:
 
     @provider(tags=("Book",))
     def isbn13(self) -> str:
-        """Generate a random valid ISBN-13, starting with 978 or 979."""
+        """Generate a random valid ISBN-13, starting with 978 or 979.
+
+        :return: A random valid ISBN-13 number in the format
+            'XXX-X-XXX-XXXXX-X'.
+        :rtype: str
+        """
         prefix = self.random.choice(["978", "979"])
         digits = [str(self.random.randint(0, 9)) for _ in range(9)]
         full_digits = list(prefix) + digits
@@ -4911,6 +5017,10 @@ class Faker:
             from fake import FAKER
             FAKER.random_choice(("Art", "Photography", "Generative AI"))
             # 'Photography'
+
+        :param elements: A list or tuple of elements to choose from.
+        :return: A randomly selected element from the input list.
+        :rtype: T
         """
         return self.random.choice(elements)
 
@@ -4950,6 +5060,15 @@ class Faker:
             # '10.4613/4636-8596'
             FAKER.randomise_string(value="???? ##")
             # '1234 AB'
+
+        :param value: Input string containing `?` and `#` placeholders.
+        :param letters: String of characters to use for `?` replacement.
+            Defaults to uppercase ASCII letters.
+        :param digits: String of characters to use for `#` replacement.
+            Defaults to digits 0-9.
+        :returns: String with `?` replaced by random letters and `#` by random
+            digits.
+        :rtype: str
         """
         result = ""
         for char in value:
@@ -4975,15 +5094,6 @@ class Faker:
         Generate a string by substituting placeholders in a template with fake
         data or provided values.
 
-        :param template: Template string containing placeholders in curly
-            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
-            match Faker method names or be overridden by kwargs.
-        :param wrap_chars_after: Number of characters to wrap around.
-        :param faker: Faker instance to use.
-        :rtype: str
-        :returns: String with placeholders replaced with correspondent fake
-            values.
-
         Usage example:
 
         .. code-block:: python
@@ -4993,6 +5103,15 @@ class Faker:
                 "Hello {first_name}! I have two words for you: {words(nb=2)}"
             )
             # "Hello Mike! I have two words for you: ['idea', 'first']"
+
+        :param template: Template string containing placeholders in curly
+            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
+            match Faker method names or be overridden by kwargs.
+        :param wrap_chars_after: Number of characters to wrap around.
+        :param faker: Faker instance to use.
+        :rtype: str
+        :returns: String with placeholders replaced with correspondent fake
+            values.
         """
         return StringTemplate(
             template=template,
@@ -5012,15 +5131,6 @@ class Faker:
         Generate a string by substituting placeholders in a template with fake
         data or provided values.
 
-        :param template: Template string containing placeholders in curly
-            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
-            match Faker method names or be overridden by kwargs.
-        :param wrap_chars_after: Number of characters to wrap around.
-        :param faker: Faker instance to use.
-        :rtype: LazyStringTemplate
-        :returns: String with placeholders replaced with correspondent fake
-            values.
-
         Usage example:
 
         .. code-block:: python
@@ -5033,6 +5143,15 @@ class Faker:
             # "Hello Mike! I have two words for you: ['idea', 'first']"
             print(tpl)
             # Hello Lars! I have two words for you: ['be', 'if']
+
+        :param template: Template string containing placeholders in curly
+            braces (e.g., '{name}', '{words(nb=2)}'). Placeholders should
+            match Faker method names or be overridden by kwargs.
+        :param wrap_chars_after: Number of characters to wrap around.
+        :param faker: Faker instance to use.
+        :rtype: LazyStringTemplate
+        :returns: String with placeholders replaced with correspondent fake
+            values.
         """
         return LazyStringTemplate(
             template=template,
