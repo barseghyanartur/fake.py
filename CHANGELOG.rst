@@ -21,8 +21,17 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.12.2
+------
+2025-12-14
+
+- Minor fixes in docs.
+- Improve doc-strings.
+
 0.12.1
 ------
+2025-12-01
+
 - Stop testing against Python 3.9.
 - Add testing against Python 3.14 for all integrations.
 - Improve seeding docs.
