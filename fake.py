@@ -8317,7 +8317,7 @@ class TestFaker(unittest.TestCase):
     def test_country_code(self):
         country_code = self.faker.country_code()
         self.assertIn(country_code, self.faker._country_codes)
-        self.assertTrue(len(country_code) == 2)
+        self.assertEqual(len(country_code), 2)
         self.assertTrue(country_code.isupper())
 
     def test_locale(self):
@@ -8366,7 +8366,7 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(isbn13.count("-"), 4)
         parts = isbn13.split("-")
         self.assertEqual(len(parts), 5)
-        self.assertTrue(parts[0] in ["978", "979"])
+        self.assertIn(parts[0], ["978", "979"])
         self.assertTrue(all(part.isdigit() for part in parts[1:]))
 
     def test_isbn13_checksum(self):
