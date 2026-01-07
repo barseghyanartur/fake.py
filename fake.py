@@ -7229,33 +7229,33 @@ class TestFaker(unittest.TestCase):
     def test_first_name(self) -> None:
         first_name: str = self.faker.first_name()
         self.assertIsInstance(first_name, str)
-        self.assertTrue(len(first_name) > 0)
+        self.assertGreater(len(first_name), 0)
         self.assertIn(first_name, self.faker._first_names)
 
     def test_first_names(self) -> None:
         first_names: List[str] = self.faker.first_names()
         for first_name in first_names:
             self.assertIsInstance(first_name, str)
-            self.assertTrue(len(first_name) > 0)
+            self.assertGreater(len(first_name), 0)
             self.assertIn(first_name, self.faker._first_names)
 
     def test_last_name(self) -> None:
         last_name: str = self.faker.last_name()
         self.assertIsInstance(last_name, str)
-        self.assertTrue(len(last_name) > 0)
+        self.assertGreater(len(last_name), 0)
         self.assertIn(last_name, self.faker._last_names)
 
     def test_last_names(self) -> None:
         last_names: List[str] = self.faker.last_names()
         for last_name in last_names:
             self.assertIsInstance(last_name, str)
-            self.assertTrue(len(last_name) > 0)
+            self.assertGreater(len(last_name), 0)
             self.assertIn(last_name, self.faker._last_names)
 
     def test_name(self) -> None:
         name: str = self.faker.name()
         self.assertIsInstance(name, str)
-        self.assertTrue(len(name) > 0)
+        self.assertGreater(len(name), 0)
         parts = name.split(" ")
         first_name = parts[0]
         last_name = " ".join(parts[1:])
@@ -7266,7 +7266,7 @@ class TestFaker(unittest.TestCase):
         names: List[str] = self.faker.names()
         for name in names:
             self.assertIsInstance(name, str)
-            self.assertTrue(len(name) > 0)
+            self.assertGreater(len(name), 0)
             parts = name.split(" ")
             first_name = parts[0]
             last_name = " ".join(parts[1:])
@@ -7294,7 +7294,7 @@ class TestFaker(unittest.TestCase):
     def test_word(self) -> None:
         word: str = self.faker.word()
         self.assertIsInstance(word, str)
-        self.assertTrue(len(word) > 0)
+        self.assertGreater(len(word), 0)
 
     def test_words(self) -> None:
         words: List[str] = self.faker.words(nb=3)
@@ -7304,7 +7304,7 @@ class TestFaker(unittest.TestCase):
     def test_sentence(self) -> None:
         sentence: str = self.faker.sentence()
         self.assertIsInstance(sentence, str)
-        self.assertTrue(len(sentence.split()) >= 5)
+        self.assertGreaterEqual(len(sentence.split()), 5)
         self.assertTrue(sentence.endswith("."))
 
     def test_sentences(self) -> None:
@@ -7315,7 +7315,7 @@ class TestFaker(unittest.TestCase):
     def test_paragraph(self) -> None:
         paragraph: str = self.faker.paragraph()
         self.assertIsInstance(paragraph, str)
-        self.assertTrue(len(paragraph.split(".")) >= 5)
+        self.assertGreaterEqual(len(paragraph.split(".")), 5)
 
     def test_paragraphs(self) -> None:
         paragraphs: List[str] = self.faker.paragraphs(nb=3)
@@ -7325,7 +7325,7 @@ class TestFaker(unittest.TestCase):
     def test_text(self) -> None:
         text: str = self.faker.text(nb_chars=100)
         self.assertIsInstance(text, str)
-        self.assertTrue(len(text) <= 100)
+        self.assertLessEqual(len(text), 100)
 
     def test_texts(self) -> None:
         texts: List[str] = self.faker.texts(nb=3)
@@ -7539,7 +7539,7 @@ class TestFaker(unittest.TestCase):
                         )
                         self.assertIsInstance(url, str)
                         self.assertTrue(url.startswith(f"{protocol}://"))
-                        self.assertTrue(f".{tld}/" in url)
+                        self.assertIn(f".{tld}/", url)
                         self.assertTrue(
                             url.endswith(suffix) or url.endswith(f"{suffix}/")
                         )
@@ -7722,7 +7722,7 @@ class TestFaker(unittest.TestCase):
                 self.assertIsInstance(decimal_number, Decimal)
                 self.assertTrue(1 <= decimal_number < 1000)
                 # Check if right digits are 2
-                self.assertTrue(decimal_number.as_tuple().exponent == -2)
+                self.assertEqual(decimal_number.as_tuple().exponent, -2)
 
         with self.subTest("With positive=False"):
             for __ in range(100):
@@ -8377,7 +8377,7 @@ class TestFaker(unittest.TestCase):
     def test_country_code(self):
         country_code = self.faker.country_code()
         self.assertIn(country_code, self.faker._country_codes)
-        self.assertTrue(len(country_code) == 2)
+        self.assertEqual(len(country_code), 2)
         self.assertTrue(country_code.isupper())
 
     def test_locale(self):
@@ -8426,7 +8426,7 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(isbn13.count("-"), 4)
         parts = isbn13.split("-")
         self.assertEqual(len(parts), 5)
-        self.assertTrue(parts[0] in ["978", "979"])
+        self.assertIn(parts[0], ["978", "979"])
         self.assertTrue(all(part.isdigit() for part in parts[1:]))
 
     def test_isbn13_checksum(self):
