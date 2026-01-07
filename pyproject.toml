@@ -213,6 +213,12 @@ norecursedirs = [
 ]
 DJANGO_SETTINGS_MODULE = "blog.settings"
 
+markers = [
+    "slow: mark a test that takes a long time to run.",
+    "codeblock: pytest-codeblock markers",
+    "documentation: mark test as a documentation test",
+]
+
 [tool.coverage.run]
 relative_files = true
 omit = [
