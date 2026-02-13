@@ -42,7 +42,8 @@ doc8:
 
 # Run ruff on the codebase
 ruff:
-	source $(VENV) && ruff check .
+	source $(VENV) && ruff check . --fix
+	source $(VENV) && ruff format .
 
 # Install the project
 install:
