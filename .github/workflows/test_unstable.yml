@@ -6,6 +6,11 @@ on:
     types: [review_requested, ready_for_review]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
 
   # *************************************
