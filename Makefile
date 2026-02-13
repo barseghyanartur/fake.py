@@ -6,28 +6,33 @@ VENV := ~/.virtualenvs/fake.py/bin/activate
 UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
-build_docs:
+build-docs:
 	#source $(VENV) && sphinx-build -n -b text docs builddocs
+	source $(VENV) && sphinx-source-tree
 	source $(VENV) && sphinx-build -n -a -b markdown docs builddocs
 	source $(VENV) && sphinx-build -n -a -b html docs builddocs
 	cd builddocs && zip -r ../builddocs.zip . -x ".*" && cd ..
 
-rebuild_docs:
+rebuild-docs:
 	source $(VENV) && sphinx-apidoc . --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
 	cp docs/conf.py.distrib docs/conf.py
 	cp docs/index.rst.distrib docs/index.rst
 
-build_docs_epub:
+build-docs-epub:
 	$(MAKE) -C docs/ epub
 
-build_docs_pdf:
+build-docs-pdf:
 	$(MAKE) -C docs/ latexpdf
 
-build_docs_markdown:
+build-docs-markdown:
 	$(MAKE) -C docs/ markdown
 
-auto_build_docs:
+auto-build-docs:
 	source $(VENV) && sphinx-autobuild docs docs/_build/html
+
+# Serve the built docs on port 5001
+serve-docs:
+	source $(VENV) && cd builddocs && python -m http.server 5001
 
 pre-commit:
 	pre-commit run --all-files
@@ -37,11 +42,8 @@ doc8:
 
 # Run ruff on the codebase
 ruff:
-	source $(VENV) && ruff check .
-
-# Serve the built docs on port 5001
-serve_docs:
-	source $(VENV) && cd builddocs && python -m http.server 5001
+	source $(VENV) && ruff check . --fix
+	source $(VENV) && ruff format .
 
 # Install the project
 install:
