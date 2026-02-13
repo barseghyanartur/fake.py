@@ -189,6 +189,8 @@ sphinx-no-pragma==0.1.2
     # via fake-py (pyproject.toml)
 sphinx-rtd-theme==3.1.0
     # via fake-py (pyproject.toml)
+sphinx-source-tree==0.1
+    # via fake-py (pyproject.toml)
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
 sphinxcontrib-devhelp==2.0.0
