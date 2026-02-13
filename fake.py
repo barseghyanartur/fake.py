@@ -342,11 +342,11 @@ EPUB_CONTAINER_XML = b"""<?xml version="1.0"?>
 # Missing/specific custom types
 MISSING_MIMETYPES = {
     ".docx": "application/"
-             "vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "vnd.openxmlformats-officedocument.wordprocessingml.document",
     ".pptx": "application/"
-             "vnd.openxmlformats-officedocument.presentationml.presentation",
+    "vnd.openxmlformats-officedocument.presentationml.presentation",
     ".xlsx": "application/"
-             "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ".epub": "application/epub+zip",
     ".odt": "application/vnd.oasis.opendocument.text",
     ".rtf": "application/rtf",
@@ -455,13 +455,12 @@ def returns_list(func: Callable) -> bool:
         if element_type in {StringValue, BytesValue}:
             return True
         element_origin = getattr(element_type, "__origin__", None)
-        if (
-            element_origin is Union
-            and set(getattr(element_type, "__args__", [])) == {
-                BytesValue,
-                StringValue,
-            }
-        ):
+        if element_origin is Union and set(
+            getattr(element_type, "__args__", [])
+        ) == {
+            BytesValue,
+            StringValue,
+        }:
             return True
 
     return False
@@ -479,7 +478,6 @@ def wrap_text(text: str, wrap_chars_after: int) -> str:
 
 
 class StringTemplateMixin:
-
     template: str
     wrap_chars_after: Optional[int]
     faker: Optional["Faker"]
@@ -1281,7 +1279,8 @@ class DocxGenerator:
         document_content = DOCX_TPL_DOC_HEADER
         for i, page_text in enumerate(texts):  # type: ignore
             document_content += self._create_page(
-                page_text, i == nb_pages - 1  # type: ignore
+                page_text,
+                i == nb_pages - 1,  # type: ignore
             )
         document_content += DOCX_TPL_DOC_FOOTER
 
@@ -1436,9 +1435,7 @@ class OdtGenerator:
         manifest:full-path="content.xml"/>
       <manifest:file-entry
         manifest:media-type="text/xml" manifest:full-path="styles.xml"/>
-    </manifest:manifest>""".encode(
-                    "utf-8"
-                ),
+    </manifest:manifest>""".encode("utf-8"),
             )
 
         return odt_bytes.getvalue()
@@ -1466,10 +1463,8 @@ class RtfGenerator:
         """Escape backslashes, braces and unicode characters for RTF."""
         # Basic escaping of backslash and braces; extend as needed.
         return (
-            text.replace("\\", r"\\")
-                .replace("{", r"\{")
-                .replace("}", r"\}")
-                # TODO: for full unicode support \uXXXX escapes are needed
+            text.replace("\\", r"\\").replace("{", r"\{").replace("}", r"\}")
+            # TODO: for full unicode support \uXXXX escapes are needed
         )
 
     def _create_page(self, text: str, is_last_page: bool) -> str:
@@ -1525,9 +1520,9 @@ class EpubGenerator:
 
     def _escape(self, text: str) -> str:
         """Basic escape for XML."""
-        return (text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;"))
+        return (
+            text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        )
 
     def _create_xhtml(self, text: str, index: int) -> bytes:
         escaped = self._escape(text)
@@ -1535,16 +1530,16 @@ class EpubGenerator:
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>Page {index}</title></head>
-<body><div>{escaped.replace(chr(10), '<br/>')}</div></body>
+<body><div>{escaped.replace(chr(10), "<br/>")}</div></body>
 </html>"""
         return xhtml.encode("utf-8")
 
     def _create_opf(self, nb_pages: int) -> bytes:
         manifest_items = []
         spine_items = []
-        for i in range(1, nb_pages+1):
+        for i in range(1, nb_pages + 1):
             manifest_items.append(
-                f'<item '
+                f"<item "
                 f'id="page{i}" '
                 f'href="page{i}.xhtml" '
                 f'media-type="application/xhtml+xml"/>'
@@ -1803,7 +1798,7 @@ class JpgGenerator:
         jpeg = original.copy()
 
         # Step 1: Update the SOF0 marker with new dimensions
-        sof0 = b"\xFF\xC0"
+        sof0 = b"\xff\xc0"
         sof0_index = cls.find_marker(jpeg, sof0)
 
         # SOF0 structure:
@@ -1835,7 +1830,7 @@ class JpgGenerator:
         jpeg[sof0_index + 8] = new_width_bytes[1]
 
         # Step 2: Locate the Start of Scan (SOS) marker
-        sos = b"\xFF\xDA"
+        sos = b"\xff\xda"
         sos_index = cls.find_marker(jpeg, sos)
 
         # SOS structure:
@@ -1851,7 +1846,7 @@ class JpgGenerator:
         image_data_start = sos_index + 2 + sos_length
 
         # Locate the End of Image (EOI) marker
-        eoi = b"\xFF\xD9"
+        eoi = b"\xff\xd9"
         eoi_index = jpeg.find(eoi, image_data_start)
         if eoi_index == -1:
             eoi_index = 0
@@ -2060,10 +2055,10 @@ class Faker:
         translation_map: Dict[str, str] = {v: k for k, v in this.d.items()}
         zen: str = self._rot13_translate(zen_encoded, translation_map)
         self._words = sorted(
-                zen.translate(str.maketrans("", "", string.punctuation))
-                .lower()
-                .split()
-            )
+            zen.translate(str.maketrans("", "", string.punctuation))
+            .lower()
+            .split()
+        )
 
     def load_names(self) -> None:
         authorship_data = AuthorshipData()
@@ -2465,8 +2460,8 @@ class Faker:
         """
         domain = self.random.choice(domain_names) if domain_names else None
         return (
-                f"{'.'.join(_w.lower() for _w in self.words(3))}"
-                f"@{domain or self.domain_name()}"
+            f"{'.'.join(_w.lower() for _w in self.words(3))}"
+            f"@{domain or self.domain_name()}"
         )
 
     @provider(tags=("Internet",))
@@ -2547,9 +2542,7 @@ class Faker:
         :return: List of emails.
         :rtype: List[str]
         """
-        return [
-            self.free_email(domain_names=domain_names) for _ in range(nb)
-        ]
+        return [self.free_email(domain_names=domain_names) for _ in range(nb)]
 
     @provider(tags=("Internet",))
     def url(
@@ -2769,9 +2762,7 @@ class Faker:
         :return: Random IP v4.
         :rtype: str
         """
-        return ".".join(
-            str(self.random.randint(0, 255)) for _ in range(4)
-        )
+        return ".".join(str(self.random.randint(0, 255)) for _ in range(4))
 
     def _parse_date_string(
         self, date_str: str, tzinfo: timezone = timezone.utc
@@ -2948,7 +2939,12 @@ class Faker:
         second = self.pyint(min_value=0, max_value=59)
         return time(hour, minute, second).strftime(fmt)
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def pdf(
         self,
         nb_pages: int = 1,
@@ -2971,7 +2967,12 @@ class Faker:
         _pdf = generator(faker=self)
         return _pdf.create(nb_pages=nb_pages, metadata=metadata, **kwargs)
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def text_pdf(
         self,
         nb_pages: int = 1,
@@ -2996,7 +2997,12 @@ class Faker:
             **kwargs,
         )
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def png(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3046,14 +3052,19 @@ class Faker:
         )
 
         # IEND chunk: marks the image end
-        iend_chunk = b"\x00\x00\x00\x00IEND\xAE\x42\x60\x82"
+        iend_chunk = b"\x00\x00\x00\x00IEND\xae\x42\x60\x82"
 
         # Combine all chunks
         png_data = png_header + ihdr_chunk + idat_chunk + iend_chunk
 
         return png_data
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def svg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3071,7 +3082,12 @@ class Faker:
         width, height = size
         return SVG_TPL.format(width=width, height=height, color=color).encode()
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def bmp(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3125,15 +3141,20 @@ class Faker:
             + len(image_data).to_bytes(  # Compression method (0 for none)
                 4, byteorder="little"
             )
-            + b"\x13\x0B\x00\x00"  # Size of the raw bitmap data
+            + b"\x13\x0b\x00\x00"  # Size of the raw bitmap data
             # Print resolution of the image (2835 pixels/meter)
-            + b"\x13\x0B\x00\x00"
+            + b"\x13\x0b\x00\x00"
             + b"\x00\x00\x00\x00"
             + b"\x00\x00\x00\x00"  # Number of colours in the palette
             + image_data  # Important colours
         )
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def gif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3158,7 +3179,7 @@ class Faker:
         screen_height = height.to_bytes(2, byteorder="little")
         # Global Colour Table Flag set to 1, Colour resolution, and Sort Flag
         # to 0
-        packed_field = b"\xF7"
+        packed_field = b"\xf7"
         bg_color_index = b"\x00"  # Background Colour Index
         pixel_aspect_ratio = b"\x00"  # No aspect ratio information
 
@@ -3170,7 +3191,7 @@ class Faker:
 
         # Image Descriptor
         image_descriptor = (
-            b"\x2C"
+            b"\x2c"
             + b"\x00\x00\x00\x00"
             + screen_width
             + screen_height
@@ -3188,7 +3209,7 @@ class Faker:
         )  # Compressed data
 
         # Footer
-        footer = b"\x3B"
+        footer = b"\x3b"
 
         # Combine all parts
         return (
@@ -3205,7 +3226,12 @@ class Faker:
             + footer
         )
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def tif(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3226,7 +3252,7 @@ class Faker:
         # Byte order indication ('II' for little endian)
         # Version number (42)
         # Offset to the first IFD (8 bytes from the beginning)
-        tiff_header = b"II\x2A\x00\x08\x00\x00\x00"
+        tiff_header = b"II\x2a\x00\x08\x00\x00\x00"
 
         # IFD setup
         num_entries = 12
@@ -3282,7 +3308,12 @@ class Faker:
         # Complete TIFF file
         return tiff_header + ifd + image_data + bits_per_sample + res_bytes
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def ppm(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3311,7 +3342,12 @@ class Faker:
         # Complete PPM file
         return ppm_header + bytes(image_data)
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def jpg(
         self,
         size: Tuple[int, int] = (100, 100),
@@ -3328,7 +3364,12 @@ class Faker:
         """
         return JpgGenerator.generate(size=size, color=color)
 
-    @provider(tags=("Binary", "Image",))
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def image(
         self,
         image_format: Literal[
@@ -3367,7 +3408,12 @@ class Faker:
         image_func = getattr(self, image_format)
         return image_func(size=size, color=color)
 
-    @provider(tags=("Binary", "Audio",))
+    @provider(
+        tags=(
+            "Binary",
+            "Audio",
+        )
+    )
     def wav(
         self,
         frequency: int = 440,
@@ -3415,7 +3461,12 @@ class Faker:
 
         return wav_bytes
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def docx(
         self,
         nb_pages: Optional[int] = 1,
@@ -3446,7 +3497,12 @@ class Faker:
         _docx = DocxGenerator(faker=self)
         return _docx.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def rtf(
         self,
         nb_pages: Optional[int] = 1,
@@ -3477,7 +3533,12 @@ class Faker:
         _rtf = RtfGenerator(faker=self)
         return _rtf.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def epub(
         self,
         nb_pages: Optional[int] = 1,
@@ -3508,7 +3569,12 @@ class Faker:
         _epub = EpubGenerator(faker=self)
         return _epub.create(nb_pages=nb_pages, texts=texts, metadata=metadata)
 
-    @provider(tags=("Binary", "Document",))
+    @provider(
+        tags=(
+            "Binary",
+            "Document",
+        )
+    )
     def odt(
         self,
         nb_pages: Optional[int] = 1,
@@ -3552,7 +3618,12 @@ class Faker:
         """
         return os.urandom(length)
 
-    @provider(tags=("Binary", "Archive",))
+    @provider(
+        tags=(
+            "Binary",
+            "Archive",
+        )
+    )
     def zip(self, options: Optional[Dict[str, Any]] = None, **kwargs):
         """Create a ZIP archive file as bytes.
 
@@ -3639,7 +3710,12 @@ class Faker:
         raw_content.data = data
         return raw_content
 
-    @provider(tags=("Binary", "Archive",))
+    @provider(
+        tags=(
+            "Binary",
+            "Archive",
+        )
+    )
     def tar(
         self,
         options: Optional[Dict[str, Any]] = None,
@@ -5868,14 +5944,16 @@ class ModelFactory:
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif (
-                not _field.startswith(("_", "Meta",))
-                and (
-                    not getattr(value, "is_trait", False)
-                    and not getattr(value, "is_pre_init", False)
-                    and not getattr(value, "is_pre_save", False)
-                    and not getattr(value, "is_post_save", False)
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
                 )
+            ) and (
+                not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_init", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
             ):
                 model_data[_field] = (
                     value()
@@ -6011,14 +6089,16 @@ class DjangoModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif (
-                not _field.startswith(("_", "Meta",))
-                and (
-                    not getattr(value, "is_trait", False)
-                    and not getattr(value, "is_pre_init", False)
-                    and not getattr(value, "is_pre_save", False)
-                    and not getattr(value, "is_post_save", False)
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
                 )
+            ) and (
+                not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_init", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
             ):
                 model_data[_field] = (
                     value()
@@ -6198,14 +6278,16 @@ class TortoiseModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif (
-                not _field.startswith(("_", "Meta",))
-                and (
-                    not getattr(value, "is_trait", False)
-                    and not getattr(value, "is_pre_init", False)
-                    and not getattr(value, "is_pre_save", False)
-                    and not getattr(value, "is_post_save", False)
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
                 )
+            ) and (
+                not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_init", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
             ):
                 model_data[_field] = (
                     value()
@@ -6365,14 +6447,16 @@ class SQLAlchemyModelFactory(ModelFactory):
                 pre_save_methods[_field] = value
             elif isinstance(value, PostSave):
                 post_save_methods[_field] = value
-            elif (
-                not _field.startswith(("_", "Meta",))
-                and (
-                    not getattr(value, "is_trait", False)
-                    and not getattr(value, "is_pre_init", False)
-                    and not getattr(value, "is_pre_save", False)
-                    and not getattr(value, "is_post_save", False)
+            elif not _field.startswith(
+                (
+                    "_",
+                    "Meta",
                 )
+            ) and (
+                not getattr(value, "is_trait", False)
+                and not getattr(value, "is_pre_init", False)
+                and not getattr(value, "is_pre_save", False)
+                and not getattr(value, "is_post_save", False)
             ):
                 model_data[_field] = (
                     value()
@@ -7098,16 +7182,13 @@ class TestFaker(unittest.TestCase):
                 },
             ),
             (self.faker.randomise_string, {"value": "???? ##"}),
-            (
-                self.faker.string_template,
-                {"template": _string_template}
-            ),
+            (self.faker.string_template, {"template": _string_template}),
             # (
             #     self.faker.lazy_string_template,
             #     {"template": _string_template}
             # ),  # TODO: Implement test
         ]
-        for (_provider, _kwargs) in _providers:
+        for _provider, _kwargs in _providers:
             if _provider.__name__ not in ("pybool"):
                 self.faker.seed(None)
                 list_1 = [
@@ -7299,7 +7380,6 @@ class TestFaker(unittest.TestCase):
                 self.assertTrue(file_path.endswith(f".{expected_extension}"))
 
     def test_dir_path(self) -> None:
-
         with self.subTest("test_default_depth"):
             # Test with default depth (should be 1)
             self.faker.seed(0)  # Set seed for reproducibility
@@ -7311,7 +7391,8 @@ class TestFaker(unittest.TestCase):
             # Split path and remove empty parts caused by leading separator
             parts = [part for part in path.split(os.path.sep) if part]
             self.assertEqual(
-                len(parts), 1,
+                len(parts),
+                1,
                 "There should be exactly one directory name appended",
             )
             # Check that the generated folder is one of the expected words
