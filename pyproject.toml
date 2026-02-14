@@ -38,19 +38,21 @@ Repository = "https://github.com/barseghyanartur/fake.py/"
 Changelog = "https://fakepy.readthedocs.io/en/latest/changelog.html"
 
 [project.optional-dependencies]
-all = ["fake.py[dev,test,docs]"]
-dev = [
+all = ["fake.py[build,dev,test,docs]"]
+build = [
     "build",
+    "twine",
+    "wheel",
+    "pkginfo",
+]
+dev = [
     "detect-secrets",
     "doc8",
     "ipython",
     "mypy",
-    "pkginfo",
     "pydoclint",
     "ruff",
-    "twine",
     "uv",
-    "wheel",
 ]
 test = [
     "django",
