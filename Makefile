@@ -7,7 +7,7 @@ UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
 build-docs:
-	#source $(VENV) && sphinx-build -n -b text docs builddocs
+# 	source $(VENV) && sphinx-build -n -b text docs builddocs
 	source $(VENV) && sphinx-source-tree
 	source $(VENV) && sphinx-build -n -a -b markdown docs builddocs
 	source $(VENV) && sphinx-build -n -a -b html docs builddocs
@@ -47,7 +47,7 @@ ruff:
 
 # Install the project
 install:
-	source $(VENV) && pip install -e .[all]
+	source $(VENV) && pip install -e .'[all]'
 
 test: clean
 	source $(VENV) && pytest -vrx -s
