@@ -30,30 +30,17 @@ repos:
       - id: debug-statements
       - id: check-merge-conflict
 
-#  - repo: https://github.com/psf/black
-#    rev: 24.4.2
-#    hooks:
-#      - id: black
-#        name: black
-#        files: .
-#        args: [ "--config", "pyproject.toml" ]
-
-#  - repo: https://github.com/pycqa/isort
-#    rev: 5.13.2
-#    hooks:
-#      - id: isort
-#        name: isort
-#        files: .
-#        args: [ "--settings-path", "pyproject.toml", "--profile=black" ]
-
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.14.5
     hooks:
-      - id: ruff
+      - id: ruff-check
         name: lint
         files: .
         args: [ "--config", "pyproject.toml", "--fix" ]
-#      - id: ruff-format
+      - id: ruff-format
+        name: format
+        files: .
+        args: [ "--config", "pyproject.toml" ]
 
   - repo: https://github.com/jsh9/pydoclint
     rev: 0.8.1
