@@ -1197,6 +1197,7 @@ fake.py
 .. literalinclude:: ../fake.py
    :language: python
    :caption: fake.py
+   :end-before: # ******************** Tests *********************
 
 fakepy/__init__.py
 ------------------
