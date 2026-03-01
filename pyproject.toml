@@ -299,6 +299,9 @@ ignore = [
     "venv",
 ]
 
+[tool.sphinx-source-tree.file-options]
+"fake.py" = {"end-before" = "# ******************** Tests *********************"}
+
 [[tool.sphinx-source-tree.files]]
 output = "docs/source_tree_full.rst"
 title = "Full project source-tree"
