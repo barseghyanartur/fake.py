@@ -298,6 +298,22 @@ ignore = [
     "node_modules",
     "venv",
 ]
+order = [
+    "README.rst",
+    "CONTRIBUTING.rst",
+    "docs/cheatsheet.rst",
+    "docs/creating_archives.rst",
+    "docs/creating_docx.rst",
+    "docs/creating_files.rst",
+    "docs/creating_images.rst",
+    "docs/creating_odt.rst",
+    "docs/creating_pdf.rst",
+    "docs/customisation.rst",
+    "docs/factories.rst",
+    "docs/recipes.rst",
+    "docs/seed.rst",
+    "docs/test_configuration_tweaks.rst",
+]
 
 [tool.sphinx-source-tree.file-options]
 "fake.py" = {"end-before" = "# ******************** Tests *********************"}

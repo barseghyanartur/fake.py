@@ -176,6 +176,104 @@ the contents of each key file.
    ├── SECURITY.md
    └── tox.ini
 
+README.rst
+----------
+
+.. literalinclude:: ../README.rst
+   :language: rst
+   :caption: README.rst
+
+CONTRIBUTING.rst
+----------------
+
+.. literalinclude:: ../CONTRIBUTING.rst
+   :language: rst
+   :caption: CONTRIBUTING.rst
+
+docs/cheatsheet.rst
+-------------------
+
+.. literalinclude:: cheatsheet.rst
+   :language: rst
+   :caption: docs/cheatsheet.rst
+
+docs/creating_archives.rst
+--------------------------
+
+.. literalinclude:: creating_archives.rst
+   :language: rst
+   :caption: docs/creating_archives.rst
+
+docs/creating_docx.rst
+----------------------
+
+.. literalinclude:: creating_docx.rst
+   :language: rst
+   :caption: docs/creating_docx.rst
+
+docs/creating_files.rst
+-----------------------
+
+.. literalinclude:: creating_files.rst
+   :language: rst
+   :caption: docs/creating_files.rst
+
+docs/creating_images.rst
+------------------------
+
+.. literalinclude:: creating_images.rst
+   :language: rst
+   :caption: docs/creating_images.rst
+
+docs/creating_odt.rst
+---------------------
+
+.. literalinclude:: creating_odt.rst
+   :language: rst
+   :caption: docs/creating_odt.rst
+
+docs/creating_pdf.rst
+---------------------
+
+.. literalinclude:: creating_pdf.rst
+   :language: rst
+   :caption: docs/creating_pdf.rst
+
+docs/customisation.rst
+----------------------
+
+.. literalinclude:: customisation.rst
+   :language: rst
+   :caption: docs/customisation.rst
+
+docs/factories.rst
+------------------
+
+.. literalinclude:: factories.rst
+   :language: rst
+   :caption: docs/factories.rst
+
+docs/recipes.rst
+----------------
+
+.. literalinclude:: recipes.rst
+   :language: rst
+   :caption: docs/recipes.rst
+
+docs/seed.rst
+-------------
+
+.. literalinclude:: seed.rst
+   :language: rst
+   :caption: docs/seed.rst
+
+docs/test_configuration_tweaks.rst
+----------------------------------
+
+.. literalinclude:: test_configuration_tweaks.rst
+   :language: rst
+   :caption: docs/test_configuration_tweaks.rst
+
 .coveralls.yml
 --------------
 
@@ -189,20 +287,6 @@ CODE_OF_CONDUCT.md
 .. literalinclude:: ../CODE_OF_CONDUCT.md
    :language: markdown
    :caption: CODE_OF_CONDUCT.md
-
-CONTRIBUTING.rst
-----------------
-
-.. literalinclude:: ../CONTRIBUTING.rst
-   :language: rst
-   :caption: CONTRIBUTING.rst
-
-README.rst
-----------
-
-.. literalinclude:: ../README.rst
-   :language: rst
-   :caption: README.rst
 
 SECURITY.md
 -----------
@@ -428,13 +512,6 @@ docs/_static/examples/creating_pdf/text_pdf_file_pydantic_1.py
    :language: python
    :caption: docs/_static/examples/creating_pdf/text_pdf_file_pydantic_1.py
 
-docs/cheatsheet.rst
--------------------
-
-.. literalinclude:: cheatsheet.rst
-   :language: rst
-   :caption: docs/cheatsheet.rst
-
 docs/cli.rst
 ------------
 
@@ -456,55 +533,6 @@ docs/contributor_guidelines.rst
    :language: rst
    :caption: docs/contributor_guidelines.rst
 
-docs/creating_archives.rst
---------------------------
-
-.. literalinclude:: creating_archives.rst
-   :language: rst
-   :caption: docs/creating_archives.rst
-
-docs/creating_docx.rst
-----------------------
-
-.. literalinclude:: creating_docx.rst
-   :language: rst
-   :caption: docs/creating_docx.rst
-
-docs/creating_files.rst
------------------------
-
-.. literalinclude:: creating_files.rst
-   :language: rst
-   :caption: docs/creating_files.rst
-
-docs/creating_images.rst
-------------------------
-
-.. literalinclude:: creating_images.rst
-   :language: rst
-   :caption: docs/creating_images.rst
-
-docs/creating_odt.rst
----------------------
-
-.. literalinclude:: creating_odt.rst
-   :language: rst
-   :caption: docs/creating_odt.rst
-
-docs/creating_pdf.rst
----------------------
-
-.. literalinclude:: creating_pdf.rst
-   :language: rst
-   :caption: docs/creating_pdf.rst
-
-docs/customisation.rst
-----------------------
-
-.. literalinclude:: customisation.rst
-   :language: rst
-   :caption: docs/customisation.rst
-
 docs/customization.rst
 ----------------------
 
@@ -518,13 +546,6 @@ docs/documentation.rst
 .. literalinclude:: documentation.rst
    :language: rst
    :caption: docs/documentation.rst
-
-docs/factories.rst
-------------------
-
-.. literalinclude:: factories.rst
-   :language: rst
-   :caption: docs/factories.rst
 
 docs/fake.rst
 -------------
@@ -553,27 +574,6 @@ docs/package.rst
 .. literalinclude:: package.rst
    :language: rst
    :caption: docs/package.rst
-
-docs/recipes.rst
-----------------
-
-.. literalinclude:: recipes.rst
-   :language: rst
-   :caption: docs/recipes.rst
-
-docs/seed.rst
--------------
-
-.. literalinclude:: seed.rst
-   :language: rst
-   :caption: docs/seed.rst
-
-docs/test_configuration_tweaks.rst
-----------------------------------
-
-.. literalinclude:: test_configuration_tweaks.rst
-   :language: rst
-   :caption: docs/test_configuration_tweaks.rst
 
 examples/README.rst
 -------------------

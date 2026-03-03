@@ -22,6 +22,20 @@ the contents of each key file.
    ├── SECURITY.md
    └── tox.ini
 
+README.rst
+----------
+
+.. literalinclude:: ../README.rst
+   :language: rst
+   :caption: README.rst
+
+CONTRIBUTING.rst
+----------------
+
+.. literalinclude:: ../CONTRIBUTING.rst
+   :language: rst
+   :caption: CONTRIBUTING.rst
+
 .coveralls.yml
 --------------
 
@@ -35,20 +49,6 @@ CODE_OF_CONDUCT.md
 .. literalinclude:: ../CODE_OF_CONDUCT.md
    :language: markdown
    :caption: CODE_OF_CONDUCT.md
-
-CONTRIBUTING.rst
-----------------
-
-.. literalinclude:: ../CONTRIBUTING.rst
-   :language: rst
-   :caption: CONTRIBUTING.rst
-
-README.rst
-----------
-
-.. literalinclude:: ../README.rst
-   :language: rst
-   :caption: README.rst
 
 SECURITY.md
 -----------
