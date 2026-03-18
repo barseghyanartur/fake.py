@@ -21,6 +21,23 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13
+----
+2026-03-18
+
+- Add ``dir_path`` parameter to all ``create_inner_*`` functions for
+  specifying in-archive subdirectory paths.
+- Add ``resolve_inner_directory`` helper function for resolving in-archive
+  paths in ``zip()`` and ``tar()`` methods (as well as ``zip_file()``
+  and ``tar_file()``).
+- Add ``create_inner_generic_file`` function for creating inner files with
+  arbitrary content and extensions.
+- Widen ``generic_file`` to accept ``StringTemplate`` and
+  ``LazyStringTemplate`` content types.
+- Add AGENTS.md documentation for AI agent workflows.
+- Update Makefile to use ``uv`` instead of virtualenv activation.
+- Minor documentation improvements.
+
 0.12.2
 ------
 2025-12-14
