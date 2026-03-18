@@ -95,6 +95,33 @@ Note, that text PDF does contain full text of the entire document in the
 
 ----
 
+You can create custom file types using ``generic_file``. Here's an example
+creating an XML file:
+
+.. code-block:: python
+    :name: test_generic_file_xml
+    :emphasize-lines: 3-11
+
+    from fake import FAKER, FILE_REGISTRY, StringTemplate
+
+    xml_content = StringTemplate(
+        "<article><title>{sentence(nb_words=5)}</title></article>"
+    )
+
+    xml_file = FAKER.generic_file(
+        content=xml_content,
+        extension="xml",
+    )
+
+    assert xml_file
+    assert str(xml_file).endswith(".xml")
+    FILE_REGISTRY.clean_up()
+
+You can also use ``LazyStringTemplate`` if you need the content to be
+regenerated on each access.
+
+----
+
 Clean up files
 --------------
 ``FileSystemStorage`` is the default storage and by default files are stored

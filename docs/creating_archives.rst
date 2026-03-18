@@ -354,6 +354,7 @@ and ``dir_path``:
 
 .. code-block:: python
     :name: test_zip_archive_nested_dirs_xml
+    :emphasize-lines: 8-24
 
     from fake import (
         FAKER,
