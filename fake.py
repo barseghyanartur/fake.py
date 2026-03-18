@@ -387,7 +387,16 @@ def resolve_inner_directory(file: "StringValue", directory: str) -> Path:
     :rtype: Path
     """
     inner_dir = file.data.get("directory", "")
-    return Path(directory) / inner_dir / Path(file).name
+    safe_components = []
+    for part in inner_dir.replace("\\", "/").split("/"):
+        if part and part != "." and part != "..":
+            if len(part) == 2 and part[1] == ":":
+                continue
+            safe_components.append(part)
+    safe_inner = "/".join(safe_components)
+    if safe_inner:
+        return Path(directory) / safe_inner / Path(file).name
+    return Path(directory) / Path(file).name
 
 
 def get_mime_maintype_subtype(path: str) -> Tuple[str, str]:
@@ -8595,6 +8604,58 @@ class TestFaker(unittest.TestCase):
         assert parts[1] == "level2"
         assert parts[2] == "level3"
         assert not names[0].endswith("/")
+
+    def test_zip_dir_path_sanitization(self):
+        """dir_path with unsafe paths like .., absolute paths, drive letters."""
+        with self.subTest("Path traversal with .."):
+            raw = self.faker.zip(
+                options={
+                    "count": 1,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "dir_path": "../../../etc/passwd",
+                    },
+                    "directory": "",
+                }
+            )
+            with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                names = zf.namelist()
+            assert len(names) == 1
+            parts = Path(names[0]).parts
+            assert ".." not in parts
+            assert not names[0].startswith("/")
+
+        with self.subTest("Absolute path"):
+            raw = self.faker.zip(
+                options={
+                    "count": 1,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "dir_path": "/etc/passwd",
+                    },
+                    "directory": "",
+                }
+            )
+            with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                names = zf.namelist()
+            assert len(names) == 1
+            assert not names[0].startswith("/")
+
+        with self.subTest("Backslash path traversal"):
+            raw = self.faker.zip(
+                options={
+                    "count": 1,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {
+                        "dir_path": "level1\\..\\..\\level2",
+                    },
+                    "directory": "",
+                }
+            )
+            with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                names = zf.namelist()
+            assert len(names) == 1
+            assert ".." not in names[0]
 
     def test_zip_dir_path_template(self):
         """dir_path as a string_template expression is resolved before use."""
