@@ -275,18 +275,36 @@ Tests are embedded in `fake.py` at the end of the file:
 
 ```text
 fake.py:
-    TestCLI class          — CLI tests (line ~6900)
-    TestFaker class        — Main provider tests (line ~7169)
-    TestStringTemplate    — Template tests (line ~7900)
-    TestLazyStringTemplate — Lazy template tests
+    TestCLI class           — CLI tests (line ~6900)
+    TestFaker class         — Main provider tests (line ~7169)
+    TestStringTemplate      — Template tests (line ~7900)
+    TestLazyStringTemplate  — Lazy template tests
 ```
 
-### Fixture rules
+### Test style
 
-- Use `setUp` to initialize `self.faker = FAKER`
-- Use `tearDown` to call `FILE_REGISTRY.clean_up()`
-- Use `self.subTest()` for multiple assertions in one test
-- Use `os.path.exists()` to verify file generation
+- **Use unittest style only** — Although pytest is used as the test runner,
+  no third-party test imports are allowed due to the no-dependency, portable
+  nature of the package. Use `unittest.TestCase` classes, `self.assert*`
+  methods, and `self.subTest()` for parameterized assertions.
+- **No pytest fixtures or plugins** — Package tests must work without
+  `pytest`-specific features so they can run with any unittest-compatible
+  runner.
+  Note that documentation is tested separately using `pytest` and
+  `pytest-codeblock`; all documentation fixtures are defined in root
+  `conftest.py`.
+
+- Use `setUp` to initialize `self.faker = FAKER`.
+- Use `tearDown` to call `FILE_REGISTRY.clean_up()`.
+- Use `self.subTest()` for multiple assertions in one test.
+- Use `os.path.exists()` to verify file generation.
+- **Always use `self.faker`** instead of `FAKER` directly — this ensures tests
+  work with `__copy_fake.py` which tests the module in isolation.
+- **Don't use inline imports** for module-level symbols like `StringTemplate`,
+  `LazyStringTemplate`, `Path`, `BytesIO`, `zipfile`, `tarfile` — they are
+  already imported at the top of the file.
+- **Use standard library imports directly** — `import zipfile`
+  not `import zipfile as _zf`.
 
 ### Test example
 
@@ -299,6 +317,55 @@ def test_my_method(self) -> None:
     with self.subTest("With parameter"):
         result = self.faker.my_method(param="value")
         self.assertEqual(result, "result: value")
+```
+
+### Archive test example
+
+When testing zip/tar archives, use `BytesIO(bytes(raw))` and access the
+archive through the standard library:
+
+```python
+def test_zip_dir_path_literal(self):
+    """dir_path as a literal string places the file at that subpath."""
+    raw = self.faker.zip(
+        options={
+            "count": 1,
+            "create_inner_file_func": create_inner_txt_file,
+            "create_inner_file_args": {
+                "dir_path": "level1/level2/level3",
+            },
+            "directory": "",
+        }
+    )
+
+    with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+        names = zf.namelist()
+
+    assert len(names) == 1
+    parts = Path(names[0]).parts
+    assert parts[0] == "level1"
+    assert parts[1] == "level2"
+    assert parts[2] == "level3"
+
+def test_tar_dir_path_literal(self):
+    """Same guarantee holds for tar()."""
+    raw = self.faker.tar(
+        options={
+            "count": 1,
+            "create_inner_file_func": create_inner_txt_file,
+            "create_inner_file_args": {
+                "dir_path": "a/b/c",
+            },
+            "directory": "",
+        }
+    )
+
+    with tarfile.open(fileobj=BytesIO(bytes(raw))) as tf:
+        names = tf.getnames()
+
+    assert len(names) == 1
+    parts = Path(names[0]).parts
+    assert parts[:3] == ("a", "b", "c")
 ```
 
 ---
