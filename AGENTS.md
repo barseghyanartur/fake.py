@@ -16,9 +16,13 @@ and **developing/extending** the package itself.
 - Generates fake data for testing and development
 - Zero runtime dependencies (only optional dependencies for testing, development, documentation and building)
 - Single-file architecture with self-contained providers
-- Support for various file formats (PDF, DOCX, ODT, images, archives)
+- Random texts, (person) names, emails, URLs, dates, IPs, and primitive Python data types
+- GEO data (city, country, geo-location, country code, latitude, longitude, locales)
+- IBANs and ISBNs
+- File formats (PDF, DOCX, ODT, RTF, EPUB, TXT, PNG, SVG, BMP, GIF, TIF, PPM, JPG, WAV, ZIP, TAR, EML)
 - StringTemplate and LazyStringTemplate for dynamic content generation
 - FILE_REGISTRY for tracking and cleanup of generated files
+- CLI for generating data from command line
 - Factories (dynamic fixtures) for Django, Pydantic, TortoiseORM, and SQLAlchemy
 
 ---
