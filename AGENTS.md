@@ -314,6 +314,9 @@ fake.py:
   Note that documentation is tested separately using `pytest` and
   `pytest-codeblock`; all documentation fixtures are defined in root
   `conftest.py`.
+- **Documentation tests use pytest-style** — Code examples in `.rst` and `.md`
+  files (tested via `pytest-codeblock`) run outside unittest context. Use
+  plain `assert` statements instead of `self.assert*` methods.
 
 - Use `setUp` to initialize `self.faker = FAKER`.
 - Use `tearDown` to call `FILE_REGISTRY.clean_up()`.
