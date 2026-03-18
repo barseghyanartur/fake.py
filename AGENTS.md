@@ -165,7 +165,7 @@ For StringTemplate/LazyStringTemplate resolution in `generic_file`:
 
 ### Formatting
 
-- Line length: **88 characters** (ruff).
+- Line length: **80 characters** (ruff).
 - Import sorting: `ruff`.
 - Target: Python 3.9+. Run `make ruff` to check.
 
