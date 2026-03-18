@@ -584,9 +584,9 @@ experience:
   (like ``# noqa`` or ``# type: ignore``) from the generated documentation,
   keeping the focus entirely on the logic.
 
-- `pytest-codeblock`_: For **automatica testing of code snippets** within
-  documentation (e.g. README.rst, AGENTS.md) ``.rst`` and ``.md`` files,
-  ensuring that every example remains functional as the codebase evolves.
+- `pytest-codeblock`_: For **testing the documentation code snippets**
+  (e.g. README.rst, AGENTS.md) ``.rst`` and ``.md`` files, ensuring that
+  every example remains functional as the codebase evolves.
 
 License
 =======
