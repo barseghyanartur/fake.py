@@ -117,6 +117,7 @@ __all__ = (
     "create_inner_docx_file",
     "create_inner_eml_file",
     "create_inner_gif_file",
+    "create_inner_generic_file",
     "create_inner_jpg_file",
     "create_inner_odt_file",
     "create_inner_pdf_file",
@@ -146,6 +147,7 @@ __all__ = (
     "pre_save",
     "provider",
     "run_async_in_thread",
+    "resolve_inner_directory",
     "slugify",
     "trait",
     "wrap_text",
@@ -360,6 +362,32 @@ TEMP_DIR = gettempdir()
 def slugify(value: str, separator: str = "") -> str:
     """Slugify."""
     return SLUGIFY_RE.sub(separator, value).lower()
+
+
+def resolve_inner_directory(file: "StringValue", directory: str) -> Path:
+    """Resolve the in-archive path for an inner file.
+
+    Combines three components:
+
+    1. *directory* — the static ``options["directory"]`` prefix supplied
+       by the caller of ``zip()`` / ``tar()``.
+    2. ``file.data.get("directory", "")`` — an optional subdirectory
+       set by the creator function via its ``dir_path`` parameter.
+    3. ``Path(file).name`` — the bare filename of the generated file,
+       derived from the real on-disk path as always.
+
+    When ``data["directory"]`` is absent (i.e. ``dir_path`` was not
+    passed to the creator), this returns the same result as the current
+    ``Path(directory) / Path(file).name`` expression, preserving full
+    backwards compatibility.
+
+    :param file: The ``StringValue`` returned by a creator function.
+    :param directory: The ``options["directory"]`` prefix (may be ``""``).
+    :return: The resolved in-archive path.
+    :rtype: Path
+    """
+    inner_dir = file.data.get("directory", "")
+    return Path(directory) / inner_dir / Path(file).name
 
 
 def get_mime_maintype_subtype(path: str) -> Tuple[str, str]:
@@ -3683,12 +3711,13 @@ class Faker:
                 for __file in _files:
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
+                    _inner_path = resolve_inner_directory(__file, _directory)
                     __fake_file.write(
                         __file_abs_path,
-                        arcname=Path(_directory) / Path(__file).name,
+                        arcname=_inner_path,
                     )
                     os.remove(__file_abs_path)  # Clean up temporary files
-                    data["files"].append(Path(_directory) / Path(__file).name)
+                    data["files"].append(_inner_path)
 
             # If _create_inner_file_func returns a single value
             else:
@@ -3699,12 +3728,13 @@ class Faker:
                     )
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
+                    _inner_path = resolve_inner_directory(__file, _directory)
                     __fake_file.write(
                         __file_abs_path,
-                        arcname=Path(_directory) / Path(__file).name,
+                        arcname=_inner_path,
                     )
                     os.remove(__file_abs_path)  # Clean up temporary files
-                    data["files"].append(Path(_directory) / Path(__file).name)
+                    data["files"].append(_inner_path)
 
         raw_content = BytesValue(_zip_content.getvalue())
         raw_content.data = data
@@ -3793,12 +3823,13 @@ class Faker:
                 for __file in _files:
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
+                    _inner_path = resolve_inner_directory(__file, _directory)
                     __fake_file.add(
                         __file_abs_path,
-                        arcname=Path(_directory) / Path(__file).name,
+                        arcname=_inner_path,
                     )
                     os.remove(__file_abs_path)  # Clean up temporary files
-                    data["files"].append(Path(_directory) / Path(__file).name)
+                    data["files"].append(_inner_path)
 
             # If _create_inner_file_func returns a single value
             else:
@@ -3809,12 +3840,13 @@ class Faker:
                     )
                     data["inner"][str(__file)] = __file
                     __file_abs_path = fs_storage.abspath(__file)
+                    _inner_path = resolve_inner_directory(__file, _directory)
                     __fake_file.add(
                         __file_abs_path,
-                        arcname=Path(_directory) / Path(__file).name,
+                        arcname=_inner_path,
                     )
                     os.remove(__file_abs_path)  # Clean up temporary files
-                    data["files"].append(Path(_directory) / Path(__file).name)
+                    data["files"].append(_inner_path)
 
         raw_content = BytesValue(_tar_content.getvalue())
         raw_content.data = data
@@ -4850,7 +4882,7 @@ class Faker:
     @provider(tags=("File",))
     def generic_file(
         self,
-        content: Union[bytes, str],
+        content: Union[bytes, str, StringTemplate, LazyStringTemplate],
         extension: str,
         storage: Optional[BaseStorage] = None,
         basename: Optional[str] = None,
@@ -4858,7 +4890,9 @@ class Faker:
     ) -> StringValue:
         """Create a generic file.
 
-        :param content: Content to write to the file. Can be bytes or string.
+        :param content: Content to write to the file. Can be bytes, string,
+            :class:`StringTemplate`, or :class:`LazyStringTemplate`. Templates
+            are rendered fresh on each call before writing.
         :param extension: File extension.
         :param storage: Storage backend to use. Defaults to None, in which
             case FileSystemStorage is used.
@@ -4875,6 +4909,9 @@ class Faker:
             prefix=prefix,
             basename=basename,
         )
+
+        if isinstance(content, (StringTemplate, LazyStringTemplate)):
+            content = str(content)
 
         if isinstance(content, bytes):
             storage.write_bytes(filename, content)
@@ -5248,10 +5285,11 @@ def create_inner_pdf_file(
         Type[TextPdfGenerator], Type[GraphicPdfGenerator]
     ] = GraphicPdfGenerator,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner PDF file."""
-    return FAKER.pdf_file(
+    sv = FAKER.pdf_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5260,6 +5298,9 @@ def create_inner_pdf_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_text_pdf_file(
@@ -5269,10 +5310,11 @@ def create_inner_text_pdf_file(
     nb_pages: Optional[int] = 1,
     generator: Type[TextPdfGenerator] = TextPdfGenerator,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner text PDF file."""
-    return FAKER.text_pdf_file(
+    sv = FAKER.text_pdf_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5281,6 +5323,9 @@ def create_inner_text_pdf_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_png_file(
@@ -5289,10 +5334,11 @@ def create_inner_png_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner PNG file."""
-    return FAKER.png_file(
+    sv = FAKER.png_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5300,6 +5346,9 @@ def create_inner_png_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_svg_file(
@@ -5308,10 +5357,11 @@ def create_inner_svg_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner SVG file."""
-    return FAKER.svg_file(
+    sv = FAKER.svg_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5319,6 +5369,9 @@ def create_inner_svg_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_bmp_file(
@@ -5327,10 +5380,11 @@ def create_inner_bmp_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner BMP file."""
-    return FAKER.bmp_file(
+    sv = FAKER.bmp_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5338,6 +5392,9 @@ def create_inner_bmp_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_gif_file(
@@ -5346,10 +5403,11 @@ def create_inner_gif_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner GIF file."""
-    return FAKER.gif_file(
+    sv = FAKER.gif_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5357,6 +5415,9 @@ def create_inner_gif_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_tif_file(
@@ -5365,10 +5426,11 @@ def create_inner_tif_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner TIF file."""
-    return FAKER.tif_file(
+    sv = FAKER.tif_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5376,6 +5438,9 @@ def create_inner_tif_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_ppm_file(
@@ -5384,10 +5449,11 @@ def create_inner_ppm_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner PPM file."""
-    return FAKER.ppm_file(
+    sv = FAKER.ppm_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5395,6 +5461,9 @@ def create_inner_ppm_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_jpg_file(
@@ -5403,10 +5472,11 @@ def create_inner_jpg_file(
     prefix: Optional[str] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (128, 128, 128),
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner JPG file."""
-    return FAKER.jpg_file(
+    sv = FAKER.jpg_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5414,6 +5484,9 @@ def create_inner_jpg_file(
         color=color,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_wav_file(
@@ -5424,10 +5497,11 @@ def create_inner_wav_file(
     duration: int = 1,
     volume: Union[float, int] = 0.5,
     sample_rate: int = 44100,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner WAV file."""
-    return FAKER.wav_file(
+    sv = FAKER.wav_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5437,6 +5511,9 @@ def create_inner_wav_file(
         sample_rate=sample_rate,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_docx_file(
@@ -5446,10 +5523,11 @@ def create_inner_docx_file(
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner DOCX file."""
-    return FAKER.docx_file(
+    sv = FAKER.docx_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5458,6 +5536,9 @@ def create_inner_docx_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_rtf_file(
@@ -5467,10 +5548,11 @@ def create_inner_rtf_file(
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner RTF file."""
-    return FAKER.rtf_file(
+    sv = FAKER.rtf_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5479,6 +5561,9 @@ def create_inner_rtf_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_epub_file(
@@ -5488,10 +5573,11 @@ def create_inner_epub_file(
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner EPUB file."""
-    return FAKER.epub_file(
+    sv = FAKER.epub_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5500,6 +5586,9 @@ def create_inner_epub_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_odt_file(
@@ -5509,10 +5598,11 @@ def create_inner_odt_file(
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner ODT file."""
-    return FAKER.odt_file(
+    sv = FAKER.odt_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5521,6 +5611,9 @@ def create_inner_odt_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_zip_file(
@@ -5529,10 +5622,11 @@ def create_inner_zip_file(
     prefix: Optional[str] = None,
     options: Optional[Dict[str, Any]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner ZIP file."""
-    return FAKER.zip_file(
+    sv = FAKER.zip_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5540,6 +5634,9 @@ def create_inner_zip_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_tar_file(
@@ -5549,10 +5646,11 @@ def create_inner_tar_file(
     options: Optional[Dict[str, Any]] = None,
     compression: Optional[Literal["gz", "bz2", "xz"]] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner TAR file."""
-    return FAKER.tar_file(
+    sv = FAKER.tar_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5561,6 +5659,9 @@ def create_inner_tar_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_eml_file(
@@ -5573,10 +5674,11 @@ def create_inner_eml_file(
     cte_type: Optional[str] = None,
     policy: Optional[Policy] = None,
     metadata: Optional[MetaData] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner EML file."""
-    return FAKER.eml_file(
+    sv = FAKER.eml_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -5588,6 +5690,9 @@ def create_inner_eml_file(
         metadata=metadata,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def create_inner_txt_file(
@@ -5595,19 +5700,90 @@ def create_inner_txt_file(
     basename: Optional[str] = None,
     prefix: Optional[str] = None,
     text: Optional[str] = None,
+    dir_path: Optional[str] = None,
     **kwargs,
 ) -> StringValue:
     """Create inner TXT file."""
     if not text:
         text = FAKER.text()
 
-    return FAKER.txt_file(
+    sv = FAKER.txt_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
         text=text,
         **kwargs,
     )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
+
+
+def create_inner_generic_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[str] = None,
+    prefix: Optional[str] = None,
+    content: Union[bytes, str, StringTemplate, LazyStringTemplate] = "",
+    extension: str = "txt",
+    dir_path: Optional[str] = None,
+    **kwargs,
+) -> StringValue:
+    """Create an inner file of any format with arbitrary content.
+
+    Unlike the other ``create_inner_*`` functions which each target a
+    specific file format, this function accepts any ``extension`` and any
+    ``content`` — including a :class:`StringTemplate` or
+    :class:`LazyStringTemplate`, which is rendered fresh on each call.
+
+    Usage examples::
+
+        # Plain string content
+        create_inner_generic_file(
+            content="<root/>",
+            extension="xml",
+        )
+
+        # StringTemplate — rendered once at call-site construction time
+        create_inner_generic_file(
+            content=StringTemplate("<title>{sentence(nb_words=4)}</title>"),
+            extension="xml",
+        )
+
+        # LazyStringTemplate — rendered fresh on every call, useful with
+        # count > 1 so each file gets independently generated content
+        create_inner_generic_file(
+            content=LazyStringTemplate("<title>{sentence(nb_words=4)}</title>"),
+            extension="xml",
+            dir_path="{dir_path(depth=2)}",
+        )
+
+    :param storage: Storage backend to use. Defaults to
+        ``FileSystemStorage``.
+    :param basename: Base name for the file. Defaults to ``None``.
+    :param prefix: Prefix for the file name. Defaults to ``None``.
+    :param content: File content. Accepts ``bytes``, ``str``,
+        :class:`StringTemplate`, or :class:`LazyStringTemplate`.
+        Defaults to ``""``.
+    :param extension: File extension without leading dot. Defaults to
+        ``"txt"``.
+    :param dir_path: Optional in-archive subdirectory. Resolved through
+        ``FAKER.string_template()`` so template expressions such as
+        ``"{dir_path(depth=3)}"`` are supported. Defaults to ``None``.
+    :param **kwargs: Additional keyword arguments to pass to the function.
+    :return: ``StringValue`` containing the relative path of the generated
+        file.
+    :rtype: StringValue
+    """
+    sv = FAKER.generic_file(
+        content=content,
+        extension=extension,
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+    )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
 
 
 def fuzzy_choice_create_inner_file(
@@ -8186,6 +8362,37 @@ class TestFaker(unittest.TestCase):
             )
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_generic_file_accepts_string_template(self):
+        """generic_file renders a StringTemplate before writing."""
+        template = "Hello {word}."
+        sv = self.faker.generic_file(
+            content=StringTemplate(template),
+            extension="txt",
+        )
+        stored = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        text = stored.read_text()
+        assert "{word}" not in text
+        assert len(text) > 0
+
+    def test_generic_file_accepts_lazy_string_template(self):
+        """generic_file renders a LazyStringTemplate fresh on each call."""
+        template = LazyStringTemplate("Hello {word}.")
+
+        sv1 = self.faker.generic_file(content=template, extension="txt")
+        sv2 = self.faker.generic_file(content=template, extension="txt")
+
+        text1 = Path(
+            sv1.data["storage"].abspath(sv1.data["filename"])
+        ).read_text()
+        text2 = Path(
+            sv2.data["storage"].abspath(sv2.data["filename"])
+        ).read_text()
+
+        assert "{word}" not in text1
+        assert "{word}" not in text2
+        assert text1.startswith("Hello ")
+        assert text2.startswith("Hello ")
+
     def test_create_inner_pdf_file(self):
         value = create_inner_pdf_file()
         self.assertTrue(value)
@@ -8365,6 +8572,121 @@ class TestFaker(unittest.TestCase):
         )
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
+
+    def test_zip_dir_path_literal(self):
+        """dir_path as a literal string places the file at that subpath."""
+        raw = self.faker.zip(
+            options={
+                "count": 1,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {
+                    "dir_path": "level1/level2/level3",
+                },
+                "directory": "",
+            }
+        )
+
+        with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+            names = zf.namelist()
+
+        assert len(names) == 1
+        parts = Path(names[0]).parts
+        assert parts[0] == "level1"
+        assert parts[1] == "level2"
+        assert parts[2] == "level3"
+        assert not names[0].endswith("/")
+
+    def test_zip_dir_path_template(self):
+        """dir_path as a string_template expression is resolved before use."""
+        raw = self.faker.zip(
+            options={
+                "count": 1,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {
+                    "dir_path": "{dir_path(depth=2)}",
+                },
+                "directory": "",
+            }
+        )
+
+        with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+            names = zf.namelist()
+
+        assert len(names) == 1
+        assert len(Path(names[0]).parts) == 3
+        assert not names[0].startswith("/")
+
+    def test_zip_without_dir_path_unaffected(self):
+        """Existing callers that omit dir_path behave exactly as before."""
+        raw = self.faker.zip(
+            options={
+                "count": 1,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {},
+                "directory": "mydir",
+            }
+        )
+
+        with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+            names = zf.namelist()
+
+        assert len(names) == 1
+        assert names[0].startswith("mydir/")
+        assert names[0].count("/") == 1
+
+    def test_tar_dir_path_literal(self):
+        """Same guarantee holds for tar()."""
+        raw = self.faker.tar(
+            options={
+                "count": 1,
+                "create_inner_file_func": create_inner_txt_file,
+                "create_inner_file_args": {
+                    "dir_path": "a/b/c",
+                },
+                "directory": "",
+            }
+        )
+
+        with tarfile.open(fileobj=BytesIO(bytes(raw))) as tf:
+            names = tf.getnames()
+
+        assert len(names) == 1
+        parts = Path(names[0]).parts
+        assert parts[:3] == ("a", "b", "c")
+
+    def test_create_inner_generic_file_with_lazy_string_template_and_dir_path(
+        self,
+    ):
+        """create_inner_generic_file with LazyStringTemplate content and
+        dir_path produces independently rendered files at the correct
+        in-archive path."""
+        template = LazyStringTemplate("<item>{word}</item>")
+
+        raw = self.faker.zip(
+            options={
+                "count": 3,
+                "create_inner_file_func": create_inner_generic_file,
+                "create_inner_file_args": {
+                    "content": template,
+                    "extension": "xml",
+                    "dir_path": "data/{word}",
+                },
+                "directory": "",
+            }
+        )
+
+        with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+            names = zf.namelist()
+            contents = [zf.read(n).decode() for n in names]
+
+        assert len(names) == 3
+        for name in names:
+            parts = Path(name).parts
+            assert parts[0] == "data"
+            assert len(parts) == 3
+        for content in contents:
+            assert "{word}" not in content
+            assert content.startswith("<item>")
 
     def test_create_inner_txt_file(self):
         value = create_inner_txt_file()
