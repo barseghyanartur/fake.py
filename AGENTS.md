@@ -19,6 +19,7 @@ and **developing/extending** the package itself.
 - Support for various file formats (PDF, DOCX, ODT, images, archives)
 - StringTemplate and LazyStringTemplate for dynamic content generation
 - FILE_REGISTRY for tracking and cleanup of generated files
+- Factories (dynamic fixtures) for Django, Pydantic, TortoiseORM, and SQLAlchemy
 
 ---
 
