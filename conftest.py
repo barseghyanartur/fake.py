@@ -5,16 +5,29 @@ running documentation tests. Therefore, this hook, which simply
 calls the `clean_up` method of the `FILE_REGISTRY` instance.
 """
 
+from typing import Optional as OptionalType
+from typing import Type
+
+import pytest
 from fake import FILE_REGISTRY
 from pytest_codeblock.constants import CODEBLOCK_MARK
 
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
-__all__ = ("pytest_runtest_teardown",)
+__all__ = (
+    "pytest_runtest_teardown",
+    "Optional",
+)
 
 
 def pytest_runtest_teardown(item, nextitem):
     """Clean up after test ends."""
     if item.get_closest_marker(CODEBLOCK_MARK):
         FILE_REGISTRY.clean_up()
+
+
+@pytest.fixture()
+def Optional() -> Type:  # noqa
+    """Return Optional type for documentation testing."""
+    return OptionalType

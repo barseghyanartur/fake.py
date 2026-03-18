@@ -26,32 +26,39 @@ and **developing/extending** the package itself.
 
 ### Simple case
 
-```python
+```python name=test_simple_usage
 from fake import FAKER
 
-name = FAKER.name()          # "John Doe"
-email = FAKER.email()        # "john@example.com"
-text = FAKER.text()          # Paragraph of lorem ipsum
+name = FAKER.name()
+email = FAKER.email()
+text = FAKER.text()
+
+assert name  # "John Doe"
+assert email  # "john@example.com"
+assert text  # Paragraph of lorem ipsum
 ```
 
 ### File generation
 
-```python
+```python name=test_file_generation
 from fake import FAKER, FILE_REGISTRY
 
-# Generate various file types
 txt_file = FAKER.txt_file()
 docx_file = FAKER.docx_file(nb_pages=2)
 pdf_file = FAKER.pdf_file(nb_pages=5)
 zip_archive = FAKER.zip_file(options={"count": 10})
 
-# Clean up generated files when done
-FILE_REGISTRY.clean_up()
+assert txt_file
+assert docx_file
+assert pdf_file
+assert zip_archive
+
+FILE_REGISTRY.clean_up()  # Remove generated files
 ```
 
 ### StringTemplate for static content
 
-```python
+```python name=test_string_template_static
 from fake import FAKER, StringTemplate
 
 template = StringTemplate("""
@@ -59,26 +66,29 @@ template = StringTemplate("""
     To: {name}
     Subject: {sentence(nb_words=8)}
 """)
-# Renders once at construction time
-print(str(template))
+result = str(template)
+assert result
+assert "Date:" in result
+assert "To:" in result
 ```
 
 ### LazyStringTemplate for dynamic content
 
-```python
+```python name=test_lazy_string_template_dynamic
 from fake import FAKER, LazyStringTemplate
 
 template = LazyStringTemplate("Hello {name}!")
-# Renders fresh on every str() call - use for batch file generation
 
-for i in range(5):
-    file = FAKER.txt_file(text=str(template))  # Each file has different content
+for i in range(3):
+    result = str(template)
+    assert result.startswith("Hello ")
+    assert result.endswith("!")
 ```
 
 ### Archive with custom inner files
 
-```python
-from fake import FAKER, LazyStringTemplate, create_inner_generic_file
+```python name=test_archive_with_custom_inner_files
+from fake import FAKER, FILE_REGISTRY, LazyStringTemplate, create_inner_generic_file
 
 xml_template = LazyStringTemplate("""
     <?xml version="1.0"?>
@@ -88,17 +98,19 @@ xml_template = LazyStringTemplate("""
     </article>
 """)
 
-FAKER.zip_file(
+archive = FAKER.zip_file(
     options={
-        "count": 10,
+        "count": 3,
         "create_inner_file_func": create_inner_generic_file,
         "create_inner_file_args": {
             "content": xml_template,
             "extension": "xml",
-            "dir_path": "{dir_path(depth=3)}",
+            "dir_path": "{dir_path(depth=2)}",
         },
     }
 )
+assert archive
+FILE_REGISTRY.clean_up()
 ```
 
 ---
@@ -110,7 +122,7 @@ FAKER.zip_file(
 The entire package lives in `fake.py` (~10,000 lines). Key sections:
 
 | Section | Lines | Purpose |
-|---------|-------|---------|
+| ------- | ----- | ------- |
 | **Imports & Config** | 1-200 | All imports, `__all__`, constants |
 | **Core Classes** | 400-700 | `StringValue`, `BytesValue`, `StringTemplate`, `LazyStringTemplate`, storage classes |
 | **Provider Methods** | 2000-8000 | All `FAKER.` methods organized by category |
@@ -120,7 +132,7 @@ The entire package lives in `fake.py` (~10,000 lines). Key sections:
 ### Key Classes
 
 | Class | Purpose |
-|-------|---------|
+| ----- | ------- |
 | `Faker` | Main class with all provider methods |
 | `FAKER` | Default singleton instance |
 | `StringTemplate` | Renders at construction time (subclasses `str`) |
@@ -141,7 +153,7 @@ For StringTemplate/LazyStringTemplate resolution in `generic_file`:
 ### Key Files
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `fake.py` | Entire package (single file) |
 | `pyproject.toml` | Build, ruff, pytest configuration |
 | `Makefile` | Development commands |
@@ -201,7 +213,9 @@ When asked to add a feature or fix a bug, follow these steps in order:
 
 ### Adding a new provider method
 
-```python
+```python name=test_adding_new_provider_method
+from fake import provider
+
 @provider(tags=("MyCategory",))
 def my_method(self, param: str = "default") -> str:
     """My method description.
@@ -215,7 +229,10 @@ def my_method(self, param: str = "default") -> str:
 
 ### Adding a new create_inner_* function
 
-```python
+<!-- pytestfixture: Optional -->
+```python name=test_adding_new_create_inner_functions
+from fake import BaseStorage, FAKER, StringValue
+
 def create_inner_my_file(
     storage: Optional[BaseStorage] = None,
     basename: Optional[str] = None,
@@ -307,7 +324,7 @@ fake.py:
 
 ### Test example
 
-```python
+```python name=test_test_example
 def test_my_method(self) -> None:
     with self.subTest("Basic case"):
         result = self.faker.my_method()
@@ -323,7 +340,7 @@ def test_my_method(self) -> None:
 When testing zip/tar archives, use `BytesIO(bytes(raw))` and access the
 archive through the standard library:
 
-```python
+```python name=test_archive_test_example
 def test_zip_dir_path_literal(self):
     """dir_path as a literal string places the file at that subpath."""
     raw = self.faker.zip(
@@ -396,17 +413,21 @@ def test_tar_dir_path_literal(self):
 
 ### File generation with storage
 
-```python
-from fake import FAKER, FileSystemStorage
+```python name=test_file_generation_with_storage
+from fake import FAKER, FileSystemStorage, FILE_REGISTRY
 
 storage = FileSystemStorage(root_path="/tmp/myapp", rel_path="exports")
 file = FAKER.pdf_file(storage=storage, prefix="report_")
+assert file
+FILE_REGISTRY.clean_up()
 ```
 
 ### Batch generation in archive
 
-```python
-FAKER.zip_file(
+```python name=test_batch_generation_in_archive
+from fake import FAKER, FILE_REGISTRY, create_inner_txt_file
+
+archive = FAKER.zip_file(
     options={
         "count": 5,
         "create_inner_file_func": create_inner_txt_file,
@@ -414,12 +435,18 @@ FAKER.zip_file(
         "directory": "docs",
     }
 )
+assert archive
+FILE_REGISTRY.clean_up()
 ```
 
 ### Custom content with template
 
-```python
+```python name=test_custom_content_with_template
+from fake import FAKER, LazyStringTemplate, FILE_REGISTRY
+
 template = LazyStringTemplate("{name} lives in {city}")
-files = [FAKER.txt_file(text=str(template)) for _ in range(10)]
-# Each file has different content
+files = [FAKER.txt_file(text=str(template)) for _ in range(3)]
+for file in files:
+    assert file
+FILE_REGISTRY.clean_up()
 ```
