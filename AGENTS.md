@@ -1,6 +1,5 @@
 # AGENTS.md — fake.py
 
-**Package version**: 0.12.2
 **Repository**: https://github.com/barseghyanartur/fake.py
 **Maintainer**: Artur Barseghyan <artur.barseghyan@gmail.com>
 
