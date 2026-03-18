@@ -28,6 +28,6 @@ def pytest_runtest_teardown(item, nextitem):
 
 
 @pytest.fixture()
-def Optional() -> Type:  # noqa
+def Optional() -> Type:  # noqa: N802
     """Return Optional type for documentation testing."""
     return OptionalType

@@ -184,7 +184,7 @@ make pre-commit
 
 `B`, `C4`, `E`, `F`, `G`, `I`, `ISC`, `INP`, `N`, `PERF`, `Q`, `SIM`.
 
-Explicitly ignored (check `.ruff_cache` or config in pyproject.toml for current settings).
+Explicitly ignored (check pyproject.toml for current settings).
 
 ### Style
 
