@@ -413,7 +413,7 @@ def test_tar_dir_path_literal(self):
 **Reviewing a change:**
 > Review this fake.py change against AGENTS.md: Does it preserve no-dependencies
 > policy? Does it follow the single-file architecture? Are new features tested?
-> Does it update __all__ correctly?
+> Does it update `__all__` correctly?
 
 ---
 
