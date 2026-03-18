@@ -107,10 +107,10 @@ customisation-test:
 dataclasses-test:
 	cd examples/dataclasses/ && uv run pytest
 
-django-test:
+django-test: install-django
 	cd examples/django/ && uv run pytest
 
-hypothesis-test:
+hypothesis-test: install-hypothesis
 	cd examples/hypothesis/ && uv run pytest
 
 lazyfuzzy-test:
@@ -119,13 +119,13 @@ lazyfuzzy-test:
 pydantic-test:
 	cd examples/pydantic/ && uv run pytest
 
-sqlalchemy-test:
+sqlalchemy-test: install-sqlalchemy
 	cd examples/sqlalchemy/ && uv run pytest
 
-sqlmodel-test:
+sqlmodel-test: install-sqlmodel
 	cd examples/sqlmodel/ && uv run pytest
 
-tortoise-test:
+tortoise-test: install-tortoise
 	cd examples/tortoise/ && uv run pytest
 
 shell:
