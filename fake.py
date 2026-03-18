@@ -394,9 +394,16 @@ def resolve_inner_directory(file: "StringValue", directory: str) -> Path:
                 continue
             safe_components.append(part)
     safe_inner = "/".join(safe_components)
+    safe_dir_parts = []
+    for part in directory.replace("\\", "/").split("/"):
+        if part and part != "." and part != "..":
+            if len(part) == 2 and part[1] == ":":
+                continue
+            safe_dir_parts.append(part)
+    safe_dir = "/".join(safe_dir_parts)
     if safe_inner:
-        return Path(directory) / safe_inner / Path(file).name
-    return Path(directory) / Path(file).name
+        return Path(safe_dir) / safe_inner / Path(file).name
+    return Path(safe_dir) / Path(file).name
 
 
 def get_mime_maintype_subtype(path: str) -> Tuple[str, str]:
@@ -8656,6 +8663,21 @@ class TestFaker(unittest.TestCase):
                 names = zf.namelist()
             assert len(names) == 1
             assert ".." not in names[0]
+
+        with self.subTest("Directory argument with path traversal"):
+            raw = self.faker.zip(
+                options={
+                    "count": 1,
+                    "create_inner_file_func": create_inner_txt_file,
+                    "create_inner_file_args": {},
+                    "directory": "../../../etc/passwd",
+                }
+            )
+            with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                names = zf.namelist()
+            assert len(names) == 1
+            assert ".." not in names[0]
+            assert not names[0].startswith("/")
 
     def test_zip_dir_path_template(self):
         """dir_path as a string_template expression is resolved before use."""
