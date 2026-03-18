@@ -5785,7 +5785,7 @@ def create_inner_generic_file(
     :param dir_path: Optional in-archive subdirectory. Resolved through
         ``FAKER.string_template()`` so template expressions such as
         ``"{dir_path(depth=3)}"`` are supported. Defaults to ``None``.
-    :param **kwargs: Additional keyword arguments to pass to the function.
+    :param **kwargs: Reserved for API compatibility. Currently ignored.
     :return: ``StringValue`` containing the relative path of the generated
         file.
     :rtype: StringValue

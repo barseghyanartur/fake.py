@@ -96,7 +96,7 @@ Note, that text PDF does contain full text of the entire document in the
 ----
 
 You can create custom file types using ``generic_file``. Here's an example
-creating an XML file:
+for creating an XML file:
 
 .. code-block:: python
     :name: test_generic_file_xml
