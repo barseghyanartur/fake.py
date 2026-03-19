@@ -48,3 +48,4 @@ examples/sqlmodel/media/
 examples/hypothesis/.hypothesis/
 .mypy_cache/
 benchmark.py
+uv.lock

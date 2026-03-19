@@ -1,20 +1,19 @@
 # Update version ONLY here
-VERSION := 0.12.2
+VERSION := 0.13
 SHELL := /bin/bash
 # Makefile for project
-VENV := ~/.virtualenvs/fake.py/bin/activate
+VENV := .venv/bin/activate
 UNAME_S := $(shell uname -s)
 
 # Build documentation using Sphinx and zip it
 build-docs:
-# 	source $(VENV) && sphinx-build -n -b text docs builddocs
-	source $(VENV) && sphinx-source-tree
-	source $(VENV) && sphinx-build -n -a -b markdown docs builddocs
-	source $(VENV) && sphinx-build -n -a -b html docs builddocs
+	uv run sphinx-source-tree
+	uv run sphinx-build -n -a -b markdown docs builddocs
+	uv run sphinx-build -n -a -b html docs builddocs
 	cd builddocs && zip -r ../builddocs.zip . -x ".*" && cd ..
 
 rebuild-docs:
-	source $(VENV) && sphinx-apidoc . --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
+	uv run sphinx-apidoc . --full -o docs -H 'fake.py' -A 'Artur Barseghyan <artur.barseghyan@gmail.com>' -f -d 20
 	cp docs/conf.py.distrib docs/conf.py
 	cp docs/index.rst.distrib docs/index.rst
 
@@ -28,29 +27,32 @@ build-docs-markdown:
 	$(MAKE) -C docs/ markdown
 
 auto-build-docs:
-	source $(VENV) && sphinx-autobuild docs docs/_build/html
+	uv run sphinx-autobuild docs docs/_build/html --port 5001
 
 # Serve the built docs on port 5001
 serve-docs:
-	source $(VENV) && cd builddocs && python -m http.server 5001
+	uv run python -m http.server 5001 --directory builddocs/
 
 pre-commit:
-	pre-commit run --all-files
+	uv run pre-commit run --all-files
 
 doc8:
-	source $(VENV) && doc8
+	uv run doc8
 
 # Run ruff on the codebase
 ruff:
-	source $(VENV) && ruff check . --fix
-	source $(VENV) && ruff format .
+	uv run ruff check . --fix
+	uv run ruff format .
+
+create-venv:
+	uv venv
 
 # Install the project
 install:
-	source $(VENV) && pip install -e .'[all]'
+	uv sync --all-extras
 
 test: clean
-	source $(VENV) && pytest -vrx -s
+	uv run pytest -vrx -s
 
 test-integration: customisation-test \
 dataclasses-test \
@@ -63,30 +65,30 @@ sqlmodel-test \
 tortoise-test
 
 install-django:
-	source $(VENV) && pip install -r examples/django/requirements.in
+	uv pip install -r examples/django/requirements.in
 
 install-hypothesis:
-	source $(VENV) && pip install -r examples/hypothesis/requirements.in
+	uv pip install -r examples/hypothesis/requirements.in
 
 install-pydantic:
-	source $(VENV) && pip install -r examples/pydantic/requirements.in
+	uv pip install -r examples/pydantic/requirements.in
 
 install-sqlalchemy:
-	source $(VENV) && pip install -r examples/sqlalchemy/requirements.in
+	uv pip install -r examples/sqlalchemy/requirements.in
 
 install-sqlmodel:
-	source $(VENV) && pip install -r examples/sqlmodel/requirements.in
+	uv pip install -r examples/sqlmodel/requirements.in
 
 install-tortoise:
-	source $(VENV) && pip install -r examples/tortoise/requirements.in
+	uv pip install -r examples/tortoise/requirements.in
 
 install-all: install \
-	install-django \
-	install-hypothesis \
-	install-pydantic \
-	install-sqlalchemy \
-	install-sqlmodel \
-	install-tortoise
+install-django \
+install-hypothesis \
+install-pydantic \
+install-sqlalchemy \
+install-sqlmodel \
+install-tortoise
 
 test-all: test \
 customisation-test \
@@ -100,85 +102,85 @@ sqlmodel-test \
 tortoise-test
 
 customisation-test:
-	source $(VENV) && cd examples/customisation/ && pytest
+	cd examples/customisation/ && uv run pytest
 
 dataclasses-test:
-	source $(VENV) && cd examples/dataclasses/ && pytest
+	cd examples/dataclasses/ && uv run pytest
 
-django-test:
-	source $(VENV) && cd examples/django/ && pytest
+django-test: install-django
+	cd examples/django/ && uv run pytest
 
-hypothesis-test:
-	source $(VENV) && cd examples/hypothesis/ && pytest
+hypothesis-test: install-hypothesis
+	cd examples/hypothesis/ && uv run pytest
 
 lazyfuzzy-test:
-	source $(VENV) && cd examples/lazyfuzzy/ && pytest
+	cd examples/lazyfuzzy/ && uv run pytest
 
 pydantic-test:
-	source $(VENV) && cd examples/pydantic/ && pytest
+	cd examples/pydantic/ && uv run pytest
 
-sqlalchemy-test:
-	source $(VENV) && cd examples/sqlalchemy/ && pytest
+sqlalchemy-test: install-sqlalchemy
+	cd examples/sqlalchemy/ && uv run pytest
 
-sqlmodel-test:
-	source $(VENV) && cd examples/sqlmodel/ && pytest
+sqlmodel-test: install-sqlmodel
+	cd examples/sqlmodel/ && uv run pytest
 
-tortoise-test:
-	source $(VENV) && cd examples/tortoise/ && pytest
+tortoise-test: install-tortoise
+	cd examples/tortoise/ && uv run pytest
 
 shell:
-	source $(VENV) && ipython
+	uv run ipython
 
 customisation-shell:
-	source $(VENV) && cd examples/customisation/ && python manage.py shell
+	cd examples/customisation/ && uv run python manage.py shell
 
 customisation-address-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customisation/ && python address_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	cd examples/customisation/ && uv run python address_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
 customisation-band-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customisation/ && python band_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	cd examples/customisation/ && uv run python band_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
 customisation-custom-data-cli:
 	@echo Running Python script: $(filter-out $@,$(MAKECMDGOALS))
-	source $(VENV) && cd examples/customisation/ && python custom_data_cli.py $(filter-out $@,$(MAKECMDGOALS))
+	cd examples/customisation/ && uv run python custom_data_cli.py $(filter-out $@,$(MAKECMDGOALS))
 
 dataclasses-shell:
-	source $(VENV) && cd examples/dataclasses/ && python manage.py shell
+	cd examples/dataclasses/ && uv run python manage.py shell
 
 django-shell:
-	source $(VENV) && python examples/django/manage.py shell
+	cd examples/django/ && uv run python manage.py shell
 
 django-runserver:
-	source $(VENV) && python examples/django/manage.py runserver 0.0.0.0:8000 --traceback -v 3
+	cd examples/django/ && uv run python manage.py runserver 0.0.0.0:8000 --traceback -v 3
 
 django-makemigrations:
-	source $(VENV) && python examples/django/manage.py makemigrations
+	cd examples/django/ && uv run python manage.py makemigrations
 
 django-apply-migrations:
-	source $(VENV) && python examples/django/manage.py migrate
+	cd examples/django/ && uv run python manage.py migrate
 
 lazyfuzzy-shell:
-	source $(VENV) && cd examples/lazyfuzzy/ && python manage.py shell
+	cd examples/lazyfuzzy/ && uv run python manage.py shell
 
 pydantic-shell:
-	source $(VENV) && cd examples/pydantic/ && python manage.py shell
+	cd examples/pydantic/ && uv run python manage.py shell
 
 sqlalchemy-shell:
-	source $(VENV) && cd examples/sqlalchemy/ && python manage.py shell
+	cd examples/sqlalchemy/ && uv run python manage.py shell
 
 sqlmodel-shell:
-	source $(VENV) && cd examples/sqlmodel/ && python manage.py shell
+	cd examples/sqlmodel/ && uv run python manage.py shell
 
 tortoise-shell:
-	source $(VENV) && cd examples/tortoise/ && python manage.py shell
+	cd examples/tortoise/ && uv run python manage.py shell
 
 create-secrets:
-	source $(VENV) && detect-secrets scan > .secrets.baseline
+	uv run detect-secrets scan > .secrets.baseline
 
 detect-secrets:
-	source $(VENV) && detect-secrets scan --baseline .secrets.baseline
+	uv run detect-secrets scan --baseline .secrets.baseline
 
 # Clean up generated files
 clean:
@@ -186,8 +188,6 @@ clean:
 	find . -type f -name "builddocs.zip" -exec rm -f {} \;
 	find . -type f -name "*.py,cover" -exec rm -f {} \;
 	find . -type f -name "*.orig" -exec rm -f {} \;
-	find . -type f -name "*.coverage" -exec rm -f {} \;
-	find . -type f -name "*.db" -exec rm -f {} \;
 	find . -type d -name "__pycache__" -exec rm -rf {} \; -prune
 	rm -rf build/
 	rm -rf dist/
@@ -199,18 +199,15 @@ clean:
 	rm -rf .pytest_cache/
 	rm -rf .mypy_cache/
 	rm -rf .ruff_cache/
-	rm -rf dist/
 	rm -rf fake.py.egg-info/
 
 compile-requirements:
-	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
+	uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
 
 compile-requirements-upgrade:
-	source $(VENV) && uv pip compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
+	uv pip compile --all-extras -o docs/requirements.txt pyproject.toml --upgrade
 
 update-version:
-	#sed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml
-	#sed -i 's/__version__ = "[0-9.]\+"/__version__ = "$(VERSION)"/' fake.py
 	@echo "Updating version in pyproject.toml and fake.py"
 	@if [ "$(UNAME_S)" = "Darwin" ]; then \
 		gsed -i 's/version = "[0-9.]\+"/version = "$(VERSION)"/' pyproject.toml; \
@@ -221,19 +218,19 @@ update-version:
 	fi
 
 build:
-	source $(VENV) && python -m build .
+	uv run python -m build .
 
 check-build:
-	source $(VENV) && twine check dist/*
+	uv run twine check dist/*
 
 release:
-	source $(VENV) && twine upload dist/* --verbose
+	uv run twine upload dist/* --verbose
 
 test-release:
-	source $(VENV) && twine upload --repository testpypi dist/*
+	uv run twine upload --repository testpypi dist/*
 
 mypy:
-	source $(VENV) && mypy fake.py
+	uv run mypy fake.py
 
 %:
 	@:
