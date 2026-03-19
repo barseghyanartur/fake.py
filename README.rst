@@ -15,6 +15,10 @@ fake.py
 .. _SQLModel: https://sqlmodel.tiangolo.com/
 .. _Pathy: https://github.com/justindujardin/pathy
 .. _django-storages: https://django-storages.readthedocs.io
+.. _Sphinx: https://www.sphinx-doc.org
+.. _jsphinx: http://jsphinx.readthedocs.io
+.. _sphinx-no-pragma: http://sphinx-no-pragma.readthedocs.io
+.. _pytest-codeblock: http://pytest-codeblock.readthedocs.io
 
 .. Internal references
 
@@ -538,7 +542,8 @@ Related projects
 
 Writing documentation
 =====================
-
+Section headings
+----------------
 Keep the following hierarchy.
 
 .. code-block:: text
@@ -564,6 +569,24 @@ Keep the following hierarchy.
 
     sub-sub-sub-sub-sub-header
     **************************
+
+Quality
+-------
+Documentation is built using `Sphinx`_ and enhanced with the following
+specialised tools to ensure a clean, interactive, and fully tested developer
+experience:
+
+- `jsphinx`_: Provides interactive UI components, including **expandable and
+  collapsible code snippets**, allowing for detailed examples without
+  cluttering the page.
+
+- `sphinx-no-pragma`_: A focused extension that **strips pragma comments**
+  (like ``# noqa`` or ``# type: ignore``) from the generated documentation,
+  keeping the focus entirely on the logic.
+
+- `pytest-codeblock`_: For **testing the documentation code snippets**
+  (e.g. README.rst, AGENTS.md) ``.rst`` and ``.md`` files, ensuring that
+  every example remains functional as the codebase evolves.
 
 License
 =======

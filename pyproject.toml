@@ -2,7 +2,7 @@
 name = "fake.py"
 description = "Minimalistic, standalone alternative fake data generator with no dependencies."
 readme = "README.rst"
-version = "0.12.2"
+version = "0.13"
 dependencies = []
 authors = [
     {name = "Artur Barseghyan", email = "artur.barseghyan@gmail.com"},
@@ -205,6 +205,7 @@ testpaths = [
     "__copy_fake.py",
     "*.rst",
     "**/*.rst",
+    "*.md",
     "docs/test_docs.py",
 ]
 pythonpath = [
