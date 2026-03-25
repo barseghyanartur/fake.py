@@ -27,6 +27,7 @@ import zlib
 import zoneinfo
 from abc import abstractmethod
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from calendar import monthrange
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
@@ -2808,40 +2809,124 @@ class Faker:
         """
         return ".".join(str(self.random.randint(0, 255)) for _ in range(4))
 
-    def _parse_date_string(
-        self, date_str: str, tzinfo: timezone = timezone.utc
-    ) -> datetime:
-        """Parse date string with notation below into a datetime object:
+    def _add_months(self, dt: datetime, months: int) -> datetime:
+        """Add months to dt, clamping day to valid range.
 
-        - '5M': 5 minutes from now
-        - '-1d': 1 day ago
-        - '-1H': 1 hour ago
-        - '-365d': 365 days ago
-
-        :param date_str: The date string with shorthand notation.
-        :param tzinfo: Timezone info.
-        :return: A datetime object representing the time offset.
+        :param dt: Base datetime.
+        :param months: Number of months (can be negative).
+        :return: New datetime shifted by months.
         :rtype: datetime
-        :raises ValueError: if date string format is incorrect.
         """
-        if date_str in ["now", "today"]:
-            return datetime.now(tzinfo)
+        month = dt.month - 1 + months
+        year = dt.year + month // 12
+        month = month % 12 + 1
+        day = min(dt.day, monthrange(year, month)[1])
+        return dt.replace(year=year, month=month, day=day)
 
-        match = re.match(r"([+-]?\d+)([dHM])", date_str)
+    def _add_years(self, dt: datetime, years: int) -> datetime:
+        """Add years to dt, handling Feb 29 leap year clamping.
+
+        :param dt: Base datetime.
+        :param years: Number of years (can be negative).
+        :return: New datetime shifted by years.
+        :rtype: datetime
+        """
+        target_year = dt.year + years
+        day = min(dt.day, monthrange(target_year, dt.month)[1])
+        return dt.replace(year=target_year, day=day)
+
+    def _parse_date_string(
+        self,
+        date_str: str,
+        tzinfo: timezone = timezone.utc,
+        _now: Optional[datetime] = None,
+    ) -> datetime:
+        """Parse a date string into a datetime.
+
+        Supports:
+        - ISO format: 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'
+        - Relative: [+/-][num][unit] where unit is d, h, m, w, mo, y
+        - Special: 'now', 'today' for current datetime
+
+        Units:
+        - d  days
+        - h  hours
+        - m  minutes
+        - w  weeks
+        - mo months
+        - y  years
+
+        Deprecated (still work, emit warnings): H -> h, M -> m
+
+        :param date_str: Date string (ISO or relative shorthand).
+        :param tzinfo: Timezone. Defaults to UTC.
+        :param _now: Optional reference point for testing.
+        :return: Parsed datetime.
+        :rtype: datetime
+        :raises ValueError: if format is incorrect.
+        """
+        now = _now if _now is not None else datetime.now(tzinfo)
+
+        if date_str in ("now", "today"):
+            return now
+
+        iso_match = re.match(
+            r"^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?$",
+            date_str,
+        )
+        if iso_match:
+            year, month, day = (
+                int(iso_match.group(1)),
+                int(iso_match.group(2)),
+                int(iso_match.group(3)),
+            )
+            hour = int(iso_match.group(4) or 0)
+            minute = int(iso_match.group(5) or 0)
+            second = int(iso_match.group(6) or 0)
+            return datetime(
+                year, month, day, hour, minute, second, tzinfo=tzinfo
+            )
+
+        match = re.match(r"([+-]?\d+)(mo|[dhmwMyHM])", date_str)
         if not match:
             raise ValueError(
                 "Date string format is incorrect. Expected formats like "
-                "'-1d', '+2H', '-30M'."
+                "'-7d', '+2w', '-3mo', '+1y', '-24h', '+30m' or "
+                "'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS'."
             )
-        value, unit = match.groups()
-        value = int(value)
-        if unit == "d":  # Days
-            return datetime.now(tzinfo) + timedelta(days=value)
-        elif unit == "H":  # Hours
-            return datetime.now(tzinfo) + timedelta(hours=value)
+        value_str, unit = match.groups()
+        value = int(value_str)
 
-        # Otherwise it's minutes
-        return datetime.now(tzinfo) + timedelta(minutes=value)
+        if unit == "H":
+            import warnings
+
+            warnings.warn(
+                "Date unit 'H' is deprecated. Use 'h' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            unit = "h"
+        elif unit == "M":
+            import warnings
+
+            warnings.warn(
+                "Date unit 'M' is deprecated. Use 'm' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            unit = "m"
+
+        if unit == "d":
+            return now + timedelta(days=value)
+        elif unit == "h":
+            return now + timedelta(hours=value)
+        elif unit == "m":
+            return now + timedelta(minutes=value)
+        elif unit == "w":
+            return now + timedelta(weeks=value)
+        elif unit == "mo":
+            return self._add_months(now, value)
+        return self._add_years(now, value)
 
     @provider(tags=("Date/Time",))
     def date(
@@ -2852,21 +2937,45 @@ class Faker:
     ) -> date:
         """Generate random date between `start_date` and `end_date`.
 
-        Both `start_date` and `end_date` use a shorthand
-        notation: [+/-][number][unit]
+        Both `start_date` and `end_date` support:
 
-        - Units: 'd' (days), 'H' (hours), 'M' (minutes)
-        - Sign: '+' for future, '-' for past, or omit '+' for future
-        - Special values: 'now', 'today' for current datetime
+        1. ISO format dates:
+           - 'YYYY-MM-DD' (e.g., '2000-01-01')
+           - 'YYYY-MM-DD HH:MM:SS' (e.g., '2000-01-01 12:00:00')
+
+        2. Relative shorthand notation: [+/-][number][unit]
+
+           Units:
+           - d  days
+           - h  hours
+           - m  minutes
+           - w  weeks
+           - mo months
+           - y  years
+
+           Deprecated (still work, emit warnings): H -> h, M -> m
+
+           Sign: '+' for future, '-' for past, or omit '+' for future
+
+           Special: 'now', 'today' for current datetime
 
         Shorthand notation examples:
 
         - '-7d': 7 days ago
         - '+3d' or '3d': 3 days from now
-        - '-24H': 24 hours ago
-        - '+2H': 2 hours from now
-        - '-30M': 30 minutes ago
+        - '-2w': 2 weeks ago
+        - '+1mo': 1 month from now
+        - '-1y': 1 year ago
+        - '-24h': 24 hours ago
+        - '+2h': 2 hours from now
+        - '-30m': 30 minutes ago
         - 'today' or 'now': current datetime
+
+        ISO format examples:
+
+        - '2000-01-01': January 1, 2000
+        - '2025-12-31': December 31, 2025
+        - '2000-01-01 00:00:00': with time component
 
         Usage example:
 
@@ -2877,15 +2986,18 @@ class Faker:
             FAKER.date('-30d', '-1d')  # between 30 days ago and yesterday
             FAKER.date('+1d', '+7d')  # between tomorrow and next week
             FAKER.date('today', '+3d')  # between today and 3 days from now
-            FAKER.date('-2H', '+2H')  # within 4-hour window around now
+            FAKER.date('-2w', '+1w')  # within 3-week window around now
+            FAKER.date(
+                '-3mo', '+6mo'
+            )  # between 3 months ago and 6 months from now
+            FAKER.date('-1y', '+1y')  # within 1 year window around now
+            FAKER.date('2000-01-01', '2025-12-31')  # ISO date range
             FAKER.date('-1d', '-1d')  # yesterday only
             FAKER.date('-365d', 'today')  # in the past year
             FAKER.date('+1d', '+30d')  # in the next month
 
-        :param start_date: The start date from which the random date should
-            be generated in the shorthand notation.
-        :param end_date: The end date up to which the random date should be
-            generated in the shorthand notation.
+        :param start_date: The start date (ISO format or shorthand notation).
+        :param end_date: The end date (ISO format or shorthand notation).
         :param tzinfo: The timezone.
         :return: A string representing the formatted date.
         :rtype: date
@@ -2908,21 +3020,44 @@ class Faker:
     ) -> datetime:
         """Generate a random datetime between `start_date` and `end_date`.
 
-        Both `start_date` and `end_date` use a shorthand
-        notation: [+/-][number][unit]
+        Both `start_date` and `end_date` support:
 
-            - Units: 'd' (days), 'H' (hours), 'M' (minutes)
-            - Sign: '+' for future, '-' for past, or omit '+' for future
-            - Special values: 'now', 'today' for current datetime
+        1. ISO format dates:
+           - 'YYYY-MM-DD' (e.g., '2000-01-01')
+           - 'YYYY-MM-DD HH:MM:SS' (e.g., '2000-01-01 12:00:00')
+
+        2. Relative shorthand notation: [+/-][number][unit]
+
+           Units:
+           - d  days
+           - h  hours
+           - m  minutes
+           - w  weeks
+           - mo months
+           - y  years
+
+           Deprecated (still work, emit warnings): H -> h, M -> m
+
+           Sign: '+' for future, '-' for past, or omit '+' for future
+
+           Special: 'now', 'today' for current datetime
 
         Shorthand notation examples:
 
             - '-7d': 7 days ago
             - '+3d' or '3d': 3 days from now
-            - '-24H': 24 hours ago
-            - '+2H': 2 hours from now
-            - '-30M': 30 minutes ago
+            - '-2w': 2 weeks ago
+            - '+1mo': 1 month from now
+            - '-1y': 1 year ago
+            - '-24h': 24 hours ago
+            - '+2h': 2 hours from now
+            - '-30m': 30 minutes ago
             - 'today' or 'now': current datetime
+
+        ISO format examples:
+
+            - '2000-01-01': January 1, 2000
+            - '2025-12-31 23:59:59': with time component
 
         Usage example:
 
@@ -2930,19 +3065,25 @@ class Faker:
 
             FAKER.date_time()  # random datetime between 7 days ago and now
             FAKER.date_time('-7d', '+0d')  # same as above (explicit)
-            FAKER.date_time('-24H', '+0H')  # in the past 24 hours
-            FAKER.date_time('-30M', '+30M')  # within 1-hour window around now
+            FAKER.date_time('-24h', '+0h')  # in the past 24 hours
+            FAKER.date_time('-30m', '+30m')  # within 1-hour window around now
+            FAKER.date_time('-2w', '+1w')  # within 3-week window
+            FAKER.date_time('-3mo', '+6mo')  # within 9-month window
+            FAKER.date_time('-1y', '+1y')  # within 1 year window
             FAKER.date_time('today', '+1d')  # between now and tomorrow
-            FAKER.date_time('+1H', '+4H')  # between 1-4 hours from now
+            FAKER.date_time('+1h', '+4h')  # between 1-4 hours from now
             FAKER.date_time('-1d', 'now')  # since yesterday
-            FAKER.date_time('-2H', '-1H')  # between 2-1 hours ago
-            FAKER.date_time('+15M', '+45M')  # in 15-45 minutes
+            FAKER.date_time('-2h', '-1h')  # between 2-1 hours ago
+            FAKER.date_time('+15m', '+45m')  # in 15-45 minutes
             FAKER.date_time('-365d', 'today')  # in the past year
+            FAKER.date_time(
+                '2000-01-01', '2025-12-31'
+            )  # ISO date range
 
-        :param start_date: The start datetime from which the random datetime
-            should be generated in the shorthand notation. Defaults to `-7d`.
-        :param end_date: The end datetime up to which the random datetime
-            should be generated in the shorthand notation. Defaults to `+0d`.
+        :param start_date: The start datetime (ISO format or shorthand
+            notation). Defaults to `-7d`.
+        :param end_date: The end datetime (ISO format or shorthand notation).
+            Defaults to `+0d`.
         :param tzinfo: The timezone. Defaults to `timezone.utc`.
         :return: A string representing the formatted datetime.
         :rtype: datetime
@@ -8003,6 +8144,8 @@ class TestFaker(unittest.TestCase):
                 self.assertTrue(0 <= int(part) <= 255)
 
     def test_parse_date_string(self) -> None:
+        import warnings
+
         # Test 'now' and 'today' special keywords
         self.assertAlmostEqual(
             self.faker._parse_date_string("now"),
@@ -8021,20 +8164,37 @@ class TestFaker(unittest.TestCase):
             datetime.now(timezone.utc) + timedelta(days=1),
             delta=timedelta(seconds=1),
         )
-        self.assertAlmostEqual(
-            self.faker._parse_date_string("-1H"),
-            datetime.now(timezone.utc) - timedelta(hours=1),
-            delta=timedelta(seconds=1),
-        )
-        self.assertAlmostEqual(
-            self.faker._parse_date_string("30M"),
-            datetime.now(timezone.utc) + timedelta(minutes=30),
-            delta=timedelta(seconds=1),
-        )
+
+        # Test deprecated H and M units (with warnings)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            self.assertAlmostEqual(
+                self.faker._parse_date_string("-1H"),
+                datetime.now(timezone.utc) - timedelta(hours=1),
+                delta=timedelta(seconds=1),
+            )
+            self.assertAlmostEqual(
+                self.faker._parse_date_string("30M"),
+                datetime.now(timezone.utc) + timedelta(minutes=30),
+                delta=timedelta(seconds=1),
+            )
+
+        # Test new units (w, mo, y)
+        with self.subTest("weeks"):
+            result = self.faker._parse_date_string("+2w")
+            self.assertIsInstance(result, datetime)
+
+        with self.subTest("months"):
+            result = self.faker._parse_date_string("-3mo")
+            self.assertIsInstance(result, datetime)
+
+        with self.subTest("years"):
+            result = self.faker._parse_date_string("+1y")
+            self.assertIsInstance(result, datetime)
 
         # Test invalid format
         with self.assertRaises(ValueError):
-            self.faker._parse_date_string("1y")
+            self.faker._parse_date_string("1x")
 
     def test_date(self) -> None:
         # Test the same date for start and end
@@ -8077,6 +8237,84 @@ class TestFaker(unittest.TestCase):
             <= random_datetime
             <= datetime.now(timezone.utc) + timedelta(hours=2)
         )
+
+    def test_date_iso_range(self) -> None:
+        """Test ISO date format support."""
+        start_date = "2000-01-01"
+        end_date = "2025-12-31"
+        random_date = self.faker.date(start_date, end_date)
+        self.assertIsInstance(random_date, date)
+        self.assertGreaterEqual(random_date, date(2000, 1, 1))
+        self.assertLessEqual(random_date, date(2025, 12, 31))
+
+    def test_date_time_iso_range(self) -> None:
+        """Test ISO datetime format with time component."""
+        start_date = "2000-01-01 00:00:00"
+        end_date = "2000-01-01 23:59:59"
+        random_datetime = self.faker.date_time(start_date, end_date)
+        self.assertIsInstance(random_datetime, datetime)
+        self.assertTrue(
+            datetime(2000, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+            <= random_datetime
+            <= datetime(2000, 1, 1, 23, 59, 59, tzinfo=timezone.utc)
+        )
+
+    def test_date_relative_weeks(self) -> None:
+        """Test weeks unit."""
+        random_date = self.faker.date("-2w", "+1w")
+        self.assertIsInstance(random_date, date)
+        now = datetime.now(timezone.utc).date()
+        self.assertGreaterEqual(random_date, now - timedelta(weeks=2))
+        self.assertLessEqual(random_date, now + timedelta(weeks=1))
+
+    def test_date_relative_months(self) -> None:
+        """Test months unit."""
+        random_date = self.faker.date("-3mo", "+6mo")
+        self.assertIsInstance(random_date, date)
+
+    def test_date_relative_years(self) -> None:
+        """Test years unit."""
+        random_date = self.faker.date("-1y", "+1y")
+        self.assertIsInstance(random_date, date)
+
+    def test_date_time_relative_weeks(self) -> None:
+        """Test weeks unit for datetime."""
+        random_datetime = self.faker.date_time("-1w", "+1w")
+        self.assertIsInstance(random_datetime, datetime)
+
+    def test_date_time_relative_months(self) -> None:
+        """Test months unit for datetime."""
+        random_datetime = self.faker.date_time("-2mo", "+2mo")
+        self.assertIsInstance(random_datetime, datetime)
+
+    def test_date_time_relative_years(self) -> None:
+        """Test years unit for datetime."""
+        random_datetime = self.faker.date_time("-1y", "+1y")
+        self.assertIsInstance(random_datetime, datetime)
+
+    def test_date_deprecated_units(self) -> None:
+        """Test deprecated H and M units still work but emit warnings."""
+        import warnings
+
+        with (
+            self.subTest("deprecated H"),
+            warnings.catch_warnings(record=True) as w,
+        ):
+            warnings.simplefilter("always")
+            self.faker._parse_date_string("-1H")
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[0].category, DeprecationWarning))
+            self.assertIn("'H'", str(w[0].message))
+
+        with (
+            self.subTest("deprecated M"),
+            warnings.catch_warnings(record=True) as w,
+        ):
+            warnings.simplefilter("always")
+            self.faker._parse_date_string("+30M")
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[0].category, DeprecationWarning))
+            self.assertIn("'M'", str(w[0].message))
 
     def test_year(self) -> None:
         """Test that the default year is between 1900 and 2100."""
