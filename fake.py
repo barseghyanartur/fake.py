@@ -4176,8 +4176,12 @@ class Faker:
         :param metadata: Metadata for the PDF. Defaults to None.
         :param storage: Storage backend to use. Defaults to None, in which
             case FileSystemStorage is used.
-        :param basename: Base name for the file. Defaults to None.
-        :param prefix: Prefix for the file name. Defaults to None.
+        :param basename: Base name for the file. Can also be a
+            :class:`StringTemplate` or :class:`LazyStringTemplate`.
+            Defaults to None.
+        :param prefix: Prefix for the file name. Can also be a
+            :class:`StringTemplate` or :class:`LazyStringTemplate`.
+            Defaults to None.
         :param **kwargs: Additional keyword arguments to pass to the PDF
             generator.
         :return: StringValue containing the relative path of the generated PDF
@@ -4186,6 +4190,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="pdf",
             prefix=prefix,
@@ -4213,8 +4225,10 @@ class Faker:
         generator: Type[TextPdfGenerator] = TextPdfGenerator,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         **kwargs,
     ) -> StringValue:
         """Create a text PDF file.
@@ -4270,11 +4284,21 @@ class Faker:
         color: Tuple[int, int, int] = (0, 0, 255),
         extension: Optional[str] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         if extension is None:
             extension = image_format
         filename = storage.generate_filename(
@@ -4295,8 +4319,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a PNG image file of a specified size and colour.
@@ -4331,8 +4357,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create an SVG image file of a specified size and colour.
@@ -4367,8 +4395,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a BMP image file of a specified size and colour.
@@ -4403,8 +4433,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a GIF image file of a specified size and colour.
@@ -4439,8 +4471,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a TIF image file of a specified size and colour.
@@ -4475,8 +4509,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a PPM image file of a specified size and colour.
@@ -4511,8 +4547,10 @@ class Faker:
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (128, 128, 128),
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         extension: Optional[str] = None,
     ) -> StringValue:
         """Create a JPG image file of a specified size and colour.
@@ -4549,8 +4587,10 @@ class Faker:
         volume: Union[float, int] = 0.5,
         sample_rate: int = 44100,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a WAV audio file.
 
@@ -4569,6 +4609,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="wav",
             prefix=prefix,
@@ -4596,8 +4644,10 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a DOCX document file.
 
@@ -4627,6 +4677,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="docx",
             prefix=prefix,
@@ -4652,8 +4710,10 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create an RTF document file.
 
@@ -4683,6 +4743,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="rtf",
             prefix=prefix,
@@ -4708,8 +4776,10 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a EPUB document file.
 
@@ -4739,6 +4809,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="epub",
             prefix=prefix,
@@ -4764,8 +4842,10 @@ class Faker:
         texts: Optional[List[str]] = None,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a ODT document file.
 
@@ -4795,6 +4875,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="odt",
             prefix=prefix,
@@ -4818,13 +4906,23 @@ class Faker:
         self,
         length: int = 16,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         **kwargs,
     ) -> StringValue:
         """Create a BIN file."""
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="bin",
             prefix=prefix,
@@ -4845,8 +4943,10 @@ class Faker:
         self,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> StringValue:
@@ -4880,6 +4980,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="zip",
             prefix=prefix,
@@ -4903,8 +5011,10 @@ class Faker:
         self,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         options: Optional[Dict[str, Any]] = None,
         compression: Optional[Literal["gz", "bz2", "xz"]] = None,
         **kwargs,
@@ -4912,6 +5022,14 @@ class Faker:
         """Create a TAR archive file."""
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="tar",
             prefix=prefix,
@@ -4939,8 +5057,10 @@ class Faker:
         self,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         options: Optional[Dict[str, Any]] = None,
         content: Optional[str] = None,
         subject: Optional[str] = None,
@@ -4968,6 +5088,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="eml",
             prefix=prefix,
@@ -4998,9 +5126,11 @@ class Faker:
         self,
         nb_chars: Optional[int] = 200,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
-        text: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+        text: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a text document file.
 
@@ -5010,13 +5140,24 @@ class Faker:
         :param basename: Base name for the file. Defaults to None.
         :param prefix: Prefix for the file name. Defaults to None.
         :param text: Text content to write to the file. If None, random text
-            will be generated. Defaults to None.
+            will be generated. Can also be a :class:`StringTemplate` or
+            :class:`LazyStringTemplate`. Defaults to None.
         :return: StringValue containing the relative path of the generated text
             file.
         :rtype: StringValue
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if isinstance(text, (StringTemplate, LazyStringTemplate)):
+            text = str(text)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension="txt",
             prefix=prefix,
@@ -5042,8 +5183,10 @@ class Faker:
         content: Union[bytes, str, StringTemplate, LazyStringTemplate],
         extension: str,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     ) -> StringValue:
         """Create a generic file.
 
@@ -5061,6 +5204,14 @@ class Faker:
         """
         if storage is None:
             storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
         filename = storage.generate_filename(
             extension=extension,
             prefix=prefix,
@@ -5430,13 +5581,42 @@ class Faker:
         )
 
 
+def _validate_filename_component(value: str, param_name: str) -> None:
+    """Validate filename component has no path traversal or invalid chars.
+
+    :param value: The value to validate.
+    :param param_name: The parameter name for error messages.
+    :raises ValueError: If the value contains path traversal or invalid chars.
+    """
+    if not value:
+        return
+
+    if os.path.isabs(value):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' must be a relative filename, "
+            f"not an absolute path."
+        )
+
+    if ".." in value or value.startswith("/") or value.startswith("\\"):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' has path traversal characters."
+        )
+
+    invalid_chars = set(r'<>"|?*')
+    if any(c in value for c in invalid_chars):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' contains invalid characters. "
+            f"Cannot contain: {invalid_chars}"
+        )
+
+
 FAKER = Faker(alias="default")
 
 
 def create_inner_pdf_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     generator: Union[
         Type[TextPdfGenerator], Type[GraphicPdfGenerator]
@@ -5462,8 +5642,8 @@ def create_inner_pdf_file(
 
 def create_inner_text_pdf_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     generator: Type[TextPdfGenerator] = TextPdfGenerator,
     metadata: Optional[MetaData] = None,
@@ -5487,8 +5667,8 @@ def create_inner_text_pdf_file(
 
 def create_inner_png_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5510,8 +5690,8 @@ def create_inner_png_file(
 
 def create_inner_svg_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5533,8 +5713,8 @@ def create_inner_svg_file(
 
 def create_inner_bmp_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5556,8 +5736,8 @@ def create_inner_bmp_file(
 
 def create_inner_gif_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5579,8 +5759,8 @@ def create_inner_gif_file(
 
 def create_inner_tif_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5602,8 +5782,8 @@ def create_inner_tif_file(
 
 def create_inner_ppm_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (0, 0, 255),
     dir_path: Optional[str] = None,
@@ -5625,8 +5805,8 @@ def create_inner_ppm_file(
 
 def create_inner_jpg_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     size: Tuple[int, int] = (100, 100),
     color: Tuple[int, int, int] = (128, 128, 128),
     dir_path: Optional[str] = None,
@@ -5648,8 +5828,8 @@ def create_inner_jpg_file(
 
 def create_inner_wav_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     frequency: int = 440,
     duration: int = 1,
     volume: Union[float, int] = 0.5,
@@ -5675,8 +5855,8 @@ def create_inner_wav_file(
 
 def create_inner_docx_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
@@ -5700,8 +5880,8 @@ def create_inner_docx_file(
 
 def create_inner_rtf_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
@@ -5725,8 +5905,8 @@ def create_inner_rtf_file(
 
 def create_inner_epub_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
@@ -5750,8 +5930,8 @@ def create_inner_epub_file(
 
 def create_inner_odt_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     nb_pages: Optional[int] = 1,
     texts: Optional[List[str]] = None,
     metadata: Optional[MetaData] = None,
@@ -5775,8 +5955,8 @@ def create_inner_odt_file(
 
 def create_inner_zip_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     options: Optional[Dict[str, Any]] = None,
     metadata: Optional[MetaData] = None,
     dir_path: Optional[str] = None,
@@ -5798,8 +5978,8 @@ def create_inner_zip_file(
 
 def create_inner_tar_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     options: Optional[Dict[str, Any]] = None,
     compression: Optional[Literal["gz", "bz2", "xz"]] = None,
     metadata: Optional[MetaData] = None,
@@ -5823,8 +6003,8 @@ def create_inner_tar_file(
 
 def create_inner_eml_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     options: Optional[Dict[str, Any]] = None,
     content: Optional[str] = None,
     subject: Optional[str] = None,
@@ -5854,8 +6034,8 @@ def create_inner_eml_file(
 
 def create_inner_txt_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     text: Optional[str] = None,
     dir_path: Optional[str] = None,
     **kwargs,
@@ -5878,8 +6058,8 @@ def create_inner_txt_file(
 
 def create_inner_generic_file(
     storage: Optional[BaseStorage] = None,
-    basename: Optional[str] = None,
-    prefix: Optional[str] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
     content: Union[bytes, str, StringTemplate, LazyStringTemplate] = "",
     extension: str = "txt",
     dir_path: Optional[str] = None,
@@ -8532,6 +8712,25 @@ class TestFaker(unittest.TestCase):
         file = self.faker.pdf_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_pdf_file_basename_string_template(self):
+        """pdf_file accepts StringTemplate as basename."""
+        sv = self.faker.pdf_file(
+            basename=StringTemplate("custom_pdf_{word}"),
+        )
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert "custom_pdf_" in basename
+        assert "{word}" not in basename
+
+    def test_pdf_file_prefix_lazy_string_template(self):
+        """pdf_file accepts LazyStringTemplate as prefix."""
+        template = LazyStringTemplate("lazy_prefix_{word}")
+        sv = self.faker.pdf_file(prefix=template)
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert basename.startswith("lazy_prefix_")
+        assert "{word}" not in basename
+
     def test_text_pdf_file(self) -> None:
         file = self.faker.text_pdf_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
@@ -8601,6 +8800,25 @@ class TestFaker(unittest.TestCase):
             file = self.faker.txt_file(nb_chars=None)
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_txt_file_basename_string_template(self):
+        """txt_file accepts StringTemplate as basename."""
+        sv = self.faker.txt_file(
+            basename=StringTemplate("custom_txt_{word}"),
+        )
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert "custom_txt_" in basename
+        assert "{word}" not in basename
+
+    def test_txt_file_prefix_lazy_string_template(self):
+        """txt_file accepts LazyStringTemplate as prefix."""
+        template = LazyStringTemplate("lazy_txt_{word}")
+        sv = self.faker.txt_file(prefix=template)
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert basename.startswith("lazy_txt_")
+        assert "{word}" not in basename
+
     def test_generic_file(self) -> None:
         with self.subTest("Without text content"):
             file = self.faker.generic_file(
@@ -8646,6 +8864,142 @@ class TestFaker(unittest.TestCase):
         assert "{word}" not in text2
         assert text1.startswith("Hello ")
         assert text2.startswith("Hello ")
+
+    def test_generic_file_basename_string_template(self):
+        """generic_file accepts StringTemplate as basename."""
+        sv = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            basename=StringTemplate("custom_basename_{word}"),
+        )
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert "custom_basename_" in basename
+        assert "{word}" not in basename
+
+    def test_generic_file_basename_lazy_string_template(self):
+        """generic_file accepts LazyStringTemplate as basename."""
+        template = LazyStringTemplate("lazy_basename_{word}")
+        sv1 = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            basename=template,
+        )
+        sv2 = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            basename=template,
+        )
+        bn1 = Path(sv1.data["storage"].abspath(sv1.data["filename"])).stem
+        bn2 = Path(sv2.data["storage"].abspath(sv2.data["filename"])).stem
+        assert "lazy_basename_" in bn1
+        assert "lazy_basename_" in bn2
+        assert "{word}" not in bn1
+        assert "{word}" not in bn2
+
+    def test_generic_file_prefix_string_template(self):
+        """generic_file accepts StringTemplate as prefix."""
+        sv = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            prefix=StringTemplate("custom_prefix_{word}"),
+        )
+        filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
+        basename = filename.stem
+        assert basename.startswith("custom_prefix_")
+        assert "{word}" not in basename
+
+    def test_generic_file_prefix_lazy_string_template(self):
+        """generic_file accepts LazyStringTemplate as prefix."""
+        template = LazyStringTemplate("lazy_prefix_{word}")
+        sv1 = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            prefix=template,
+        )
+        sv2 = self.faker.generic_file(
+            content="test content",
+            extension="txt",
+            prefix=template,
+        )
+        bn1 = Path(sv1.data["storage"].abspath(sv1.data["filename"])).stem
+        bn2 = Path(sv2.data["storage"].abspath(sv2.data["filename"])).stem
+        assert bn1.startswith("lazy_prefix_")
+        assert bn2.startswith("lazy_prefix_")
+        assert "{word}" not in bn1
+        assert "{word}" not in bn2
+
+    def test_generic_file_basename_absolute_path(self):
+        """generic_file rejects absolute path in basename."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                basename="/absolute/path",
+            )
+        self.assertIn("must be a relative filename", str(cm.exception))
+        self.assertIn("not an absolute path", str(cm.exception))
+
+    def test_generic_file_prefix_absolute_path(self):
+        """generic_file rejects absolute path in prefix."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                prefix="/absolute/prefix",
+            )
+        self.assertIn("must be a relative filename", str(cm.exception))
+        self.assertIn("not an absolute path", str(cm.exception))
+
+    def test_generic_file_basename_path_traversal(self):
+        """generic_file rejects path traversal in basename."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                basename="../etc/passwd",
+            )
+        self.assertIn("path traversal", str(cm.exception))
+
+    def test_generic_file_prefix_path_traversal(self):
+        """generic_file rejects path traversal in prefix."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                prefix="..\\windows\\system32",
+            )
+        self.assertIn("path traversal", str(cm.exception))
+
+    def test_generic_file_basename_invalid_chars(self):
+        """generic_file rejects invalid characters in basename."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                basename="file<name>",
+            )
+        self.assertIn("invalid characters", str(cm.exception))
+
+    def test_generic_file_prefix_invalid_chars(self):
+        """generic_file rejects invalid characters in prefix."""
+        with self.assertRaises(ValueError) as cm:
+            self.faker.generic_file(
+                content="test content",
+                extension="txt",
+                prefix="pre|fix?",
+            )
+        self.assertIn("invalid characters", str(cm.exception))
+
+    def test_pdf_file_basename_validation(self):
+        """pdf_file validates basename."""
+        with self.assertRaises(ValueError):
+            self.faker.pdf_file(basename="/etc/passwd")
+
+    def test_txt_file_prefix_validation(self):
+        """txt_file validates prefix."""
+        with self.assertRaises(ValueError):
+            self.faker.txt_file(prefix="../traversal")
 
     def test_create_inner_pdf_file(self):
         value = create_inner_pdf_file()
