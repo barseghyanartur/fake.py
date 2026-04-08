@@ -203,6 +203,28 @@ date
 
     2024-07-04
 
+Both ``--start_date`` and ``--end_date`` support:
+
+1. **ISO format dates**:
+   - ``'YYYY-MM-DD'`` (e.g., ``'2000-01-01'``)
+   - ``'YYYY-MM-DD HH:MM:SS'`` (e.g., ``'2000-01-01 12:00:00'``)
+
+2. **Relative shorthand notation**: ``[+/-][number][unit]``
+
+   Units: ``d`` days, ``h`` hours, ``m`` minutes, ``w`` weeks, ``mo`` months, ``y`` years
+
+   Sign: ``+`` for future, ``-`` for past
+
+   Special: ``'now'``, ``'today'`` for current datetime
+
+Examples:
+
+- ``-7d``: 7 days ago
+- ``+3d`` or ``3d``: 3 days from now
+- ``-2w``: 2 weeks ago
+- ``+1mo``: 1 month from now
+- ``-1y``: 1 year ago
+
 ----
 
 docx_file

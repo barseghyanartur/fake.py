@@ -21,6 +21,13 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.1
+------
+2026-03-26
+
+- Allow `basename` and `prefix` arguments to be `LazyStringTemplate` instances.
+- Broaden value options of `date` and `date_time` providers.
+
 0.13
 ----
 2026-03-18
