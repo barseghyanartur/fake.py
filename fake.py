@@ -906,7 +906,13 @@ class FileSystemStorage(BaseStorage):
         if not basename:
             basename = self.generate_basename(prefix)
 
-        return str(dir_path / f"{basename}.{extension}")
+        filename = dir_path / f"{basename}.{extension}"
+
+        # Ensure parent directory exists for nested basename/prefix (e.g.,
+        # "nested/name.txt")
+        filename.parent.mkdir(parents=True, exist_ok=True)
+
+        return str(filename)
 
     def write_text(
         self: "FileSystemStorage",
@@ -5593,23 +5599,50 @@ def _validate_filename_component(value: str, param_name: str) -> None:
     if not value:
         return
 
+    # Reject leading backslash (could indicate absolute path on Windows)
+    if value.startswith("\\"):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' must be a relative filename, "
+            f"not an absolute path."
+        )
+
+    # Reject drive-anchored paths (e.g., "C:\...", "C:/...", "C:", "z:")
+    if re.match(r"^[A-Za-z]:([\\/]|$)", value):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' must be a relative filename, "
+            f"not a drive-anchored path."
+        )
+
+    # Reject UNC roots (e.g., "\\server\share")
+    if value.startswith("\\\\"):
+        raise ValueError(
+            f"Invalid {param_name}: '{value}' must be a relative filename, "
+            f"not a UNC path."
+        )
+
+    # Reject absolute paths (e.g., "/absolute")
     if os.path.isabs(value):
         raise ValueError(
             f"Invalid {param_name}: '{value}' must be a relative filename, "
             f"not an absolute path."
         )
 
-    if ".." in value or value.startswith("/") or value.startswith("\\"):
-        raise ValueError(
-            f"Invalid {param_name}: '{value}' has path traversal characters."
-        )
-
+    # Validate by path segment - normalize separators then split
+    # Analogue: value.replace("\\", "/").split("/")
     invalid_chars = set(r'<>"|?*')
-    if any(c in value for c in invalid_chars):
-        raise ValueError(
-            f"Invalid {param_name}: '{value}' contains invalid characters. "
-            f"Cannot contain: {invalid_chars}"
-        )
+    for part in re.split(r"[\\/]+", value):
+        # Reject empty segments (from leading/trailing/double slashes)
+        if part in ("", ".", ".."):
+            raise ValueError(
+                f"Invalid {param_name}: '{value}' contains forbidden path "
+                f"segment '{part if part else '/'}'."
+            )
+        # Reject invalid characters per segment
+        if any(c in part for c in invalid_chars):
+            raise ValueError(
+                f"Invalid {param_name}: '{part}' contains invalid characters. "
+                f"Cannot contain: {invalid_chars}"
+            )
 
 
 FAKER = Faker(alias="default")
@@ -8961,7 +8994,7 @@ class TestFaker(unittest.TestCase):
                 extension="txt",
                 basename="../etc/passwd",
             )
-        self.assertIn("path traversal", str(cm.exception))
+        self.assertIn("forbidden path segment", str(cm.exception))
 
     def test_generic_file_prefix_path_traversal(self):
         """generic_file rejects path traversal in prefix."""
@@ -8971,7 +9004,7 @@ class TestFaker(unittest.TestCase):
                 extension="txt",
                 prefix="..\\windows\\system32",
             )
-        self.assertIn("path traversal", str(cm.exception))
+        self.assertIn("forbidden path segment", str(cm.exception))
 
     def test_generic_file_basename_invalid_chars(self):
         """generic_file rejects invalid characters in basename."""
