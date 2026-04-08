@@ -875,6 +875,45 @@ date
 
 Generates a random date.
 
+Both ``start_date`` and ``end_date`` support:
+
+1. **ISO format dates**:
+   - ``'YYYY-MM-DD'`` (e.g., ``'2000-01-01'``)
+   - ``'YYYY-MM-DD HH:MM:SS'`` (e.g., ``'2000-01-01 12:00:00'``)
+
+2. **Relative shorthand notation**: ``[+/-][number][unit]``
+
+   Units:
+
+   - ``d``  days
+   - ``h``  hours
+   - ``m``  minutes
+   - ``w``  weeks
+   - ``mo`` months
+   - ``y``  years
+
+   Sign: ``+`` for future, ``-`` for past, or omit ``+`` for future
+
+   Special: ``'now'``, ``'today'`` for current datetime
+
+Shorthand notation examples:
+
+- ``'-7d'``: 7 days ago
+- ``'+3d'`` or ``'3d'``: 3 days from now
+- ``'-2w'``: 2 weeks ago
+- ``'+1mo'``: 1 month from now
+- ``'-1y'``: 1 year ago
+- ``'-24h'``: 24 hours ago
+- ``'+2h'``: 2 hours from now
+- ``'-30m'``: 30 minutes ago
+- ``'today'`` or ``'now'``: current datetime
+
+ISO format examples:
+
+- ``'2000-01-01'``: January 1, 2000
+- ``'2025-12-31'``: December 31, 2025
+- ``'2000-01-01 00:00:00'``: with time component
+
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
@@ -885,25 +924,23 @@ Generates a random date.
 
         FAKER.date()
 
-Arguments:
-
-- ``start_date`` (type: ``str``, default value: ``-7d``) is a optional
-  argument.
-- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
-  argument.
-
-Example with arguments, generate a random date between given ``start_date``
-and ``end_date``:
+Usage examples:
 
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
         :name: test_date_start_date_end_date
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
-        FAKER.date(start_date="-1d", end_date="+1d")
+        FAKER.date()  # random date between 7 days ago and now
+        FAKER.date('-7d', '+0d')  # same as above (explicit)
+        FAKER.date('-24h', '+0h')  # in the past 24 hours
+        FAKER.date('-30m', '+30m')  # within 1-hour window around now
+        FAKER.date('-2w', '+1w')  # within 3-week window
+        FAKER.date('-3mo', '+6mo')  # within 9-month window
+        FAKER.date('-1y', '+1y')  # within 1 year window
 
 ----
 
@@ -912,35 +949,61 @@ date_time
 
 Generates a random datetime.
 
+Both ``start_date`` and ``end_date`` support:
+
+1. **ISO format dates**:
+   - ``'YYYY-MM-DD'`` (e.g., ``'2000-01-01'``)
+   - ``'YYYY-MM-DD HH:MM:SS'`` (e.g., ``'2000-01-01 12:00:00'``)
+
+2. **Relative shorthand notation**: ``[+/-][number][unit]``
+
+   Units:
+
+   - ``d``  days
+   - ``h``  hours
+   - ``m``  minutes
+   - ``w``  weeks
+   - ``mo`` months
+   - ``y``  years
+
+   Sign: ``+`` for future, ``-`` for past, or omit ``+`` for future
+
+   Special: ``'now'``, ``'today'`` for current datetime
+
+Shorthand notation examples:
+
+- ``'-7d'``: 7 days ago
+- ``'+3d'`` or ``'3d'``: 3 days from now
+- ``'-2w'``: 2 weeks ago
+- ``'+1mo'``: 1 month from now
+- ``'-1y'``: 1 year ago
+- ``'-24h'``: 24 hours ago
+- ``'+2h'``: 2 hours from now
+- ``'-30m'``: 30 minutes ago
+- ``'today'`` or ``'now'``: current datetime
+
+ISO format examples:
+
+- ``'2000-01-01'``: January 1, 2000
+- ``'2025-12-31 23:59:59'``: with time component
+
+Usage examples:
+
 .. container:: jsphinx-toggle-emphasis
 
     .. code-block:: python
         :name: test_date_time
-        :emphasize-lines: 3
+        :emphasize-lines: 3-
 
         from fake import FAKER
 
-        FAKER.date_time()
-
-Arguments:
-
-- ``start_date`` (type: ``str``, default value: ``-7d``) is an optional
-  argument.
-- ``end_date`` (type: ``str``, default value: ``+0d``) is an optional
-  argument.
-
-Example with arguments, generate a random date between given ``start_date``
-and ``end_date``:
-
-.. container:: jsphinx-toggle-emphasis
-
-    .. code-block:: python
-        :name: test_date_time_start_date_end_date
-        :emphasize-lines: 3
-
-        from fake import FAKER
-
-        FAKER.date_time(start_date="-1d", end_date="+1d")
+        FAKER.date_time()  # random datetime between 7 days ago and now
+        FAKER.date_time('-7d', '+0d')  # same as above (explicit)
+        FAKER.date_time('-24h', '+0h')  # in the past 24 hours
+        FAKER.date_time('-30m', '+30m')  # within 1-hour window around now
+        FAKER.date_time('-2w', '+1w')  # within 3-week window
+        FAKER.date_time('-3mo', '+6mo')  # within 9-month window
+        FAKER.date_time('-1y', '+1y')  # within 1 year window
 
 ----
 
