@@ -2887,7 +2887,7 @@ class Faker:
                 year, month, day, hour, minute, second, tzinfo=tzinfo
             )
 
-        match = re.match(r"([+-]?\d+)(mo|[dhmwMyHM])", date_str)
+        match = re.fullmatch(r"([+-]?\d+)(mo|[dhmwMyHM])", date_str)
         if not match:
             raise ValueError(
                 "Date string format is incorrect. Expected formats like "

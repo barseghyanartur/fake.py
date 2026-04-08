@@ -212,9 +212,9 @@ When asked to add a feature or fix a bug, follow these steps in order:
 4. **Implement the change** in the correct location
 5. **Export** new public symbols from `__all__` tuple (line ~75)
 6. **Write tests** - Add test cases for new functionality in `TestFaker` class
-7. **Update `README.rst`** if the API changed
-8. **Suggest running:** `make test`
-9. **Suggest running:** `make pre-commit`
+7. **Update documentation** if the API changed - use `update-documentation` skill
+8. **MUST run:** `make test`
+9. **MUST run:** `make pre-commit`
 
 ### Adding a new provider method
 
