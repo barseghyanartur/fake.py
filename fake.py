@@ -8719,8 +8719,8 @@ class TestFaker(unittest.TestCase):
         )
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert "custom_pdf_" in basename
-        assert "{word}" not in basename
+        self.assertIn("custom_pdf_", basename)
+        self.assertNotIn("{word}", basename)
 
     def test_pdf_file_prefix_lazy_string_template(self):
         """pdf_file accepts LazyStringTemplate as prefix."""
@@ -8728,8 +8728,8 @@ class TestFaker(unittest.TestCase):
         sv = self.faker.pdf_file(prefix=template)
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert basename.startswith("lazy_prefix_")
-        assert "{word}" not in basename
+        self.assertTrue(basename.startswith("lazy_prefix_"))
+        self.assertNotIn("{word}", basename)
 
     def test_text_pdf_file(self) -> None:
         file = self.faker.text_pdf_file()
@@ -8807,8 +8807,8 @@ class TestFaker(unittest.TestCase):
         )
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert "custom_txt_" in basename
-        assert "{word}" not in basename
+        self.assertIn("custom_txt_", basename)
+        self.assertNotIn("{word}", basename)
 
     def test_txt_file_prefix_lazy_string_template(self):
         """txt_file accepts LazyStringTemplate as prefix."""
@@ -8816,8 +8816,8 @@ class TestFaker(unittest.TestCase):
         sv = self.faker.txt_file(prefix=template)
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert basename.startswith("lazy_txt_")
-        assert "{word}" not in basename
+        self.assertTrue(basename.startswith("lazy_txt_"))
+        self.assertNotIn("{word}", basename)
 
     def test_generic_file(self) -> None:
         with self.subTest("Without text content"):
@@ -8874,8 +8874,8 @@ class TestFaker(unittest.TestCase):
         )
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert "custom_basename_" in basename
-        assert "{word}" not in basename
+        self.assertIn("custom_basename_", basename)
+        self.assertNotIn("{word}", basename)
 
     def test_generic_file_basename_lazy_string_template(self):
         """generic_file accepts LazyStringTemplate as basename."""
@@ -8892,10 +8892,10 @@ class TestFaker(unittest.TestCase):
         )
         bn1 = Path(sv1.data["storage"].abspath(sv1.data["filename"])).stem
         bn2 = Path(sv2.data["storage"].abspath(sv2.data["filename"])).stem
-        assert "lazy_basename_" in bn1
-        assert "lazy_basename_" in bn2
-        assert "{word}" not in bn1
-        assert "{word}" not in bn2
+        self.assertIn("lazy_basename_", bn1)
+        self.assertIn("lazy_basename_", bn2)
+        self.assertNotIn("{word}", bn1)
+        self.assertNotIn("{word}", bn2)
 
     def test_generic_file_prefix_string_template(self):
         """generic_file accepts StringTemplate as prefix."""
@@ -8906,8 +8906,8 @@ class TestFaker(unittest.TestCase):
         )
         filename = Path(sv.data["storage"].abspath(sv.data["filename"]))
         basename = filename.stem
-        assert basename.startswith("custom_prefix_")
-        assert "{word}" not in basename
+        self.assertTrue(basename.startswith("custom_prefix_"))
+        self.assertNotIn("{word}", basename)
 
     def test_generic_file_prefix_lazy_string_template(self):
         """generic_file accepts LazyStringTemplate as prefix."""
@@ -8924,10 +8924,10 @@ class TestFaker(unittest.TestCase):
         )
         bn1 = Path(sv1.data["storage"].abspath(sv1.data["filename"])).stem
         bn2 = Path(sv2.data["storage"].abspath(sv2.data["filename"])).stem
-        assert bn1.startswith("lazy_prefix_")
-        assert bn2.startswith("lazy_prefix_")
-        assert "{word}" not in bn1
-        assert "{word}" not in bn2
+        self.assertTrue(bn1.startswith("lazy_prefix_"))
+        self.assertTrue(bn2.startswith("lazy_prefix_"))
+        self.assertNotIn("{word}", bn1)
+        self.assertNotIn("{word}", bn2)
 
     def test_generic_file_basename_absolute_path(self):
         """generic_file rejects absolute path in basename."""
