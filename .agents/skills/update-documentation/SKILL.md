@@ -348,9 +348,9 @@ attribute to prefix the block name with `test_`:
 .. code-block:: python
     :name: test_feature_name
 
-   from fake import FAKER
+    from fake import FAKER
 
-   result = FAKER.name()
+    result = FAKER.name()
 ```
 
 ### Cross-References
