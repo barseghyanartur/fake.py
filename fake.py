@@ -4152,8 +4152,10 @@ class Faker:
         ] = GraphicPdfGenerator,
         metadata: Optional[MetaData] = None,
         storage: Optional[BaseStorage] = None,
-        basename: Optional[str] = None,
-        prefix: Optional[str] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
         **kwargs,
     ) -> StringValue:
         """Create a PDF file.
