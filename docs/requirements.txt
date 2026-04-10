@@ -12,7 +12,7 @@ asttokens==3.0.1
     # via stack-data
 babel==2.18.0
     # via sphinx
-build==1.4.2
+build==1.4.3
     # via fake-py (pyproject.toml)
 certifi==2026.2.25
     # via requests
@@ -76,7 +76,7 @@ jinja2==3.1.6
     # via sphinx
 keyring==25.7.0
     # via twine
-librt==0.8.1
+librt==0.9.0
     # via mypy
 markdown-it-py==4.0.0
     # via rich
@@ -86,7 +86,7 @@ matplotlib-inline==0.2.1
     # via ipython
 mdurl==0.1.2
     # via markdown-it-py
-more-itertools==11.0.1
+more-itertools==11.0.2
     # via
     #   jaraco-classes
     #   jaraco-functools
@@ -166,7 +166,7 @@ rich==14.3.3
     # via twine
 roman-numerals==4.1.0
     # via sphinx
-ruff==0.15.9
+ruff==0.15.10
     # via fake-py (pyproject.toml)
 snowballstemmer==3.0.1
     # via sphinx
@@ -231,7 +231,7 @@ urllib3==2.6.3
     #   id
     #   requests
     #   twine
-uv==0.11.5
+uv==0.11.6
     # via fake-py (pyproject.toml)
 uvicorn==0.44.0
     # via sphinx-autobuild
