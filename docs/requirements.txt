@@ -52,7 +52,7 @@ h11==0.16.0
     # via uvicorn
 id==1.6.1
     # via twine
-idna==3.11
+idna==3.15
     # via
     #   anyio
     #   requests
@@ -226,12 +226,12 @@ typing-extensions==4.15.0
     #   anyio
     #   mypy
     #   starlette
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   id
     #   requests
     #   twine
-uv==0.11.6
+uv==0.11.15
     # via fake-py (pyproject.toml)
 uvicorn==0.44.0
     # via sphinx-autobuild
