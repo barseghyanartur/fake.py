@@ -21,6 +21,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.2
+------
+2026-09-25
+
+- Minor fixes in PDF provider.
+
 0.13.1
 ------
 2026-03-26
