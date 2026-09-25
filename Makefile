@@ -102,31 +102,31 @@ sqlmodel-test \
 tortoise-test
 
 customisation-test:
-	cd examples/customisation/ && uv run pytest
+	cd examples/customisation/ && uv run --project ../.. pytest
 
 dataclasses-test:
-	cd examples/dataclasses/ && uv run pytest
+	cd examples/dataclasses/ && uv run --project ../.. pytest
 
 django-test: install-django
-	cd examples/django/ && uv run pytest
+	cd examples/django/ && uv run --project ../.. pytest
 
 hypothesis-test: install-hypothesis
-	cd examples/hypothesis/ && uv run pytest
+	cd examples/hypothesis/ && uv run --project ../.. pytest
 
 lazyfuzzy-test:
-	cd examples/lazyfuzzy/ && uv run pytest
+	cd examples/lazyfuzzy/ && uv run --project ../.. pytest
 
 pydantic-test:
-	cd examples/pydantic/ && uv run pytest
+	cd examples/pydantic/ && uv run --project ../.. pytest
 
 sqlalchemy-test: install-sqlalchemy
-	cd examples/sqlalchemy/ && uv run pytest
+	cd examples/sqlalchemy/ && uv run --project ../.. pytest
 
 sqlmodel-test: install-sqlmodel
-	cd examples/sqlmodel/ && uv run pytest
+	cd examples/sqlmodel/ && uv run --project ../.. pytest
 
 tortoise-test: install-tortoise
-	cd examples/tortoise/ && uv run pytest
+	cd examples/tortoise/ && uv run --project ../.. pytest
 
 shell:
 	uv run ipython
