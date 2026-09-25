@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 
 from fake import xor_transform
@@ -74,7 +74,7 @@ class Article(SQLModel, table=True):
     pages: int
     auto_minutes_to_read: int
     image: Optional[str]
-    pub_date: datetime = Field(default_factory=datetime.utcnow)
+    pub_date: date = Field(default_factory=date.today)
     safe_for_work: bool = Field(default=False)
     minutes_to_read: int = Field(default=5)
     author_id: int = Field(foreign_key="user.id")
