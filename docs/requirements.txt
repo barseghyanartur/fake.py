@@ -2,7 +2,7 @@
 #    uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
 alabaster==1.0.0
     # via sphinx
-anyio==4.13.0
+anyio==4.14.2
     # via
     #   starlette
     #   watchfiles
@@ -30,7 +30,7 @@ decorator==5.2.1
     # via ipython
 detect-secrets==1.5.0
     # via fake-py (pyproject.toml)
-django==6.0.4
+django==6.0.7
     # via fake-py (pyproject.toml)
 doc8==2.0.0
     # via fake-py (pyproject.toml)
@@ -205,7 +205,7 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via django
 stack-data==0.6.3
     # via ipython
