@@ -209,7 +209,7 @@ sqlparse==0.5.5
     # via django
 stack-data==0.6.3
     # via ipython
-starlette==1.0.1
+starlette==1.3.1
     # via sphinx-autobuild
 stevedore==5.7.0
     # via doc8
