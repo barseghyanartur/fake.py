@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.13.1"
+__version__ = "0.13.2"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -224,7 +224,10 @@ PDF_TEXT_TPL_CONTENT_OBJECT = """{obj_num} 0 obj
 stream
 {content}
 endstream
-6 0 obj
+endobj
+"""
+
+PDF_TEXT_TPL_FONT_OBJECT = """{obj_num} 0 obj
 <</Type /Font /Subtype /Type1 /BaseFont /Helvetica>>
 endobj
 """
@@ -1014,19 +1017,32 @@ class TextPdfGenerator:
         if metadata:
             metadata.add_content(self.texts)
 
+        page_obj_nums = [4 + 2 * i for i in range(self.nb_pages)]
+        content_obj_nums = [num + 1 for num in page_obj_nums]
+        font_obj_num = content_obj_nums[-1] + 1
+
         # Construction
         pdf_bytes = io.BytesIO()
+        positions: Dict[int, int] = {}
 
         pdf_bytes.write(b"%PDF-1.4\n")
+
+        positions[1] = pdf_bytes.tell()
         pdf_bytes.write(b"1 0 obj\n<</Type /Catalog/Pages 3 0 R>>\nendobj\n")
-        pdf_bytes.write(b"2 0 obj\n<</Font <</F1 6 0 R>>>>\nendobj\n")
+
+        positions[2] = pdf_bytes.tell()
+        pdf_bytes.write(
+            f"2 0 obj\n<</Font <</F1 {font_obj_num} 0 R>>>>\nendobj\n".encode()
+        )
+
+        positions[3] = pdf_bytes.tell()
         pdf_bytes.write(b"3 0 obj\n<</Type /Pages/Kids [")
 
         page_objs = []
         content_objs = []
-        for i, page_text in enumerate(self.texts):
-            page_obj_num = 4 + 2 * i
-            content_obj_num = page_obj_num + 1
+        for page_obj_num, content_obj_num, page_text in zip(
+            page_obj_nums, content_obj_nums, self.texts
+        ):
             page_objs.append(
                 self._add_page_object(page_obj_num, content_obj_num)
             )
@@ -1037,28 +1053,29 @@ class TextPdfGenerator:
 
         pdf_bytes.write(f"] /Count {str(self.nb_pages)}>>\nendobj\n".encode())
 
-        for page_obj in page_objs:
+        for page_obj_num, page_obj in zip(page_obj_nums, page_objs):
+            positions[page_obj_num] = pdf_bytes.tell()
             pdf_bytes.write(page_obj.encode())
-        for content_obj in content_objs:
+        for content_obj_num, content_obj in zip(content_obj_nums, content_objs):
+            positions[content_obj_num] = pdf_bytes.tell()
             pdf_bytes.write(content_obj.encode())
 
-        pdf_bytes.write(f"xref\n0 {str(4 + 2 * self.nb_pages)}\n".encode())
-        pdf_bytes.write(b"0000000000 65535 f \n")
+        positions[font_obj_num] = pdf_bytes.tell()
         pdf_bytes.write(
-            b"0000000010 00000 n \n0000000057 00000 n \n0000000103 00000 n \n"
+            PDF_TEXT_TPL_FONT_OBJECT.format(obj_num=font_obj_num).encode()
         )
-        offset = 149
-        for _ in range(self.nb_pages):
-            pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
-            offset += 78
-            pdf_bytes.write(f"{offset:010} 00000 n \n".encode())
-            offset += 73
+
+        xref_offset = pdf_bytes.tell()
+        pdf_bytes.write(f"xref\n0 {font_obj_num + 1}\n".encode())
+        pdf_bytes.write(b"0000000000 65535 f \n")
+        for obj_num in range(1, font_obj_num + 1):
+            pdf_bytes.write(f"{positions[obj_num]:010} 00000 n \n".encode())
 
         pdf_bytes.write(
-            f"trailer\n<</Size {str(4 + 2 * self.nb_pages)}/Root 1 0 R>>\n"
-            f"".encode()
+            f"trailer\n<</Size {font_obj_num + 1}/Root 1 0 R>>\n".encode()
         )
-        pdf_bytes.write(b"startxref\n564\n%%EOF")
+        pdf_bytes.write(f"startxref\n{xref_offset}\n".encode())
+        pdf_bytes.write(b"%%EOF")
 
         return pdf_bytes.getvalue()
 
@@ -8557,6 +8574,48 @@ class TestFaker(unittest.TestCase):
             )
             self.assertTrue(pdf)
             self.assertIsInstance(pdf, bytes)
+
+    def _assert_valid_xref(self, pdf: bytes) -> None:
+        xref_offset = pdf.rindex(b"xref\n0 ")
+
+        startxref = int(pdf.rsplit(b"startxref\n", 1)[1].split(b"\n")[0])
+        self.assertEqual(
+            startxref,
+            xref_offset,
+            "startxref should point at the xref table",
+        )
+
+        header, entries = pdf[xref_offset:].split(b"\n", 2)[1:]
+        num_objects = int(header.split()[1])
+        self.assertTrue(
+            entries[num_objects * 20 :].startswith(b"trailer"),
+            "xref table should hold exactly the declared number of entries",
+        )
+
+        definitions: Dict[int, List[int]] = {}
+        for match in re.finditer(rb"(?<!\d)(\d+) 0 obj", pdf):
+            obj_num = int(match.group(1))
+            definitions.setdefault(obj_num, []).append(match.start())
+
+        for obj_num in range(1, num_objects):
+            entry = entries[obj_num * 20 : obj_num * 20 + 20]
+            self.assertEqual(
+                definitions.get(obj_num, []),
+                [int(entry[:10])],
+                f"object {obj_num} should be defined once",
+            )
+
+    def test_text_pdf_xref_offsets(self) -> None:
+        with self.subTest("`pdf` with texts"):
+            pdf = self.faker.pdf(
+                texts=self.faker.texts(3),
+                generator=TextPdfGenerator,
+            )
+            self._assert_valid_xref(pdf)
+
+        with self.subTest("`text_pdf` with texts"):
+            pdf = self.faker.text_pdf(texts=self.faker.texts(7))
+            self._assert_valid_xref(pdf)
 
     def test_graphic_pdf(self) -> None:
         pdf = self.faker.pdf(generator=GraphicPdfGenerator)
