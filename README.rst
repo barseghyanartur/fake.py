@@ -14,6 +14,7 @@ fake.py
 .. _SQLAlchemy: https://www.sqlalchemy.org/
 .. _SQLModel: https://sqlmodel.tiangolo.com/
 .. _Pathy: https://github.com/justindujardin/pathy
+.. _cloudpathlib: https://github.com/drivendataorg/cloudpathlib
 .. _django-storages: https://django-storages.readthedocs.io
 .. _Sphinx: https://www.sphinx-doc.org
 .. _jsphinx: http://jsphinx.readthedocs.io
@@ -45,6 +46,7 @@ fake.py
 .. Related projects
 
 .. _fake-py-pathy-storage: https://github.com/barseghyanartur/fake-py-pathy-storage
+.. _fake-py-cloudpathlib-storage: https://github.com/barseghyanartur/fake-py-cloudpathlib-storage
 .. _fake-py-django-storage: https://github.com/barseghyanartur/fake-py-django-storage
 .. _fake-py-qt: https://github.com/barseghyanartur/fake-py-qt
 .. _fake-py-mcp: https://github.com/barseghyanartur/fake-py-mcp
@@ -533,6 +535,9 @@ Related projects
 ================
 - `fake-py-pathy-storage`_: `Pathy`_ backed cloud storages for `fake.py`_.
   Supports `AWS S3`, `Google Cloud Storage` and `Azure Cloud Storage`.
+- `fake-py-cloudpathlib-storage`_: `cloudpathlib`_ backed cloud storages
+  for `fake.py`_. Supports `AWS S3`, `Google Cloud Storage`
+  and `Azure Cloud Storage`.
 - `fake-py-django-storage`_: `Django`_ and `django-storages`_ backed storages
   for `fake.py`_. Among others, supports `AWS S3`, `Google Cloud Storage` and
   `Azure Cloud Storage`.
