@@ -2,7 +2,7 @@
 #    uv pip compile --all-extras -o docs/requirements.txt pyproject.toml
 alabaster==1.0.0
     # via sphinx
-anyio==4.14.2
+anyio==4.15.1
     # via
     #   starlette
     #   watchfiles
@@ -30,7 +30,7 @@ decorator==5.2.1
     # via ipython
 detect-secrets==1.5.0
     # via fake-py (pyproject.toml)
-django==6.0.7
+django==6.0.8
     # via fake-py (pyproject.toml)
 doc8==2.0.0
     # via fake-py (pyproject.toml)
@@ -226,7 +226,7 @@ typing-extensions==4.15.0
     #   anyio
     #   mypy
     #   starlette
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   id
     #   requests
