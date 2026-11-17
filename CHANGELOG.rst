@@ -21,6 +21,16 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.3
+------
+2026-11-17
+
+.. note::
+
+    Release dedicated to my dear mother, who turned 77 today.
+
+- Minor optimisations in JPG provider.
+
 0.13.2
 ------
 2026-09-25
