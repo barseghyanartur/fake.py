@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.13.2"
+__version__ = "0.13.3"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -1688,158 +1688,96 @@ class EpubGenerator:
 
 
 class JpgGenerator:
-    GRAY_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4\x00\x14"
-        b"\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x08\x01\x01\x00\x00?\x00?\xff\xd9"
-    )
-    GRAY_1_PX_JPG_BYTEARRAY = bytearray(GRAY_1_PX_JPG)
+    """Baseline JPEG encoder for solid-colour images.
 
-    RED_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
-        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
-        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
-        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
-        b"\x00?\x00\x90\x02\x8f\xff\xd9"
-    )
-    RED_1_PX_JPG_BYTEARRAY = bytearray(RED_1_PX_JPG)
+    Writes a JFIF file with three YCbCr components (1x1 sampling, no
+    chroma subsampling), a single all-ones quantization table and minimal
+    Huffman tables. A solid-colour 8x8 block has only a DC coefficient,
+    so each block encodes as a DC difference followed by End Of Block.
+    """
 
-    YELLOW_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
-        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
-        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
-        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
-        b"\x00?\x00\xb0\x13/\xff\xd9"
-    )
-    YELLOW_1_PX_JPG_BYTEARRAY = bytearray(YELLOW_1_PX_JPG)
+    # Quantization table: every coefficient uses a quantizer of 1.
+    QUANTIZATION_TABLE = bytes([1] * 64)
 
-    BLUE_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
-        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x02\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x15\x01"
-        b"\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
-        b"\x03\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11"
-        b"\x00?\x00\x80\x14\x0f\xff\xd9"
-    )
-    BLUE_1_PX_JPG_BYTEARRAY = bytearray(BLUE_1_PX_JPG)
+    # DC table: categories 0-11 each get a 4-bit code. Canonical
+    # Huffman assignment makes the code for category N equal to N.
+    DC_CODE_LENGTH = 4
+    DC_COUNTS = bytes((0, 0, 0, 12) + (0,) * 12)
+    DC_SYMBOLS = bytes(range(12))
 
-    GREEN_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
-        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x01\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01"
-        b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02"
-        b"\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?"
-        b"\x00\xa0\x00?\xff\xd9"
-    )
-    GREEN_1_PX_JPG_BYTEARRAY = bytearray(GREEN_1_PX_JPG)
-
-    BLACK_1_PX_JPG = (
-        b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
-        b"\xff\xdb\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xdb\x00C\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b"\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
-        b'\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11'
-        b"\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x03\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01"
-        b"\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-        b"\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?"
-        b"\x00\x98\x00\xff\xd9"
-    )
-    BLACK_1_PX_JPG_BYTEARRAY = bytearray(BLACK_1_PX_JPG)
-
-    COLORS = {
-        (0, 255, 0): GREEN_1_PX_JPG_BYTEARRAY,
-        (255, 255, 0): YELLOW_1_PX_JPG_BYTEARRAY,
-        (255, 0, 0): RED_1_PX_JPG_BYTEARRAY,
-        (0, 0, 255): BLUE_1_PX_JPG_BYTEARRAY,
-        (0, 0, 0): BLACK_1_PX_JPG_BYTEARRAY,
-        (128, 128, 128): GRAY_1_PX_JPG_BYTEARRAY,
-    }
+    # AC table: only End Of Block (0x00) is needed; its code is "0".
+    AC_COUNTS = bytes((1,) + (0,) * 15)
+    AC_SYMBOLS = b"\x00"
 
     @classmethod
-    def euclidean_distance(cls, color1, color2):
-        return math.sqrt(sum((a - b) ** 2 for a, b in zip(color1, color2)))
+    def segment(cls, marker: int, payload: bytes) -> bytes:
+        """Build a JPEG marker segment."""
+        return (
+            bytes((0xFF, marker))
+            + struct.pack(">H", len(payload) + 2)
+            + payload
+        )
 
     @classmethod
-    def detect_closest_color(cls, color: Tuple[int, int, int]) -> bytearray:
-        closest = None
-        min_distance = float("inf")
-
-        for ref_color, color_name in cls.COLORS.items():
-            distance = cls.euclidean_distance(color, ref_color)
-            if distance < min_distance:
-                min_distance = distance
-                closest = color_name
-
-        return closest
+    def rgb_to_ycbcr(cls, color: Tuple[int, int, int]) -> Tuple[int, int, int]:
+        """Convert RGB to full-range JFIF YCbCr."""
+        red, green, blue = color
+        y = 0.299 * red + 0.587 * green + 0.114 * blue
+        cb = 128 - 0.168736 * red - 0.331264 * green + 0.5 * blue
+        cr = 128 + 0.5 * red - 0.418688 * green - 0.081312 * blue
+        return tuple(  # type: ignore[return-value]
+            max(0, min(255, round(value))) for value in (y, cb, cr)
+        )
 
     @classmethod
-    def find_marker(cls, jpeg_bytes, marker) -> int:
-        """Helper function to find a marker."""
-        marker_bytes = marker
-        index = jpeg_bytes.find(marker_bytes)
-        if index == -1:
-            raise ValueError(f"Marker {marker} not found.")
-        return index
+    def encode_scan(
+        cls,
+        dc_values: Tuple[int, int, int],
+        block_count: int,
+    ) -> bytes:
+        """Entropy-code ``block_count`` identical blocks.
+
+        DC coefficients are coded as differences from the previous block
+        of the same component, so only the first block carries the full
+        value; the rest code a difference of 0.
+        """
+        data = bytearray()
+        acc = 0  # Bit accumulator
+        nbits = 0  # Number of bits in the accumulator
+
+        def write(value: int, length: int) -> None:
+            nonlocal acc, nbits
+            acc = (acc << length) | value
+            nbits += length
+            while nbits >= 8:
+                nbits -= 8
+                byte = (acc >> nbits) & 0xFF
+                data.append(byte)
+                # 0xFF in entropy-coded data must be stuffed with 0x00
+                if byte == 0xFF:
+                    data.append(0x00)
+            acc &= (1 << nbits) - 1
+
+        def write_block(diff: int) -> None:
+            category = abs(diff).bit_length()
+            write(category, cls.DC_CODE_LENGTH)
+            if category:
+                # Negative values are stored as diff + (2^category - 1)
+                write(
+                    diff if diff >= 0 else diff + (1 << category) - 1, category
+                )
+            write(0, 1)  # End Of Block
+
+        previous = [0, 0, 0]
+        for _ in range(block_count):
+            for index, dc in enumerate(dc_values):
+                write_block(dc - previous[index])
+                previous[index] = dc
+
+        # Pad the final byte with 1-bits
+        if nbits:
+            write((1 << (8 - nbits)) - 1, 8 - nbits)
+        return bytes(data)
 
     @classmethod
     def generate(
@@ -1850,93 +1788,66 @@ class JpgGenerator:
         """Create a JPG image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
+            Each must be an integer between 1 and 65535.
         :param color: Colour of the image in RGB format (tuple of three
-            integers).
+            integers, each between 0 and 255).
         :return: Byte content of the JPG image.
         :rtype: bytes
+        :raises ValueError: If size or color is out of range.
         """
-        original = cls.detect_closest_color(color)
         width, height = size
-        jpeg = original.copy()
+        for name, value in (("width", width), ("height", height)):
+            if not isinstance(value, int) or not 1 <= value <= 65535:
+                raise ValueError(
+                    f"{name} must be an integer between 1 and 65535"
+                )
+        if len(color) != 3 or not all(
+            isinstance(value, int) and 0 <= value <= 255 for value in color
+        ):
+            raise ValueError(
+                "color must be three integers, each between 0 and 255"
+            )
 
-        # Step 1: Update the SOF0 marker with new dimensions
-        sof0 = b"\xff\xc0"
-        sof0_index = cls.find_marker(jpeg, sof0)
+        y, cb, cr = cls.rgb_to_ycbcr(tuple(color))  # type: ignore[arg-type]
+        # With a quantizer of 1, a flat block's DC is 8 * (sample - 128)
+        dc_values = (8 * (y - 128), 8 * (cb - 128), 8 * (cr - 128))
+        block_count = ((width + 7) // 8) * ((height + 7) // 8)
 
-        # SOF0 structure:
-        # [Marker]
-        # [Length]
-        # [Precision]
-        # [Height]
-        # [Width]
-        # [Components]
-        # [Component Spec...]
-        # Length is 2 bytes, Precision is 1 byte, Height and Width are 2 bytes
-        # each.
-        # Components: 1 byte ID, 1 byte Sampling factors, 1 byte Quantization
-        # table number.
-
-        # Extract current height and width (for 1x1 image)
-        # Height is at sof0_index + 5 and sof0_index + 6
-        # Width is at sof0_index + 7 and sof0_index + 8
-        # We need to modify these to new_height and new_width
-
-        # Pack new height and width as big-endian unsigned shorts
-        new_height_bytes = struct.pack(">H", height)
-        new_width_bytes = struct.pack(">H", width)
-
-        # Replace height and width in the JPEG bytes
-        jpeg[sof0_index + 5] = new_height_bytes[0]
-        jpeg[sof0_index + 6] = new_height_bytes[1]
-        jpeg[sof0_index + 7] = new_width_bytes[0]
-        jpeg[sof0_index + 8] = new_width_bytes[1]
-
-        # Step 2: Locate the Start of Scan (SOS) marker
-        sos = b"\xff\xda"
-        sos_index = cls.find_marker(jpeg, sos)
-
-        # SOS structure:
-        # [Marker]
-        # [Length]
-        # [Components]
-        # [Component Spec...]
-        # [Start & End of Spectral Selection]
-        # [Successive Approximation]
-
-        # Extract the length of the SOS segment to find where image data starts
-        sos_length = struct.unpack(">H", jpeg[sos_index + 2 : sos_index + 4])[0]
-        image_data_start = sos_index + 2 + sos_length
-
-        # Locate the End of Image (EOI) marker
-        eoi = b"\xff\xd9"
-        eoi_index = jpeg.find(eoi, image_data_start)
-        if eoi_index == -1:
-            eoi_index = 0
-            # raise ValueError("EOI marker not found.")
-
-        # Step 3: Extract the original image data (between SOS and EOI)
-        original_image_data = jpeg[image_data_start:eoi_index]
-
-        # Step 4: Determine the number of 8x8 blocks needed
-        blocks_per_row = (width + 7) // 8  # Ceiling division
-        blocks_per_col = (height + 7) // 8
-        total_blocks = blocks_per_row * blocks_per_col
-
-        # Step 5: Replicate the image data for each block
-        # For a constant gray image, each block's data is identical
-        replicated_image_data = original_image_data * total_blocks
-
-        # Optional: If the image size isn't a multiple of 8, padding might be
-        # necessary.
-        # However, JPEG decoders typically ignore the extra padding, so we can
-        # proceed.
-
-        # Step 6: Assemble the new JPEG bytes
-        new_jpeg = (
-            jpeg[:image_data_start] + replicated_image_data + jpeg[eoi_index:]
+        jfif = (
+            b"JFIF\x00"
+            + b"\x01\x01"  # Version 1.01
+            + b"\x00"  # No density units
+            + struct.pack(">HH", 1, 1)  # Pixel aspect ratio 1:1
+            + b"\x00\x00"  # No thumbnail
         )
+        # Precision, dimensions, then (id, sampling, quant table) per
+        # component: 1 = Y, 2 = Cb, 3 = Cr.
+        frame = (
+            b"\x08"
+            + struct.pack(">HH", height, width)
+            + b"\x03\x01\x11\x00\x02\x11\x00\x03\x11\x00"
+        )
+        huffman = (
+            b"\x00"  # DC table 0
+            + cls.DC_COUNTS
+            + cls.DC_SYMBOLS
+            + b"\x10"  # AC table 0
+            + cls.AC_COUNTS
+            + cls.AC_SYMBOLS
+        )
+        # All components use DC/AC table 0; full spectral range 0-63
+        scan = b"\x03\x01\x00\x02\x00\x03\x00\x00\x3f\x00"
 
-        return bytes(new_jpeg)
+        return (
+            b"\xff\xd8"  # Start Of Image
+            + cls.segment(0xE0, jfif)
+            + cls.segment(0xDB, b"\x00" + cls.QUANTIZATION_TABLE)
+            + cls.segment(0xC0, frame)
+            + cls.segment(0xC4, huffman)
+            + cls.segment(0xDA, scan)
+            + cls.encode_scan(dc_values, block_count)
+            + b"\xff\xd9"  # End Of Image
+        )
 
 
 class ProviderRegistryItem(str):
@@ -8652,10 +8563,188 @@ class TestFaker(unittest.TestCase):
         self.assertTrue(ppm)
         self.assertIsInstance(ppm, bytes)
 
+    def _decode_jpg(
+        self, data: bytes
+    ) -> Tuple[int, int, Set[Tuple[int, int, int]]]:
+        """Decode a baseline JPEG with 1x1 sampling (stdlib only).
+
+        Decodes every block of the entropy-coded data, so a corrupt
+        bitstream fails here, not only a corrupt header.
+
+        :param data: Byte content of the JPG image.
+        :return: Width, height and the set of RGB colours of all blocks.
+        :rtype: Tuple[int, int, Set[Tuple[int, int, int]]]
+        """
+        self.assertEqual(data[:2], b"\xff\xd8", "Missing SOI")
+        self.assertEqual(data[-2:], b"\xff\xd9", "Missing EOI")
+
+        quant = {}
+        huffman = {}
+        width = height = 0
+        components = []
+        pos = 2
+        while True:
+            self.assertEqual(data[pos], 0xFF, f"Bad marker at {pos}")
+            marker = data[pos + 1]
+            (length,) = struct.unpack(">H", data[pos + 2 : pos + 4])
+            payload = data[pos + 4 : pos + 2 + length]
+            pos += 2 + length
+            if marker == 0xDB:
+                quant[payload[0] & 0x0F] = list(payload[1:65])
+            elif marker == 0xC0:
+                height, width = struct.unpack(">HH", payload[1:5])
+                for i in range(payload[5]):
+                    comp_id, sampling, tq = payload[6 + i * 3 : 9 + i * 3]
+                    self.assertEqual(sampling, 0x11)
+                    components.append((comp_id, tq))
+            elif marker == 0xC4:
+                offset = 0
+                while offset < len(payload):
+                    table_id = payload[offset]
+                    counts = payload[offset + 1 : offset + 17]
+                    symbols = iter(payload[offset + 17 :])
+                    table = {}
+                    code = 0
+                    for code_length, count in enumerate(counts, start=1):
+                        for _ in range(count):
+                            table[(code_length, code)] = next(symbols)
+                            code += 1
+                        code <<= 1
+                    huffman[table_id] = table
+                    offset += 17 + sum(counts)
+            elif marker == 0xDA:
+                scan_tables = {
+                    payload[1 + i * 2]: payload[2 + i * 2]
+                    for i in range(payload[0])
+                }
+                break
+        self.assertEqual(len(components), 3, "Expected YCbCr")
+
+        # Remove byte stuffing; no other marker may appear in the scan
+        raw = data[pos:-2]
+        entropy = bytearray()
+        i = 0
+        while i < len(raw):
+            entropy.append(raw[i])
+            if raw[i] == 0xFF:
+                self.assertEqual(raw[i + 1], 0x00, "Unstuffed 0xFF in scan")
+                i += 1
+            i += 1
+        bits = "".join(f"{byte:08b}" for byte in entropy)
+        bit_pos = 0
+
+        def read(length: int) -> int:
+            nonlocal bit_pos
+            self.assertLessEqual(bit_pos + length, len(bits), "Out of data")
+            value = int(bits[bit_pos : bit_pos + length] or "0", 2)
+            bit_pos += length
+            return value
+
+        def decode_symbol(table: dict) -> int:
+            code = 0
+            for code_length in range(1, 17):
+                code = (code << 1) | read(1)
+                if (code_length, code) in table:
+                    return table[(code_length, code)]
+            raise AssertionError("Bad Huffman code")
+
+        def extend(value: int, length: int) -> int:
+            if length and value < (1 << (length - 1)):
+                return value - (1 << length) + 1
+            return value
+
+        block_count = ((width + 7) // 8) * ((height + 7) // 8)
+        predictors = [0] * len(components)
+        colors = set()
+        for _ in range(block_count):
+            samples = []
+            for index, (comp_id, tq) in enumerate(components):
+                tables = scan_tables[comp_id]
+                category = decode_symbol(huffman[tables >> 4])
+                predictors[index] += extend(read(category), category)
+                k = 1
+                while k < 64:
+                    symbol = decode_symbol(huffman[0x10 | (tables & 0x0F)])
+                    if symbol == 0x00:
+                        break
+                    self.assertEqual(symbol & 0x0F, 0, "Unexpected AC value")
+                    k += (symbol >> 4) + 1
+                samples.append(128 + predictors[index] * quant[tq][0] / 8)
+            y, cb, cr = samples
+            colors.add(
+                tuple(
+                    max(0, min(255, round(value)))
+                    for value in (
+                        y + 1.402 * (cr - 128),
+                        y - 0.344136 * (cb - 128) - 0.714136 * (cr - 128),
+                        y + 1.772 * (cb - 128),
+                    )
+                )
+            )
+
+        # Only 1-bit padding may follow the last block
+        self.assertLess(len(bits) - bit_pos, 8, "Extraneous scan data")
+        self.assertEqual(set(bits[bit_pos:]) - {"1"}, set(), "Bad padding")
+        return width, height, colors
+
     def test_jpg(self) -> None:
         jpg = self.faker.jpg()
         self.assertTrue(jpg)
         self.assertIsInstance(jpg, bytes)
+        self.assertEqual(self._decode_jpg(jpg), (100, 100, {(128, 128, 128)}))
+
+    def test_jpg_sizes(self) -> None:
+        for size in ((1, 1), (8, 8), (9, 9), (13, 37), (200, 200), (640, 1)):
+            with self.subTest(size=size):
+                jpg = self.faker.jpg(size=size, color=(30, 120, 220))
+                width, height, colors = self._decode_jpg(jpg)
+                self.assertEqual((width, height), size)
+                self.assertEqual(len(colors), 1)
+
+    def test_jpg_colors(self) -> None:
+        for color in (
+            (0, 0, 0),
+            (255, 255, 255),
+            (127, 127, 127),
+            (255, 0, 0),
+            (0, 255, 0),
+            (0, 0, 255),
+            (255, 255, 0),
+            (30, 120, 220),
+            (173, 77, 242),
+        ):
+            with self.subTest(color=color):
+                jpg = self.faker.jpg(size=(50, 30), color=color)
+                _, _, colors = self._decode_jpg(jpg)
+                self.assertEqual(len(colors), 1)
+                (decoded,) = colors
+                for expected, actual in zip(color, decoded):
+                    self.assertLessEqual(abs(expected - actual), 1)
+
+    def test_jpg_byte_stuffing(self) -> None:
+        # This colour encodes a 0xFF byte in the scan, which must be stuffed
+        jpg = self.faker.jpg(size=(64, 64), color=(0, 180, 255))
+        self.assertIn(b"\xff\x00", jpg)
+        _, _, colors = self._decode_jpg(jpg)
+        self.assertEqual(len(colors), 1)
+        for expected, actual in zip((0, 180, 255), next(iter(colors))):
+            self.assertLessEqual(abs(expected - actual), 1)
+
+    def test_jpg_invalid(self) -> None:
+        for size, color in (
+            ((0, 10), (0, 0, 0)),
+            ((10, 0), (0, 0, 0)),
+            ((65536, 1), (0, 0, 0)),
+            ((1.5, 1), (0, 0, 0)),
+            ((10, 10), (256, 0, 0)),
+            ((10, 10), (-1, 0, 0)),
+            ((10, 10), (1, 2)),
+        ):
+            with (
+                self.subTest(size=size, color=color),
+                self.assertRaises(ValueError),
+            ):
+                self.faker.jpg(size=size, color=color)
 
     def test_image(self):
         for image_format in {"png", "svg", "bmp", "gif", "tif", "ppm", "jpg"}:
