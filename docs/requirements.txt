@@ -221,7 +221,7 @@ traitlets==5.14.3
     #   matplotlib-inline
 twine==6.2.0
     # via fake-py (pyproject.toml)
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   anyio
     #   mypy
