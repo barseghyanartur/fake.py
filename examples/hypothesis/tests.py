@@ -294,6 +294,21 @@ class TestFakerWithHypothesis(unittest.TestCase):
         jpg_bytes = self.faker.jpg(size=size, color=color)
         self.assertIsInstance(jpg_bytes, bytes)
 
+    @given(
+        size=st.tuples(
+            st.integers(min_value=1, max_value=500),
+            st.integers(min_value=1, max_value=500),
+        ),
+        color=st.tuples(
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+            st.integers(min_value=0, max_value=255),
+        ),
+    )
+    def test_webp(self, size, color):
+        webp_bytes = self.faker.webp(size=size, color=color)
+        self.assertIsInstance(webp_bytes, bytes)
+
     @given(nb_pages=st.integers(min_value=1, max_value=10))
     def test_docx(self, nb_pages):
         docx_bytes = self.faker.docx(nb_pages=nb_pages)
