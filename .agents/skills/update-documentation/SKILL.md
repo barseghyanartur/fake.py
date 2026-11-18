@@ -59,7 +59,7 @@ Compare code ground truth against documentation:
 | `CONTRIBUTING.rst` | Developer prerequisites vs Makefile/pyproject.toml |
 | `docs/recipes.rst` | Provider examples vs actual `Faker` methods |
 | `docs/cheatsheet.rst` | Tricks vs provider methods |
-| `docs/creating_images.rst` | 7 formats (PNG, SVG, BMP, GIF, TIF, PPM, JPG) vs `create_inner_*` |
+| `docs/creating_images.rst` | 8 formats (PNG, SVG, BMP, GIF, TIF, PPM, JPG, WEBP) vs `create_inner_*` |
 | `docs/creating_pdf.rst` | PDF methods vs actual implementation |
 | `docs/creating_docx.rst` | DOCX methods vs implementation |
 | `docs/creating_odt.rst` | ODT methods vs implementation |
@@ -108,7 +108,7 @@ After fixing, report:
 | `docs/recipes.rst` | Users/developers | Provider examples, usage patterns |
 | `docs/cheatsheet.rst` | Users/developers | Quick tricks, scientific content |
 | `docs/creating_files.rst` | Users/developers | File generation basics, StringTemplate/LazyStringTemplate |
-| `docs/creating_images.rst` | Users/developers | Image format generation (PNG, SVG, BMP, GIF, TIF, PPM, JPG) |
+| `docs/creating_images.rst` | Users/developers | Image format generation (PNG, SVG, BMP, GIF, TIF, PPM, JPG, WEBP) |
 | `docs/creating_pdf.rst` | Users/developers | PDF generation |
 | `docs/creating_docx.rst` | Users/developers | DOCX generation |
 | `docs/creating_odt.rst` | Users/developers | ODT generation |
@@ -200,7 +200,7 @@ Key sections:
 Update when:
 - New image formats added
 - Image generation parameters change
-- Supported formats list (PNG, SVG, BMP, GIF, TIF, PPM, JPG)
+- Supported formats list (PNG, SVG, BMP, GIF, TIF, PPM, JPG, WEBP)
 
 Key sections:
 - Supported formats table
@@ -367,7 +367,7 @@ Before finishing documentation updates:
 - [ ] README.rst features match `__all__` and provider methods
 - [ ] AGENTS.md code blocks have proper `name=` attributes
 - [ ] docs/recipes.rst includes all provider methods
-- [ ] docs/creating_images.rst lists all 7 formats (PNG, SVG, BMP, GIF, TIF, PPM, JPG)
+- [ ] docs/creating_images.rst lists all 8 formats (PNG, SVG, BMP, GIF, TIF, PPM, JPG, WEBP)
 - [ ] docs/creating_archives.rst lists all formats (ZIP, TAR, EML)
 - [ ] docs/factories.rst documents all factory classes
 - [ ] docs/cli.rst CLI commands match `CLI` class

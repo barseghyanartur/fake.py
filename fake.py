@@ -131,6 +131,7 @@ __all__ = (
     "create_inner_tif_file",
     "create_inner_txt_file",
     "create_inner_wav_file",
+    "create_inner_webp_file",
     "create_inner_zip_file",
     "fill_dataclass",
     "fill_pydantic_model",
@@ -356,6 +357,7 @@ MISSING_MIMETYPES = {
     ".epub": "application/epub+zip",
     ".odt": "application/vnd.oasis.opendocument.text",
     ".rtf": "application/rtf",
+    ".webp": "image/webp",
 }
 
 SLUGIFY_RE = re.compile(r"[^a-zA-Z0-9]")
@@ -1847,6 +1849,108 @@ class JpgGenerator:
             + cls.segment(0xDA, scan)
             + cls.encode_scan(dc_values, block_count)
             + b"\xff\xd9"  # End Of Image
+        )
+
+
+class WebpGenerator:
+    """Lossless (VP8L) WebP encoder for solid-colour images.
+
+    Writes a RIFF/WEBP container with a single VP8L chunk. The image uses
+    no transforms and no colour cache, and every channel (green, red,
+    blue, alpha and backward-reference distance) gets a single-symbol
+    prefix code. A single-symbol code consumes no bits per pixel, so the
+    whole image is described by its header alone, regardless of size.
+    """
+
+    # VP8L stores width and height as 14-bit values (minus one)
+    MAX_SIZE = 16384
+
+    @classmethod
+    def write_single_symbol_code(
+        cls,
+        write: Callable[[int, int], None],
+        symbol: int,
+    ) -> None:
+        """Write a VP8L simple prefix code containing one symbol."""
+        write(1, 1)  # Simple code
+        write(0, 1)  # Number of symbols minus one
+        if symbol <= 1:
+            write(0, 1)  # Symbol fits in 1 bit
+            write(symbol, 1)
+        else:
+            write(1, 1)  # Symbol uses 8 bits
+            write(symbol, 8)
+
+    @classmethod
+    def generate(
+        cls,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+    ) -> bytes:
+        """Create a WEBP image of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Each must be an integer between 1 and 16384.
+        :param color: Colour of the image in RGB format (tuple of three
+            integers, each between 0 and 255).
+        :return: Byte content of the WEBP image.
+        :rtype: bytes
+        :raises ValueError: If size or color is out of range.
+        """
+        width, height = size
+        for name, value in (("width", width), ("height", height)):
+            if not isinstance(value, int) or not 1 <= value <= cls.MAX_SIZE:
+                raise ValueError(
+                    f"{name} must be an integer between 1 and {cls.MAX_SIZE}"
+                )
+        if len(color) != 3 or not all(
+            isinstance(value, int) and 0 <= value <= 255 for value in color
+        ):
+            raise ValueError(
+                "color must be three integers, each between 0 and 255"
+            )
+
+        # VP8L packs bits least-significant-bit first
+        data = bytearray()
+        acc = 0  # Bit accumulator
+        nbits = 0  # Number of bits in the accumulator
+
+        def write(value: int, length: int) -> None:
+            nonlocal acc, nbits
+            acc |= value << nbits
+            nbits += length
+            while nbits >= 8:
+                data.append(acc & 0xFF)
+                acc >>= 8
+                nbits -= 8
+
+        red, green, blue = color
+        write(width - 1, 14)
+        write(height - 1, 14)
+        write(0, 1)  # Alpha is not used (image is fully opaque)
+        write(0, 3)  # Version, must be 0
+        write(0, 1)  # No transforms
+        write(0, 1)  # No colour cache
+        write(0, 1)  # No meta prefix codes (one group for the image)
+        # Prefix codes are stored in the order: green, red, blue, alpha,
+        # distance.
+        for symbol in (green, red, blue, 255, 0):
+            cls.write_single_symbol_code(write, symbol)
+        if nbits:
+            data.append(acc)
+
+        vp8l = b"\x2f" + bytes(data)  # VP8L signature
+        # RIFF chunks are padded to an even size; the size field excludes
+        # the padding byte.
+        padding = b"\x00" * (len(vp8l) % 2)
+        return (
+            b"RIFF"
+            + struct.pack("<I", 4 + 8 + len(vp8l) + len(padding))
+            + b"WEBP"
+            + b"VP8L"
+            + struct.pack("<I", len(vp8l))
+            + vp8l
+            + padding
         )
 
 
@@ -3483,6 +3587,28 @@ class Faker:
             "Image",
         )
     )
+    def webp(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+    ) -> bytes:
+        """Create a WEBP image of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format, tuple of three
+            integers: (0-255, 0-255, 0-255). Defaults to (128, 128, 128).
+        :return: Byte content of the WEBP image.
+        :rtype: bytes
+        """
+        return WebpGenerator.generate(size=size, color=color)
+
+    @provider(
+        tags=(
+            "Binary",
+            "Image",
+        )
+    )
     def image(
         self,
         image_format: Literal[
@@ -3493,6 +3619,7 @@ class Faker:
             "tif",
             "ppm",
             "jpg",
+            "webp",
         ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
@@ -3516,6 +3643,7 @@ class Faker:
             "tif",
             "ppm",
             "jpg",
+            "webp",
         }:
             raise ValueError()
         image_func = getattr(self, image_format)
@@ -4209,6 +4337,7 @@ class Faker:
             "tif",
             "ppm",
             "jpg",
+            "webp",
         ] = "png",
         size: Tuple[int, int] = (100, 100),
         color: Tuple[int, int, int] = (0, 0, 255),
@@ -4501,6 +4630,44 @@ class Faker:
         """
         return self._image_file(
             image_format="jpg",
+            size=size,
+            color=color,
+            extension=extension,
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
+    @provider(tags=("Image", "File"))
+    def webp_file(
+        self,
+        size: Tuple[int, int] = (100, 100),
+        color: Tuple[int, int, int] = (128, 128, 128),
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+        extension: Optional[str] = None,
+    ) -> StringValue:
+        """Create a WEBP image file of a specified size and colour.
+
+        :param size: Tuple of width and height of the image in pixels.
+            Defaults to (100, 100).
+        :param color: Colour of the image in RGB format (tuple of three
+            integers). Defaults to (128, 128, 128).
+        :param storage: Storage backend to use. Defaults to None, in which
+            case `FileSystemStorage` is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :param extension: File extension. Defaults to None, in which case the
+            `image_format` value is used.
+        :return: `StringValue` containing the relative path of the generated
+            WEBP file.
+        :rtype: StringValue
+        """
+        return self._image_file(
+            image_format="webp",
             size=size,
             color=color,
             extension=extension,
@@ -5744,6 +5911,29 @@ def create_inner_jpg_file(
 ) -> StringValue:
     """Create inner JPG file."""
     sv = FAKER.jpg_file(
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+        size=size,
+        color=color,
+        **kwargs,
+    )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
+
+
+def create_inner_webp_file(
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    size: Tuple[int, int] = (100, 100),
+    color: Tuple[int, int, int] = (128, 128, 128),
+    dir_path: Optional[str] = None,
+    **kwargs,
+) -> StringValue:
+    """Create inner WEBP file."""
+    sv = FAKER.webp_file(
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -8746,8 +8936,136 @@ class TestFaker(unittest.TestCase):
             ):
                 self.faker.jpg(size=size, color=color)
 
+    def _decode_webp(
+        self, data: bytes
+    ) -> Tuple[int, int, bool, Tuple[int, int, int, int]]:
+        """Decode a solid-colour lossless WEBP image (stdlib only).
+
+        Supports VP8L images without transforms or colour cache, where
+        every prefix code has a single symbol, so each pixel has the same
+        colour and takes no bits in the stream.
+
+        :param data: Byte content of the WEBP image.
+        :return: Width, height, alpha hint and the RGBA colour of pixels.
+        :rtype: Tuple[int, int, bool, Tuple[int, int, int, int]]
+        """
+        self.assertEqual(data[:4], b"RIFF", "Missing RIFF")
+        self.assertEqual(data[8:12], b"WEBP", "Missing WEBP")
+        (riff_size,) = struct.unpack("<I", data[4:8])
+        self.assertEqual(riff_size, len(data) - 8, "Bad RIFF size")
+        self.assertEqual(len(data) % 2, 0, "RIFF data must be even-sized")
+        self.assertEqual(data[12:16], b"VP8L", "Missing VP8L chunk")
+        (chunk_size,) = struct.unpack("<I", data[16:20])
+        payload = data[20 : 20 + chunk_size]
+        self.assertEqual(len(payload), chunk_size, "Truncated VP8L chunk")
+        self.assertEqual(
+            len(data), 20 + chunk_size + chunk_size % 2, "Extra data"
+        )
+        self.assertEqual(payload[0], 0x2F, "Missing VP8L signature")
+
+        bits = int.from_bytes(payload[1:], "little")
+        bit_pos = 0
+
+        def read(length: int) -> int:
+            nonlocal bit_pos
+            value = (bits >> bit_pos) & ((1 << length) - 1)
+            bit_pos += length
+            return value
+
+        width = read(14) + 1
+        height = read(14) + 1
+        alpha_used = bool(read(1))
+        self.assertEqual(read(3), 0, "Bad VP8L version")
+        self.assertEqual(read(1), 0, "Unexpected transform")
+        self.assertEqual(read(1), 0, "Unexpected colour cache")
+        self.assertEqual(read(1), 0, "Unexpected meta prefix codes")
+        symbols = []
+        for _ in range(5):  # Green, red, blue, alpha, distance
+            self.assertEqual(read(1), 1, "Expected simple prefix code")
+            self.assertEqual(read(1), 0, "Expected single-symbol code")
+            symbols.append(read(8 if read(1) else 1))
+        green, red, blue, alpha, _ = symbols
+
+        # Single-symbol codes take no bits per pixel; only padding is left
+        remaining = (len(payload) - 1) * 8 - bit_pos
+        self.assertGreaterEqual(remaining, 0, "Truncated VP8L data")
+        self.assertLess(remaining, 8, "Extraneous VP8L data")
+        self.assertEqual(bits >> bit_pos, 0, "Non-zero padding")
+        return width, height, alpha_used, (red, green, blue, alpha)
+
+    def test_webp(self) -> None:
+        webp = self.faker.webp()
+        self.assertTrue(webp)
+        self.assertIsInstance(webp, bytes)
+        self.assertEqual(
+            self._decode_webp(webp),
+            (100, 100, False, (128, 128, 128, 255)),
+        )
+
+    def test_webp_sizes(self) -> None:
+        for size in (
+            (1, 1),
+            (2, 3),
+            (13, 37),
+            (200, 200),
+            (16384, 1),
+            (1, 16384),
+            (16384, 16384),
+        ):
+            with self.subTest(size=size):
+                webp = self.faker.webp(size=size, color=(30, 120, 220))
+                width, height, _, color = self._decode_webp(webp)
+                self.assertEqual((width, height), size)
+                self.assertEqual(color, (30, 120, 220, 255))
+
+    def test_webp_colors(self) -> None:
+        # Symbols 0 and 1 use a shorter 1-bit encoding than other values
+        for color in (
+            (0, 0, 0),
+            (1, 1, 1),
+            (0, 1, 2),
+            (2, 1, 0),
+            (255, 255, 255),
+            (127, 127, 127),
+            (255, 0, 0),
+            (0, 255, 0),
+            (0, 0, 255),
+            (30, 120, 220),
+            (173, 77, 242),
+        ):
+            with self.subTest(color=color):
+                webp = self.faker.webp(size=(50, 30), color=color)
+                _, _, _, decoded = self._decode_webp(webp)
+                self.assertEqual(decoded, (*color, 255))
+
+    def test_webp_invalid(self) -> None:
+        for size, color in (
+            ((0, 10), (0, 0, 0)),
+            ((10, 0), (0, 0, 0)),
+            ((16385, 1), (0, 0, 0)),
+            ((1, 16385), (0, 0, 0)),
+            ((1.5, 1), (0, 0, 0)),
+            ((10, 10), (256, 0, 0)),
+            ((10, 10), (-1, 0, 0)),
+            ((10, 10), (1, 2)),
+        ):
+            with (
+                self.subTest(size=size, color=color),
+                self.assertRaises(ValueError),
+            ):
+                self.faker.webp(size=size, color=color)
+
     def test_image(self):
-        for image_format in {"png", "svg", "bmp", "gif", "tif", "ppm", "jpg"}:
+        for image_format in {
+            "png",
+            "svg",
+            "bmp",
+            "gif",
+            "tif",
+            "ppm",
+            "jpg",
+            "webp",
+        }:
             with self.subTest(image_format=image_format):
                 image = self.faker.image(
                     image_format=image_format,
@@ -8912,6 +9230,16 @@ class TestFaker(unittest.TestCase):
     def test_jpg_file(self) -> None:
         file = self.faker.jpg_file()
         self.assertTrue(os.path.exists(file.data["filename"]))
+
+    def test_webp_file(self) -> None:
+        file = self.faker.webp_file()
+        self.assertTrue(os.path.exists(file.data["filename"]))
+        self.assertTrue(file.data["filename"].endswith(".webp"))
+        with open(file.data["filename"], "rb") as fh:
+            self.assertEqual(
+                self._decode_webp(fh.read()),
+                (100, 100, False, (128, 128, 128, 255)),
+            )
 
     def test_wav_file(self) -> None:
         file = self.faker.wav_file()
@@ -9195,6 +9523,17 @@ class TestFaker(unittest.TestCase):
         value = create_inner_jpg_file()
         self.assertTrue(value)
         self.assertIsInstance(value, StringValue)
+
+    def test_create_inner_webp_file(self):
+        value = create_inner_webp_file()
+        self.assertTrue(value)
+        self.assertIsInstance(value, StringValue)
+
+    def test_get_mime_maintype_subtype_webp(self):
+        # `.webp` is missing from `mimetypes` before Python 3.11
+        self.assertEqual(
+            get_mime_maintype_subtype("image.webp"), ("image", "webp")
+        )
 
     def test_create_inner_wav_file(self):
         value = create_inner_wav_file()
