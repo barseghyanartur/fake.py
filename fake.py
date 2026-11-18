@@ -41,7 +41,7 @@ from functools import partial
 from inspect import signature
 from io import BytesIO
 from pathlib import Path
-from tempfile import gettempdir, mktemp
+from tempfile import TemporaryDirectory, gettempdir, mktemp
 from textwrap import wrap
 from threading import Lock
 from typing import (
@@ -117,6 +117,7 @@ __all__ = (
     "create_inner_bmp_file",
     "create_inner_docx_file",
     "create_inner_eml_file",
+    "create_inner_file_from_path",
     "create_inner_gif_file",
     "create_inner_generic_file",
     "create_inner_jpg_file",
@@ -124,6 +125,7 @@ __all__ = (
     "create_inner_pdf_file",
     "create_inner_png_file",
     "create_inner_ppm_file",
+    "create_inner_random_file_from_dir",
     "create_inner_rtf_file",
     "create_inner_svg_file",
     "create_inner_tar_file",
@@ -5464,6 +5466,121 @@ class Faker:
         FILE_REGISTRY.add(file)
         return file
 
+    @provider(tags=("File",))
+    def file_from_path(
+        self,
+        path: Union[str, Path],
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    ) -> StringValue:
+        """Copy the given file into storage.
+
+        The copy keeps the extension of the source file.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.file_from_path(path="/tmp/images/logo.png")
+            # 'tmp1x2y3z4w.png'
+
+        :param path: Path to the source file.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: StringValue containing the relative path of the copied
+            file.
+        :rtype: StringValue
+        :raises ValueError: If the source file has no extension.
+        """
+        if storage is None:
+            storage = FileSystemStorage()
+        if isinstance(basename, (StringTemplate, LazyStringTemplate)):
+            basename = str(basename)
+        if isinstance(prefix, (StringTemplate, LazyStringTemplate)):
+            prefix = str(prefix)
+        if basename:
+            _validate_filename_component(basename, "basename")
+        if prefix:
+            _validate_filename_component(prefix, "prefix")
+
+        source_file = Path(path)
+        if not source_file.suffix:
+            raise ValueError(f"Source file has no extension: {path}")
+        content = source_file.read_bytes()
+
+        filename = storage.generate_filename(
+            extension=source_file.suffix[1:],
+            prefix=prefix,
+            basename=basename,
+        )
+        storage.write_bytes(filename, content)
+        file = StringValue(storage.relpath(filename))
+        file.data = {
+            "content": content,
+            "filename": filename,
+            "storage": storage,
+            "source_file_path": str(source_file),
+        }
+        FILE_REGISTRY.add(file)
+        return file
+
+    @provider(tags=("File",))
+    def random_file_from_dir(
+        self,
+        source_dir_path: Union[str, Path],
+        storage: Optional[BaseStorage] = None,
+        basename: Optional[
+            Union[str, StringTemplate, LazyStringTemplate]
+        ] = None,
+        prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    ) -> StringValue:
+        """Copy a random file from the given directory into storage.
+
+        Only regular files with an extension directly inside
+        ``source_dir_path`` are considered (no recursion). The copy keeps
+        the extension of the source file.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_file_from_dir(source_dir_path="/tmp/images/")
+            # 'tmp1x2y3z4w.png'
+
+        :param source_dir_path: Directory to pick the source file from.
+        :param storage: Storage backend to use. Defaults to None, in which
+            case FileSystemStorage is used.
+        :param basename: Base name for the file. Defaults to None.
+        :param prefix: Prefix for the file name. Defaults to None.
+        :return: StringValue containing the relative path of the copied
+            file.
+        :rtype: StringValue
+        :raises ValueError: If the directory contains no suitable files.
+        """
+        # Sorted, so that the pick is reproducible when seeded
+        source_files = sorted(
+            _path
+            for _path in Path(source_dir_path).iterdir()
+            if _path.is_file() and _path.suffix
+        )
+        if not source_files:
+            raise ValueError(
+                f"No files with an extension found in {source_dir_path}"
+            )
+        return self.file_from_path(
+            path=self.random.choice(source_files),
+            storage=storage,
+            basename=basename,
+            prefix=prefix,
+        )
+
     @provider(tags=("Geographic",))
     def city(self) -> str:
         """Get a random city.
@@ -6414,6 +6531,101 @@ def create_inner_generic_file(
     sv = FAKER.generic_file(
         content=content,
         extension=extension,
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+    )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
+
+
+def create_inner_file_from_path(
+    path: Union[str, Path],
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    dir_path: Optional[str] = None,
+    **kwargs,
+) -> StringValue:
+    """Create an inner file by copying the given file.
+
+    Usage example::
+
+        FAKER.zip_file(
+            options={
+                "count": 3,
+                "create_inner_file_func": create_inner_file_from_path,
+                "create_inner_file_args": {
+                    "path": "/tmp/fixtures/logo.png",
+                },
+            }
+        )
+
+    :param path: Path to the source file.
+    :param storage: Storage backend to use. Defaults to
+        ``FileSystemStorage``.
+    :param basename: Base name for the file. Defaults to ``None``.
+    :param prefix: Prefix for the file name. Defaults to ``None``.
+    :param dir_path: Optional in-archive subdirectory. Resolved through
+        ``FAKER.string_template()`` so template expressions such as
+        ``"{dir_path(depth=3)}"`` are supported. Defaults to ``None``.
+    :param **kwargs: Reserved for API compatibility. Currently ignored.
+    :return: ``StringValue`` containing the relative path of the copied
+        file.
+    :rtype: StringValue
+    """
+    sv = FAKER.file_from_path(
+        path=path,
+        storage=storage,
+        basename=basename,
+        prefix=prefix,
+    )
+    if dir_path:
+        sv.data["directory"] = FAKER.string_template(dir_path).lstrip("/")
+    return sv
+
+
+def create_inner_random_file_from_dir(
+    source_dir_path: Union[str, Path],
+    storage: Optional[BaseStorage] = None,
+    basename: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    prefix: Optional[Union[str, StringTemplate, LazyStringTemplate]] = None,
+    dir_path: Optional[str] = None,
+    **kwargs,
+) -> StringValue:
+    """Create an inner file by copying a random file from a directory.
+
+    Each call picks a new random file, so with ``count > 1`` an archive
+    gets a random selection (possibly with repeats) of the source files.
+
+    Usage example::
+
+        FAKER.zip_file(
+            options={
+                "count": 5,
+                "create_inner_file_func": create_inner_random_file_from_dir,
+                "create_inner_file_args": {
+                    "source_dir_path": "/tmp/fixtures/",
+                },
+            }
+        )
+
+    :param source_dir_path: Directory to pick the source file from.
+    :param storage: Storage backend to use. Defaults to
+        ``FileSystemStorage``.
+    :param basename: Base name for the file. Defaults to ``None``.
+    :param prefix: Prefix for the file name. Defaults to ``None``.
+    :param dir_path: Optional in-archive subdirectory. Resolved through
+        ``FAKER.string_template()`` so template expressions such as
+        ``"{dir_path(depth=3)}"`` are supported. Defaults to ``None``.
+    :param **kwargs: Reserved for API compatibility. Currently ignored.
+    :return: ``StringValue`` containing the relative path of the copied
+        file.
+    :rtype: StringValue
+    """
+    sv = FAKER.random_file_from_dir(
+        source_dir_path=source_dir_path,
         storage=storage,
         basename=basename,
         prefix=prefix,
@@ -9606,6 +9818,85 @@ class TestFaker(unittest.TestCase):
             )
             self.assertTrue(os.path.exists(file.data["filename"]))
 
+    def test_file_from_path(self) -> None:
+        with TemporaryDirectory() as source_dir:
+            source = Path(source_dir) / "logo.png"
+            source.write_bytes(b"\x89PNG fake")
+
+            with self.subTest("Copies the file, keeping the extension"):
+                file = self.faker.file_from_path(path=str(source))
+                filename = Path(file.data["filename"])
+                self.assertTrue(filename.exists())
+                self.assertEqual(filename.suffix, ".png")
+                self.assertEqual(filename.read_bytes(), b"\x89PNG fake")
+                self.assertEqual(file.data["content"], b"\x89PNG fake")
+                self.assertEqual(file.data["source_file_path"], str(source))
+
+            with self.subTest("Accepts Path, basename and prefix"):
+                file = self.faker.file_from_path(path=source, basename="copy")
+                self.assertEqual(Path(file.data["filename"]).stem, "copy")
+                file = self.faker.file_from_path(path=source, prefix="zzz_")
+                self.assertTrue(
+                    Path(file.data["filename"]).name.startswith("zzz_")
+                )
+
+            no_extension = Path(source_dir) / "README"
+            no_extension.write_bytes(b"no extension")
+            with (
+                self.subTest("No extension raises ValueError"),
+                self.assertRaises(ValueError),
+            ):
+                self.faker.file_from_path(path=no_extension)
+
+            with (
+                self.subTest("Missing file raises FileNotFoundError"),
+                self.assertRaises(FileNotFoundError),
+            ):
+                self.faker.file_from_path(path=Path(source_dir) / "x.png")
+
+    def test_random_file_from_dir(self) -> None:
+        with TemporaryDirectory() as source_dir:
+            source = Path(source_dir)
+            (source / "a.txt").write_bytes(b"alpha")
+            (source / "b.json").write_bytes(b'{"b": 1}')
+            (source / "no_extension").write_bytes(b"skipped")
+            (source / "subdir.d").mkdir()
+
+            with self.subTest("Copies one of the files"):
+                for _ in range(10):
+                    file = self.faker.random_file_from_dir(
+                        source_dir_path=source_dir
+                    )
+                    self.assertTrue(os.path.exists(file.data["filename"]))
+                    src = Path(file.data["source_file_path"])
+                    self.assertIn(src.name, ("a.txt", "b.json"))
+                    self.assertEqual(
+                        Path(file.data["filename"]).suffix, src.suffix
+                    )
+                    self.assertEqual(
+                        Path(file.data["filename"]).read_bytes(),
+                        src.read_bytes(),
+                    )
+
+            with self.subTest("Accepts Path, basename and prefix"):
+                file = self.faker.random_file_from_dir(
+                    source_dir_path=source, basename="copied"
+                )
+                self.assertEqual(Path(file.data["filename"]).stem, "copied")
+                file = self.faker.random_file_from_dir(
+                    source_dir_path=source, prefix="zzz_"
+                )
+                self.assertTrue(
+                    Path(file.data["filename"]).name.startswith("zzz_")
+                )
+
+        with (
+            TemporaryDirectory() as empty_dir,
+            self.subTest("Empty directory raises ValueError"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.random_file_from_dir(source_dir_path=empty_dir)
+
     def test_generic_file_accepts_string_template(self):
         """generic_file renders a StringTemplate before writing."""
         template = "Hello {word}."
@@ -10145,6 +10436,98 @@ class TestFaker(unittest.TestCase):
         for content in contents:
             assert "{word}" not in content
             assert content.startswith("<item>")
+
+    def test_create_inner_file_from_path(self):
+        with TemporaryDirectory() as source_dir:
+            source = Path(source_dir) / "data.json"
+            source.write_bytes(b'{"a": 1}')
+
+            with self.subTest("Standalone"):
+                value = create_inner_file_from_path(path=source)
+                self.assertIsInstance(value, StringValue)
+                self.assertTrue(os.path.exists(value.data["filename"]))
+
+            with self.subTest("Inside zip, with dir_path"):
+                raw = self.faker.zip(
+                    options={
+                        "count": 3,
+                        "create_inner_file_func": create_inner_file_from_path,
+                        "create_inner_file_args": {
+                            "path": str(source),
+                            "dir_path": "fixtures",
+                        },
+                        "directory": "",
+                    }
+                )
+                with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                    names = zf.namelist()
+                    contents = [zf.read(n) for n in names]
+
+                self.assertEqual(len(names), 3)
+                for name, content in zip(names, contents):
+                    self.assertEqual(Path(name).parts[0], "fixtures")
+                    self.assertEqual(Path(name).suffix, ".json")
+                    self.assertEqual(content, b'{"a": 1}')
+
+    def test_create_inner_random_file_from_dir(self):
+        with TemporaryDirectory() as source_dir:
+            source = Path(source_dir)
+            (source / "a.txt").write_bytes(b"alpha")
+            (source / "b.json").write_bytes(b'{"b": 1}')
+            sources = {b"alpha": ".txt", b'{"b": 1}': ".json"}
+
+            with self.subTest("Standalone"):
+                value = create_inner_random_file_from_dir(
+                    source_dir_path=source_dir
+                )
+                self.assertIsInstance(value, StringValue)
+                self.assertTrue(os.path.exists(value.data["filename"]))
+
+            with self.subTest("Inside zip, with dir_path"):
+                raw = self.faker.zip(
+                    options={
+                        "count": 5,
+                        "create_inner_file_func": (
+                            create_inner_random_file_from_dir
+                        ),
+                        "create_inner_file_args": {
+                            "source_dir_path": source_dir,
+                            "dir_path": "fixtures/{word}",
+                        },
+                        "directory": "",
+                    }
+                )
+                with zipfile.ZipFile(BytesIO(bytes(raw)), "r") as zf:
+                    names = zf.namelist()
+                    contents = [zf.read(n) for n in names]
+
+                self.assertEqual(len(names), 5)
+                for name, content in zip(names, contents):
+                    parts = Path(name).parts
+                    self.assertEqual(parts[0], "fixtures")
+                    self.assertEqual(len(parts), 3)
+                    self.assertIn(content, sources)
+                    self.assertEqual(Path(name).suffix, sources[content])
+
+            with self.subTest("Inside tar"):
+                raw = self.faker.tar(
+                    options={
+                        "count": 3,
+                        "create_inner_file_func": (
+                            create_inner_random_file_from_dir
+                        ),
+                        "create_inner_file_args": {
+                            "source_dir_path": source_dir,
+                        },
+                    }
+                )
+                with tarfile.open(fileobj=BytesIO(bytes(raw))) as tf:
+                    members = [m for m in tf.getmembers() if m.isfile()]
+                    contents = [tf.extractfile(m).read() for m in members]
+
+                self.assertEqual(len(members), 3)
+                for content in contents:
+                    self.assertIn(content, sources)
 
     def test_create_inner_txt_file(self):
         value = create_inner_txt_file()

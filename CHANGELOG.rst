@@ -28,6 +28,12 @@ are used for versioning (schema follows below):
 - Add optional ``weights`` argument to ``random_choice``.
 - Add ``random_choices`` provider (picks elements with replacement,
   optionally weighted).
+- Add ``file_from_path`` provider (copies the given file into storage)
+  and the matching ``create_inner_file_from_path``.
+- Add ``random_file_from_dir`` provider (copies a random file from a
+  given directory into storage).
+- Add ``create_inner_random_file_from_dir`` to fill ZIP/TAR archives
+  with random files from a given directory.
 
 0.13.5
 ------

@@ -390,6 +390,51 @@ and provider functions like ``{dir_path(depth=2)}`` for random nested paths.
 
 ----
 
+Archive of existing files:
+
+To fill an archive with copies of your own files (for example, fixture
+images), use ``create_inner_random_file_from_dir``. Every inner file is a
+copy of a random file from ``source_dir_path``, so files may repeat.
+To repeat one specific file instead, use ``create_inner_file_from_path``
+with a ``path`` argument in ``create_inner_file_args``.
+
+
+.. code-block:: python
+    :name: test_zip_archive_random_file_from_dir
+    :emphasize-lines: 15-23
+
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from fake import (
+        FAKER,
+        FILE_REGISTRY,
+        create_inner_random_file_from_dir,
+    )
+
+    with TemporaryDirectory() as source_dir:
+        (Path(source_dir) / "a.txt").write_text("alpha")
+        (Path(source_dir) / "b.json").write_text('{"b": 1}')
+
+        archive = FAKER.zip_file(
+            options={
+                "count": 5,
+                "create_inner_file_func": create_inner_random_file_from_dir,
+                "create_inner_file_args": {
+                    "source_dir_path": source_dir,
+                    "dir_path": "fixtures",
+                },
+            }
+        )
+
+    assert archive
+    FILE_REGISTRY.clean_up()
+
+To repeat one specific file instead, use ``create_inner_file_from_path``
+with a ``path`` argument in ``create_inner_file_args``.
+
+----
+
 .. raw:: html
 
     &nbsp;

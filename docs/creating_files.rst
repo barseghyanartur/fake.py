@@ -122,6 +122,56 @@ regenerated on each access.
 
 ----
 
+To copy an existing file (for example, one of your fixture images) into
+storage, use ``file_from_path``. The copy keeps the extension of the source
+file:
+
+.. code-block:: python
+    :name: test_file_from_path
+    :emphasize-lines: 9
+
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from fake import FAKER, FILE_REGISTRY
+
+    with TemporaryDirectory() as source_dir:
+        source = Path(source_dir) / "data.json"
+        source.write_text('{"a": 1}')
+        file = FAKER.file_from_path(path=source)
+
+        assert str(file).endswith(".json")
+        assert file.data["content"] == b'{"a": 1}'
+
+    FILE_REGISTRY.clean_up()
+
+----
+
+To copy a random existing file into storage, use ``random_file_from_dir``. It picks one file with an
+extension directly inside the given directory and keeps that extension:
+
+.. code-block:: python
+    :name: test_random_file_from_dir
+    :emphasize-lines: 9
+
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from fake import FAKER, FILE_REGISTRY
+
+    with TemporaryDirectory() as source_dir:
+        (Path(source_dir) / "a.txt").write_text("alpha")
+        (Path(source_dir) / "b.json").write_text('{"b": 1}')
+        file = FAKER.random_file_from_dir(source_dir_path=source_dir)
+
+        assert str(file).endswith((".txt", ".json"))
+        print(file.data["source_file_path"])
+        # /tmp/tmpabc123/b.json
+
+    FILE_REGISTRY.clean_up()
+
+----
+
 Clean up files
 --------------
 ``FileSystemStorage`` is the default storage and by default files are stored
