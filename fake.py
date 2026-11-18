@@ -1855,31 +1855,93 @@ class JpgGenerator:
 class WebpGenerator:
     """Lossless (VP8L) WebP encoder for solid-colour images.
 
-    Writes a RIFF/WEBP container with a single VP8L chunk. The image uses
-    no transforms and no colour cache, and every channel (green, red,
-    blue, alpha and backward-reference distance) gets a single-symbol
-    prefix code. A single-symbol code consumes no bits per pixel, so the
-    whole image is described by its header alone, regardless of size.
+    Writes a RIFF/WEBP container with a single VP8L chunk, without
+    transforms or colour cache. The first pixel is a literal and the rest
+    of the image is filled with LZ77 backward references (up to 4096
+    pixels each) to the pixel on the left.
+
+    Red, blue, alpha and distance use single-symbol prefix codes, which
+    take no bits per pixel. Green uses a normal prefix code covering the
+    green value and all length prefix codes.
+
+    Backward references are used instead of making every code
+    single-symbol (which would describe the whole image in its header):
+    some decoders, such as macOS ImageIO, reject files that are very
+    small for their pixel count.
     """
 
-    # VP8L stores width and height as 14-bit values (minus one)
-    MAX_SIZE = 16384
+    # libwebp limit (WEBP_MAX_DIMENSION); VP8L itself allows up to 16384
+    MAX_SIZE = 16383
+    MAX_COPY_LENGTH = 4096
+    # 256 literals + 24 length prefix codes (no colour cache)
+    GREEN_ALPHABET_SIZE = 280
+    # Order in which code length code lengths are stored
+    CODE_LENGTH_ORDER = (
+        17, 18, 0, 1, 2, 3, 4, 5, 16, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    )  # fmt: skip
+    # Code length code over the code lengths used for green: 0, 4, 5 and
+    # the zero-run codes 17 and 18. A complete tree: 3/4 + 2/8 = 1.
+    CODE_LENGTH_CODE_LENGTHS = {0: 2, 4: 2, 5: 2, 17: 3, 18: 3}
+    # Distance code 2 maps to the pixel on the left (distance 1); it is
+    # stored as LZ77 prefix code 1 with no extra bits.
+    LEFT_PIXEL_DISTANCE_PREFIX = 1
 
     @classmethod
-    def write_single_symbol_code(
-        cls,
-        write: Callable[[int, int], None],
-        symbol: int,
-    ) -> None:
-        """Write a VP8L simple prefix code containing one symbol."""
-        write(1, 1)  # Simple code
-        write(0, 1)  # Number of symbols minus one
-        if symbol <= 1:
-            write(0, 1)  # Symbol fits in 1 bit
-            write(symbol, 1)
-        else:
-            write(1, 1)  # Symbol uses 8 bits
-            write(symbol, 8)
+    def canonical_codes(
+        cls, lengths: Dict[int, int]
+    ) -> Dict[int, Tuple[int, int]]:
+        """Assign canonical prefix codes to symbols.
+
+        :param lengths: Code length of each symbol, for example
+            ``{0: 2, 4: 2, 5: 2, 17: 3, 18: 3}``.
+        :return: ``(code, length)`` of each symbol, for example
+            ``{0: (0b00, 2), ..., 18: (0b111, 3)}``.
+        :rtype: Dict[int, Tuple[int, int]]
+        """
+        codes = {}
+        code = 0
+        previous_length = 0
+        for symbol, length in sorted(
+            lengths.items(), key=lambda item: (item[1], item[0])
+        ):
+            code <<= length - previous_length
+            previous_length = length
+            codes[symbol] = (code, length)
+            code += 1
+        return codes
+
+    @classmethod
+    def green_code_lengths(cls, green: int) -> Dict[int, int]:
+        """Code lengths for the green value and all 24 length prefixes.
+
+        The green value and the 6 longest length prefixes get 4 bits, the
+        other 18 prefixes get 5 bits. A complete tree: 7/16 + 18/32 = 1.
+        """
+        lengths = {green: 4}
+        for prefix_code in range(24):
+            lengths[256 + prefix_code] = 4 if prefix_code >= 18 else 5
+        return lengths
+
+    @classmethod
+    def prefix_encode(cls, value: int) -> Tuple[int, int, int]:
+        """LZ77 prefix coding of a length or distance.
+
+        :param value: Value to encode, at least 1.
+        :return: Prefix code, number of extra bits and the extra bits.
+            For example, ``4096`` gives ``(23, 10, 1023)``.
+        :rtype: Tuple[int, int, int]
+        """
+        value -= 1
+        if value < 4:
+            return value, 0, 0
+        highest_bit = value.bit_length() - 1
+        extra_bits = highest_bit - 1
+        second_highest_bit = (value >> extra_bits) & 1
+        return (
+            2 * highest_bit + second_highest_bit,
+            extra_bits,
+            value & ((1 << extra_bits) - 1),
+        )
 
     @classmethod
     def generate(
@@ -1890,7 +1952,7 @@ class WebpGenerator:
         """Create a WEBP image of a specified size and colour.
 
         :param size: Tuple of width and height of the image in pixels.
-            Each must be an integer between 1 and 16384.
+            Each must be an integer between 1 and 16383.
         :param color: Colour of the image in RGB format (tuple of three
             integers, each between 0 and 255).
         :return: Byte content of the WEBP image.
@@ -1924,6 +1986,22 @@ class WebpGenerator:
                 acc >>= 8
                 nbits -= 8
 
+        def write_code(code: Tuple[int, int]) -> None:
+            # Prefix codes are stored starting from their highest bit
+            value, length = code
+            for shift in range(length - 1, -1, -1):
+                write((value >> shift) & 1, 1)
+
+        def write_single_symbol_code(symbol: int) -> None:
+            write(1, 1)  # Simple code
+            write(0, 1)  # Number of symbols minus one
+            if symbol <= 1:
+                write(0, 1)  # Symbol fits in 1 bit
+                write(symbol, 1)
+            else:
+                write(1, 1)  # Symbol uses 8 bits
+                write(symbol, 8)
+
         red, green, blue = color
         write(width - 1, 14)
         write(height - 1, 14)
@@ -1932,10 +2010,64 @@ class WebpGenerator:
         write(0, 1)  # No transforms
         write(0, 1)  # No colour cache
         write(0, 1)  # No meta prefix codes (one group for the image)
+
         # Prefix codes are stored in the order: green, red, blue, alpha,
-        # distance.
-        for symbol in (green, red, blue, 255, 0):
-            cls.write_single_symbol_code(write, symbol)
+        # distance. Green is a normal code, stored as code lengths that
+        # are themselves prefix coded with the code length code.
+        green_lengths = cls.green_code_lengths(green)
+        green_codes = cls.canonical_codes(green_lengths)
+        cl_codes = cls.canonical_codes(cls.CODE_LENGTH_CODE_LENGTHS)
+        write(0, 1)  # Normal code
+        nb_code_lengths = (
+            max(map(cls.CODE_LENGTH_ORDER.index, cls.CODE_LENGTH_CODE_LENGTHS))
+            + 1
+        )
+        write(nb_code_lengths - 4, 4)
+        for symbol in cls.CODE_LENGTH_ORDER[:nb_code_lengths]:
+            write(cls.CODE_LENGTH_CODE_LENGTHS.get(symbol, 0), 3)
+        write(0, 1)  # Code lengths are given for the whole alphabet
+
+        symbol = 0
+        while symbol < cls.GREEN_ALPHABET_SIZE:
+            length = green_lengths.get(symbol, 0)
+            if length:
+                write_code(cl_codes[length])
+                symbol += 1
+                continue
+            zeros = 0
+            while (
+                symbol + zeros < cls.GREEN_ALPHABET_SIZE
+                and (symbol + zeros) not in green_lengths
+            ):
+                zeros += 1
+            symbol += zeros
+            while zeros >= 11:  # Code 18: 11-138 zeros
+                run = min(zeros, 138)
+                write_code(cl_codes[18])
+                write(run - 11, 7)
+                zeros -= run
+            if zeros >= 3:  # Code 17: 3-10 zeros
+                write_code(cl_codes[17])
+                write(zeros - 3, 3)
+                zeros = 0
+            for _ in range(zeros):
+                write_code(cl_codes[0])
+
+        write_single_symbol_code(red)
+        write_single_symbol_code(blue)
+        write_single_symbol_code(255)  # Alpha
+        write_single_symbol_code(cls.LEFT_PIXEL_DISTANCE_PREFIX)
+
+        # Pixels: one literal, then copies of the pixel on the left. Red,
+        # blue, alpha and distance take no bits (single-symbol codes).
+        write_code(green_codes[green])
+        remaining = width * height - 1
+        while remaining:
+            copy_length = min(remaining, cls.MAX_COPY_LENGTH)
+            prefix_code, extra_bits, extra = cls.prefix_encode(copy_length)
+            write_code(green_codes[256 + prefix_code])
+            write(extra, extra_bits)
+            remaining -= copy_length
         if nbits:
             data.append(acc)
 
@@ -8938,16 +9070,17 @@ class TestFaker(unittest.TestCase):
 
     def _decode_webp(
         self, data: bytes
-    ) -> Tuple[int, int, bool, Tuple[int, int, int, int]]:
-        """Decode a solid-colour lossless WEBP image (stdlib only).
+    ) -> Tuple[int, int, bool, Set[Tuple[int, int, int, int]]]:
+        """Decode a lossless WEBP image (stdlib only).
 
-        Supports VP8L images without transforms or colour cache, where
-        every prefix code has a single symbol, so each pixel has the same
-        colour and takes no bits in the stream.
+        Supports VP8L images without transforms, colour cache or meta
+        prefix codes, whose backward references only copy the pixel on
+        the left. Decodes the whole bitstream, so a corrupt stream fails
+        here, not only a corrupt header.
 
         :param data: Byte content of the WEBP image.
-        :return: Width, height, alpha hint and the RGBA colour of pixels.
-        :rtype: Tuple[int, int, bool, Tuple[int, int, int, int]]
+        :return: Width, height, alpha hint and the set of RGBA colours.
+        :rtype: Tuple[int, int, bool, Set[Tuple[int, int, int, int]]]
         """
         self.assertEqual(data[:4], b"RIFF", "Missing RIFF")
         self.assertEqual(data[8:12], b"WEBP", "Missing WEBP")
@@ -8963,14 +9096,88 @@ class TestFaker(unittest.TestCase):
         )
         self.assertEqual(payload[0], 0x2F, "Missing VP8L signature")
 
-        bits = int.from_bytes(payload[1:], "little")
+        # VP8L packs bits least-significant-bit first
+        bits = "".join(f"{byte:08b}"[::-1] for byte in payload[1:])
         bit_pos = 0
 
         def read(length: int) -> int:
             nonlocal bit_pos
-            value = (bits >> bit_pos) & ((1 << length) - 1)
+            self.assertLessEqual(bit_pos + length, len(bits), "Out of data")
+            value = int(bits[bit_pos : bit_pos + length][::-1] or "0", 2)
             bit_pos += length
             return value
+
+        def build(lengths: List[int]) -> dict:
+            used = [(n, s) for s, n in enumerate(lengths) if n]
+            self.assertTrue(used, "Empty prefix code")
+            if len(used) == 1:
+                return {(0, 0): used[0][1]}  # Takes no bits
+            table = {}
+            code = 0
+            previous = 0
+            for length, symbol in sorted(used):
+                code <<= length - previous
+                previous = length
+                table[(length, code)] = symbol
+                code += 1
+            self.assertEqual(code, 1 << previous, "Incomplete prefix code")
+            return table
+
+        def decode(table: dict) -> int:
+            if (0, 0) in table:
+                return table[(0, 0)]
+            code = 0
+            for length in range(1, 16):
+                code = (code << 1) | read(1)
+                if (length, code) in table:
+                    return table[(length, code)]
+            raise AssertionError("Bad prefix code")
+
+        def read_prefix_code(alphabet_size: int) -> dict:
+            lengths = [0] * alphabet_size
+            if read(1):  # Simple code
+                nb_symbols = read(1) + 1
+                lengths[read(8 if read(1) else 1)] = 1
+                if nb_symbols == 2:
+                    lengths[read(8)] = 1
+                return build(lengths)
+            order = (17, 18, 0, 1, 2, 3, 4, 5, 16, 6, 7, 8, 9, 10, 11, 12)
+            order += (13, 14, 15)
+            cl_lengths = [0] * 19
+            for index in range(read(4) + 4):
+                cl_lengths[order[index]] = read(3)
+            cl_table = build(cl_lengths)
+            max_symbol = alphabet_size
+            if read(1):
+                max_symbol = 2 + read(2 + 2 * read(3))
+            symbol = 0
+            previous = 8
+            while symbol < alphabet_size and max_symbol > 0:
+                max_symbol -= 1
+                code_length = decode(cl_table)
+                if code_length < 16:
+                    lengths[symbol] = code_length
+                    symbol += 1
+                    if code_length:
+                        previous = code_length
+                    continue
+                if code_length == 16:  # Repeat previous non-zero length
+                    value, repeat = previous, 3 + read(2)
+                elif code_length == 17:  # Short run of zeros
+                    value, repeat = 0, 3 + read(3)
+                else:  # Long run of zeros
+                    value, repeat = 0, 11 + read(7)
+                self.assertLessEqual(symbol + repeat, alphabet_size)
+                lengths[symbol : symbol + repeat] = [value] * repeat
+                symbol += repeat
+            return build(lengths)
+
+        def prefix_value(prefix_code: int) -> int:
+            if prefix_code < 4:
+                return prefix_code + 1
+            extra_bits = (prefix_code - 2) >> 1
+            offset = (2 + (prefix_code & 1)) << extra_bits
+            return offset + read(extra_bits) + 1
 
         width = read(14) + 1
         height = read(14) + 1
@@ -8979,19 +9186,32 @@ class TestFaker(unittest.TestCase):
         self.assertEqual(read(1), 0, "Unexpected transform")
         self.assertEqual(read(1), 0, "Unexpected colour cache")
         self.assertEqual(read(1), 0, "Unexpected meta prefix codes")
-        symbols = []
-        for _ in range(5):  # Green, red, blue, alpha, distance
-            self.assertEqual(read(1), 1, "Expected simple prefix code")
-            self.assertEqual(read(1), 0, "Expected single-symbol code")
-            symbols.append(read(8 if read(1) else 1))
-        green, red, blue, alpha, _ = symbols
+        green = read_prefix_code(256 + 24)
+        red, blue, alpha = (read_prefix_code(256) for _ in range(3))
+        distance = read_prefix_code(40)
 
-        # Single-symbol codes take no bits per pixel; only padding is left
-        remaining = (len(payload) - 1) * 8 - bit_pos
-        self.assertGreaterEqual(remaining, 0, "Truncated VP8L data")
-        self.assertLess(remaining, 8, "Extraneous VP8L data")
-        self.assertEqual(bits >> bit_pos, 0, "Non-zero padding")
-        return width, height, alpha_used, (red, green, blue, alpha)
+        nb_pixels = width * height
+        decoded = 0
+        colors = set()
+        while decoded < nb_pixels:
+            symbol = decode(green)
+            if symbol < 256:
+                colors.add((decode(red), symbol, decode(blue), decode(alpha)))
+                decoded += 1
+                continue
+            length = prefix_value(symbol - 256)
+            # Distance code 2 is the pixel on the left (distance 1)
+            self.assertEqual(
+                prefix_value(decode(distance)), 2, "Unsupported distance"
+            )
+            self.assertGreaterEqual(decoded, 1, "Copy before first pixel")
+            decoded += length
+        self.assertEqual(decoded, nb_pixels, "Too many pixels")
+
+        # Only zero padding may follow the last pixel
+        self.assertLess(len(bits) - bit_pos, 8, "Extraneous VP8L data")
+        self.assertEqual(set(bits[bit_pos:]) - {"0"}, set(), "Bad padding")
+        return width, height, alpha_used, colors
 
     def test_webp(self) -> None:
         webp = self.faker.webp()
@@ -8999,7 +9219,7 @@ class TestFaker(unittest.TestCase):
         self.assertIsInstance(webp, bytes)
         self.assertEqual(
             self._decode_webp(webp),
-            (100, 100, False, (128, 128, 128, 255)),
+            (100, 100, False, {(128, 128, 128, 255)}),
         )
 
     def test_webp_sizes(self) -> None:
@@ -9007,16 +9227,27 @@ class TestFaker(unittest.TestCase):
             (1, 1),
             (2, 3),
             (13, 37),
+            (64, 64),
+            (64, 65),
             (200, 200),
-            (16384, 1),
-            (1, 16384),
-            (16384, 16384),
+            (1920, 1080),
+            (16383, 1),
+            (1, 16383),
+            (16383, 16383),
         ):
             with self.subTest(size=size):
                 webp = self.faker.webp(size=size, color=(30, 120, 220))
-                width, height, _, color = self._decode_webp(webp)
+                width, height, _, colors = self._decode_webp(webp)
                 self.assertEqual((width, height), size)
-                self.assertEqual(color, (30, 120, 220, 255))
+                self.assertEqual(colors, {(30, 120, 220, 255)})
+
+    def test_webp_size_grows_with_pixels(self) -> None:
+        # macOS ImageIO rejects files with too many pixels per byte
+        # (about 26,600), so the data must grow with the image.
+        for size in ((1000, 1000), (1920, 1080), (16383, 16383)):
+            with self.subTest(size=size):
+                webp = self.faker.webp(size=size)
+                self.assertLess(size[0] * size[1] / len(webp), 10_000)
 
     def test_webp_colors(self) -> None:
         # Symbols 0 and 1 use a shorter 1-bit encoding than other values
@@ -9035,15 +9266,15 @@ class TestFaker(unittest.TestCase):
         ):
             with self.subTest(color=color):
                 webp = self.faker.webp(size=(50, 30), color=color)
-                _, _, _, decoded = self._decode_webp(webp)
-                self.assertEqual(decoded, (*color, 255))
+                _, _, _, colors = self._decode_webp(webp)
+                self.assertEqual(colors, {(*color, 255)})
 
     def test_webp_invalid(self) -> None:
         for size, color in (
             ((0, 10), (0, 0, 0)),
             ((10, 0), (0, 0, 0)),
-            ((16385, 1), (0, 0, 0)),
-            ((1, 16385), (0, 0, 0)),
+            ((16384, 1), (0, 0, 0)),
+            ((1, 16384), (0, 0, 0)),
             ((1.5, 1), (0, 0, 0)),
             ((10, 10), (256, 0, 0)),
             ((10, 10), (-1, 0, 0)),
@@ -9238,7 +9469,7 @@ class TestFaker(unittest.TestCase):
         with open(file.data["filename"], "rb") as fh:
             self.assertEqual(
                 self._decode_webp(fh.read()),
-                (100, 100, False, (128, 128, 128, 255)),
+                (100, 100, False, {(128, 128, 128, 255)}),
             )
 
     def test_wav_file(self) -> None:
