@@ -98,27 +98,83 @@ Note, that text PDF does contain full text of the entire document in the
 You can create custom file types using ``generic_file``. Here's an example
 for creating an XML file:
 
-.. code-block:: python
-    :name: test_generic_file_xml
-    :emphasize-lines: 3-11
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import FAKER, FILE_REGISTRY, StringTemplate
+    .. code-block:: python
+        :name: test_generic_file_xml
+        :emphasize-lines: 3-11
 
-    xml_content = StringTemplate(
-        "<article><title>{sentence(nb_words=5)}</title></article>"
-    )
+        from fake import FAKER, FILE_REGISTRY, StringTemplate
 
-    xml_file = FAKER.generic_file(
-        content=xml_content,
-        extension="xml",
-    )
+        xml_content = StringTemplate(
+            "<article><title>{sentence(nb_words=5)}</title></article>"
+        )
 
-    assert xml_file
-    assert str(xml_file).endswith(".xml")
-    FILE_REGISTRY.clean_up()
+        xml_file = FAKER.generic_file(
+            content=xml_content,
+            extension="xml",
+        )
+
+        assert xml_file
+        assert str(xml_file).endswith(".xml")
+        FILE_REGISTRY.clean_up()
 
 You can also use ``LazyStringTemplate`` if you need the content to be
 regenerated on each access.
+
+----
+
+To copy an existing file (for example, one of your fixture images) into
+storage, use ``file_from_path``. The copy keeps the extension of the source
+file:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_file_from_path
+        :emphasize-lines: 9
+
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        from fake import FAKER, FILE_REGISTRY
+
+        with TemporaryDirectory() as source_dir:
+            source = Path(source_dir) / "data.json"
+            source.write_text('{"a": 1}')
+            file = FAKER.file_from_path(path=source)
+
+            assert str(file).endswith(".json")
+            assert file.data["content"] == b'{"a": 1}'
+
+        FILE_REGISTRY.clean_up()
+
+----
+
+To copy a random existing file into storage, use ``random_file_from_dir``. It picks one file with an
+extension directly inside the given directory and keeps that extension:
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_file_from_dir
+        :emphasize-lines: 9
+
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        from fake import FAKER, FILE_REGISTRY
+
+        with TemporaryDirectory() as source_dir:
+            (Path(source_dir) / "a.txt").write_text("alpha")
+            (Path(source_dir) / "b.json").write_text('{"b": 1}')
+            file = FAKER.random_file_from_dir(source_dir_path=source_dir)
+
+            assert str(file).endswith((".txt", ".json"))
+            print(file.data["source_file_path"])
+            # /tmp/tmpabc123/b.json
+
+        FILE_REGISTRY.clean_up()
 
 ----
 

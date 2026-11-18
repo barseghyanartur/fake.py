@@ -352,41 +352,90 @@ You can create archives with nested directory structures and custom XML
 content using ``create_inner_generic_file`` with ``LazyStringTemplate`` 
 and ``dir_path``:
 
-.. code-block:: python
-    :name: test_zip_archive_nested_dirs_xml
-    :emphasize-lines: 8-24
+.. container:: jsphinx-toggle-emphasis
 
-    from fake import (
-        FAKER,
-        FILE_REGISTRY,
-        LazyStringTemplate,
-        create_inner_generic_file,
-    )
+    .. code-block:: python
+        :name: test_zip_archive_nested_dirs_xml
+        :emphasize-lines: 8-24
 
-    xml_template = LazyStringTemplate(
-        "<article><title>{sentence(nb_words=5)}</title></article>"
-    )
+        from fake import (
+            FAKER,
+            FILE_REGISTRY,
+            LazyStringTemplate,
+            create_inner_generic_file,
+        )
 
-    archive = FAKER.zip_file(
-        options={
-            "count": 3,
-            "create_inner_file_func": create_inner_generic_file,
-            "create_inner_file_args": {
-                "content": xml_template,
-                "extension": "xml",
-                "dir_path": "docs/{word}",
-            },
-        }
-    )
+        xml_template = LazyStringTemplate(
+            "<article><title>{sentence(nb_words=5)}</title></article>"
+        )
 
-    assert archive
-    FILE_REGISTRY.clean_up()
+        archive = FAKER.zip_file(
+            options={
+                "count": 3,
+                "create_inner_file_func": create_inner_generic_file,
+                "create_inner_file_args": {
+                    "content": xml_template,
+                    "extension": "xml",
+                    "dir_path": "docs/{word}",
+                },
+            }
+        )
+
+        assert archive
+        FILE_REGISTRY.clean_up()
 
 This creates a ``ZIP`` archive with 3 XML files placed in nested directories
 like ``docs/better/4mp3frp7.xml``, ``docs/complex/2fde3h8a.xml``, etc.
 
 The ``dir_path`` supports literal strings, template expressions like ``{word}``,
 and provider functions like ``{dir_path(depth=2)}`` for random nested paths.
+
+----
+
+Archive of existing files:
+
+To fill an archive with copies of your own files (for example, fixture
+images), use ``create_inner_random_file_from_dir``. Every inner file is a
+copy of a random file from ``source_dir_path``, so files may repeat.
+To repeat one specific file instead, use ``create_inner_file_from_path``
+with a ``path`` argument in ``create_inner_file_args``.
+
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_zip_archive_random_file_from_dir
+        :emphasize-lines: 15-23
+
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        from fake import (
+            FAKER,
+            FILE_REGISTRY,
+            create_inner_random_file_from_dir,
+        )
+
+        with TemporaryDirectory() as source_dir:
+            (Path(source_dir) / "a.txt").write_text("alpha")
+            (Path(source_dir) / "b.json").write_text('{"b": 1}')
+
+            archive = FAKER.zip_file(
+                options={
+                    "count": 5,
+                    "create_inner_file_func": create_inner_random_file_from_dir,
+                    "create_inner_file_args": {
+                        "source_dir_path": source_dir,
+                        "dir_path": "fixtures",
+                    },
+                }
+            )
+
+        assert archive
+        FILE_REGISTRY.clean_up()
+
+To repeat one specific file instead, use ``create_inner_file_from_path``
+with a ``path`` argument in ``create_inner_file_args``.
 
 ----
 

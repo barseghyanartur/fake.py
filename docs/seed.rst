@@ -113,6 +113,7 @@ The following providers have consistent results when using seed:
 - isbn10
 - isbn13
 - random_choice
+- random_choices
 - random_sample
 - randomise_string
 - string_template
