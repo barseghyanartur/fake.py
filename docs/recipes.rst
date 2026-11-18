@@ -1848,6 +1848,45 @@ Picks a random element from the sequence given.
 
         FAKER.random_choice(("Art", "Photography", "Generative AI"))
 
+Optionally, pass relative ``weights`` (one per element) to make some
+elements more likely than others.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_choice_weights
+        :emphasize-lines: 3-6
+
+        from fake import FAKER
+
+        FAKER.random_choice(
+            ("Art", "Photography", "Generative AI"),
+            weights=(0.7, 0.2, 0.1),
+        )
+
+----
+
+random_choices
+~~~~~~~~~~~~~~
+
+Picks a given number of random elements from the sequence given, with
+replacement: the same element may be picked more than once. Accepts
+optional ``weights``, like ``random_choice``.
+
+.. container:: jsphinx-toggle-emphasis
+
+    .. code-block:: python
+        :name: test_random_choices
+        :emphasize-lines: 3-7
+
+        from fake import FAKER
+
+        FAKER.random_choices(
+            ("Art", "Photography", "Generative AI"),
+            length=4,
+            weights=(0.7, 0.2, 0.1),
+        )
+
 ----
 
 random_sample
