@@ -34,6 +34,7 @@ are used for versioning (schema follows below):
   given directory into storage).
 - Add ``create_inner_random_file_from_dir`` to fill ZIP/TAR archives
   with random files from a given directory.
+- Fixes in docs: jpshinx, not properly wrapped for some blocks.
 
 0.13.5
 ------
