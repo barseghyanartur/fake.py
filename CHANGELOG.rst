@@ -21,6 +21,14 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.6
+------
+2026-11-18
+
+- Add optional ``weights`` argument to ``random_choice``.
+- Add ``random_choices`` provider (picks elements with replacement,
+  optionally weighted).
+
 0.13.5
 ------
 2026-11-18

@@ -69,7 +69,7 @@ from unittest.mock import MagicMock, patch
 from uuid import UUID
 
 __title__ = "fake.py"
-__version__ = "0.13.5"
+__version__ = "0.13.6"
 __author__ = "Artur Barseghyan <artur.barseghyan@gmail.com>"
 __copyright__ = "2023-2025 Artur Barseghyan"
 __license__ = "MIT"
@@ -5657,7 +5657,11 @@ class Faker:
         return f"{isbn[0:3]}-{isbn[3:4]}-{isbn[4:7]}-{isbn[7:12]}-{isbn[12]}"
 
     @provider(tags=("Choice",))
-    def random_choice(self, elements: ElementType[T]) -> T:
+    def random_choice(
+        self,
+        elements: ElementType[T],
+        weights: Optional[Sequence[float]] = None,
+    ) -> T:
         """Random choice: pick a single element from the given list.
 
         Example usage:
@@ -5667,14 +5671,58 @@ class Faker:
             from fake import FAKER
             FAKER.random_choice(("Art", "Photography", "Generative AI"))
             # 'Photography'
+            FAKER.random_choice(
+                ("Art", "Photography", "Generative AI"),
+                weights=(0.7, 0.2, 0.1),
+            )
+            # 'Art'
 
         :param elements: A list or tuple of elements to choose from.
+        :param weights: Optional relative weights, one per element. If not
+            given, every element is equally likely.
         :return: A randomly selected element from the input list.
         :rtype: T
         """
-        return self.random.choice(elements)
+        if weights is None:
+            return self.random.choice(elements)
+        return self.random.choices(elements, weights=weights, k=1)[0]
 
     random_element = random_choice  # noqa
+
+    @provider(tags=("Choice",))
+    def random_choices(
+        self,
+        elements: ElementType[T],
+        length: int = 1,
+        weights: Optional[Sequence[float]] = None,
+    ) -> List[T]:
+        """Random choices: pick `length` elements, with replacement.
+
+        Unlike ``random_sample``, the same element can be picked more
+        than once, and ``length`` may exceed the number of elements.
+
+        Example usage:
+
+        .. code-block:: python
+
+            from fake import FAKER
+            FAKER.random_choices(("Art", "Photography", "Generative AI"), 4)
+            # ['Art', 'Generative AI', 'Art', 'Photography']
+            FAKER.random_choices(
+                ("Art", "Photography", "Generative AI"),
+                length=4,
+                weights=(0.7, 0.2, 0.1),
+            )
+            # ['Art', 'Art', 'Photography', 'Art']
+
+        :param elements: A list or tuple of elements to choose from.
+        :param length: Number of elements to pick.
+        :param weights: Optional relative weights, one per element. If not
+            given, every element is equally likely.
+        :return: A list of randomly selected elements.
+        :rtype: List[T]
+        """
+        return self.random.choices(elements, weights=weights, k=length)
 
     @provider(tags=("Choice",))
     def random_sample(self, elements: ElementType[T], length: int) -> List[T]:
@@ -7940,6 +7988,21 @@ class TestFaker(unittest.TestCase):
                 {"elements": ("Art", "Photography", "Generative AI")},
             ),
             (
+                self.faker.random_choice,
+                {
+                    "elements": ("Art", "Photography", "Generative AI"),
+                    "weights": (0.5, 0.3, 0.2),
+                },
+            ),
+            (
+                self.faker.random_choices,
+                {
+                    "elements": ("Art", "Photography", "Generative AI"),
+                    "length": 3,
+                    "weights": (0.5, 0.3, 0.2),
+                },
+            ),
+            (
                 self.faker.random_sample,
                 {
                     "elements": ("Art", "Photography", "Generative AI"),
@@ -10092,6 +10155,40 @@ class TestFaker(unittest.TestCase):
         _categories = ["art", "technology", "literature"]
         _choice = self.faker.random_choice(_categories)
         self.assertIn(_choice, _categories)
+
+    def test_random_choice_weights(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        with self.subTest("Zero weights are never picked"):
+            for _ in range(50):
+                _choice = self.faker.random_choice(
+                    _categories, weights=[0, 1, 0]
+                )
+                self.assertEqual(_choice, "technology")
+
+        with (
+            self.subTest("Mismatched weights raise ValueError"),
+            self.assertRaises(ValueError),
+        ):
+            self.faker.random_choice(_categories, weights=[1, 2])
+
+    def test_random_choices(self) -> None:
+        _categories = ["art", "technology", "literature"]
+        with self.subTest("Default length"):
+            _choices = self.faker.random_choices(_categories)
+            self.assertEqual(len(_choices), 1)
+            self.assertIn(_choices[0], _categories)
+
+        with self.subTest("Length larger than elements"):
+            _choices = self.faker.random_choices(_categories, 10)
+            self.assertEqual(len(_choices), 10)
+            for _element in _choices:
+                self.assertIn(_element, _categories)
+
+        with self.subTest("With weights"):
+            _choices = self.faker.random_choices(
+                _categories, length=20, weights=[0, 0, 1]
+            )
+            self.assertEqual(_choices, ["literature"] * 20)
 
     def test_random_sample(self) -> None:
         _categories = ["art", "technology", "literature"]
