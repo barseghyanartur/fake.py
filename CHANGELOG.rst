@@ -21,6 +21,12 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.4
+------
+2026-11-18
+
+- Add WEBP provider.
+
 0.13.3
 ------
 2026-11-17
