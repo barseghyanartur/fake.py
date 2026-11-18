@@ -21,6 +21,18 @@ are used for versioning (schema follows below):
   0.3.4 to 0.4).
 - All backwards incompatible changes are mentioned in this document.
 
+0.13.5
+------
+2026-11-18
+
+- Make generated WEBP images open in all common viewers at every size.
+  Previously, images larger than about 920x920 px could not be opened by
+  macOS Preview/Safari (ImageIO).
+- Limit WEBP image width and height to 16383 px (the ``libwebp`` limit,
+  previously 16384). Larger values now raise ``ValueError``.
+- Fix documentation build on Read the Docs (conflicting
+  ``typing-extensions`` pin).
+
 0.13.4
 ------
 2026-11-18
